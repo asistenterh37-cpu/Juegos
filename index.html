@@ -4,236 +4,104 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#0b1020" />
-  <title>Rompecabezas 3 en 1 (Deslizante • Cubos • Laberinto)</title>
+  <title>Rompecabezas Deslizante</title>
   <style>
     :root{
-      --bg:#0b1020; --card:#111a33; --card2:#0f1630; --txt:#e9efff; --muted:#9fb0ff;
-      --acc:#6ae4ff; --acc2:#9b7dff; --danger:#ff5e7a; --ok:#49f7a1;
+      --bg:#0b1020; --card:#111a33; --txt:#e9efff; --muted:#9fb0ff;
+      --acc:#6ae4ff; --ok:#49f7a1; --danger:#ff5e7a;
       --shadow: 0 12px 40px rgba(0,0,0,.35);
       --r:16px;
     }
     *{box-sizing:border-box}
     body{
-      margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
-      background: radial-gradient(1100px 700px at 15% 10%, rgba(106,228,255,.15), transparent 60%),
+      margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      background: radial-gradient(1000px 600px at 20% 10%, rgba(106,228,255,.15), transparent 60%),
                   radial-gradient(900px 600px at 80% 20%, rgba(155,125,255,.15), transparent 60%),
-                  radial-gradient(900px 700px at 50% 85%, rgba(73,247,161,.09), transparent 60%),
                   var(--bg);
       color:var(--txt);
       min-height:100svh;
     }
     header{
-      padding:16px 14px 6px;
-      max-width:1100px;
-      margin:0 auto;
-      display:flex;
-      flex-wrap:wrap;
-      gap:12px;
-      align-items:center;
-      justify-content:space-between;
+      max-width:900px; margin:0 auto; padding:16px 14px;
+      display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap;
     }
-    .brand{
-      display:flex; align-items:center; gap:10px;
-    }
+    .brand{display:flex; gap:10px; align-items:center}
     .logo{
       width:44px; height:44px; border-radius:14px;
-      background: linear-gradient(135deg, var(--acc), var(--acc2));
-      box-shadow: var(--shadow);
-      display:grid; place-items:center;
-      font-weight:900; color:#071022;
+      background: linear-gradient(135deg, var(--acc), #9b7dff);
+      display:grid; place-items:center; color:#071022; font-weight:900;
+      box-shadow:var(--shadow)
     }
-    h1{
-      margin:0; font-size:clamp(18px, 2.8vw, 24px); letter-spacing:.2px;
-    }
-    .sub{
-      margin:0; color:var(--muted); font-size:13px;
-    }
+    h1{margin:0; font-size:22px}
+    .credit{color:var(--muted); font-size:12px}
 
     .wrap{
-      max-width:1100px;
-      margin:0 auto;
-      padding:10px 14px 28px;
-      display:grid;
-      grid-template-columns: 360px 1fr;
-      gap:14px;
+      max-width:900px; margin:0 auto; padding:10px 14px 28px;
+      display:grid; grid-template-columns: 300px 1fr; gap:14px;
     }
-    @media (max-width: 920px){
-      .wrap{grid-template-columns: 1fr}
-    }
-    .panel, .stage{
-      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
-      border:1px solid rgba(255,255,255,.10);
-      border-radius: var(--r);
-      box-shadow: var(--shadow);
-      overflow:hidden;
+    @media (max-width: 820px){ .wrap{grid-template-columns:1fr} }
+
+    .panel,.stage{
+      background: rgba(17,26,51,.75);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:var(--r); box-shadow:var(--shadow);
     }
     .panel{padding:14px}
     .stage{padding:14px; display:flex; flex-direction:column; gap:12px}
 
-    .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
     label{font-size:12px; color:var(--muted)}
     select{
-      background:rgba(15,22,48,.75);
-      color:var(--txt);
-      border:1px solid rgba(255,255,255,.14);
-      padding:10px 12px;
-      border-radius:12px;
-      outline:none;
-      min-width: 160px;
+      width:100%; padding:10px 12px; border-radius:12px;
+      background:rgba(15,22,48,.8); color:var(--txt);
+      border:1px solid rgba(255,255,255,.14)
     }
-    .pill{
-      background:rgba(15,22,48,.65);
-      border:1px solid rgba(255,255,255,.12);
-      border-radius:999px;
-      padding:10px 12px;
-      display:flex;
-      gap:12px;
-      align-items:center;
-      flex-wrap:wrap;
+    .row{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+
+    .stats{
+      display:flex; gap:12px; flex-wrap:wrap; font-variant-numeric: tabular-nums;
+      background:rgba(15,22,48,.6); border:1px solid rgba(255,255,255,.12);
+      border-radius:999px; padding:8px 12px;
     }
-    .stat{
-      display:flex; gap:8px; align-items:baseline;
-      font-variant-numeric: tabular-nums;
-      white-space:nowrap;
-    }
-    .stat b{font-size:14px}
-    .stat span{color:var(--muted); font-size:12px}
+    .stats b{font-size:14px}
+    .stats span{color:var(--muted); font-size:12px}
 
     .btns{
-      display:grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap:10px;
-      margin-top:10px;
-    }
-    @media (max-width: 920px){
-      .btns{grid-template-columns: repeat(3, minmax(0, 1fr))}
-    }
-    @media (max-width: 520px){
-      .btns{grid-template-columns: repeat(2, minmax(0, 1fr))}
+      display:grid; grid-template-columns: repeat(2,1fr); gap:10px; margin-top:10px;
     }
     button{
-      background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.06));
-      border:1px solid rgba(255,255,255,.14);
-      color:var(--txt);
-      padding:11px 12px;
-      border-radius:12px;
-      cursor:pointer;
-      font-weight:600;
-      box-shadow: 0 8px 20px rgba(0,0,0,.25);
-      transition:.15s transform, .15s filter, .15s opacity;
-      touch-action: manipulation;
+      padding:11px 12px; border-radius:12px; cursor:pointer; font-weight:600;
+      background: linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.06));
+      color:var(--txt); border:1px solid rgba(255,255,255,.14);
+      box-shadow:0 8px 20px rgba(0,0,0,.25)
     }
-    button:hover{transform:translateY(-1px); filter:brightness(1.05)}
-    button:active{transform:translateY(0px); filter:brightness(.98)}
-    button.secondary{background:rgba(15,22,48,.7)}
-    button.danger{border-color: rgba(255,94,122,.5)}
-    button.ok{border-color: rgba(73,247,161,.5)}
-    button:disabled{opacity:.45; cursor:not-allowed; transform:none}
+    button.ok{border-color: rgba(73,247,161,.6)}
+    button.danger{border-color: rgba(255,94,122,.6)}
 
-    .hint{
-      margin-top:10px;
-      color:var(--muted);
-      font-size:12px;
-      line-height:1.4;
-    }
-
-    /* Area de juego */
     .boardWrap{
-      background:rgba(15,22,48,.55);
-      border:1px solid rgba(255,255,255,.12);
-      border-radius: var(--r);
-      padding:12px;
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      min-height: 380px;
-    }
-    @media (max-width: 520px){
-      .boardWrap{min-height: 320px}
+      background:rgba(15,22,48,.6); border:1px solid rgba(255,255,255,.12);
+      border-radius:var(--r); padding:12px; display:grid; place-items:center;
+      min-height:360px;
     }
     .board{
-      width:min(520px, 92vw);
-      aspect-ratio: 1 / 1;
-      display:grid;
-      gap:8px;
+      width:min(420px,92vw); aspect-ratio:1/1; display:grid; gap:8px;
       user-select:none;
-      touch-action: none;
     }
     .tile{
-      border-radius:14px;
-      background: linear-gradient(135deg, rgba(106,228,255,.18), rgba(155,125,255,.16));
-      border:1px solid rgba(255,255,255,.14);
-      display:grid;
-      place-items:center;
-      font-weight:900;
-      font-size: clamp(18px, 4vw, 28px);
-      letter-spacing:.3px;
-      box-shadow: 0 10px 24px rgba(0,0,0,.20);
-      position:relative;
-      overflow:hidden;
-    }
-    .tile::after{
-      content:"";
-      position:absolute; inset:-30%;
-      background: radial-gradient(circle at 30% 20%, rgba(255,255,255,.28), transparent 40%);
-      transform: rotate(18deg);
-      pointer-events:none;
+      border-radius:14px; font-weight:900; font-size:clamp(18px,4vw,28px);
+      display:grid; place-items:center; cursor:pointer;
+      background: linear-gradient(135deg, rgba(106,228,255,.22), rgba(155,125,255,.20));
+      border:1px solid rgba(255,255,255,.16);
+      box-shadow:0 10px 24px rgba(0,0,0,.25);
     }
     .tile.blank{
-      background: rgba(255,255,255,.05);
-      border-style:dashed;
-      box-shadow:none;
-    }
-    .tile small{
-      position:absolute; bottom:10px; right:10px;
-      font-size:11px; color:rgba(233,239,255,.75);
-      font-weight:700;
-    }
-
-    .stageTop{
-      display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; align-items:center;
-    }
-    .modeTag{
-      padding:8px 10px;
-      border-radius:999px;
-      background:rgba(15,22,48,.60);
-      border:1px solid rgba(255,255,255,.12);
-      color:var(--muted);
-      font-size:12px;
+      background: rgba(255,255,255,.05); border-style:dashed; box-shadow:none; cursor:default;
     }
     .status{
-      padding:10px 12px;
-      border-radius: 12px;
-      border:1px solid rgba(255,255,255,.12);
-      background: rgba(15,22,48,.55);
-      color: var(--muted);
-      font-size: 12px;
-      line-height: 1.35;
-      min-height: 44px;
+      padding:10px 12px; border-radius:12px;
+      background:rgba(15,22,48,.6); border:1px solid rgba(255,255,255,.12);
+      color:var(--muted); font-size:12px
     }
-    .win{color: var(--ok)}
-    .bad{color: var(--danger)}
-
-    /* Maze */
-    .mazeCell{
-      border-radius:10px;
-      background: rgba(255,255,255,.05);
-      border:1px solid rgba(255,255,255,.10);
-      position:relative;
-    }
-    .mazeWallT{border-top: 4px solid rgba(233,239,255,.35)}
-    .mazeWallR{border-right:4px solid rgba(233,239,255,.35)}
-    .mazeWallB{border-bottom:4px solid rgba(233,239,255,.35)}
-    .mazeWallL{border-left: 4px solid rgba(233,239,255,.35)}
-    .mazeStart::before, .mazeEnd::before, .mazePlayer::before{
-      content:"";
-      position:absolute; inset:18%;
-      border-radius:10px;
-      opacity:.95;
-    }
-    .mazeStart::before{background: rgba(73,247,161,.35)}
-    .mazeEnd::before{background: rgba(255,94,122,.35)}
-    .mazePlayer::before{background: linear-gradient(135deg, rgba(106,228,255,.55), rgba(155,125,255,.55))}
+    .win{color:var(--ok)}
   </style>
 </head>
 <body>
@@ -241,658 +109,126 @@
   <div class="brand">
     <div class="logo">🧩</div>
     <div>
-      <h1>Rompecabezas 3 en 1</h1>
-      <p class="sub">Deslizante • Cubos • Laberinto · Responsive (móvil/PC)</p>
+      <h1>Rompecabezas Deslizante</h1>
+      <div class="credit">Por Soamy Lanza</div>
     </div>
   </div>
-  <div class="pill" aria-label="Marcadores">
-    <div class="stat"><b id="timer">00:00</b><span>cronómetro</span></div>
-    <div class="stat"><b id="moves">0</b><span>movimientos</span></div>
-    <div class="stat"><b id="best">—</b><span>mejor</span></div>
+  <div class="stats">
+    <div><b id="timer">00:00</b> <span>tiempo</span></div>
+    <div><b id="moves">0</b> <span>movimientos</span></div>
   </div>
 </header>
 
 <div class="wrap">
-  <section class="panel" aria-label="Controles">
-    <div class="row" style="justify-content:space-between">
-      <div style="display:flex; flex-direction:column; gap:6px">
-        <label for="mode">Modo</label>
-        <select id="mode">
-          <option value="slide">Deslizante</option>
-          <option value="cube">Cubos</option>
-          <option value="maze">Laberinto</option>
-        </select>
-      </div>
-      <div style="display:flex; flex-direction:column; gap:6px">
-        <label for="level">Nivel</label>
-        <select id="level">
-          <option value="low">Bajo</option>
-          <option value="mid">Medio</option>
-          <option value="high">Alto</option>
-        </select>
-      </div>
+  <section class="panel">
+    <div style="display:flex; flex-direction:column; gap:8px">
+      <label for="level">Nivel</label>
+      <select id="level">
+        <option value="low">Bajo (3×3)</option>
+        <option value="mid">Medio (4×4)</option>
+        <option value="high">Alto (5×5)</option>
+      </select>
     </div>
-
-    <div class="btns" style="margin-top:14px">
+    <div class="btns">
       <button class="ok" id="btnNew">Nuevo</button>
-      <button class="secondary" id="btnRestart">Reiniciar</button>
-      <button class="secondary" id="btnClear">Limpiar</button>
+      <button id="btnRestart">Reiniciar</button>
       <button class="danger" id="btnSolve">Resolver</button>
-      <button class="secondary" id="btnPause">Pausar</button>
-      <button class="secondary" id="btnHelp">Ayuda</button>
+      <button id="btnPause">Pausar</button>
     </div>
-
-    <p class="hint" id="helpText" style="display:none">
-      <b>Tips rápidos:</b><br>
-      • <b>Deslizante:</b> toca una ficha junto al espacio vacío (o usa flechas).<br>
-      • <b>Cubos:</b> toca una pieza para rotarla (2×2). Objetivo: todas orientadas igual.<br>
-      • <b>Laberinto:</b> mueve el jugador con flechas/wasd o desliza en móvil hasta la meta.<br><br>
-      “Resolver” te muestra la solución del modo actual.
-    </p>
   </section>
 
-  <section class="stage" aria-label="Juego">
-    <div class="stageTop">
-      <div class="modeTag" id="modeTag">Modo: Deslizante</div>
-      <div class="modeTag" id="levelTag">Nivel: Bajo</div>
-    </div>
+  <section class="stage">
     <div class="boardWrap">
-      <div class="board" id="board" role="application" aria-label="Tablero"></div>
+      <div class="board" id="board"></div>
     </div>
-    <div class="status" id="status">Elige “Nuevo” para comenzar.</div>
+    <div class="status" id="status">Pulsa “Nuevo” para comenzar.</div>
   </section>
 </div>
 
 <script>
 (() => {
-  "use strict";
+  const board = document.getElementById("board");
+  const levelSel = document.getElementById("level");
+  const timerEl = document.getElementById("timer");
+  const movesEl = document.getElementById("moves");
+  const statusEl = document.getElementById("status");
+  const btnNew = document.getElementById("btnNew");
+  const btnRestart = document.getElementById("btnRestart");
+  const btnSolve = document.getElementById("btnSolve");
+  const btnPause = document.getElementById("btnPause");
 
-  const ui = {
-    mode: document.getElementById("mode"),
-    level: document.getElementById("level"),
-    board: document.getElementById("board"),
-    timer: document.getElementById("timer"),
-    moves: document.getElementById("moves"),
-    best: document.getElementById("best"),
-    status: document.getElementById("status"),
-    modeTag: document.getElementById("modeTag"),
-    levelTag: document.getElementById("levelTag"),
-    btnNew: document.getElementById("btnNew"),
-    btnRestart: document.getElementById("btnRestart"),
-    btnClear: document.getElementById("btnClear"),
-    btnSolve: document.getElementById("btnSolve"),
-    btnPause: document.getElementById("btnPause"),
-    btnHelp: document.getElementById("btnHelp"),
-    helpText: document.getElementById("helpText"),
-  };
+  let n=3, arr=[], solved=[], moves=0, t0=0, elapsed=0, raf=null, paused=false, started=false;
 
-  const STORAGE_KEY = "puzzle3in1_best_v1";
-  const state = {
-    mode: "slide",
-    level: "low",
-    paused: false,
-    started: false,
-    moves: 0,
-    t0: 0,
-    elapsed: 0,
-    timerId: null,
+  const pad = x => String(x).padStart(2,"0");
+  const fmt = ms => { const s=Math.floor(ms/1000); return pad(Math.floor(s/60))+":"+pad(s%60); };
 
-    // slide
-    n: 3,
-    slide: [],
-    slideSolved: [],
-
-    // cube (2x2)
-    cube: [],
-
-    // maze
-    rows: 7,
-    cols: 7,
-    maze: null,
-    player: {r:0,c:0},
-    goal: {r:0,c:0},
-  };
-
-  // ---------- Utils ----------
-  const pad2 = (x) => String(x).padStart(2,"0");
-  const fmtTime = (ms) => {
-    const s = Math.floor(ms/1000);
-    const m = Math.floor(s/60);
-    const r = s%60;
-    return `${pad2(m)}:${pad2(r)}`;
-  };
-  const rng = (n) => Math.floor(Math.random()*n);
-
-  function setStatus(msg, cls="") {
-    ui.status.className = "status " + cls;
-    ui.status.textContent = msg;
-  }
-  function updateTags(){
-    const modeName = state.mode === "slide" ? "Deslizante" : state.mode === "cube" ? "Cubos" : "Laberinto";
-    const lvlName = state.level === "low" ? "Bajo" : state.level === "mid" ? "Medio" : "Alto";
-    ui.modeTag.textContent = `Modo: ${modeName}`;
-    ui.levelTag.textContent = `Nivel: ${lvlName}`;
-  }
-
-  function loadBest(){
-    try{
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if(!raw) return null;
-      const obj = JSON.parse(raw);
-      if(typeof obj.bestMs !== "number") return null;
-      return obj;
-    }catch{ return null; }
-  }
-  function saveBest(bestMs){
-    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify({bestMs})); }catch{}
-  }
-  function refreshBest(){
-    const b = loadBest();
-    ui.best.textContent = b ? fmtTime(b.bestMs) : "—";
-  }
-
-  // ---------- Timer ----------
-  function stopTimer(){
-    if(state.timerId) cancelAnimationFrame(state.timerId);
-    state.timerId = null;
-  }
   function tick(){
-    if(!state.started || state.paused) return;
-    const now = performance.now();
-    state.elapsed = now - state.t0;
-    ui.timer.textContent = fmtTime(state.elapsed);
-    state.timerId = requestAnimationFrame(tick);
+    if(!started || paused) return;
+    elapsed = performance.now()-t0;
+    timerEl.textContent = fmt(elapsed);
+    raf = requestAnimationFrame(tick);
   }
-  function startTimer(){
-    state.started = true;
-    state.paused = false;
-    state.t0 = performance.now() - state.elapsed;
-    stopTimer();
-    state.timerId = requestAnimationFrame(tick);
-  }
-  function resetTimer(){
-    state.started = false;
-    state.paused = false;
-    state.elapsed = 0;
-    ui.timer.textContent = "00:00";
-    stopTimer();
-  }
-  function pauseToggle(){
-    if(!state.started) return;
-    state.paused = !state.paused;
-    ui.btnPause.textContent = state.paused ? "Reanudar" : "Pausar";
-    if(!state.paused){
-      state.t0 = performance.now() - state.elapsed;
-      stopTimer();
-      state.timerId = requestAnimationFrame(tick);
-    }else{
-      stopTimer();
-    }
-    setStatus(state.paused ? "Pausado." : "Reanudado.");
-  }
+  function startTimer(){ started=true; paused=false; t0=performance.now()-elapsed; cancelAnimationFrame(raf); raf=requestAnimationFrame(tick); }
+  function resetTimer(){ started=false; paused=false; elapsed=0; timerEl.textContent="00:00"; cancelAnimationFrame(raf); }
+  function incMoves(){ moves++; movesEl.textContent = moves; }
 
-  // ---------- Common game controls ----------
-  function resetMoves(){
-    state.moves = 0;
-    ui.moves.textContent = "0";
+  function sizeForLevel(){
+    n = levelSel.value==="low"?3: levelSel.value==="mid"?4:5;
   }
-  function incMoves(){
-    state.moves++;
-    ui.moves.textContent = String(state.moves);
+  function buildSolved(){ solved=[]; for(let i=1;i<n*n;i++) solved.push(i); solved.push(0); }
+  function solvable(a){
+    let inv=0; const b=a.filter(x=>x!==0);
+    for(let i=0;i<b.length;i++) for(let j=i+1;j<b.length;j++) if(b[i]>b[j]) inv++;
+    if(n%2) return inv%2===0;
+    const br = n - Math.floor(a.indexOf(0)/n);
+    return br%2? inv%2===0 : inv%2===1;
   }
-  function onWin(){
-    stopTimer();
-    state.started = false;
-    ui.btnPause.textContent = "Pausar";
-    const best = loadBest();
-    if(!best || state.elapsed < best.bestMs){
-      saveBest(state.elapsed);
-      refreshBest();
-      setStatus("¡Ganaste! Nuevo récord 🏆", "win");
-    } else {
-      setStatus("¡Ganaste! 🎉", "win");
-    }
-  }
-
-  // ---------- Slide puzzle ----------
-  function slideSizeForLevel(){
-    // Low: 3x3, Mid: 4x4, High: 5x5
-    return state.level === "low" ? 3 : state.level === "mid" ? 4 : 5;
-  }
-
-  function slideBuildSolved(n){
-    const arr = [];
-    for(let i=1;i<n*n;i++) arr.push(i);
-    arr.push(0);
-    return arr;
-  }
-
-  function slideIsSolvable(arr, n){
-    // Classic solvability for NxN sliding puzzle (0 = blank)
-    let inv = 0;
-    const a = arr.filter(x => x !== 0);
-    for(let i=0;i<a.length;i++){
-      for(let j=i+1;j<a.length;j++){
-        if(a[i] > a[j]) inv++;
-      }
-    }
-    const blankIndex = arr.indexOf(0);
-    const blankRowFromBottom = n - Math.floor(blankIndex / n);
-    if(n % 2 === 1){
-      return inv % 2 === 0;
-    } else {
-      // even grid
-      if(blankRowFromBottom % 2 === 0){
-        return inv % 2 === 1;
-      } else {
-        return inv % 2 === 0;
-      }
-    }
-  }
-
-  function slideShuffle(n){
-    const solved = slideBuildSolved(n);
-    let arr = solved.slice();
+  function shuffle(){
+    arr = solved.slice();
     do{
-      // Fisher-Yates
-      for(let i=arr.length-1;i>0;i--){
-        const j = rng(i+1);
-        [arr[i], arr[j]] = [arr[j], arr[i]];
-      }
-    }while(!slideIsSolvable(arr,n) || arr.join(",") === solved.join(","));
-    return arr;
+      for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; }
+    }while(!solvable(arr) || arr.join()==solved.join());
   }
-
-  function slideRender(){
-    const n = state.n;
-    ui.board.style.gridTemplateColumns = `repeat(${n}, 1fr)`;
-    ui.board.innerHTML = "";
-    state.slide.forEach((val, idx) => {
-      const d = document.createElement("button");
-      d.type = "button";
-      d.className = "tile" + (val===0 ? " blank" : "");
-      d.disabled = state.paused;
-      if(val !== 0){
-        d.textContent = String(val);
-        d.addEventListener("click", () => slideTryMove(idx));
-      } else {
-        d.setAttribute("aria-label", "Espacio vacío");
-      }
-      ui.board.appendChild(d);
+  function render(){
+    board.style.gridTemplateColumns = `repeat(${n},1fr)`;
+    board.innerHTML="";
+    arr.forEach((v,i)=>{
+      const d=document.createElement("div");
+      d.className="tile"+(v===0?" blank":"");
+      if(v!==0){ d.textContent=v; d.onclick=()=>move(i); }
+      board.appendChild(d);
     });
   }
-
-  function slideTryMove(idx){
-    if(!state.started) startTimer();
-    const n = state.n;
-    const blank = state.slide.indexOf(0);
-    const r = Math.floor(idx/n), c = idx % n;
-    const br = Math.floor(blank/n), bc = blank % n;
-    const man = Math.abs(r-br) + Math.abs(c-bc);
-    if(man !== 1) return;
-    [state.slide[idx], state.slide[blank]] = [state.slide[blank], state.slide[idx]];
-    incMoves();
-    slideRender();
-    if(state.slide.join(",") === state.slideSolved.join(",")){
-      onWin();
-    }
+  function move(i){
+    if(!started) startTimer();
+    const b=arr.indexOf(0);
+    const r=Math.floor(i/n), c=i%n, br=Math.floor(b/n), bc=b%n;
+    if(Math.abs(r-br)+Math.abs(c-bc)!==1) return;
+    [arr[i],arr[b]]=[arr[b],arr[i]];
+    incMoves(); render();
+    if(arr.join()==solved.join()){ cancelAnimationFrame(raf); started=false; statusEl.textContent="¡Ganaste! 🎉"; statusEl.className="status win"; }
   }
 
-  function slideSolve(){
-    state.slide = state.slideSolved.slice();
-    slideRender();
-    setStatus("Solución aplicada (modo Deslizante).", "win");
+  function nuevo(){
+    sizeForLevel(); buildSolved(); shuffle();
+    moves=0; movesEl.textContent="0"; resetTimer();
+    render(); statusEl.textContent="Resuelve el rompecabezas tocando fichas junto al vacío."; statusEl.className="status";
+  }
+  function reiniciar(){
+    moves=0; movesEl.textContent="0"; resetTimer(); render();
+    statusEl.textContent="Reiniciado. Presiona una ficha para comenzar.";
+  }
+  function resolver(){
+    arr=solved.slice(); render(); cancelAnimationFrame(raf); started=false;
+    statusEl.textContent="Solución aplicada."; statusEl.className="status win";
+  }
+  function pausar(){
+    if(!started) return;
+    paused=!paused; btnPause.textContent=paused?"Reanudar":"Pausar";
+    if(!paused){ t0=performance.now()-elapsed; raf=requestAnimationFrame(tick); }
   }
 
-  // Keyboard controls for slide & maze
-  window.addEventListener("keydown", (e) => {
-    if(state.paused) return;
-    const k = e.key.toLowerCase();
-    if(k === " "){
-      e.preventDefault();
-      pauseToggle();
-      return;
-    }
-    if(state.mode === "slide"){
-      const n = state.n;
-      const blank = state.slide.indexOf(0);
-      const br = Math.floor(blank/n), bc = blank % n;
-      let tr = br, tc = bc;
-      if(k === "arrowup") tr = br + 1;
-      else if(k === "arrowdown") tr = br - 1;
-      else if(k === "arrowleft") tc = bc + 1;
-      else if(k === "arrowright") tc = bc - 1;
-      else return;
-      if(tr<0||tr>=n||tc<0||tc>=n) return;
-      const idx = tr*n + tc;
-      slideTryMove(idx);
-    } else if(state.mode === "maze"){
-      const dir =
-        (k==="arrowup"||k==="w") ? "U" :
-        (k==="arrowright"||k==="d") ? "R" :
-        (k==="arrowdown"||k==="s") ? "D" :
-        (k==="arrowleft"||k==="a") ? "L" : null;
-      if(!dir) return;
-      mazeMove(dir);
-    }
-  });
-
-  // ---------- Cube puzzle (2x2 rotations) ----------
-  // We represent each tile as orientation 0..3. Goal: all 0.
-  function cubeStepsForLevel(){
-    return state.level === "low" ? 8 : state.level === "mid" ? 18 : 35;
-  }
-  function cubeNew(){
-    // 2x2 board -> 4 tiles
-    state.cube = [0,0,0,0];
-    const steps = cubeStepsForLevel();
-    for(let i=0;i<steps;i++){
-      const idx = rng(4);
-      state.cube[idx] = (state.cube[idx] + 1 + rng(3)) % 4; // random rotate
-    }
-  }
-  function cubeRender(){
-    ui.board.style.gridTemplateColumns = `repeat(2, 1fr)`;
-    ui.board.innerHTML = "";
-    state.cube.forEach((rot, idx) => {
-      const b = document.createElement("button");
-      b.type = "button";
-      b.className = "tile";
-      b.disabled = state.paused;
-      b.style.transform = `rotate(${rot*90}deg)`;
-      b.textContent = "⬛";
-      const lab = `Cubo ${idx+1}, rotación ${rot*90} grados`;
-      b.setAttribute("aria-label", lab);
-      // Put a corner mark so rotation is visible
-      const mark = document.createElement("small");
-      mark.textContent = "◥";
-      b.appendChild(mark);
-
-      b.addEventListener("click", () => {
-        if(!state.started) startTimer();
-        state.cube[idx] = (state.cube[idx] + 1) % 4;
-        incMoves();
-        cubeRender();
-        if(state.cube.every(x=>x===0)) onWin();
-      });
-
-      ui.board.appendChild(b);
-    });
-  }
-  function cubeSolve(){
-    state.cube = [0,0,0,0];
-    cubeRender();
-    setStatus("Solución aplicada (modo Cubos).", "win");
-  }
-
-  // ---------- Maze ----------
-  // Perfect maze using DFS, store walls for each cell: {t,r,b,l}
-  function mazeSizeForLevel(){
-    if(state.level === "low") return {rows:7, cols:7};
-    if(state.level === "mid") return {rows:11, cols:11};
-    return {rows:17, cols:17};
-  }
-  function mazeNew(){
-    const {rows, cols} = mazeSizeForLevel();
-    state.rows = rows; state.cols = cols;
-
-    // init walls all present
-    const cells = Array.from({length: rows*cols}, () => ({t:1,r:1,b:1,l:1, v:false}));
-    const idx = (r,c)=> r*cols + c;
-
-    function neighbors(r,c){
-      const res = [];
-      if(r>0) res.push(["U", r-1, c]);
-      if(c<cols-1) res.push(["R", r, c+1]);
-      if(r<rows-1) res.push(["D", r+1, c]);
-      if(c>0) res.push(["L", r, c-1]);
-      return res;
-    }
-
-    // DFS stack
-    let sr=0, sc=0;
-    const stack = [[sr,sc]];
-    cells[idx(sr,sc)].v = true;
-
-    while(stack.length){
-      const [r,c] = stack[stack.length-1];
-      const nbs = neighbors(r,c).filter(([_,rr,cc]) => !cells[idx(rr,cc)].v);
-      if(nbs.length===0){ stack.pop(); continue; }
-      const [dir, rr, cc] = nbs[rng(nbs.length)];
-      // carve
-      const a = cells[idx(r,c)];
-      const b = cells[idx(rr,cc)];
-      if(dir==="U"){ a.t=0; b.b=0; }
-      if(dir==="R"){ a.r=0; b.l=0; }
-      if(dir==="D"){ a.b=0; b.t=0; }
-      if(dir==="L"){ a.l=0; b.r=0; }
-      b.v = true;
-      stack.push([rr,cc]);
-    }
-
-    // remove visited flags
-    cells.forEach(c=>delete c.v);
-    state.maze = cells;
-
-    state.player = {r:0,c:0};
-    state.goal = {r: rows-1, c: cols-1};
-  }
-
-  function mazeCellClasses(r,c){
-    const cols = state.cols;
-    const cell = state.maze[r*cols + c];
-    let cls = "mazeCell";
-    if(cell.t) cls += " mazeWallT";
-    if(cell.r) cls += " mazeWallR";
-    if(cell.b) cls += " mazeWallB";
-    if(cell.l) cls += " mazeWallL";
-    if(r===0 && c===0) cls += " mazeStart";
-    if(r===state.goal.r && c===state.goal.c) cls += " mazeEnd";
-    if(r===state.player.r && c===state.player.c) cls += " mazePlayer";
-    return cls;
-  }
-
-  function mazeRender(){
-    ui.board.style.gridTemplateColumns = `repeat(${state.cols}, 1fr)`;
-    ui.board.innerHTML = "";
-    for(let r=0;r<state.rows;r++){
-      for(let c=0;c<state.cols;c++){
-        const d = document.createElement("div");
-        d.className = mazeCellClasses(r,c);
-        ui.board.appendChild(d);
-      }
-    }
-  }
-
-  function mazeMove(dir){
-    if(!state.started) startTimer();
-    const {r,c} = state.player;
-    const cols = state.cols;
-    const cell = state.maze[r*cols + c];
-    let nr=r, nc=c;
-    if(dir==="U" && !cell.t) nr--;
-    else if(dir==="R" && !cell.r) nc++;
-    else if(dir==="D" && !cell.b) nr++;
-    else if(dir==="L" && !cell.l) nc--;
-    else return;
-    state.player = {r:nr, c:nc};
-    incMoves();
-    mazeRender();
-    if(nr===state.goal.r && nc===state.goal.c){
-      onWin();
-    }
-  }
-
-  // touch swipe for maze
-  let touchStart = null;
-  ui.board.addEventListener("touchstart", (e)=>{
-    if(state.mode!=="maze" || state.paused) return;
-    if(!e.touches || !e.touches[0]) return;
-    touchStart = {x:e.touches[0].clientX, y:e.touches[0].clientY};
-  }, {passive:true});
-  ui.board.addEventListener("touchend", (e)=>{
-    if(state.mode!=="maze" || state.paused) return;
-    if(!touchStart) return;
-    const t = (e.changedTouches && e.changedTouches[0]) ? e.changedTouches[0] : null;
-    if(!t) return;
-    const dx = t.clientX - touchStart.x;
-    const dy = t.clientY - touchStart.y;
-    touchStart = null;
-    const ax = Math.abs(dx), ay = Math.abs(dy);
-    if(Math.max(ax,ay) < 18) return;
-    if(ax>ay){
-      mazeMove(dx>0 ? "R" : "L");
-    }else{
-      mazeMove(dy>0 ? "D" : "U");
-    }
-  }, {passive:true});
-
-  function mazeSolve(){
-    // Simple BFS to reach goal, then move player through the path (instant).
-    const rows = state.rows, cols = state.cols;
-    const start = 0, goal = (rows-1)*cols + (cols-1);
-    const prev = new Array(rows*cols).fill(-1);
-    const prevDir = new Array(rows*cols).fill(null);
-    const q = [start];
-    prev[start] = start;
-    const dirs = [
-      ["U",-1,0,"t","b"],
-      ["R",0,1,"r","l"],
-      ["D",1,0,"b","t"],
-      ["L",0,-1,"l","r"],
-    ];
-    while(q.length){
-      const cur = q.shift();
-      if(cur===goal) break;
-      const r = Math.floor(cur/cols), c = cur%cols;
-      const cell = state.maze[cur];
-      for(const [D,dr,dc,wall,opp] of dirs){
-        if(cell[wall]) continue;
-        const nr=r+dr, nc=c+dc;
-        if(nr<0||nr>=rows||nc<0||nc>=cols) continue;
-        const ni = nr*cols + nc;
-        if(prev[ni] !== -1) continue;
-        prev[ni] = cur;
-        prevDir[ni] = D;
-        q.push(ni);
-      }
-    }
-    if(prev[goal] === -1){
-      setStatus("No se encontró ruta (raro).", "bad");
-      return;
-    }
-    // reconstruct and move
-    let cur = goal;
-    const path = [];
-    while(cur !== start){
-      path.push(cur);
-      cur = prev[cur];
-    }
-    path.reverse();
-    state.player = {r:rows-1, c:cols-1};
-    mazeRender();
-    setStatus("Solución aplicada (modo Laberinto).", "win");
-    stopTimer();
-    state.started = false;
-  }
-
-  // ---------- Main orchestration ----------
-  function applyLevel(){
-    state.level = ui.level.value;
-    updateTags();
-  }
-  function applyMode(){
-    state.mode = ui.mode.value;
-    updateTags();
-  }
-
-  function newGame(){
-    applyMode();
-    applyLevel();
-    resetTimer();
-    resetMoves();
-    ui.btnPause.textContent = "Pausar";
-    state.paused = false;
-
-    if(state.mode === "slide"){
-      state.n = slideSizeForLevel();
-      state.slideSolved = slideBuildSolved(state.n);
-      state.slide = slideShuffle(state.n);
-      slideRender();
-      setStatus("Deslizante listo. Toca una ficha junto al vacío (o usa flechas).");
-    } else if(state.mode === "cube"){
-      cubeNew();
-      cubeRender();
-      setStatus("Cubos listos. Toca una pieza para rotarla. Objetivo: que todas queden alineadas.");
-    } else {
-      mazeNew();
-      mazeRender();
-      setStatus("Laberinto listo. Llega a la meta (rojo). Usa flechas/WASD o desliza en móvil.");
-    }
-  }
-
-  function restart(){
-    // restart keeps same puzzle state but resets time/moves and unpauses
-    resetTimer();
-    resetMoves();
-    state.paused = false;
-    ui.btnPause.textContent = "Pausar";
-    // re-render to enable controls
-    if(state.mode === "slide") slideRender();
-    else if(state.mode === "cube") cubeRender();
-    else mazeRender();
-    setStatus("Reiniciado. Presiona una acción para iniciar el cronómetro.");
-  }
-
-  function clearGame(){
-    resetTimer();
-    resetMoves();
-    state.paused = false;
-    ui.btnPause.textContent = "Pausar";
-    ui.board.innerHTML = "";
-    setStatus("Tablero limpio. Pulsa “Nuevo” para generar uno.");
-  }
-
-  function solveGame(){
-    if(state.mode === "slide") slideSolve();
-    else if(state.mode === "cube") cubeSolve();
-    else mazeSolve();
-  }
-
-  function setPausedUI(disabled){
-    // Buttons remain enabled; tiles are disabled via re-render in each mode.
-    if(state.mode === "slide") slideRender();
-    else if(state.mode === "cube") cubeRender();
-    else mazeRender();
-  }
-
-  function onModeOrLevelChanged(){
-    // Changing options doesn't auto-generate; it prepares. Tell user to press Nuevo.
-    applyMode();
-    applyLevel();
-    setStatus("Nivel cambiado. Presiona “Nuevo” para generar el tablero del nuevo modo/nivel.");
-  }
-
-  // ---------- Events ----------
-  ui.mode.addEventListener("change", onModeOrLevelChanged);
-  ui.level.addEventListener("change", onModeOrLevelChanged);
-
-  ui.btnNew.addEventListener("click", newGame);
-  ui.btnRestart.addEventListener("click", restart);
-  ui.btnClear.addEventListener("click", clearGame);
-  ui.btnSolve.addEventListener("click", solveGame);
-  ui.btnPause.addEventListener("click", () => {
-    pauseToggle();
-    setPausedUI(state.paused);
-  });
-  ui.btnHelp.addEventListener("click", () => {
-    ui.helpText.style.display = (ui.helpText.style.display === "none") ? "block" : "none";
-  });
-
-  // Initialize
-  refreshBest();
-  updateTags();
-  setStatus("Presiona “Nuevo” para empezar. (Espacio = pausar/reanudar)");
+  btnNew.onclick=nuevo; btnRestart.onclick=reiniciar; btnSolve.onclick=resolver; btnPause.onclick=pausar;
 })();
 </script>
 </body>
