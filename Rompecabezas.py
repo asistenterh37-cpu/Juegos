@@ -11,7 +11,7 @@ st.set_page_config(
 )
 
 # =========================
-# CSS RESPONSIVO (FIX MÓVIL)
+# CSS RESPONSIVO (MÓVIL FIX)
 # =========================
 st.markdown("""
 <style>
@@ -28,15 +28,9 @@ div.stButton > button {
         overflow-x: auto !important;
         gap: 0.35rem !important;
     }
-
     div[data-testid="column"] {
-        min-width: 55px !important;
+        min-width: 60px !important;
         flex: 0 0 auto !important;
-    }
-
-    div.stButton > button {
-        font-size: 0.95rem;
-        padding: 0.45rem 0;
     }
 }
 </style>
@@ -102,15 +96,14 @@ st.caption("Elaborado por Soamy Lanza")
 if not st.session_state.board:
     new_game()
 
-cols = st.columns(3)
 for r in range(3):
-    row = st.columns(3)
+    cols = st.columns(3)
     for c in range(3):
         v = st.session_state.board[r][c]
         if v == 0:
-            row[c].button(" ", disabled=True)
+            cols[c].button(" ", disabled=True)
         else:
-            row[c].button(str(v), on_click=move, args=(r,c))
+            cols[c].button(str(v), on_click=move, args=(r,c))
 
 st.write(f"**Movimientos:** {st.session_state.moves}")
 st.write(f"⏱️ Tiempo: {int(time.time()-st.session_state.start)} s")
