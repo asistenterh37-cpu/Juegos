@@ -1,235 +1,239 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#0b1020" />
-  <title>Rompecabezas Deslizante</title>
-  <style>
-    :root{
-      --bg:#0b1020; --card:#111a33; --txt:#e9efff; --muted:#9fb0ff;
-      --acc:#6ae4ff; --ok:#49f7a1; --danger:#ff5e7a;
-      --shadow: 0 12px 40px rgba(0,0,0,.35);
-      --r:16px;
-    }
-    *{box-sizing:border-box}
-    body{
-      margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
-      background: radial-gradient(1000px 600px at 20% 10%, rgba(106,228,255,.15), transparent 60%),
-                  radial-gradient(900px 600px at 80% 20%, rgba(155,125,255,.15), transparent 60%),
-                  var(--bg);
-      color:var(--txt);
-      min-height:100svh;
-    }
-    header{
-      max-width:900px; margin:0 auto; padding:16px 14px;
-      display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap;
-    }
-    .brand{display:flex; gap:10px; align-items:center}
-    .logo{
-      width:44px; height:44px; border-radius:14px;
-      background: linear-gradient(135deg, var(--acc), #9b7dff);
-      display:grid; place-items:center; color:#071022; font-weight:900;
-      box-shadow:var(--shadow)
-    }
-    h1{margin:0; font-size:22px}
-    .credit{color:var(--muted); font-size:12px}
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rompecabezas Deslizante</title>
 
-    .wrap{
-      max-width:900px; margin:0 auto; padding:10px 14px 28px;
-      display:grid; grid-template-columns: 300px 1fr; gap:14px;
-    }
-    @media (max-width: 820px){ .wrap{grid-template-columns:1fr} }
+<style>
+:root{
+  --bg:#0b1020;
+  --card:#111a33;
+  --accent:#6ae4ff;
+  --ok:#49f7a1;
+  --danger:#ff6b6b;
+}
 
-    .panel,.stage{
-      background: rgba(17,26,51,.75);
-      border:1px solid rgba(255,255,255,.12);
-      border-radius:var(--r); box-shadow:var(--shadow);
-    }
-    .panel{padding:14px}
-    .stage{padding:14px; display:flex; flex-direction:column; gap:12px}
+*{box-sizing:border-box}
 
-    label{font-size:12px; color:var(--muted)}
-    select{
-      width:100%; padding:10px 12px; border-radius:12px;
-      background:rgba(15,22,48,.8); color:var(--txt);
-      border:1px solid rgba(255,255,255,.14)
-    }
-    .row{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+body{
+  margin:0;
+  min-height:100vh;
+  background:linear-gradient(160deg,#0b1020,#0f1630);
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
+  color:#fff;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
 
-    .stats{
-      display:flex; gap:12px; flex-wrap:wrap; font-variant-numeric: tabular-nums;
-      background:rgba(15,22,48,.6); border:1px solid rgba(255,255,255,.12);
-      border-radius:999px; padding:8px 12px;
-    }
-    .stats b{font-size:14px}
-    .stats span{color:var(--muted); font-size:12px}
+.app{
+  background:var(--card);
+  padding:16px;
+  border-radius:16px;
+  width:100%;
+  max-width:520px;
+  box-shadow:0 20px 50px rgba(0,0,0,.4);
+}
 
-    .btns{
-      display:grid; grid-template-columns: repeat(2,1fr); gap:10px; margin-top:10px;
-    }
-    button{
-      padding:11px 12px; border-radius:12px; cursor:pointer; font-weight:600;
-      background: linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.06));
-      color:var(--txt); border:1px solid rgba(255,255,255,.14);
-      box-shadow:0 8px 20px rgba(0,0,0,.25)
-    }
-    button.ok{border-color: rgba(73,247,161,.6)}
-    button.danger{border-color: rgba(255,94,122,.6)}
+h1{
+  text-align:center;
+  margin:4px 0 6px;
+}
 
-    .boardWrap{
-      background:rgba(15,22,48,.6); border:1px solid rgba(255,255,255,.12);
-      border-radius:var(--r); padding:12px; display:grid; place-items:center;
-      min-height:360px;
-    }
-    .board{
-      width:min(420px,92vw); aspect-ratio:1/1; display:grid; gap:8px;
-      user-select:none;
-    }
-    .tile{
-      border-radius:14px; font-weight:900; font-size:clamp(18px,4vw,28px);
-      display:grid; place-items:center; cursor:pointer;
-      background: linear-gradient(135deg, rgba(106,228,255,.22), rgba(155,125,255,.20));
-      border:1px solid rgba(255,255,255,.16);
-      box-shadow:0 10px 24px rgba(0,0,0,.25);
-    }
-    .tile.blank{
-      background: rgba(255,255,255,.05); border-style:dashed; box-shadow:none; cursor:default;
-    }
-    .status{
-      padding:10px 12px; border-radius:12px;
-      background:rgba(15,22,48,.6); border:1px solid rgba(255,255,255,.12);
-      color:var(--muted); font-size:12px
-    }
-    .win{color:var(--ok)}
-  </style>
+.subtitle{
+  text-align:center;
+  font-size:14px;
+  opacity:.8;
+}
+
+.controls{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  justify-content:center;
+  margin:12px 0;
+}
+
+select,button{
+  background:#1b2450;
+  color:white;
+  border:none;
+  padding:8px 12px;
+  border-radius:10px;
+  cursor:pointer;
+  font-size:14px;
+}
+
+button.primary{background:var(--accent); color:#000}
+button.warn{background:var(--danger)}
+
+.timer{
+  text-align:center;
+  margin:6px 0;
+  font-weight:bold;
+}
+
+.boardWrap{
+  display:flex;
+  justify-content:center;
+  margin-top:10px;
+}
+
+.board{
+  width:min(420px,96vw);
+  aspect-ratio:1/1;
+  display:grid;
+  gap:6px;
+}
+
+.tile{
+  background:#1f2b5c;
+  border-radius:12px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-weight:700;
+  font-size:clamp(14px,4vw,22px);
+  cursor:pointer;
+}
+
+.tile.empty{
+  background:transparent;
+  cursor:default;
+}
+
+/* ✅ Ajuste especial para 6×6 en móvil */
+@media (max-width:520px){
+  .board{
+    width:96vw;
+    gap:4px;
+  }
+  .tile{
+    font-size:clamp(12px,3.2vw,18px);
+    border-radius:8px;
+  }
+}
+
+.footer{
+  text-align:center;
+  margin-top:10px;
+  font-size:13px;
+  opacity:.75;
+}
+</style>
 </head>
+
 <body>
-<header>
-  <div class="brand">
-    <div class="logo">🧩</div>
-    <div>
-      <h1>Rompecabezas Deslizante</h1>
-      <div class="credit">Por Soamy Lanza</div>
-    </div>
-  </div>
-  <div class="stats">
-    <div><b id="timer">00:00</b> <span>tiempo</span></div>
-    <div><b id="moves">0</b> <span>movimientos</span></div>
-  </div>
-</header>
+<div class="app">
+  <h1>Rompecabezas Deslizante</h1>
+  <div class="subtitle">Selecciona el nivel y ordena los números</div>
 
-<div class="wrap">
-  <section class="panel">
-    <div style="display:flex; flex-direction:column; gap:8px">
-      <label for="level">Nivel</label>
-      <select id="level">
-        <option value="low">Bajo (3×3)</option>
-        <option value="mid">Medio (4×4)</option>
-        <option value="high">Alto (5×5)</option>
-      </select>
-    </div>
-    <div class="btns">
-      <button class="ok" id="btnNew">Nuevo</button>
-      <button id="btnRestart">Reiniciar</button>
-      <button class="danger" id="btnSolve">Resolver</button>
-      <button id="btnPause">Pausar</button>
-    </div>
-  </section>
+  <div class="controls">
+    <select id="size">
+      <option value="3">3 × 3</option>
+      <option value="4">4 × 4</option>
+      <option value="5">5 × 5</option>
+      <option value="6">6 × 6</option>
+    </select>
+    <button class="primary" onclick="newGame()">Nuevo</button>
+    <button onclick="resetGame()">Reiniciar</button>
+    <button class="warn" onclick="solve()">Resolver</button>
+  </div>
 
-  <section class="stage">
-    <div class="boardWrap">
-      <div class="board" id="board"></div>
-    </div>
-    <div class="status" id="status">Pulsa “Nuevo” para comenzar.</div>
-  </section>
+  <div class="timer">⏱️ <span id="time">0</span> s</div>
+
+  <div class="boardWrap">
+    <div id="board" class="board"></div>
+  </div>
+
+  <div class="footer">Por Soamy Lanza 2025.1</div>
 </div>
 
 <script>
-(() => {
-  const board = document.getElementById("board");
-  const levelSel = document.getElementById("level");
-  const timerEl = document.getElementById("timer");
-  const movesEl = document.getElementById("moves");
-  const statusEl = document.getElementById("status");
-  const btnNew = document.getElementById("btnNew");
-  const btnRestart = document.getElementById("btnRestart");
-  const btnSolve = document.getElementById("btnSolve");
-  const btnPause = document.getElementById("btnPause");
+let size=3;
+let tiles=[];
+let empty=0;
+let timer=0;
+let interval=null;
 
-  let n=3, arr=[], solved=[], moves=0, t0=0, elapsed=0, raf=null, paused=false, started=false;
+const board=document.getElementById("board");
+const timeEl=document.getElementById("time");
 
-  const pad = x => String(x).padStart(2,"0");
-  const fmt = ms => { const s=Math.floor(ms/1000); return pad(Math.floor(s/60))+":"+pad(s%60); };
+function startTimer(){
+  clearInterval(interval);
+  timer=0;
+  timeEl.textContent=0;
+  interval=setInterval(()=>{
+    timer++;
+    timeEl.textContent=timer;
+  },1000);
+}
 
-  function tick(){
-    if(!started || paused) return;
-    elapsed = performance.now()-t0;
-    timerEl.textContent = fmt(elapsed);
-    raf = requestAnimationFrame(tick);
-  }
-  function startTimer(){ started=true; paused=false; t0=performance.now()-elapsed; cancelAnimationFrame(raf); raf=requestAnimationFrame(tick); }
-  function resetTimer(){ started=false; paused=false; elapsed=0; timerEl.textContent="00:00"; cancelAnimationFrame(raf); }
-  function incMoves(){ moves++; movesEl.textContent = moves; }
+function stopTimer(){
+  clearInterval(interval);
+}
 
-  function sizeForLevel(){
-    n = levelSel.value==="low"?3: levelSel.value==="mid"?4:5;
-  }
-  function buildSolved(){ solved=[]; for(let i=1;i<n*n;i++) solved.push(i); solved.push(0); }
-  function solvable(a){
-    let inv=0; const b=a.filter(x=>x!==0);
-    for(let i=0;i<b.length;i++) for(let j=i+1;j<b.length;j++) if(b[i]>b[j]) inv++;
-    if(n%2) return inv%2===0;
-    const br = n - Math.floor(a.indexOf(0)/n);
-    return br%2? inv%2===0 : inv%2===1;
-  }
-  function shuffle(){
-    arr = solved.slice();
-    do{
-      for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; }
-    }while(!solvable(arr) || arr.join()==solved.join());
-  }
-  function render(){
-    board.style.gridTemplateColumns = `repeat(${n},1fr)`;
-    board.innerHTML="";
-    arr.forEach((v,i)=>{
-      const d=document.createElement("div");
-      d.className="tile"+(v===0?" blank":"");
-      if(v!==0){ d.textContent=v; d.onclick=()=>move(i); }
-      board.appendChild(d);
-    });
-  }
-  function move(i){
-    if(!started) startTimer();
-    const b=arr.indexOf(0);
-    const r=Math.floor(i/n), c=i%n, br=Math.floor(b/n), bc=b%n;
-    if(Math.abs(r-br)+Math.abs(c-bc)!==1) return;
-    [arr[i],arr[b]]=[arr[b],arr[i]];
-    incMoves(); render();
-    if(arr.join()==solved.join()){ cancelAnimationFrame(raf); started=false; statusEl.textContent="¡Ganaste! 🎉"; statusEl.className="status win"; }
-  }
+function newGame(){
+  size=parseInt(document.getElementById("size").value);
+  board.style.gridTemplateColumns=`repeat(${size},1fr)`;
+  tiles=[...Array(size*size).keys()];
+  shuffle();
+  render();
+  startTimer();
+}
 
-  function nuevo(){
-    sizeForLevel(); buildSolved(); shuffle();
-    moves=0; movesEl.textContent="0"; resetTimer();
-    render(); statusEl.textContent="Resuelve el rompecabezas tocando fichas junto al vacío."; statusEl.className="status";
-  }
-  function reiniciar(){
-    moves=0; movesEl.textContent="0"; resetTimer(); render();
-    statusEl.textContent="Reiniciado. Presiona una ficha para comenzar.";
-  }
-  function resolver(){
-    arr=solved.slice(); render(); cancelAnimationFrame(raf); started=false;
-    statusEl.textContent="Solución aplicada."; statusEl.className="status win";
-  }
-  function pausar(){
-    if(!started) return;
-    paused=!paused; btnPause.textContent=paused?"Reanudar":"Pausar";
-    if(!paused){ t0=performance.now()-elapsed; raf=requestAnimationFrame(tick); }
-  }
+function resetGame(){
+  render();
+  startTimer();
+}
 
-  btnNew.onclick=nuevo; btnRestart.onclick=reiniciar; btnSolve.onclick=resolver; btnPause.onclick=pausar;
-})();
+function shuffle(){
+  for(let i=tiles.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [tiles[i],tiles[j]]=[tiles[j],tiles[i]];
+  }
+  empty=tiles.indexOf(0);
+}
+
+function render(){
+  board.innerHTML="";
+  tiles.forEach((n,i)=>{
+    const d=document.createElement("div");
+    d.className="tile"+(n===0?" empty":"");
+    d.textContent=n===0?"":n;
+    d.onclick=()=>move(i);
+    board.appendChild(d);
+  });
+}
+
+function move(i){
+  const r=Math.floor(i/size), c=i%size;
+  const er=Math.floor(empty/size), ec=empty%size;
+  if(Math.abs(r-er)+Math.abs(c-ec)===1){
+    [tiles[i],tiles[empty]]=[tiles[empty],tiles[i]];
+    empty=i;
+    render();
+    checkWin();
+  }
+}
+
+function checkWin(){
+  for(let i=1;i<tiles.length;i++){
+    if(tiles[i-1]!==i) return;
+  }
+  stopTimer();
+  alert("🎉 ¡Rompecabezas completado!");
+}
+
+function solve(){
+  tiles=[...Array(size*size).keys()];
+  empty=0;
+  render();
+  stopTimer();
+}
+
+newGame();
 </script>
 </body>
 </html>
