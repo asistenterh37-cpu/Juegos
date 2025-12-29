@@ -1,19 +1,18 @@
 import streamlit as st
 import random
 import time
-import string
 
 st.set_page_config(
     page_title="Rompecabezas PRO",
     layout="wide"
 )
 
-# ================== CSS RESPONSIVO ==================
+# ================= CSS RESPONSIVO =================
 st.markdown("""
 <style>
 .block-container { padding-top: 2rem; }
 
-.tablero {
+.board {
   display: grid;
   grid-template-columns: repeat(var(--n), 1fr);
   gap: 10px;
@@ -31,8 +30,8 @@ st.markdown("""
   align-items: center;
   justify-content: center;
   background: white;
-  text-decoration: none;
   color: black;
+  text-decoration: none;
 }
 
 .tile.empty {
@@ -41,75 +40,75 @@ st.markdown("""
 }
 
 @media (max-width: 600px) {
-  .tablero { max-width: 320px; }
+  .board { max-width: 320px; }
   .tile { height: 55px; font-size: 18px; }
 }
 </style>
 """, unsafe_allow_html=True)
 
-# ================== UTILIDADES ==================
-def tiempo():
+# ================= UTILIDADES =================
+def now():
     return int(time.time())
 
-def formato(seg):
-    return f"{seg//60:02d}:{seg%60:02d}"
+def format_time(sec):
+    return f"{sec//60:02d}:{sec%60:02d}"
 
-# ================== DESLIZANTE ==================
-def tablero_resuelto(n):
+# ================= DESLIZANTE =================
+def solved_board(n):
     return list(range(1, n*n)) + [0]
 
-def mezclar(tablero, n, pasos=200):
-    b = tablero[:]
-    for _ in range(pasos):
+def shuffle_board(board, n, moves=200):
+    b = board[:]
+    for _ in range(moves):
         i = b.index(0)
         r, c = divmod(i, n)
-        vecinos = []
+        neighbors = []
         for dr, dc in [(-1,0),(1,0),(0,-1),(0,1)]:
             rr, cc = r+dr, c+dc
             if 0 <= rr < n and 0 <= cc < n:
-                vecinos.append(rr*n+cc)
-        j = random.choice(vecinos)
+                neighbors.append(rr*n+cc)
+        j = random.choice(neighbors)
         b[i], b[j] = b[j], b[i]
     return b
 
-def iniciar_deslizante(n):
+def start_game(n):
     st.session_state.n = n
-    st.session_state.tablero = mezclar(tablero_resuelto(n), n)
-    st.session_state.mov = 0
-    st.session_state.inicio = tiempo()
+    st.session_state.board = shuffle_board(solved_board(n), n)
+    st.session_state.moves = 0
+    st.session_state.start = now()
 
-def render_deslizante():
-    n = {"bajo":3,"medio":4,"alto":5}[st.session_state.dificultad]
+def render_game():
+    n = {"bajo":3,"medio":4,"alto":5}[st.session_state.level]
 
-    if "tablero" not in st.session_state or st.session_state.n != n:
-        iniciar_deslizante(n)
+    if "board" not in st.session_state or st.session_state.n != n:
+        start_game(n)
 
     if "move" in st.query_params:
         i = int(st.query_params["move"])
-        b = st.session_state.tablero
+        b = st.session_state.board
         z = b.index(0)
         r1,c1 = divmod(i,n)
         r2,c2 = divmod(z,n)
         if abs(r1-r2)+abs(c1-c2)==1:
             b[i],b[z]=b[z],b[i]
-            st.session_state.mov += 1
+            st.session_state.moves += 1
         st.query_params.clear()
         st.rerun()
 
-    col1,col2,col3,col4 = st.columns(4)
-    if col1.button("🆕 Nuevo"): iniciar_deslizante(n)
-    if col2.button("🔁 Reiniciar"): iniciar_deslizante(n)
-    if col3.button("📘 Instrucciones"):
+    c1,c2,c3,c4 = st.columns(4)
+    if c1.button("🆕 Nuevo"): start_game(n)
+    if c2.button("🔁 Reiniciar"): start_game(n)
+    if c3.button("📘 Instrucciones"):
         st.info("Toca una ficha junto al espacio vacío.")
-    if col4.button("✅ Resolver"):
-        st.session_state.tablero = tablero_resuelto(n)
+    if c4.button("✅ Resolver"):
+        st.session_state.board = solved_board(n)
 
     st.markdown(
-        f"Movimientos: {st.session_state.mov} | ⏱ {formato(tiempo()-st.session_state.inicio)}"
+        f"Movimientos: {st.session_state.moves} | ⏱ {format_time(now()-st.session_state.start)}"
     )
 
-    html = [f"<div class='tablero' style='--n:{n}'>"]
-    for i,v in enumerate(st.session_state.tablero):
+    html = [f"<div class='board' style='--n:{n}'>"]
+    for i,v in enumerate(st.session_state.board):
         if v==0:
             html.append("<div class='tile empty'></div>")
         else:
@@ -117,19 +116,15 @@ def render_deslizante():
     html.append("</div>")
     st.markdown("".join(html), unsafe_allow_html=True)
 
-# ================== APP ==================
+# ================= APP =================
 st.title("🧩 Rompecabezas PRO")
 st.caption("Elaborado por Soamy Lanza")
 
-st.session_state.tipo = st.selectbox(
-    "Tipo", ["Deslizante"]
-)
-
-st.session_state.dificultad = st.selectbox(
+st.session_state.level = st.selectbox(
     "Dificultad", ["bajo","medio","alto"]
 )
 
 st.divider()
-render_deslizante()
+render_game()
 
 st.caption("© Rompecabezas PRO — Elaborado por Soamy Lanza")
