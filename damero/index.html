@@ -11,10 +11,6 @@
       --border: rgba(255,255,255,.10);
       --text:#e9eefc;
       --muted:#a9b4d0;
-      --accent:#6ee7ff;
-      --good:#39d98a;
-      --warn:#ffd166;
-      --bad:#ff5c7a;
       --shadow: 0 18px 40px rgba(0,0,0,.35);
       --r: 18px;
       --cell: min(10.8vw, 64px);
@@ -48,6 +44,7 @@
     .title{ display:flex; flex-direction:column; gap:2px; min-width:280px; }
     .title h1{ margin:0; font-size: 18px; letter-spacing:.2px; }
     .title p{ margin:0; font-size: 13px; color:var(--muted); }
+
     .credit{
       margin-top:6px;
       display:inline-flex;
@@ -152,64 +149,69 @@
       touch-action: manipulation;
       overflow:hidden;
     }
-    .cell.light{ background: rgba(233,238,252,.07); }
-    .cell.dark{
-      background:
-        radial-gradient(120px 80px at 40% 20%, rgba(110,231,255,.10), transparent 55%),
-        rgba(18, 95, 65, .45);
-    }
+
+    /* ✅ TABLERO BLANCO Y NEGRO */
+    .cell.light{ background: #f2f2f2; }
+    .cell.dark{ background: #1e1e1e; }
 
     .cell.sel{
-      outline: 3px solid rgba(110,231,255,.65);
-      box-shadow: 0 0 0 6px rgba(110,231,255,.14);
+      outline: 3px solid rgba(110,231,255,.85);
+      box-shadow: 0 0 0 6px rgba(110,231,255,.18);
     }
+
     .cell.move::after{
       content:"";
       width: 14px;
       height: 14px;
       border-radius: 999px;
-      background: rgba(110,231,255,.85);
-      box-shadow: 0 0 0 7px rgba(110,231,255,.12);
+      background: rgba(110,231,255,.92);
+      box-shadow: 0 0 0 7px rgba(110,231,255,.18);
       position:absolute;
       opacity:.95;
     }
     .cell.capture::after{
-      background: rgba(255,209,102,.92);
-      box-shadow: 0 0 0 7px rgba(255,209,102,.15);
+      background: rgba(255,209,102,.98);
+      box-shadow: 0 0 0 7px rgba(255,209,102,.18);
     }
 
     .piece{
       width: 78%;
       height: 78%;
       border-radius: 999px;
-      border: 1px solid rgba(255,255,255,.18);
-      box-shadow: 0 12px 20px rgba(0,0,0,.32);
+      border: 1px solid rgba(0,0,0,.35);
+      box-shadow: 0 0 0 2px #000 inset, 0 8px 16px rgba(0,0,0,.45);
       position:relative;
       display:flex;
       align-items:center;
       justify-content:center;
     }
+
+    /* ✅ FICHAS ROJAS (tú) */
     .p1{
-      background: radial-gradient(circle at 30% 25%, rgba(255,255,255,.18), transparent 45%),
-                  linear-gradient(180deg, rgba(80,92,120,.35), rgba(0,0,0,.55));
+      background: radial-gradient(circle at 30% 25%, #ff9aa9, #c1121f);
+      border: 2px solid #7a0912;
     }
+
+    /* ✅ FICHAS AMARILLAS (IA) */
     .p2{
-      background: radial-gradient(circle at 30% 25%, rgba(255,255,255,.85), rgba(255,255,255,.25) 55%, rgba(255,255,255,.08));
-      border-color: rgba(255,255,255,.35);
+      background: radial-gradient(circle at 30% 25%, #fff3a0, #f1c40f);
+      border: 2px solid #9a7d0a;
     }
+
+    /* ✅ REINA (corona) súper visible */
     .kingMark{
       width: 64%;
       height: 64%;
       border-radius: 999px;
-      border: 2px solid rgba(255,209,102,.75);
-      background: rgba(255,209,102,.12);
+      border: 3px solid #000;
+      background: rgba(255,255,255,.85);
+      color: #000;
+      font-weight: 900;
+      font-size: 16px;
+      letter-spacing:.5px;
       display:flex;
       align-items:center;
       justify-content:center;
-      font-weight:900;
-      color: rgba(255,209,102,.92);
-      font-size: 16px;
-      letter-spacing:.5px;
     }
 
     .side h2{ margin:0 0 8px 0; font-size: 16px; }
@@ -258,7 +260,7 @@
     <header>
       <div class="title">
         <h1>Damero — Estrategia</h1>
-        <p>Tú juegas <b>Oscuras</b>. Captura (“come”) hacia adelante y hacia atrás. Si puedes comer, es obligatorio.</p>
+        <p>Tú juegas <b>Rojas</b>. Captura (“come”) hacia adelante y hacia atrás. Si puedes comer, es obligatorio.</p>
         <div class="credit">✍️ <b>Por: Soamy Lanza, 2025</b></div>
       </div>
       <div class="panel">
@@ -289,12 +291,12 @@
 
       <aside class="card side">
         <h2>Estado</h2>
-        <p id="status">Tu turno. Selecciona una ficha oscura y juega.</p>
+        <p id="status">Tu turno. Selecciona una ficha roja y juega.</p>
 
         <div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:8px;">
-          <span class="chip">Oscuras: <b id="c1">12</b></span>
-          <span class="chip">Claras: <b id="c2">12</b></span>
-          <span class="chip">Turno: <b id="turn">Oscuras</b></span>
+          <span class="chip">Rojas: <b id="c1">12</b></span>
+          <span class="chip">Amarillas: <b id="c2">12</b></span>
+          <span class="chip">Turno: <b id="turn">Rojas</b></span>
         </div>
 
         <div class="log" id="log"></div>
@@ -446,7 +448,7 @@
     resetTimer();
     render();
     updateHUD();
-    log("Nuevo juego. Tú: Oscuras. IA: Claras.");
+    log("Nuevo juego. Tú: Rojas. IA: Amarillas.");
   }
 
   function restartBoardKeepTimer(){
@@ -465,7 +467,7 @@
     log("Reiniciar: tablero restaurado (timer y puntaje se mantienen).");
   }
 
-  // “coma para adelante y atrás”: capturas en todas direcciones.
+  // Captura en todas direcciones (adelante y atrás), también para fichas normales.
   function moveDirs(piece){
     if(isKing(piece)) return [[-1,-1],[-1,1],[1,-1],[1,1]];
     return (isP1(piece)) ? [[-1,-1],[-1,1]] : [[1,-1],[1,1]];
@@ -553,7 +555,6 @@
     return caps;
   }
 
-  // IA
   function aiDepth(){
     const lvl = levelSel.value;
     if(lvl==="low") return 2;
@@ -679,15 +680,15 @@
     const {a,b} = counts();
     c1El.textContent = a;
     c2El.textContent = b;
-    turnEl.textContent = (turn===P1) ? "Oscuras" : "Claras";
+    turnEl.textContent = (turn===P1) ? "Rojas" : "Amarillas";
 
     if(isTerminal(B)){
       stopTimer();
       const m1 = allMovesForPlayer(B,P1).length;
       const m2 = allMovesForPlayer(B,P2).length;
       let msg="";
-      if(a===0 || m1===0) msg="Fin: Ganó la IA (Claras).";
-      else if(b===0 || m2===0) msg="Fin: ¡Ganaste! (Oscuras).";
+      if(a===0 || m1===0) msg="Fin: Ganó la IA (Amarillas).";
+      else if(b===0 || m2===0) msg="Fin: ¡Ganaste! (Rojas).";
       else msg="Fin: Empate técnico.";
       winBox.style.display="block";
       winBox.textContent = msg;
@@ -699,7 +700,7 @@
     if(mustContinueFrom!=null && turn===P1){
       statusEl.textContent = "Multi-captura: debes seguir comiendo con la misma ficha.";
     }else{
-      statusEl.textContent = (turn===P1) ? "Tu turno (Oscuras)." : "Turno de la IA (Claras).";
+      statusEl.textContent = (turn===P1) ? "Tu turno (Rojas)." : "Turno de la IA (Amarillas).";
     }
     updateScore();
   }
@@ -882,10 +883,7 @@
   }
 
   btnNew.addEventListener("click", ()=> setupInitial());
-  btnRestart.addEventListener("click", ()=> {
-    if(!started) startTimer(); // opcional: si quieres que al reiniciar siga corriendo
-    restartBoardKeepTimer();
-  });
+  btnRestart.addEventListener("click", ()=> restartBoardKeepTimer());
   btnUndo.addEventListener("click", ()=>{
     const ok = popHist();
     if(!ok) log("Nada que deshacer.");
@@ -900,4 +898,3 @@
 </script>
 </body>
 </html>
-<!-- actualizado -->
