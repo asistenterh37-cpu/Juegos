@@ -12,15 +12,15 @@
       --cell:#0c1430; --cell2:#0b1229;
       --outline: rgba(255,255,255,.10);
       --shadow: 0 14px 45px rgba(0,0,0,.45);
+      --shadowMobile: 0 10px 26px rgba(0,0,0,.35);
       --radius: 16px;
       --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
 
-      /* alturas compactas */
       --pad: 12px;
-      --gap: 12px;
+      --gap: 14px;
 
-      /* alto disponible para tablero (se ajusta en runtime por CSS) */
-      --boardMax: 520px;
+      /* tamaño base del tablero (se recalcula en JS) */
+      --boardMax: 440px;
     }
 
     *{ box-sizing:border-box; }
@@ -30,23 +30,31 @@
       background: radial-gradient(1200px 700px at 20% 0%, #13204a 0%, var(--bg) 55%, #050816 100%);
       color:var(--text);
       display:flex;
-      align-items:stretch;
       justify-content:center;
+      align-items:flex-start;
       padding: 12px;
+      overflow-x:hidden;
     }
 
-    /* App ocupa pantalla y evita scroll si es posible */
+    /* Desktop: intentamos evitar scroll de página, y si hace falta, scrollea panel derecho */
+    @media (min-width: 921px){
+      body{ height: 100vh; overflow: hidden; }
+    }
+
     .app{
-      width:min(1100px, 100%);
+      width:min(1120px, 100%);
       display:grid;
-      grid-template-columns: 1.2fr .8fr;
+      grid-template-columns: 1.12fr .88fr;
       gap: var(--gap);
-      min-height: calc(100vh - 24px);
-      align-items: stretch;
+      align-items: start;
+      min-height: 0;
     }
 
     @media (max-width: 920px){
-      .app{ grid-template-columns: 1fr; }
+      .app{
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
     }
 
     .card{
@@ -55,10 +63,14 @@
       border-radius: var(--radius);
       box-shadow: var(--shadow);
       overflow:hidden;
-      min-height: 0; /* clave para que grid no se desborde */
+      min-height: 0;
     }
 
-    /* Header compacto */
+    /* En móvil: menos sombra (para que no “parezca superpuesto”) */
+    @media (max-width: 520px){
+      .card{ box-shadow: var(--shadowMobile); }
+    }
+
     .header{
       display:flex;
       align-items:center;
@@ -80,7 +92,7 @@
     }
     .credit{
       font-size: 12px;
-      font-weight: 700;
+      font-weight: 800;
       color: var(--muted);
       padding: 2px 8px;
       border: 1px solid rgba(255,255,255,.12);
@@ -142,22 +154,21 @@
       border:1px solid var(--outline);
       background: rgba(10,16,36,.55);
       font-variant-numeric: tabular-nums;
-      min-width: 110px;
+      min-width: 108px;
       justify-content: center;
     }
     .timer span{ color: var(--muted); font-size: 12px; }
     .timer strong{ font-size: 13px; }
 
-    /* MAIN: tablero + info rápida, sin empujar altura */
+    /* LEFT CONTENT */
     .main{
       padding: var(--pad);
       display:grid;
-      grid-template-rows: auto 1fr;
-      gap: 10px;
+      grid-template-rows: auto auto;
+      gap: 12px;
       min-height: 0;
     }
 
-    /* el tablero se dimensiona para caber en pantalla */
     .boardWrap{
       display:flex;
       justify-content:center;
@@ -166,12 +177,11 @@
       background: rgba(0,0,0,.10);
       border:1px solid var(--outline);
       border-radius: var(--radius);
-      min-height: 0;
     }
 
     .board{
-      width: min(var(--boardMax), 94vw, 520px);
-      height: min(var(--boardMax), 94vw, 520px);
+      width: min(var(--boardMax), 92vw);
+      height: min(var(--boardMax), 92vw);
       display:grid;
       grid-template-columns: repeat(9, 1fr);
       border-radius: 14px;
@@ -187,13 +197,12 @@
       justify-content:center;
       background: var(--cell);
       border:1px solid rgba(255,255,255,.06);
-      font-size: clamp(15px, 2.4vw, 26px);
+      font-size: clamp(14px, 2.3vw, 24px);
       cursor:pointer;
       user-select:none;
     }
     .cell:nth-child(odd){ background: var(--cell2); }
 
-    /* líneas 3x3 */
     .cell[data-r="0"], .cell[data-r="3"], .cell[data-r="6"]{ border-top:2px solid rgba(255,255,255,.16); }
     .cell[data-c="0"], .cell[data-c="3"], .cell[data-c="6"]{ border-left:2px solid rgba(255,255,255,.16); }
     .cell[data-r="8"]{ border-bottom:2px solid rgba(255,255,255,.16); }
@@ -203,7 +212,7 @@
       background: rgba(5,9,20,.75);
       cursor: default;
       color: rgba(232,238,255,.95);
-      font-weight: 700;
+      font-weight: 800;
     }
     .cell.selected{
       outline: 2px solid rgba(106,169,255,.85);
@@ -215,7 +224,6 @@
     .cell.error{
       background: rgba(255,106,138,.18);
       border-color: rgba(255,106,138,.35);
-      color: var(--text);
     }
 
     .notes{
@@ -225,20 +233,31 @@
       grid-template-columns: repeat(3, 1fr);
       grid-template-rows: repeat(3, 1fr);
       gap: 2px;
-      font-size: clamp(8px, 1.2vw, 11px);
+      font-size: clamp(8px, 1.1vw, 11px);
       color: rgba(232,238,255,.8);
       pointer-events:none;
       opacity:.95;
     }
     .note{ display:flex; align-items:center; justify-content:center; opacity:.8; }
 
-    /* Right side: compacto y todo visible */
+    /* RIGHT CONTENT */
     .side{
       padding: var(--pad);
-      display:grid;
-      grid-template-rows: auto auto 1fr;
-      gap: 10px;
+      display:flex;
+      flex-direction:column;
+      gap: 12px;
       min-height: 0;
+    }
+
+    /* Desktop: el panel derecho puede scrollear sin mover toda la página */
+    @media (min-width: 921px){
+      .side{
+        max-height: calc(100vh - 24px);
+        overflow:auto;
+        padding-right: 10px;
+      }
+      .side::-webkit-scrollbar{ width: 10px; }
+      .side::-webkit-scrollbar-thumb{ background: rgba(255,255,255,.12); border-radius: 999px; }
     }
 
     .panel{
@@ -253,13 +272,11 @@
       font-size: 13px;
       color: var(--muted);
       letter-spacing:.3px;
-      font-weight: 800;
+      font-weight: 900;
       text-transform: uppercase;
     }
 
-    .row{
-      display:flex; gap:10px; flex-wrap:wrap; align-items:center;
-    }
+    .row{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
 
     .toggle{
       display:flex; align-items:center; gap:8px;
@@ -277,7 +294,6 @@
       box-shadow: 0 0 0 4px rgba(53,208,127,.12);
     }
 
-    /* NUMPAD compacto y completo */
     .numpad{
       display:grid;
       grid-template-columns: repeat(3, 1fr);
@@ -286,15 +302,12 @@
     .numpad button{
       padding: 12px 0;
       border-radius: 14px;
-      font-weight: 800;
+      font-weight: 900;
       font-size: 14px;
       background: rgba(255,255,255,.04);
     }
-    .numpad .wide{ grid-column: span 3; }
     .numpad .two{ grid-column: span 2; }
-    .numpad .one{ grid-column: span 1; }
 
-    /* Mensaje compacto */
     .msg{
       margin-top: 10px;
       padding: 10px 12px;
@@ -308,7 +321,6 @@
       overflow-wrap: anywhere;
     }
 
-    /* Tips en acordeón para no empujar layout */
     details{
       border:1px solid var(--outline);
       border-radius: var(--radius);
@@ -325,7 +337,7 @@
       justify-content:space-between;
       gap:10px;
       color: rgba(232,238,255,.90);
-      font-weight: 800;
+      font-weight: 900;
       text-transform: uppercase;
       letter-spacing:.3px;
       font-size: 13px;
@@ -338,19 +350,29 @@
       line-height: 1.35;
     }
 
-    /* móvil: reduce un poco */
+    /* Mobile ultra: apila, compacta, y reduce tablero */
     @media (max-width: 520px){
       body{ padding: 10px; }
-      .title{ min-width: 200px; }
       .controls{ justify-content:flex-start; }
       .timer{ min-width: 104px; }
       .numpad button{ padding: 11px 0; }
+      .title{ min-width: 200px; }
+
+      /* separación extra entre cards para evitar “efecto superpuesto” */
+      .app{ gap: 18px; }
+    }
+
+    .footerBrand{
+      text-align:center;
+      color: rgba(232,238,255,.65);
+      font-size: 12px;
+      padding: 10px 12px;
     }
   </style>
 </head>
 <body>
   <div class="app">
-    <!-- LEFT: tablero -->
+    <!-- LEFT -->
     <div class="card">
       <div class="header">
         <div class="title">
@@ -358,7 +380,7 @@
           <small>Responsive • Teclado + táctil • Cronómetro • Compartir</small>
         </div>
         <div class="controls">
-          <button class="share" id="btnShare" title="Compartir este Sudoku">Compartir</button>
+          <button class="share" id="btnShare">Compartir</button>
 
           <div class="timer" title="Cronómetro">
             <span>⏱</span>
@@ -383,9 +405,8 @@
           <div class="board" id="board" role="grid" aria-label="Tablero Sudoku"></div>
         </div>
 
-        <!-- Atajos compactos -->
         <details>
-          <summary>Atajos <span style="color:var(--muted); font-weight:700; text-transform:none;">(clic para ver)</span></summary>
+          <summary>Atajos <span style="color:var(--muted); font-weight:800; text-transform:none;">(clic)</span></summary>
           <div class="tipsBody">
             - <b>1-9</b> poner número<br/>
             - <b>0</b>/<b>Backspace</b> borrar<br/>
@@ -397,7 +418,7 @@
       </div>
     </div>
 
-    <!-- RIGHT: entrada -->
+    <!-- RIGHT -->
     <div class="card">
       <div class="side">
         <div class="panel">
@@ -422,13 +443,12 @@
             <button data-num="9">9</button>
 
             <button class="two danger" data-num="0">Borrar</button>
-            <button class="one" id="btnCheck">Verificar</button>
+            <button id="btnCheck">Verificar</button>
           </div>
 
           <div class="msg" id="msg">Genera un tablero y a jugar. 🧠</div>
         </div>
 
-        <!-- Tips en acordeón (por defecto cerrado) -->
         <details>
           <summary>Tips</summary>
           <div class="tipsBody">
@@ -439,22 +459,18 @@
           </div>
         </details>
 
-        <div class="panel" style="display:flex; align-items:center; justify-content:center; color:rgba(232,238,255,.65); font-size:12px;">
-          Por Soamy Lanza 2025.1
-        </div>
+        <div class="panel footerBrand">Por Soamy Lanza 2025.1</div>
       </div>
     </div>
   </div>
 
 <script>
 (() => {
-  // ---------- Branding ----------
   const BRAND = "Por Soamy Lanza 2025.1";
 
   // ---------- Sudoku utilities ----------
   const N = 9;
   const ALL = [1,2,3,4,5,6,7,8,9];
-
   const deepCopy = (g) => g.map(r => r.slice());
 
   function shuffle(arr){
@@ -490,7 +506,7 @@
     return null;
   }
 
-  // Backtracking solver. If countSolutions=true, returns number of solutions up to 2.
+  // Solver
   function solve(grid, countSolutions=false){
     const empty = findEmpty(grid);
     if(!empty) return countSolutions ? 1 : true;
@@ -534,11 +550,8 @@
 
       const test = deepCopy(g);
       const nsol = solve(test, true);
-      if(nsol !== 1){
-        g[r][c] = backup;
-      } else {
-        removed++;
-      }
+      if(nsol !== 1) g[r][c] = backup;
+      else removed++;
     }
     return g;
   }
@@ -572,7 +585,7 @@
   let selected = {r:null, c:null};
   let notesMode = false;
 
-  let timer = {t:0, id:null, running:false};
+  let timer = {t:0, id:null};
 
   function setMsg(text, kind="info"){
     msgEl.style.borderColor = "rgba(255,255,255,.10)";
@@ -592,32 +605,36 @@
   function stopTimer(){
     if(timer.id) clearInterval(timer.id);
     timer.id = null;
-    timer.running = false;
   }
   function startTimer(){
     stopTimer();
     timer.t = 0;
     timerEl.textContent = fmtTime(timer.t);
-    timer.running = true;
     timer.id = setInterval(() => {
       timer.t++;
       timerEl.textContent = fmtTime(timer.t);
     }, 1000);
   }
-  function pauseTimer(){
-    stopTimer();
-  }
 
-  // ---------- Dynamic board size to fit screen ----------
+  // ---------- Board sizing (más pequeño + sin superposiciones) ----------
   function setBoardMaxToFit(){
-    // Ajuste: calcula alto disponible real y lo convierte en tamaño máximo del tablero.
-    // Reduce por padding, header y paneles para que TODO quepa.
     const vh = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
     const vw = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
 
-    // aproximación de "lo que ocupan headers" + márgenes internos
-    const reserve = vw > 920 ? 220 : 260; // móvil necesita más reserva por apilado
-    const max = Math.max(280, Math.min(520, vh - reserve));
+    // Target: tablero más pequeño SIEMPRE.
+    // Desktop: queremos que no haga scroll de página.
+    // Mobile: que se vea bien y no “pegue” con el panel de abajo.
+    let max;
+
+    if(vw >= 921){
+      // desktop: reserva para header + padding + algo de aire
+      max = Math.min(420, Math.max(300, vh - 260));
+    } else {
+      // mobile: más pequeño
+      max = Math.min(360, Math.max(260, vh - 420));
+      // y también limitado por ancho
+      max = Math.min(max, vw - 56);
+    }
 
     document.documentElement.style.setProperty("--boardMax", max + "px");
   }
@@ -625,14 +642,12 @@
   // ---------- Share ----------
   function serializePuzzleForShare(){
     if(!puzzle) return null;
-    return puzzle.flat().join(""); // 81 chars
+    return puzzle.flat().join("");
   }
-
   function getDifficultyLabel(){
     const map = {easy:"Bajo", medium:"Medio", hard:"Alto"};
     return map[difficultyEl.value] || "Sudoku";
   }
-
   function buildShareUrl(){
     const base = location.origin && location.protocol.startsWith("http") ? location.origin + location.pathname : null;
     const p = serializePuzzleForShare();
@@ -643,7 +658,6 @@
     url.searchParams.set("p", p);
     return url.toString();
   }
-
   async function copyToClipboard(text){
     try{
       await navigator.clipboard.writeText(text);
@@ -655,43 +669,31 @@
         ta.style.position="fixed";
         ta.style.left="-9999px";
         document.body.appendChild(ta);
-        ta.focus();
-        ta.select();
+        ta.focus(); ta.select();
         const ok = document.execCommand("copy");
         document.body.removeChild(ta);
         return ok;
-      }catch{
-        return false;
-      }
+      }catch{ return false; }
     }
   }
-
   async function share(){
     const url = buildShareUrl();
     const diff = getDifficultyLabel();
     const time = timerEl.textContent;
 
     const title = "Sudoku Web";
-    const text =
-      url
-        ? `Te reto a este Sudoku (${diff}). Mi tiempo: ${time}. ${BRAND}`
-        : `Te reto a este Sudoku (${diff}). Mi tiempo: ${time}. ${BRAND}`;
+    const text = url
+      ? `Te reto a este Sudoku (${diff}). Mi tiempo: ${time}. ${BRAND}`
+      : `Te reto a este Sudoku (${diff}). Mi tiempo: ${time}. ${BRAND}`;
 
     if(url && navigator.share){
-      try{
-        await navigator.share({ title, text, url });
-        setMsg("Compartido ✅", "ok");
-        return;
-      }catch(err){
-        // cancelado o no permitido
-      }
+      try{ await navigator.share({ title, text, url }); setMsg("Compartido ✅", "ok"); return; } catch {}
     }
-
     if(url){
       const ok = await copyToClipboard(url);
       setMsg(ok ? `Enlace copiado: ${url}` : `Aquí está tu enlace: ${url}`, ok ? "ok" : "warn");
     }else{
-      setMsg("No detecté URL https (¿estás en file://?). Abre desde GitHub Pages.", "warn");
+      setMsg("No detecté URL https. Abre desde GitHub Pages.", "warn");
     }
   }
 
@@ -769,9 +771,7 @@
       const sameRow = rr===r;
       const sameCol = cc===c;
       const sameBox = (Math.floor(rr/3)===Math.floor(r/3)) && (Math.floor(cc/3)===Math.floor(c/3));
-      if((sameRow || sameCol || sameBox) && !(rr===r && cc===c)){
-        el.classList.add("peer");
-      }
+      if((sameRow || sameCol || sameBox) && !(rr===r && cc===c)) el.classList.add("peer");
     });
   }
 
@@ -848,7 +848,7 @@
     render();
 
     if(isSolved()){
-      pauseTimer();
+      stopTimer();
       setMsg("¡Listo! Sudoku resuelto. Cerebro: 1, Caos: 0. 🏆", "ok");
     }
   }
@@ -910,7 +910,7 @@
     notes = buildEmptyNotes();
     selected = {r:null, c:null};
     render();
-    pauseTimer();
+    stopTimer();
     setMsg("Resuelto. La IA te manda saludos. 🤝", "ok");
   }
 
@@ -925,13 +925,9 @@
         }
       }
     }
-    if(wrong === 0 && filled > 0){
-      setMsg("Vas limpio por ahora. Sigue así. ✅", "ok");
-    } else if(filled === 0){
-      setMsg("Todavía no has puesto nada. Dale, que el tablero no muerde. 😅", "warn");
-    } else {
-      setMsg(`Hay ${wrong} casilla(s) con conflicto. Revisa las rojas.`, "warn");
-    }
+    if(wrong === 0 && filled > 0) setMsg("Vas limpio por ahora. ✅", "ok");
+    else if(filled === 0) setMsg("Dale, que el tablero no muerde. 😅", "warn");
+    else setMsg(`Hay ${wrong} casilla(s) con conflicto. Revisa las rojas.`, "warn");
     paintErrors();
   }
 
@@ -945,20 +941,14 @@
     if(!p || p.length !== 81 || !/^[0-9]+$/.test(p)) return null;
     const nums = p.split("").map(x => +x);
     const g = [];
-    for(let r=0;r<N;r++){
-      g.push(nums.slice(r*9, r*9+9));
-    }
+    for(let r=0;r<N;r++) g.push(nums.slice(r*9, r*9+9));
     return g;
   }
 
   function startFromPuzzle(puz){
     const test = deepCopy(puz);
     const ok = solve(test, false);
-    if(!ok){
-      setMsg("El puzzle del enlace no es resoluble. Genero uno nuevo.", "warn");
-      newGame();
-      return;
-    }
+    if(!ok){ setMsg("El puzzle del enlace no es resoluble. Genero uno nuevo.", "warn"); newGame(); return; }
 
     puzzle = deepCopy(puz);
     solution = deepCopy(test);
@@ -975,8 +965,8 @@
     setMsg(`Sudoku cargado desde enlace. ${BRAND}`);
   }
 
-  // ---------- Event wiring ----------
-  btnShare.addEventListener("click", share);
+  // ---------- wiring ----------
+  document.getElementById("btnShare").addEventListener("click", share);
   btnNew.addEventListener("click", newGame);
   btnRestart.addEventListener("click", restart);
   btnClear.addEventListener("click", clearUserInputs);
@@ -985,10 +975,7 @@
 
   toggleNotesEl.addEventListener("click", () => toggleNotes());
   toggleNotesEl.addEventListener("keydown", (e) => {
-    if(e.key === "Enter" || e.key === " "){
-      e.preventDefault();
-      toggleNotes();
-    }
+    if(e.key === "Enter" || e.key === " "){ e.preventDefault(); toggleNotes(); }
   });
 
   document.querySelectorAll(".numpad button[data-num]").forEach(btn=>{
@@ -1002,10 +989,7 @@
     if(e.key >= "1" && e.key <= "9") setValue(+e.key);
     if(e.key === "0" || e.key === "Backspace" || e.key === "Delete") setValue(0);
 
-    if(e.key === "Escape"){
-      selected = {r:null, c:null};
-      render();
-    }
+    if(e.key === "Escape"){ selected = {r:null, c:null}; render(); }
   });
 
   document.addEventListener("click", (e) => {
@@ -1024,10 +1008,7 @@
     else newGame();
   }
 
-  window.addEventListener("resize", () => {
-    setBoardMaxToFit();
-  });
-
+  window.addEventListener("resize", setBoardMaxToFit);
   boot();
 })();
 </script>
