@@ -6,7 +6,7 @@
   <title>Sudoku Web</title>
   <style>
     :root{
-      --bg:#0b1020; --panel:#111a33; --panel2:#0f1730;
+      --bg:#0b1020;
       --text:#e8eeff; --muted:#9fb0e6;
       --accent:#6aa9ff; --danger:#ff6a8a; --ok:#35d07f; --warn:#ffd76a;
       --cell:#0c1430; --cell2:#0b1229;
@@ -14,28 +14,38 @@
       --shadow: 0 14px 45px rgba(0,0,0,.45);
       --radius: 16px;
       --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+
+      /* alturas compactas */
+      --pad: 12px;
+      --gap: 12px;
+
+      /* alto disponible para tablero (se ajusta en runtime por CSS) */
+      --boardMax: 520px;
     }
 
     *{ box-sizing:border-box; }
+    html, body { height: 100%; }
     body{
       margin:0; font-family:var(--font);
       background: radial-gradient(1200px 700px at 20% 0%, #13204a 0%, var(--bg) 55%, #050816 100%);
       color:var(--text);
-      min-height:100vh;
       display:flex;
-      align-items:center;
+      align-items:stretch;
       justify-content:center;
-      padding: 18px;
+      padding: 12px;
     }
 
+    /* App ocupa pantalla y evita scroll si es posible */
     .app{
-      width:min(980px, 100%);
+      width:min(1100px, 100%);
       display:grid;
-      grid-template-columns: 1.15fr .85fr;
-      gap: 16px;
+      grid-template-columns: 1.2fr .8fr;
+      gap: var(--gap);
+      min-height: calc(100vh - 24px);
+      align-items: stretch;
     }
 
-    @media (max-width: 900px){
+    @media (max-width: 920px){
       .app{ grid-template-columns: 1fr; }
     }
 
@@ -45,13 +55,15 @@
       border-radius: var(--radius);
       box-shadow: var(--shadow);
       overflow:hidden;
+      min-height: 0; /* clave para que grid no se desborde */
     }
 
+    /* Header compacto */
     .header{
       display:flex;
       align-items:center;
       justify-content:space-between;
-      padding: 14px 16px;
+      padding: 10px 12px;
       background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
       border-bottom:1px solid var(--outline);
       gap: 10px;
@@ -63,14 +75,14 @@
       min-width: 240px;
     }
     .title h1{
-      margin:0; font-size: 18px; letter-spacing:.3px;
+      margin:0; font-size: 16px; letter-spacing:.2px;
       display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;
     }
     .credit{
       font-size: 12px;
       font-weight: 700;
       color: var(--muted);
-      padding: 3px 8px;
+      padding: 2px 8px;
       border: 1px solid rgba(255,255,255,.12);
       border-radius: 999px;
       background: rgba(0,0,0,.15);
@@ -81,7 +93,11 @@
     }
 
     .controls{
-      display:flex; gap: 10px; flex-wrap:wrap; align-items:center; justify-content:flex-end;
+      display:flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items:center;
+      justify-content:flex-end;
     }
 
     select, button, .toggle{
@@ -89,18 +105,15 @@
       background: rgba(10,16,36,.55);
       color: var(--text);
       border-radius: 12px;
-      padding: 10px 12px;
-      font-size: 14px;
+      padding: 9px 10px;
+      font-size: 13px;
       outline: none;
       transition: transform .06s ease, background .2s ease, border-color .2s ease;
+      white-space: nowrap;
     }
     select{ padding-right: 34px; }
 
-    button{
-      cursor:pointer;
-      user-select:none;
-      white-space: nowrap;
-    }
+    button{ cursor:pointer; user-select:none; }
     button:hover{ background: rgba(20,30,70,.65); border-color: rgba(255,255,255,.18); }
     button:active{ transform: scale(.98); }
 
@@ -123,25 +136,28 @@
     button.share:hover{ background: rgba(53,208,127,.20); }
 
     .timer{
-      display:flex; align-items:center; gap:10px;
-      padding: 10px 12px;
+      display:flex; align-items:center; gap:8px;
+      padding: 9px 10px;
       border-radius: 12px;
       border:1px solid var(--outline);
       background: rgba(10,16,36,.55);
       font-variant-numeric: tabular-nums;
-      min-width: 120px;
+      min-width: 110px;
       justify-content: center;
     }
     .timer span{ color: var(--muted); font-size: 12px; }
-    .timer strong{ font-size: 14px; }
+    .timer strong{ font-size: 13px; }
 
+    /* MAIN: tablero + info rápida, sin empujar altura */
     .main{
-      padding: 14px;
+      padding: var(--pad);
       display:grid;
-      grid-template-columns: 1fr;
-      gap: 12px;
+      grid-template-rows: auto 1fr;
+      gap: 10px;
+      min-height: 0;
     }
 
+    /* el tablero se dimensiona para caber en pantalla */
     .boardWrap{
       display:flex;
       justify-content:center;
@@ -150,16 +166,18 @@
       background: rgba(0,0,0,.10);
       border:1px solid var(--outline);
       border-radius: var(--radius);
+      min-height: 0;
     }
 
     .board{
-      width: min(520px, 92vw);
-      aspect-ratio: 1 / 1;
+      width: min(var(--boardMax), 94vw, 520px);
+      height: min(var(--boardMax), 94vw, 520px);
       display:grid;
       grid-template-columns: repeat(9, 1fr);
       border-radius: 14px;
       overflow:hidden;
       border: 2px solid rgba(255,255,255,.16);
+      touch-action: manipulation;
     }
 
     .cell{
@@ -169,13 +187,13 @@
       justify-content:center;
       background: var(--cell);
       border:1px solid rgba(255,255,255,.06);
-      font-size: clamp(16px, 3.2vw, 26px);
+      font-size: clamp(15px, 2.4vw, 26px);
       cursor:pointer;
       user-select:none;
     }
-
     .cell:nth-child(odd){ background: var(--cell2); }
 
+    /* líneas 3x3 */
     .cell[data-r="0"], .cell[data-r="3"], .cell[data-r="6"]{ border-top:2px solid rgba(255,255,255,.16); }
     .cell[data-c="0"], .cell[data-c="3"], .cell[data-c="6"]{ border-left:2px solid rgba(255,255,255,.16); }
     .cell[data-r="8"]{ border-bottom:2px solid rgba(255,255,255,.16); }
@@ -187,16 +205,13 @@
       color: rgba(232,238,255,.95);
       font-weight: 700;
     }
-
     .cell.selected{
       outline: 2px solid rgba(106,169,255,.85);
       outline-offset: -2px;
       z-index: 2;
     }
-
     .cell.peer{ background: rgba(106,169,255,.10); }
     .cell.sameVal{ background: rgba(106,169,255,.18); }
-
     .cell.error{
       background: rgba(255,106,138,.18);
       border-color: rgba(255,106,138,.35);
@@ -205,30 +220,29 @@
 
     .notes{
       position:absolute;
-      inset: 6px;
+      inset: 5px;
       display:grid;
       grid-template-columns: repeat(3, 1fr);
       grid-template-rows: repeat(3, 1fr);
       gap: 2px;
-      font-size: clamp(8px, 1.6vw, 11px);
+      font-size: clamp(8px, 1.2vw, 11px);
       color: rgba(232,238,255,.8);
       pointer-events:none;
       opacity:.95;
     }
-    .note{
-      display:flex; align-items:center; justify-content:center;
-      opacity:.8;
-    }
+    .note{ display:flex; align-items:center; justify-content:center; opacity:.8; }
 
+    /* Right side: compacto y todo visible */
     .side{
-      padding: 14px;
-      display:flex;
-      flex-direction:column;
-      gap: 12px;
+      padding: var(--pad);
+      display:grid;
+      grid-template-rows: auto auto 1fr;
+      gap: 10px;
+      min-height: 0;
     }
 
     .panel{
-      padding: 14px;
+      padding: 12px;
       border-radius: var(--radius);
       border:1px solid var(--outline);
       background: rgba(10,16,36,.55);
@@ -236,29 +250,11 @@
 
     .panel h2{
       margin:0 0 10px 0;
-      font-size: 14px;
+      font-size: 13px;
       color: var(--muted);
       letter-spacing:.3px;
-      font-weight: 700;
+      font-weight: 800;
       text-transform: uppercase;
-    }
-
-    .numpad{
-      display:grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 10px;
-    }
-
-    .numpad button{
-      padding: 12px 0;
-      border-radius: 14px;
-      font-weight: 700;
-      font-size: 14px;
-      background: rgba(255,255,255,.04);
-    }
-    .numpad button.big{
-      grid-column: span 2;
-      font-weight: 700;
     }
 
     .row{
@@ -268,6 +264,7 @@
     .toggle{
       display:flex; align-items:center; gap:8px;
       cursor:pointer;
+      padding: 8px 10px;
     }
     .dot{
       width: 10px; height: 10px; border-radius: 50%;
@@ -280,6 +277,24 @@
       box-shadow: 0 0 0 4px rgba(53,208,127,.12);
     }
 
+    /* NUMPAD compacto y completo */
+    .numpad{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .numpad button{
+      padding: 12px 0;
+      border-radius: 14px;
+      font-weight: 800;
+      font-size: 14px;
+      background: rgba(255,255,255,.04);
+    }
+    .numpad .wide{ grid-column: span 3; }
+    .numpad .two{ grid-column: span 2; }
+    .numpad .one{ grid-column: span 1; }
+
+    /* Mensaje compacto */
     .msg{
       margin-top: 10px;
       padding: 10px 12px;
@@ -289,52 +304,57 @@
       color: var(--muted);
       font-size: 13px;
       line-height: 1.35;
-      min-height: 42px;
+      min-height: 40px;
       overflow-wrap: anywhere;
     }
 
-    .badge{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      padding: 8px 10px;
-      border-radius: 999px;
-      border: 1px solid var(--outline);
-      background: rgba(255,255,255,.04);
-      color: var(--muted);
-      font-size: 12px;
-      margin-right: 6px;
-      margin-top: 6px;
+    /* Tips en acordeón para no empujar layout */
+    details{
+      border:1px solid var(--outline);
+      border-radius: var(--radius);
+      background: rgba(10,16,36,.35);
+      overflow:hidden;
+    }
+    summary{
+      cursor:pointer;
+      list-style:none;
+      padding: 12px;
       user-select:none;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      color: rgba(232,238,255,.90);
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing:.3px;
+      font-size: 13px;
+    }
+    summary::-webkit-details-marker{ display:none; }
+    .tipsBody{
+      padding: 0 12px 12px;
+      color: rgba(232,238,255,.70);
+      font-size: 13px;
+      line-height: 1.35;
     }
 
-    .kbd{
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      font-size: 11px;
-      border:1px solid rgba(255,255,255,.16);
-      padding: 2px 6px;
-      border-radius: 8px;
-      background: rgba(0,0,0,.22);
-      color: rgba(232,238,255,.9);
-    }
-
-    .footerCredit{
-      text-align:center;
-      padding: 10px 14px 14px;
-      color: rgba(232,238,255,.65);
-      font-size: 12px;
+    /* móvil: reduce un poco */
+    @media (max-width: 520px){
+      body{ padding: 10px; }
+      .title{ min-width: 200px; }
+      .controls{ justify-content:flex-start; }
+      .timer{ min-width: 104px; }
+      .numpad button{ padding: 11px 0; }
     }
   </style>
 </head>
 <body>
   <div class="app">
+    <!-- LEFT: tablero -->
     <div class="card">
       <div class="header">
         <div class="title">
-          <h1>
-            Sudoku
-            <span class="credit">Por Soamy Lanza 2025.1</span>
-          </h1>
+          <h1>Sudoku <span class="credit">Por Soamy Lanza 2025.1</span></h1>
           <small>Responsive • Teclado + táctil • Cronómetro • Compartir</small>
         </div>
         <div class="controls">
@@ -363,20 +383,21 @@
           <div class="board" id="board" role="grid" aria-label="Tablero Sudoku"></div>
         </div>
 
-        <div class="panel">
-          <h2>Atajos</h2>
-          <div class="row">
-            <span class="badge"><span class="kbd">1-9</span> poner número</span>
-            <span class="badge"><span class="kbd">0</span> / <span class="kbd">Backspace</span> borrar</span>
-            <span class="badge"><span class="kbd">N</span> notas</span>
-            <span class="badge"><span class="kbd">R</span> reiniciar</span>
+        <!-- Atajos compactos -->
+        <details>
+          <summary>Atajos <span style="color:var(--muted); font-weight:700; text-transform:none;">(clic para ver)</span></summary>
+          <div class="tipsBody">
+            - <b>1-9</b> poner número<br/>
+            - <b>0</b>/<b>Backspace</b> borrar<br/>
+            - <b>N</b> notas<br/>
+            - <b>R</b> reiniciar<br/>
+            - <b>Esc</b> deseleccionar
           </div>
-        </div>
-
-        <div class="footerCredit">Por Soamy Lanza 2025.1</div>
+        </details>
       </div>
     </div>
 
+    <!-- RIGHT: entrada -->
     <div class="card">
       <div class="side">
         <div class="panel">
@@ -399,22 +420,27 @@
             <button data-num="7">7</button>
             <button data-num="8">8</button>
             <button data-num="9">9</button>
-            <button class="big danger" data-num="0">Borrar</button>
-            <button class="big" id="btnCheck">Verificar</button>
+
+            <button class="two danger" data-num="0">Borrar</button>
+            <button class="one" id="btnCheck">Verificar</button>
           </div>
 
           <div class="msg" id="msg">Genera un tablero y a jugar. 🧠</div>
         </div>
 
-        <div class="panel">
-          <h2>Tips</h2>
-          <div class="msg" style="min-height:auto;">
-            - Selecciona una celda y usa el teclado o el panel.<br/>
+        <!-- Tips en acordeón (por defecto cerrado) -->
+        <details>
+          <summary>Tips</summary>
+          <div class="tipsBody">
             - “Limpiar” borra tus entradas (no toca las fijas).<br/>
             - “Reiniciar” vuelve al estado inicial del tablero actual.<br/>
             - “Resolver” completa el Sudoku (sin juicio… bueno, un poquito 😅).<br/>
             - “Compartir” manda el enlace y tu tiempo actual.
           </div>
+        </details>
+
+        <div class="panel" style="display:flex; align-items:center; justify-content:center; color:rgba(232,238,255,.65); font-size:12px;">
+          Por Soamy Lanza 2025.1
         </div>
       </div>
     </div>
@@ -582,6 +608,20 @@
     stopTimer();
   }
 
+  // ---------- Dynamic board size to fit screen ----------
+  function setBoardMaxToFit(){
+    // Ajuste: calcula alto disponible real y lo convierte en tamaño máximo del tablero.
+    // Reduce por padding, header y paneles para que TODO quepa.
+    const vh = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+    const vw = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+
+    // aproximación de "lo que ocupan headers" + márgenes internos
+    const reserve = vw > 920 ? 220 : 260; // móvil necesita más reserva por apilado
+    const max = Math.max(280, Math.min(520, vh - reserve));
+
+    document.documentElement.style.setProperty("--boardMax", max + "px");
+  }
+
   // ---------- Share ----------
   function serializePuzzleForShare(){
     if(!puzzle) return null;
@@ -596,8 +636,7 @@
   function buildShareUrl(){
     const base = location.origin && location.protocol.startsWith("http") ? location.origin + location.pathname : null;
     const p = serializePuzzleForShare();
-    if(!p) return null;
-    if(!base) return null;
+    if(!p || !base) return null;
 
     const url = new URL(base);
     url.searchParams.set("d", difficultyEl.value);
@@ -636,7 +675,7 @@
     const text =
       url
         ? `Te reto a este Sudoku (${diff}). Mi tiempo: ${time}. ${BRAND}`
-        : `Te reto a este Sudoku (${diff}). Mi tiempo: ${time}. ${BRAND} (Súbelo a GitHub Pages/Netlify/Vercel para compartir el enlace)`;
+        : `Te reto a este Sudoku (${diff}). Mi tiempo: ${time}. ${BRAND}`;
 
     if(url && navigator.share){
       try{
@@ -650,11 +689,9 @@
 
     if(url){
       const ok = await copyToClipboard(url);
-      setMsg(ok ? `Enlace copiado: ${url}` : `No pude copiar automáticamente. Aquí está: ${url}`, ok ? "ok" : "warn");
+      setMsg(ok ? `Enlace copiado: ${url}` : `Aquí está tu enlace: ${url}`, ok ? "ok" : "warn");
     }else{
-      const hint = "Para compartir: sube este archivo a GitHub Pages/Netlify/Vercel y comparte el link https.";
-      const ok = await copyToClipboard(hint);
-      setMsg(ok ? "Copié una nota al portapapeles (estás en file://). 👀" : hint, "warn");
+      setMsg("No detecté URL https (¿estás en file://?). Abre desde GitHub Pages.", "warn");
     }
   }
 
@@ -980,12 +1017,18 @@
   });
 
   // ---------- Boot ----------
-  const fromUrl = parsePuzzleFromUrl();
-  if(fromUrl){
-    startFromPuzzle(fromUrl);
-  } else {
-    newGame();
+  function boot(){
+    setBoardMaxToFit();
+    const fromUrl = parsePuzzleFromUrl();
+    if(fromUrl) startFromPuzzle(fromUrl);
+    else newGame();
   }
+
+  window.addEventListener("resize", () => {
+    setBoardMaxToFit();
+  });
+
+  boot();
 })();
 </script>
 </body>
