@@ -150,9 +150,14 @@
       overflow:hidden;
     }
 
-    /* ✅ TABLERO BLANCO Y NEGRO */
+    /* TABLERO BLANCO Y NEGRO */
     .cell.light{ background: #f2f2f2; }
     .cell.dark{ background: #1e1e1e; }
+
+    /* casillas jugables (blancas) las marcamos sutilmente */
+    .cell.playable{
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,.08);
+    }
 
     .cell.sel{
       outline: 3px solid rgba(110,231,255,.85);
@@ -186,19 +191,19 @@
       justify-content:center;
     }
 
-    /* ✅ FICHAS ROJAS (tú) */
+    /* FICHAS ROJAS (tú) */
     .p1{
       background: radial-gradient(circle at 30% 25%, #ff9aa9, #c1121f);
       border: 2px solid #7a0912;
     }
 
-    /* ✅ FICHAS AMARILLAS (IA) */
+    /* FICHAS AMARILLAS (IA) */
     .p2{
       background: radial-gradient(circle at 30% 25%, #fff3a0, #f1c40f);
       border: 2px solid #9a7d0a;
     }
 
-    /* ✅ REINA (corona) súper visible */
+    /* REINA (King) visible */
     .kingMark{
       width: 64%;
       height: 64%;
@@ -260,7 +265,10 @@
     <header>
       <div class="title">
         <h1>Damero — Estrategia</h1>
-        <p>Tú juegas <b>Rojas</b>. Captura (“come”) hacia adelante y hacia atrás. Si puedes comer, es obligatorio.</p>
+        <p>
+          Se juega en <b>casillas blancas</b>. Si puedes <b>comer</b>, es obligatorio.
+          La <b>King</b> se mueve en diagonal <b>en cualquier dirección</b> y <b>sin restricción de casillas</b>.
+        </p>
         <div class="credit">✍️ <b>Por: Soamy Lanza, 2025</b></div>
       </div>
       <div class="panel">
@@ -306,9 +314,9 @@
 
         <p style="margin-top:10px;">
           Tips:
-          <br>• Si puedes <b>comer</b>, es obligatorio.
-          <br>• Comer en cadena (multi-salto) te da ventaja.
-          <br>• Corona: llega al borde contrario y serás <b>Reina</b>.
+          <br>• Captura obligatoria.
+          <br>• Multi-captura (en cadena) si aplica.
+          <br>• King “vuela”: avanza varias casillas en diagonal.
         </p>
       </aside>
     </section>
@@ -352,6 +360,15 @@
   const idx = (r,c)=> r*8+c;
   const rc = (i)=> [Math.floor(i/8), i%8];
   const inb = (r,c)=> r>=0 && r<8 && c>=0 && c<8;
+
+  // ✅ JUGAR EN CASILLAS BLANCAS:
+  // (r+c)%2===0 son "light" (blancas) en nuestro render,
+  // y en diagonales te quedas en el mismo color.
+  const isPlayableRC = (r,c) => ((r+c)%2===0);
+  const isPlayableI = (i) => {
+    const [r,c]=rc(i);
+    return isPlayableRC(r,c);
+  };
 
   const isP1 = (v)=> v===P1 || v===K1;
   const isP2 = (v)=> v===P2 || v===K2;
@@ -426,16 +443,20 @@
 
   function setupInitial(){
     B.fill(EMPTY);
+
+    // IA (amarillas) arriba en casillas blancas
     for(let r=0;r<3;r++){
       for(let c=0;c<8;c++){
-        if((r+c)%2===1) B[idx(r,c)] = P2;
+        if(isPlayableRC(r,c)) B[idx(r,c)] = P2;
       }
     }
+    // Jugador (rojas) abajo en casillas blancas
     for(let r=5;r<8;r++){
       for(let c=0;c<8;c++){
-        if((r+c)%2===1) B[idx(r,c)] = P1;
+        if(isPlayableRC(r,c)) B[idx(r,c)] = P1;
       }
     }
+
     turn=P1;
     moves=0;
     score=0;
@@ -448,13 +469,13 @@
     resetTimer();
     render();
     updateHUD();
-    log("Nuevo juego. Tú: Rojas. IA: Amarillas.");
+    log("Nuevo juego. Tú: Rojas. IA: Amarillas. (Se juega en casillas blancas)");
   }
 
   function restartBoardKeepTimer(){
     B.fill(EMPTY);
-    for(let r=0;r<3;r++) for(let c=0;c<8;c++) if((r+c)%2===1) B[idx(r,c)] = P2;
-    for(let r=5;r<8;r++) for(let c=0;c<8;c++) if((r+c)%2===1) B[idx(r,c)] = P1;
+    for(let r=0;r<3;r++) for(let c=0;c<8;c++) if(isPlayableRC(r,c)) B[idx(r,c)] = P2;
+    for(let r=5;r<8;r++) for(let c=0;c<8;c++) if(isPlayableRC(r,c)) B[idx(r,c)] = P1;
     turn=P1;
     moves=0;
     sel=null;
@@ -467,50 +488,129 @@
     log("Reiniciar: tablero restaurado (timer y puntaje se mantienen).");
   }
 
-  // Captura en todas direcciones (adelante y atrás), también para fichas normales.
-  function moveDirs(piece){
-    if(isKing(piece)) return [[-1,-1],[-1,1],[1,-1],[1,1]];
+  // Direcciones diagonales
+  const DIAGS = [[-1,-1],[-1,1],[1,-1],[1,1]];
+
+  // Peón: movimiento normal (una casilla diagonal hacia adelante)
+  function manMoveDirs(piece){
     return (isP1(piece)) ? [[-1,-1],[-1,1]] : [[1,-1],[1,1]];
   }
-  function captureDirs(_piece){
-    return [[-1,-1],[-1,1],[1,-1],[1,1]];
+
+  // ✅ Captura peón: adelante y atrás (como pediste)
+  function manCaptureDirs(){
+    return DIAGS;
+  }
+
+  // ✅ KING “sin restricción de casillas”:
+  // mueve/captura en diagonal cualquier distancia.
+  function kingSlideMoves(b, from){
+    const out=[];
+    const [r,c]=rc(from);
+    for(const [dr,dc] of DIAGS){
+      let rr=r+dr, cc=c+dc;
+      while(inb(rr,cc)){
+        const to=idx(rr,cc);
+        if(!isPlayableRC(rr,cc)) break; // por seguridad (aunque en diagonal mantiene color)
+        if(b[to]!==EMPTY) break;
+        out.push({from,to,captures:[],isCapture:false});
+        rr+=dr; cc+=dc;
+      }
+    }
+    return out;
+  }
+
+  function kingFlyingCaptures(b, from){
+    const piece=b[from];
+    const player = isP1(piece) ? P1 : P2;
+    const oppCheck = (player===P1) ? isP2 : isP1;
+    const out=[];
+    const [r,c]=rc(from);
+
+    for(const [dr,dc] of DIAGS){
+      let rr=r+dr, cc=c+dc;
+      let seenEnemy = null;
+
+      while(inb(rr,cc)){
+        const i = idx(rr,cc);
+        if(!isPlayableRC(rr,cc)) break;
+
+        if(b[i]===EMPTY){
+          // si ya vimos enemigo, esta casilla vacía es aterrizaje posible
+          if(seenEnemy!=null){
+            out.push({from, to:i, captures:[seenEnemy], isCapture:true});
+          }
+          rr+=dr; cc+=dc;
+          continue;
+        }
+
+        // hay pieza
+        if(seenEnemy!=null){
+          // ya hay un enemigo “marcado” y encontramos otra pieza -> bloquea
+          break;
+        }
+
+        // primera pieza que encontramos:
+        if(oppCheck(b[i])){
+          seenEnemy = i; // candidato a capturar
+          rr+=dr; cc+=dc;
+          continue;
+        } else {
+          // pieza propia bloquea
+          break;
+        }
+      }
+    }
+    return out;
   }
 
   function movesFrom(b, from){
     const piece = b[from];
     if(piece===EMPTY) return [];
+    if(!isPlayableI(from)) return []; // solo piezas en casillas blancas
+
+    // KING
+    if(isKing(piece)){
+      const caps = kingFlyingCaptures(b, from);
+      if(caps.length) return caps; // prioridad captura
+      return kingSlideMoves(b, from);
+    }
+
+    // PEÓN
     const player = isP1(piece) ? P1 : P2;
     const oppCheck = (player===P1) ? isP2 : isP1;
     const [r,c] = rc(from);
 
-    const caps = [];
-    for(const [dr,dc] of captureDirs(piece)){
+    // capturas (adelante y atrás) de 2 casillas
+    const caps=[];
+    for(const [dr,dc] of manCaptureDirs()){
       const r1=r+dr, c1=c+dc;
       const r2=r+2*dr, c2=c+2*dc;
       if(!inb(r2,c2)) continue;
-      const mid = idx(r1,c1), to = idx(r2,c2);
+      if(!isPlayableRC(r1,c1) || !isPlayableRC(r2,c2)) continue;
+      const mid=idx(r1,c1), to=idx(r2,c2);
       if(oppCheck(b[mid]) && b[to]===EMPTY){
-        caps.push({ from, to, captures:[mid], isCapture:true });
+        caps.push({from,to,captures:[mid],isCapture:true});
       }
     }
     if(caps.length) return caps;
 
-    const steps = [];
-    for(const [dr,dc] of moveDirs(piece)){
+    // pasos normales (solo adelante)
+    const steps=[];
+    for(const [dr,dc] of manMoveDirs(piece)){
       const rr=r+dr, cc=c+dc;
       if(!inb(rr,cc)) continue;
+      if(!isPlayableRC(rr,cc)) continue;
       const to=idx(rr,cc);
-      if(b[to]===EMPTY){
-        steps.push({from,to,captures:[],isCapture:false});
-      }
+      if(b[to]===EMPTY) steps.push({from,to,captures:[],isCapture:false});
     }
     return steps;
   }
 
   function allMovesForPlayer(b, player){
-    const out = [];
+    const out=[];
     for(let i=0;i<64;i++){
-      const v = b[i];
+      if(!isPlayableI(i)) continue;
+      const v=b[i];
       if(player===P1 && !isP1(v)) continue;
       if(player===P2 && !isP2(v)) continue;
       out.push(...movesFrom(b, i));
@@ -525,13 +625,14 @@
   }
 
   function applyMove(b, m){
-    const nb = b.slice();
-    let piece = nb[m.from];
+    const nb=b.slice();
+    let piece=nb[m.from];
     nb[m.from]=EMPTY;
     nb[m.to]=piece;
     for(const cap of m.captures) nb[cap]=EMPTY;
 
-    const [tr] = rc(m.to);
+    // coronación (peón)
+    const [tr]=rc(m.to);
     if(piece===P1 && tr===0) nb[m.to]=K1;
     if(piece===P2 && tr===7) nb[m.to]=K2;
 
@@ -539,14 +640,20 @@
   }
 
   function nextCapturesFrom(b, pos){
-    const piece = b[pos];
-    const oppCheck = isP1(piece) ? isP2 : isP1;
-    const [r,c] = rc(pos);
-    const caps = [];
-    for(const [dr,dc] of captureDirs(piece)){
+    const piece=b[pos];
+    if(piece===EMPTY) return [];
+    if(isKing(piece)) return kingFlyingCaptures(b, pos);
+
+    // peón
+    const player = isP1(piece) ? P1 : P2;
+    const oppCheck = (player===P1) ? isP2 : isP1;
+    const [r,c]=rc(pos);
+    const caps=[];
+    for(const [dr,dc] of manCaptureDirs()){
       const r1=r+dr, c1=c+dc;
       const r2=r+2*dr, c2=c+2*dc;
       if(!inb(r2,c2)) continue;
+      if(!isPlayableRC(r1,c1) || !isPlayableRC(r2,c2)) continue;
       const mid=idx(r1,c1), to=idx(r2,c2);
       if(oppCheck(b[mid]) && b[to]===EMPTY){
         caps.push({from:pos,to,captures:[mid],isCapture:true});
@@ -555,6 +662,7 @@
     return caps;
   }
 
+  // IA
   function aiDepth(){
     const lvl = levelSel.value;
     if(lvl==="low") return 2;
@@ -570,13 +678,13 @@
       else if(v===K1) k1++;
       else if(v===K2) k2++;
     }
-    const material = (p1 - p2) * 10 + (k1 - k2) * 18;
+    const material = (p1 - p2) * 10 + (k1 - k2) * 22;
     const mob1 = allMovesForPlayer(b, P1).length;
     const mob2 = allMovesForPlayer(b, P2).length;
     const mobility = (mob1 - mob2) * 0.6;
     const caps1 = allMovesForPlayer(b, P1).filter(m=>m.isCapture).length;
     const caps2 = allMovesForPlayer(b, P2).filter(m=>m.isCapture).length;
-    const threat = (caps1 - caps2) * 1.1;
+    const threat = (caps1 - caps2) * 1.2;
     return material + mobility + threat;
   }
 
@@ -591,23 +699,17 @@
     return a===0 || b2===0 || m1===0 || m2===0;
   }
 
-  function promotes(b, m){
-    const piece = b[m.from];
-    const [tr] = rc(m.to);
-    return (piece===P1 && tr===0) || (piece===P2 && tr===7);
-  }
-
   function applyForcedMulti(b, startPos){
-    let nb = b.slice();
-    let pos = startPos;
+    let nb=b.slice();
+    let pos=startPos;
     while(true){
       const caps = nextCapturesFrom(nb, pos);
       if(!caps.length) break;
-      let best = caps[0], bestVal = -Infinity;
+      let best=caps[0], bestVal=-Infinity;
       for(const m of caps){
         const tb = applyMove(nb, m);
         const v = evalBoard(tb);
-        if(v > bestVal){ bestVal=v; best=m; }
+        if(v>bestVal){ bestVal=v; best=m; }
       }
       nb = applyMove(nb, best);
       pos = best.to;
@@ -620,14 +722,10 @@
 
     const {all, caps, mustCapture} = mustCaptureMoves(b, player);
     let list = (mustCapture ? caps : all).slice();
-
-    list.sort((a,bm)=>{
-      const aK = promotes(b, a) ? 1 : 0;
-      const bK = promotes(b, bm) ? 1 : 0;
-      return (bm.isCapture - a.isCapture) + (bK - aK);
-    });
-
     if(!list.length) return {score: evalBoard(b), best:null};
+
+    // orden simple: capturas primero
+    list.sort((a,bm)=> (bm.isCapture - a.isCapture));
 
     if(player===P1){
       let bestScore=-Infinity, best=null;
@@ -667,7 +765,7 @@
     const {a,b} = counts();
     let k1=0,k2=0;
     for(const v of B){ if(v===K1) k1++; else if(v===K2) k2++; }
-    let s = (a-b)*35 + (k1-k2)*55 - Math.floor(seconds*0.7) - moves*2;
+    let s = (a-b)*35 + (k1-k2)*70 - Math.floor(seconds*0.7) - moves*2;
     if(final){
       if(a>b) s += 250;
       else if(a<b) s -= 120;
@@ -734,7 +832,7 @@
     moves++;
 
     if(wasCapture){
-      score = Math.max(0, score + 40 + (m.captures.length*20));
+      score = Math.max(0, score + 40 + (m.captures.length*25));
       scoreEl.textContent = score;
     }
 
@@ -825,7 +923,13 @@
     for(let i=0;i<64;i++){
       const [r,c]=rc(i);
       const cell=document.createElement("div");
-      cell.className="cell " + (((r+c)%2===0) ? "light":"dark");
+
+      const isLight = ((r+c)%2===0);
+      cell.className="cell " + (isLight ? "light":"dark");
+
+      // casillas jugables = blancas
+      if(isPlayableRC(r,c)) cell.classList.add("playable");
+
       cell.setAttribute("data-i", i);
 
       const v=B[i];
@@ -859,6 +963,9 @@
   function onCell(i){
     if(isTerminal(B)) return;
     if(turn!==P1) return;
+
+    // solo interactuar en casillas blancas (jugables)
+    if(!isPlayableI(i)) return;
 
     const v=B[i];
 
