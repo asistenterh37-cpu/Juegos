@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Sudoku Web</title>
   <style>
     :root{
@@ -19,8 +19,11 @@
       --pad: 12px;
       --gap: 14px;
 
-      /* tamaño base del tablero (se recalcula en JS) */
-      --boardMax: 440px;
+      /* tablero: tamaño dinámico */
+      --boardMax: 420px;
+
+      /* móvil: cuando está en modo compacto (default) */
+      --mobileCompact: 1;
     }
 
     *{ box-sizing:border-box; }
@@ -36,7 +39,6 @@
       overflow-x:hidden;
     }
 
-    /* Desktop: intentamos evitar scroll de página, y si hace falta, scrollea panel derecho */
     @media (min-width: 921px){
       body{ height: 100vh; overflow: hidden; }
     }
@@ -66,7 +68,6 @@
       min-height: 0;
     }
 
-    /* En móvil: menos sombra (para que no “parezca superpuesto”) */
     @media (max-width: 520px){
       .card{ box-shadow: var(--shadowMobile); }
     }
@@ -92,17 +93,14 @@
     }
     .credit{
       font-size: 12px;
-      font-weight: 800;
+      font-weight: 900;
       color: var(--muted);
       padding: 2px 8px;
       border: 1px solid rgba(255,255,255,.12);
       border-radius: 999px;
       background: rgba(0,0,0,.15);
     }
-    .title small{
-      color: var(--muted);
-      font-size: 12px;
-    }
+    .title small{ color: var(--muted); font-size: 12px; }
 
     .controls{
       display:flex;
@@ -112,7 +110,7 @@
       justify-content:flex-end;
     }
 
-    select, button, .toggle{
+    select, button, .toggle, .pill{
       border:1px solid var(--outline);
       background: rgba(10,16,36,.55);
       color: var(--text);
@@ -160,7 +158,7 @@
     .timer span{ color: var(--muted); font-size: 12px; }
     .timer strong{ font-size: 13px; }
 
-    /* LEFT CONTENT */
+    /* LEFT */
     .main{
       padding: var(--pad);
       display:grid;
@@ -212,7 +210,7 @@
       background: rgba(5,9,20,.75);
       cursor: default;
       color: rgba(232,238,255,.95);
-      font-weight: 800;
+      font-weight: 900;
     }
     .cell.selected{
       outline: 2px solid rgba(106,169,255,.85);
@@ -240,7 +238,7 @@
     }
     .note{ display:flex; align-items:center; justify-content:center; opacity:.8; }
 
-    /* RIGHT CONTENT */
+    /* RIGHT */
     .side{
       padding: var(--pad);
       display:flex;
@@ -249,7 +247,6 @@
       min-height: 0;
     }
 
-    /* Desktop: el panel derecho puede scrollear sin mover toda la página */
     @media (min-width: 921px){
       .side{
         max-height: calc(100vh - 24px);
@@ -294,6 +291,7 @@
       box-shadow: 0 0 0 4px rgba(53,208,127,.12);
     }
 
+    /* teclado */
     .numpad{
       display:grid;
       grid-template-columns: repeat(3, 1fr);
@@ -350,16 +348,32 @@
       line-height: 1.35;
     }
 
-    /* Mobile ultra: apila, compacta, y reduce tablero */
+    /* --------- MÓVIL: aquí está el “arreglo” --------- */
     @media (max-width: 520px){
       body{ padding: 10px; }
-      .controls{ justify-content:flex-start; }
-      .timer{ min-width: 104px; }
-      .numpad button{ padding: 11px 0; }
-      .title{ min-width: 200px; }
+      .app{ gap: 14px; }
 
-      /* separación extra entre cards para evitar “efecto superpuesto” */
-      .app{ gap: 18px; }
+      /* menos alto en header */
+      .title{ min-width: 200px; }
+      .controls{ justify-content:flex-start; }
+      .timer{ min-width: 102px; }
+
+      /* tablero MÁS pequeño para que quepa teclado completo */
+      .boardWrap{ padding: 8px; }
+      .main{ gap: 10px; }
+
+      /* oculta/colapsa por defecto secciones que empujan al teclado */
+      details[data-mobile-hide="1"]{
+        display: none;
+      }
+
+      /* hacemos el panel de entrada más compacto */
+      .panel{ padding: 11px; }
+      .numpad{ gap: 9px; }
+      .numpad button{ padding: 11px 0; }
+
+      /* tip visual: evita que parezca “cortado” por el safe-area */
+      body{ padding-bottom: calc(10px + env(safe-area-inset-bottom)); }
     }
 
     .footerBrand{
@@ -405,8 +419,9 @@
           <div class="board" id="board" role="grid" aria-label="Tablero Sudoku"></div>
         </div>
 
-        <details>
-          <summary>Atajos <span style="color:var(--muted); font-weight:800; text-transform:none;">(clic)</span></summary>
+        <!-- En móvil lo ocultamos para que quepa el teclado -->
+        <details data-mobile-hide="1" id="shortcutsBox">
+          <summary>Atajos <span style="color:var(--muted); font-weight:900; text-transform:none;">(clic)</span></summary>
           <div class="tipsBody">
             - <b>1-9</b> poner número<br/>
             - <b>0</b>/<b>Backspace</b> borrar<br/>
@@ -420,8 +435,8 @@
 
     <!-- RIGHT -->
     <div class="card">
-      <div class="side">
-        <div class="panel">
+      <div class="side" id="side">
+        <div class="panel" id="entryPanel">
           <h2>Entrada</h2>
           <div class="row">
             <div id="toggleNotes" class="toggle" role="button" tabindex="0" aria-label="Notas">
@@ -446,10 +461,11 @@
             <button id="btnCheck">Verificar</button>
           </div>
 
-          <div class="msg" id="msg">Genera un tablero y a jugar. 🧠</div>
+          <div class="msg" id="msg">Selecciona una celda primero.</div>
         </div>
 
-        <details>
+        <!-- En móvil lo ocultamos por defecto para que se vea teclado completo -->
+        <details data-mobile-hide="1" id="tipsBox">
           <summary>Tips</summary>
           <div class="tipsBody">
             - “Limpiar” borra tus entradas (no toca las fijas).<br/>
@@ -467,10 +483,9 @@
 <script>
 (() => {
   const BRAND = "Por Soamy Lanza 2025.1";
-
-  // ---------- Sudoku utilities ----------
   const N = 9;
   const ALL = [1,2,3,4,5,6,7,8,9];
+
   const deepCopy = (g) => g.map(r => r.slice());
 
   function shuffle(arr){
@@ -506,7 +521,6 @@
     return null;
   }
 
-  // Solver
   function solve(grid, countSolutions=false){
     const empty = findEmpty(grid);
     if(!empty) return countSolutions ? 1 : true;
@@ -562,7 +576,7 @@
     return 54;
   }
 
-  // ---------- UI state ----------
+  // ---------- UI refs ----------
   const boardEl = document.getElementById("board");
   const msgEl = document.getElementById("msg");
   const timerEl = document.getElementById("timer");
@@ -596,7 +610,7 @@
     msgEl.textContent = text;
   }
 
-  // ---------- Timer ----------
+  // Timer
   function fmtTime(sec){
     const m = Math.floor(sec/60);
     const s = sec % 60;
@@ -616,30 +630,27 @@
     }, 1000);
   }
 
-  // ---------- Board sizing (más pequeño + sin superposiciones) ----------
+  // --------- KEY FIX: tamaño del tablero pensando en el teclado móvil ----------
   function setBoardMaxToFit(){
     const vh = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
     const vw = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
 
-    // Target: tablero más pequeño SIEMPRE.
-    // Desktop: queremos que no haga scroll de página.
-    // Mobile: que se vea bien y no “pegue” con el panel de abajo.
-    let max;
-
-    if(vw >= 921){
-      // desktop: reserva para header + padding + algo de aire
-      max = Math.min(420, Math.max(300, vh - 260));
-    } else {
-      // mobile: más pequeño
-      max = Math.min(360, Math.max(260, vh - 420));
-      // y también limitado por ancho
-      max = Math.min(max, vw - 56);
+    // queremos reservar espacio para: header + entrada (teclado) + márgenes
+    if(vw <= 520){
+      // reserva aproximada para: header + panel entrada + safe-area
+      const reserve = 520; // agresivo para que SIEMPRE quepa el teclado
+      let max = Math.min(340, Math.max(250, vh - reserve));
+      max = Math.min(max, vw - 40); // por ancho
+      document.documentElement.style.setProperty("--boardMax", max + "px");
+      return;
     }
 
+    // desktop/tablet
+    let max = Math.min(420, Math.max(300, vh - 260));
     document.documentElement.style.setProperty("--boardMax", max + "px");
   }
 
-  // ---------- Share ----------
+  // Share
   function serializePuzzleForShare(){
     if(!puzzle) return null;
     return puzzle.flat().join("");
@@ -692,12 +703,10 @@
     if(url){
       const ok = await copyToClipboard(url);
       setMsg(ok ? `Enlace copiado: ${url}` : `Aquí está tu enlace: ${url}`, ok ? "ok" : "warn");
-    }else{
-      setMsg("No detecté URL https. Abre desde GitHub Pages.", "warn");
-    }
+    } else setMsg("No detecté URL https. Abre desde GitHub Pages.", "warn");
   }
 
-  // ---------- Render board ----------
+  // Render
   function buildEmptyNotes(){
     return Array.from({length:N}, () =>
       Array.from({length:N}, () => new Set())
@@ -812,7 +821,7 @@
     });
   }
 
-  // ---------- Input ----------
+  // Input
   function toggleNotes(force){
     if(typeof force === "boolean") notesMode = force;
     else notesMode = !notesMode;
@@ -849,7 +858,7 @@
 
     if(isSolved()){
       stopTimer();
-      setMsg("¡Listo! Sudoku resuelto. Cerebro: 1, Caos: 0. 🏆", "ok");
+      setMsg("¡Listo! Sudoku resuelto. 🏆", "ok");
     }
   }
 
@@ -860,7 +869,7 @@
     return true;
   }
 
-  // ---------- Actions ----------
+  // Actions
   function newGame(){
     const diff = difficultyEl.value;
     setMsg("Generando tablero…");
@@ -887,7 +896,7 @@
     selected = {r:null, c:null};
     render();
     startTimer();
-    setMsg("Reiniciado. Mismo tablero, nuevo intento. 😄");
+    setMsg("Reiniciado. 😄");
   }
 
   function clearUserInputs(){
@@ -901,7 +910,7 @@
       }
     }
     render();
-    setMsg("Entradas limpiadas (las fijas se quedan).");
+    setMsg("Entradas limpiadas.");
   }
 
   function solveNow(){
@@ -911,7 +920,7 @@
     selected = {r:null, c:null};
     render();
     stopTimer();
-    setMsg("Resuelto. La IA te manda saludos. 🤝", "ok");
+    setMsg("Resuelto. 🤝", "ok");
   }
 
   function check(){
@@ -927,11 +936,11 @@
     }
     if(wrong === 0 && filled > 0) setMsg("Vas limpio por ahora. ✅", "ok");
     else if(filled === 0) setMsg("Dale, que el tablero no muerde. 😅", "warn");
-    else setMsg(`Hay ${wrong} casilla(s) con conflicto. Revisa las rojas.`, "warn");
+    else setMsg(`Hay ${wrong} conflicto(s). Revisa rojas.`, "warn");
     paintErrors();
   }
 
-  // ---------- Load puzzle from URL if present ----------
+  // URL puzzle
   function parsePuzzleFromUrl(){
     const sp = new URLSearchParams(location.search);
     const p = sp.get("p");
@@ -948,7 +957,7 @@
   function startFromPuzzle(puz){
     const test = deepCopy(puz);
     const ok = solve(test, false);
-    if(!ok){ setMsg("El puzzle del enlace no es resoluble. Genero uno nuevo.", "warn"); newGame(); return; }
+    if(!ok){ setMsg("Enlace inválido. Genero uno nuevo.", "warn"); newGame(); return; }
 
     puzzle = deepCopy(puz);
     solution = deepCopy(test);
@@ -962,11 +971,11 @@
 
     render();
     startTimer();
-    setMsg(`Sudoku cargado desde enlace. ${BRAND}`);
+    setMsg(`Sudoku cargado. ${BRAND}`);
   }
 
-  // ---------- wiring ----------
-  document.getElementById("btnShare").addEventListener("click", share);
+  // wiring
+  btnShare.addEventListener("click", share);
   btnNew.addEventListener("click", newGame);
   btnRestart.addEventListener("click", restart);
   btnClear.addEventListener("click", clearUserInputs);
@@ -1000,7 +1009,7 @@
     }
   });
 
-  // ---------- Boot ----------
+  // Boot
   function boot(){
     setBoardMaxToFit();
     const fromUrl = parsePuzzleFromUrl();
@@ -1008,7 +1017,14 @@
     else newGame();
   }
 
+  // Recalcular al rotar / cambiar UI del navegador móvil
+  const vv = window.visualViewport;
+  if(vv){
+    vv.addEventListener("resize", setBoardMaxToFit);
+    vv.addEventListener("scroll", setBoardMaxToFit);
+  }
   window.addEventListener("resize", setBoardMaxToFit);
+
   boot();
 })();
 </script>
