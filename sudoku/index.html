@@ -1,0 +1,992 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sudoku Web</title>
+  <style>
+    :root{
+      --bg:#0b1020; --panel:#111a33; --panel2:#0f1730;
+      --text:#e8eeff; --muted:#9fb0e6;
+      --accent:#6aa9ff; --danger:#ff6a8a; --ok:#35d07f; --warn:#ffd76a;
+      --cell:#0c1430; --cell2:#0b1229;
+      --outline: rgba(255,255,255,.10);
+      --shadow: 0 14px 45px rgba(0,0,0,.45);
+      --radius: 16px;
+      --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+    }
+
+    *{ box-sizing:border-box; }
+    body{
+      margin:0; font-family:var(--font);
+      background: radial-gradient(1200px 700px at 20% 0%, #13204a 0%, var(--bg) 55%, #050816 100%);
+      color:var(--text);
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: 18px;
+    }
+
+    .app{
+      width:min(980px, 100%);
+      display:grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap: 16px;
+    }
+
+    @media (max-width: 900px){
+      .app{ grid-template-columns: 1fr; }
+    }
+
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid var(--outline);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+
+    .header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding: 14px 16px;
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+      border-bottom:1px solid var(--outline);
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .title{
+      display:flex; flex-direction:column; gap:4px;
+      min-width: 240px;
+    }
+    .title h1{
+      margin:0; font-size: 18px; letter-spacing:.3px;
+      display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;
+    }
+    .credit{
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted);
+      padding: 3px 8px;
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 999px;
+      background: rgba(0,0,0,.15);
+    }
+    .title small{
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .controls{
+      display:flex; gap: 10px; flex-wrap:wrap; align-items:center; justify-content:flex-end;
+    }
+
+    select, button, .toggle{
+      border:1px solid var(--outline);
+      background: rgba(10,16,36,.55);
+      color: var(--text);
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 14px;
+      outline: none;
+      transition: transform .06s ease, background .2s ease, border-color .2s ease;
+    }
+    select{ padding-right: 34px; }
+
+    button{
+      cursor:pointer;
+      user-select:none;
+      white-space: nowrap;
+    }
+    button:hover{ background: rgba(20,30,70,.65); border-color: rgba(255,255,255,.18); }
+    button:active{ transform: scale(.98); }
+
+    button.primary{
+      background: rgba(106,169,255,.18);
+      border-color: rgba(106,169,255,.45);
+    }
+    button.primary:hover{ background: rgba(106,169,255,.26); }
+
+    button.danger{
+      background: rgba(255,106,138,.12);
+      border-color: rgba(255,106,138,.35);
+    }
+    button.danger:hover{ background: rgba(255,106,138,.18); }
+
+    button.share{
+      background: rgba(53,208,127,.14);
+      border-color: rgba(53,208,127,.38);
+    }
+    button.share:hover{ background: rgba(53,208,127,.20); }
+
+    .timer{
+      display:flex; align-items:center; gap:10px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border:1px solid var(--outline);
+      background: rgba(10,16,36,.55);
+      font-variant-numeric: tabular-nums;
+      min-width: 120px;
+      justify-content: center;
+    }
+    .timer span{ color: var(--muted); font-size: 12px; }
+    .timer strong{ font-size: 14px; }
+
+    .main{
+      padding: 14px;
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .boardWrap{
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      padding: 10px;
+      background: rgba(0,0,0,.10);
+      border:1px solid var(--outline);
+      border-radius: var(--radius);
+    }
+
+    .board{
+      width: min(520px, 92vw);
+      aspect-ratio: 1 / 1;
+      display:grid;
+      grid-template-columns: repeat(9, 1fr);
+      border-radius: 14px;
+      overflow:hidden;
+      border: 2px solid rgba(255,255,255,.16);
+    }
+
+    .cell{
+      position:relative;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background: var(--cell);
+      border:1px solid rgba(255,255,255,.06);
+      font-size: clamp(16px, 3.2vw, 26px);
+      cursor:pointer;
+      user-select:none;
+    }
+
+    .cell:nth-child(odd){ background: var(--cell2); }
+
+    .cell[data-r="0"], .cell[data-r="3"], .cell[data-r="6"]{ border-top:2px solid rgba(255,255,255,.16); }
+    .cell[data-c="0"], .cell[data-c="3"], .cell[data-c="6"]{ border-left:2px solid rgba(255,255,255,.16); }
+    .cell[data-r="8"]{ border-bottom:2px solid rgba(255,255,255,.16); }
+    .cell[data-c="8"]{ border-right:2px solid rgba(255,255,255,.16); }
+
+    .cell.fixed{
+      background: rgba(5,9,20,.75);
+      cursor: default;
+      color: rgba(232,238,255,.95);
+      font-weight: 700;
+    }
+
+    .cell.selected{
+      outline: 2px solid rgba(106,169,255,.85);
+      outline-offset: -2px;
+      z-index: 2;
+    }
+
+    .cell.peer{ background: rgba(106,169,255,.10); }
+    .cell.sameVal{ background: rgba(106,169,255,.18); }
+
+    .cell.error{
+      background: rgba(255,106,138,.18);
+      border-color: rgba(255,106,138,.35);
+      color: var(--text);
+    }
+
+    .notes{
+      position:absolute;
+      inset: 6px;
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      gap: 2px;
+      font-size: clamp(8px, 1.6vw, 11px);
+      color: rgba(232,238,255,.8);
+      pointer-events:none;
+      opacity:.95;
+    }
+    .note{
+      display:flex; align-items:center; justify-content:center;
+      opacity:.8;
+    }
+
+    .side{
+      padding: 14px;
+      display:flex;
+      flex-direction:column;
+      gap: 12px;
+    }
+
+    .panel{
+      padding: 14px;
+      border-radius: var(--radius);
+      border:1px solid var(--outline);
+      background: rgba(10,16,36,.55);
+    }
+
+    .panel h2{
+      margin:0 0 10px 0;
+      font-size: 14px;
+      color: var(--muted);
+      letter-spacing:.3px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .numpad{
+      display:grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+    }
+
+    .numpad button{
+      padding: 12px 0;
+      border-radius: 14px;
+      font-weight: 700;
+      font-size: 14px;
+      background: rgba(255,255,255,.04);
+    }
+    .numpad button.big{
+      grid-column: span 2;
+      font-weight: 700;
+    }
+
+    .row{
+      display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+    }
+
+    .toggle{
+      display:flex; align-items:center; gap:8px;
+      cursor:pointer;
+    }
+    .dot{
+      width: 10px; height: 10px; border-radius: 50%;
+      background: rgba(255,255,255,.25);
+      border:1px solid rgba(255,255,255,.18);
+    }
+    .toggle.on .dot{
+      background: rgba(53,208,127,.95);
+      border-color: rgba(53,208,127,.65);
+      box-shadow: 0 0 0 4px rgba(53,208,127,.12);
+    }
+
+    .msg{
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--outline);
+      background: rgba(0,0,0,.12);
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+      min-height: 42px;
+      overflow-wrap: anywhere;
+    }
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--outline);
+      background: rgba(255,255,255,.04);
+      color: var(--muted);
+      font-size: 12px;
+      margin-right: 6px;
+      margin-top: 6px;
+      user-select:none;
+    }
+
+    .kbd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 11px;
+      border:1px solid rgba(255,255,255,.16);
+      padding: 2px 6px;
+      border-radius: 8px;
+      background: rgba(0,0,0,.22);
+      color: rgba(232,238,255,.9);
+    }
+
+    .footerCredit{
+      text-align:center;
+      padding: 10px 14px 14px;
+      color: rgba(232,238,255,.65);
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="card">
+      <div class="header">
+        <div class="title">
+          <h1>
+            Sudoku
+            <span class="credit">Por Soamy Lanza 2025.1</span>
+          </h1>
+          <small>Responsive • Teclado + táctil • Cronómetro • Compartir</small>
+        </div>
+        <div class="controls">
+          <button class="share" id="btnShare" title="Compartir este Sudoku">Compartir</button>
+
+          <div class="timer" title="Cronómetro">
+            <span>⏱</span>
+            <strong id="timer">00:00</strong>
+          </div>
+
+          <select id="difficulty" aria-label="Nivel">
+            <option value="easy">Bajo</option>
+            <option value="medium">Medio</option>
+            <option value="hard">Alto</option>
+          </select>
+
+          <button class="primary" id="btnNew">Nuevo</button>
+          <button id="btnRestart">Reiniciar</button>
+          <button id="btnClear" class="danger">Limpiar</button>
+          <button id="btnSolve">Resolver</button>
+        </div>
+      </div>
+
+      <div class="main">
+        <div class="boardWrap">
+          <div class="board" id="board" role="grid" aria-label="Tablero Sudoku"></div>
+        </div>
+
+        <div class="panel">
+          <h2>Atajos</h2>
+          <div class="row">
+            <span class="badge"><span class="kbd">1-9</span> poner número</span>
+            <span class="badge"><span class="kbd">0</span> / <span class="kbd">Backspace</span> borrar</span>
+            <span class="badge"><span class="kbd">N</span> notas</span>
+            <span class="badge"><span class="kbd">R</span> reiniciar</span>
+          </div>
+        </div>
+
+        <div class="footerCredit">Por Soamy Lanza 2025.1</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="side">
+        <div class="panel">
+          <h2>Entrada</h2>
+          <div class="row">
+            <div id="toggleNotes" class="toggle" role="button" tabindex="0" aria-label="Notas">
+              <span class="dot"></span>
+              <strong>Notas</strong>
+              <span style="color:var(--muted); font-size:12px;">(N)</span>
+            </div>
+          </div>
+
+          <div class="numpad" style="margin-top:12px;">
+            <button data-num="1">1</button>
+            <button data-num="2">2</button>
+            <button data-num="3">3</button>
+            <button data-num="4">4</button>
+            <button data-num="5">5</button>
+            <button data-num="6">6</button>
+            <button data-num="7">7</button>
+            <button data-num="8">8</button>
+            <button data-num="9">9</button>
+            <button class="big danger" data-num="0">Borrar</button>
+            <button class="big" id="btnCheck">Verificar</button>
+          </div>
+
+          <div class="msg" id="msg">Genera un tablero y a jugar. 🧠</div>
+        </div>
+
+        <div class="panel">
+          <h2>Tips</h2>
+          <div class="msg" style="min-height:auto;">
+            - Selecciona una celda y usa el teclado o el panel.<br/>
+            - “Limpiar” borra tus entradas (no toca las fijas).<br/>
+            - “Reiniciar” vuelve al estado inicial del tablero actual.<br/>
+            - “Resolver” completa el Sudoku (sin juicio… bueno, un poquito 😅).<br/>
+            - “Compartir” manda el enlace y tu tiempo actual.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+(() => {
+  // ---------- Branding ----------
+  const BRAND = "Por Soamy Lanza 2025.1";
+
+  // ---------- Sudoku utilities ----------
+  const N = 9;
+  const ALL = [1,2,3,4,5,6,7,8,9];
+
+  const deepCopy = (g) => g.map(r => r.slice());
+
+  function shuffle(arr){
+    const a = arr.slice();
+    for(let i=a.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [a[i],a[j]] = [a[j],a[i]];
+    }
+    return a;
+  }
+
+  function isValid(grid, r, c, val){
+    for(let i=0;i<N;i++){
+      if(grid[r][i] === val) return false;
+      if(grid[i][c] === val) return false;
+    }
+    const br = Math.floor(r/3)*3;
+    const bc = Math.floor(c/3)*3;
+    for(let rr=br; rr<br+3; rr++){
+      for(let cc=bc; cc<bc+3; cc++){
+        if(grid[rr][cc] === val) return false;
+      }
+    }
+    return true;
+  }
+
+  function findEmpty(grid){
+    for(let r=0;r<N;r++){
+      for(let c=0;c<N;c++){
+        if(grid[r][c] === 0) return [r,c];
+      }
+    }
+    return null;
+  }
+
+  // Backtracking solver. If countSolutions=true, returns number of solutions up to 2.
+  function solve(grid, countSolutions=false){
+    const empty = findEmpty(grid);
+    if(!empty) return countSolutions ? 1 : true;
+    const [r,c] = empty;
+
+    const nums = shuffle(ALL);
+    let solutions = 0;
+
+    for(const v of nums){
+      if(isValid(grid, r, c, v)){
+        grid[r][c] = v;
+        if(countSolutions){
+          solutions += solve(grid, true);
+          if(solutions >= 2){ grid[r][c] = 0; return 2; }
+        } else {
+          if(solve(grid, false)) return true;
+        }
+        grid[r][c] = 0;
+      }
+    }
+    return countSolutions ? solutions : false;
+  }
+
+  function generateSolved(){
+    const g = Array.from({length:N}, () => Array(N).fill(0));
+    solve(g, false);
+    return g;
+  }
+
+  function makePuzzle(solved, holes){
+    const g = deepCopy(solved);
+    let cells = [];
+    for(let r=0;r<N;r++) for(let c=0;c<N;c++) cells.push([r,c]);
+    cells = shuffle(cells);
+
+    let removed = 0;
+    for(const [r,c] of cells){
+      if(removed >= holes) break;
+      const backup = g[r][c];
+      g[r][c] = 0;
+
+      const test = deepCopy(g);
+      const nsol = solve(test, true);
+      if(nsol !== 1){
+        g[r][c] = backup;
+      } else {
+        removed++;
+      }
+    }
+    return g;
+  }
+
+  function holesByDifficulty(diff){
+    if(diff === "easy") return 38;
+    if(diff === "medium") return 46;
+    return 54;
+  }
+
+  // ---------- UI state ----------
+  const boardEl = document.getElementById("board");
+  const msgEl = document.getElementById("msg");
+  const timerEl = document.getElementById("timer");
+
+  const btnShare = document.getElementById("btnShare");
+  const btnNew = document.getElementById("btnNew");
+  const btnRestart = document.getElementById("btnRestart");
+  const btnClear = document.getElementById("btnClear");
+  const btnSolve = document.getElementById("btnSolve");
+  const btnCheck = document.getElementById("btnCheck");
+
+  const difficultyEl = document.getElementById("difficulty");
+  const toggleNotesEl = document.getElementById("toggleNotes");
+
+  let solution = null;
+  let puzzle = null;
+  let current = null;
+  let fixed = null;
+  let notes = null;
+  let selected = {r:null, c:null};
+  let notesMode = false;
+
+  let timer = {t:0, id:null, running:false};
+
+  function setMsg(text, kind="info"){
+    msgEl.style.borderColor = "rgba(255,255,255,.10)";
+    msgEl.style.color = "var(--muted)";
+    if(kind==="ok"){ msgEl.style.borderColor = "rgba(53,208,127,.35)"; msgEl.style.color = "rgba(232,238,255,.92)"; }
+    if(kind==="warn"){ msgEl.style.borderColor = "rgba(255,215,106,.35)"; msgEl.style.color = "rgba(232,238,255,.92)"; }
+    if(kind==="err"){ msgEl.style.borderColor = "rgba(255,106,138,.35)"; msgEl.style.color = "rgba(232,238,255,.92)"; }
+    msgEl.textContent = text;
+  }
+
+  // ---------- Timer ----------
+  function fmtTime(sec){
+    const m = Math.floor(sec/60);
+    const s = sec % 60;
+    return String(m).padStart(2,"0")+":"+String(s).padStart(2,"0");
+  }
+  function stopTimer(){
+    if(timer.id) clearInterval(timer.id);
+    timer.id = null;
+    timer.running = false;
+  }
+  function startTimer(){
+    stopTimer();
+    timer.t = 0;
+    timerEl.textContent = fmtTime(timer.t);
+    timer.running = true;
+    timer.id = setInterval(() => {
+      timer.t++;
+      timerEl.textContent = fmtTime(timer.t);
+    }, 1000);
+  }
+  function pauseTimer(){
+    stopTimer();
+  }
+
+  // ---------- Share ----------
+  function serializePuzzleForShare(){
+    if(!puzzle) return null;
+    return puzzle.flat().join(""); // 81 chars
+  }
+
+  function getDifficultyLabel(){
+    const map = {easy:"Bajo", medium:"Medio", hard:"Alto"};
+    return map[difficultyEl.value] || "Sudoku";
+  }
+
+  function buildShareUrl(){
+    const base = location.origin && location.protocol.startsWith("http") ? location.origin + location.pathname : null;
+    const p = serializePuzzleForShare();
+    if(!p) return null;
+    if(!base) return null;
+
+    const url = new URL(base);
+    url.searchParams.set("d", difficultyEl.value);
+    url.searchParams.set("p", p);
+    return url.toString();
+  }
+
+  async function copyToClipboard(text){
+    try{
+      await navigator.clipboard.writeText(text);
+      return true;
+    }catch{
+      try{
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        ta.style.position="fixed";
+        ta.style.left="-9999px";
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        const ok = document.execCommand("copy");
+        document.body.removeChild(ta);
+        return ok;
+      }catch{
+        return false;
+      }
+    }
+  }
+
+  async function share(){
+    const url = buildShareUrl();
+    const diff = getDifficultyLabel();
+    const time = timerEl.textContent;
+
+    const title = "Sudoku Web";
+    const text =
+      url
+        ? `Te reto a este Sudoku (${diff}). Mi tiempo: ${time}. ${BRAND}`
+        : `Te reto a este Sudoku (${diff}). Mi tiempo: ${time}. ${BRAND} (Súbelo a GitHub Pages/Netlify/Vercel para compartir el enlace)`;
+
+    if(url && navigator.share){
+      try{
+        await navigator.share({ title, text, url });
+        setMsg("Compartido ✅", "ok");
+        return;
+      }catch(err){
+        // cancelado o no permitido
+      }
+    }
+
+    if(url){
+      const ok = await copyToClipboard(url);
+      setMsg(ok ? `Enlace copiado: ${url}` : `No pude copiar automáticamente. Aquí está: ${url}`, ok ? "ok" : "warn");
+    }else{
+      const hint = "Para compartir: sube este archivo a GitHub Pages/Netlify/Vercel y comparte el link https.";
+      const ok = await copyToClipboard(hint);
+      setMsg(ok ? "Copié una nota al portapapeles (estás en file://). 👀" : hint, "warn");
+    }
+  }
+
+  // ---------- Render board ----------
+  function buildEmptyNotes(){
+    return Array.from({length:N}, () =>
+      Array.from({length:N}, () => new Set())
+    );
+  }
+
+  function render(){
+    boardEl.innerHTML = "";
+    for(let r=0;r<N;r++){
+      for(let c=0;c<N;c++){
+        const v = current[r][c];
+        const cell = document.createElement("div");
+        cell.className = "cell";
+        cell.dataset.r = r;
+        cell.dataset.c = c;
+
+        if(fixed[r][c]){
+          cell.classList.add("fixed");
+          cell.textContent = v ? String(v) : "";
+        } else {
+          if(v){
+            cell.textContent = String(v);
+          } else {
+            const ns = notes[r][c];
+            if(ns && ns.size){
+              const notesEl = document.createElement("div");
+              notesEl.className = "notes";
+              for(let k=1;k<=9;k++){
+                const n = document.createElement("div");
+                n.className = "note";
+                n.textContent = ns.has(k) ? String(k) : "";
+                notesEl.appendChild(n);
+              }
+              cell.appendChild(notesEl);
+            }
+          }
+        }
+
+        cell.addEventListener("click", () => selectCell(r,c));
+        boardEl.appendChild(cell);
+      }
+    }
+    highlightPeers();
+    highlightSameVal();
+    paintErrors();
+  }
+
+  function selectCell(r,c){
+    selected = {r,c};
+    highlightPeers();
+    highlightSameVal();
+    paintErrors();
+  }
+
+  function clearHighlights(){
+    boardEl.querySelectorAll(".cell").forEach(el=>{
+      el.classList.remove("selected","peer","sameVal","error");
+    });
+  }
+
+  function highlightPeers(){
+    clearHighlights();
+    const {r,c} = selected;
+    if(r===null) return;
+
+    const cells = boardEl.querySelectorAll(".cell");
+    cells.forEach(el=>{
+      const rr = +el.dataset.r;
+      const cc = +el.dataset.c;
+      if(rr===r && cc===c) el.classList.add("selected");
+      const sameRow = rr===r;
+      const sameCol = cc===c;
+      const sameBox = (Math.floor(rr/3)===Math.floor(r/3)) && (Math.floor(cc/3)===Math.floor(c/3));
+      if((sameRow || sameCol || sameBox) && !(rr===r && cc===c)){
+        el.classList.add("peer");
+      }
+    });
+  }
+
+  function highlightSameVal(){
+    const {r,c} = selected;
+    if(r===null) return;
+    const v = current[r][c];
+    if(!v) return;
+    boardEl.querySelectorAll(".cell").forEach(el=>{
+      const rr = +el.dataset.r;
+      const cc = +el.dataset.c;
+      if(current[rr][cc] === v) el.classList.add("sameVal");
+    });
+  }
+
+  function paintErrors(){
+    const conflicts = new Set();
+    for(let r=0;r<N;r++){
+      for(let c=0;c<N;c++){
+        const v = current[r][c];
+        if(!v) continue;
+        for(let i=0;i<N;i++){
+          if(i!==c && current[r][i]===v) { conflicts.add(r+","+c); conflicts.add(r+","+i); }
+          if(i!==r && current[i][c]===v) { conflicts.add(r+","+c); conflicts.add(i+","+c); }
+        }
+        const br = Math.floor(r/3)*3, bc=Math.floor(c/3)*3;
+        for(let rr=br; rr<br+3; rr++){
+          for(let cc=bc; cc<bc+3; cc++){
+            if(rr===r && cc===c) continue;
+            if(current[rr][cc]===v) { conflicts.add(r+","+c); conflicts.add(rr+","+cc); }
+          }
+        }
+      }
+    }
+    boardEl.querySelectorAll(".cell").forEach(el=>{
+      const key = el.dataset.r + "," + el.dataset.c;
+      if(conflicts.has(key)) el.classList.add("error");
+    });
+  }
+
+  // ---------- Input ----------
+  function toggleNotes(force){
+    if(typeof force === "boolean") notesMode = force;
+    else notesMode = !notesMode;
+    toggleNotesEl.classList.toggle("on", notesMode);
+    setMsg(notesMode ? "Modo notas activado." : "Modo notas desactivado.");
+  }
+
+  function setValue(num){
+    const {r,c} = selected;
+    if(r===null) { setMsg("Selecciona una celda primero.", "warn"); return; }
+    if(fixed[r][c]) { setMsg("Esa celda es fija (no se toca).", "warn"); return; }
+
+    if(num === 0){
+      current[r][c] = 0;
+      notes[r][c].clear();
+      render();
+      return;
+    }
+
+    if(notesMode){
+      if(current[r][c] !== 0){
+        setMsg("Quita el número antes de poner notas (Borrar).", "warn");
+        return;
+      }
+      if(notes[r][c].has(num)) notes[r][c].delete(num);
+      else notes[r][c].add(num);
+      render();
+      return;
+    }
+
+    current[r][c] = num;
+    notes[r][c].clear();
+    render();
+
+    if(isSolved()){
+      pauseTimer();
+      setMsg("¡Listo! Sudoku resuelto. Cerebro: 1, Caos: 0. 🏆", "ok");
+    }
+  }
+
+  function isSolved(){
+    for(let r=0;r<N;r++) for(let c=0;c<N;c++){
+      if(current[r][c] !== solution[r][c]) return false;
+    }
+    return true;
+  }
+
+  // ---------- Actions ----------
+  function newGame(){
+    const diff = difficultyEl.value;
+    setMsg("Generando tablero…");
+
+    solution = generateSolved();
+    puzzle = makePuzzle(solution, holesByDifficulty(diff));
+    current = deepCopy(puzzle);
+
+    fixed = Array.from({length:N}, (_,r) =>
+      Array.from({length:N}, (_,c) => puzzle[r][c] !== 0)
+    );
+    notes = buildEmptyNotes();
+    selected = {r:null, c:null};
+
+    render();
+    startTimer();
+    setMsg(`Nuevo Sudoku (${difficultyEl.options[difficultyEl.selectedIndex].text}). ${BRAND}`);
+  }
+
+  function restart(){
+    if(!puzzle) return;
+    current = deepCopy(puzzle);
+    notes = buildEmptyNotes();
+    selected = {r:null, c:null};
+    render();
+    startTimer();
+    setMsg("Reiniciado. Mismo tablero, nuevo intento. 😄");
+  }
+
+  function clearUserInputs(){
+    if(!puzzle) return;
+    for(let r=0;r<N;r++){
+      for(let c=0;c<N;c++){
+        if(!fixed[r][c]){
+          current[r][c] = 0;
+          notes[r][c].clear();
+        }
+      }
+    }
+    render();
+    setMsg("Entradas limpiadas (las fijas se quedan).");
+  }
+
+  function solveNow(){
+    if(!solution) return;
+    current = deepCopy(solution);
+    notes = buildEmptyNotes();
+    selected = {r:null, c:null};
+    render();
+    pauseTimer();
+    setMsg("Resuelto. La IA te manda saludos. 🤝", "ok");
+  }
+
+  function check(){
+    if(!solution) return;
+    let wrong = 0, filled = 0;
+    for(let r=0;r<N;r++){
+      for(let c=0;c<N;c++){
+        if(current[r][c] !== 0){
+          filled++;
+          if(current[r][c] !== solution[r][c]) wrong++;
+        }
+      }
+    }
+    if(wrong === 0 && filled > 0){
+      setMsg("Vas limpio por ahora. Sigue así. ✅", "ok");
+    } else if(filled === 0){
+      setMsg("Todavía no has puesto nada. Dale, que el tablero no muerde. 😅", "warn");
+    } else {
+      setMsg(`Hay ${wrong} casilla(s) con conflicto. Revisa las rojas.`, "warn");
+    }
+    paintErrors();
+  }
+
+  // ---------- Load puzzle from URL if present ----------
+  function parsePuzzleFromUrl(){
+    const sp = new URLSearchParams(location.search);
+    const p = sp.get("p");
+    const d = sp.get("d");
+    if(d && ["easy","medium","hard"].includes(d)) difficultyEl.value = d;
+
+    if(!p || p.length !== 81 || !/^[0-9]+$/.test(p)) return null;
+    const nums = p.split("").map(x => +x);
+    const g = [];
+    for(let r=0;r<N;r++){
+      g.push(nums.slice(r*9, r*9+9));
+    }
+    return g;
+  }
+
+  function startFromPuzzle(puz){
+    const test = deepCopy(puz);
+    const ok = solve(test, false);
+    if(!ok){
+      setMsg("El puzzle del enlace no es resoluble. Genero uno nuevo.", "warn");
+      newGame();
+      return;
+    }
+
+    puzzle = deepCopy(puz);
+    solution = deepCopy(test);
+    current = deepCopy(puzzle);
+
+    fixed = Array.from({length:N}, (_,r) =>
+      Array.from({length:N}, (_,c) => puzzle[r][c] !== 0)
+    );
+    notes = buildEmptyNotes();
+    selected = {r:null, c:null};
+
+    render();
+    startTimer();
+    setMsg(`Sudoku cargado desde enlace. ${BRAND}`);
+  }
+
+  // ---------- Event wiring ----------
+  btnShare.addEventListener("click", share);
+  btnNew.addEventListener("click", newGame);
+  btnRestart.addEventListener("click", restart);
+  btnClear.addEventListener("click", clearUserInputs);
+  btnSolve.addEventListener("click", solveNow);
+  btnCheck.addEventListener("click", check);
+
+  toggleNotesEl.addEventListener("click", () => toggleNotes());
+  toggleNotesEl.addEventListener("keydown", (e) => {
+    if(e.key === "Enter" || e.key === " "){
+      e.preventDefault();
+      toggleNotes();
+    }
+  });
+
+  document.querySelectorAll(".numpad button[data-num]").forEach(btn=>{
+    btn.addEventListener("click", () => setValue(+btn.dataset.num));
+  });
+
+  window.addEventListener("keydown", (e) => {
+    if(e.key === "n" || e.key === "N") toggleNotes();
+    if(e.key === "r" || e.key === "R") restart();
+
+    if(e.key >= "1" && e.key <= "9") setValue(+e.key);
+    if(e.key === "0" || e.key === "Backspace" || e.key === "Delete") setValue(0);
+
+    if(e.key === "Escape"){
+      selected = {r:null, c:null};
+      render();
+    }
+  });
+
+  document.addEventListener("click", (e) => {
+    const inside = e.target.closest("#board");
+    if(!inside && !e.target.closest(".numpad") && !e.target.closest(".controls")){
+      selected = {r:null, c:null};
+      render();
+    }
+  });
+
+  // ---------- Boot ----------
+  const fromUrl = parsePuzzleFromUrl();
+  if(fromUrl){
+    startFromPuzzle(fromUrl);
+  } else {
+    newGame();
+  }
+})();
+</script>
+</body>
+</html>
