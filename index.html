@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Diagnóstico Organizacional - Escala Likert (20 ítems)</title>
+  <title>Instrumento Empresarial Premium · Diagnóstico Organizacional</title>
   <style>
     :root{
       --bg:#0b0f14;
@@ -15,7 +15,6 @@
       --warn:#f59e0b;
       --bad:#ef4444;
       --good:#60a5fa;
-      --chip:#0f172a;
       --shadow: 0 12px 35px rgba(0,0,0,.35);
       --radius: 16px;
       --radius2: 12px;
@@ -31,24 +30,19 @@
       color:var(--text);
     }
     header{
-      padding:28px 16px 12px;
+      padding:22px 16px 10px;
       max-width:1100px;
       margin:0 auto;
     }
     .title{
-      display:flex; align-items:flex-start; justify-content:space-between; gap:16px;
+      display:flex; align-items:center; justify-content:space-between; gap:16px;
       flex-wrap:wrap;
     }
     h1{
-      margin:0 0 8px;
-      font-size: clamp(20px, 2.4vw, 30px);
-      letter-spacing:.2px;
-    }
-    .sub{
       margin:0;
-      color:var(--muted);
-      line-height:1.45;
-      max-width: 900px;
+      font-size: clamp(20px, 2.2vw, 28px);
+      letter-spacing:.2px;
+      white-space: nowrap; /* una sola línea */
     }
     .brand{
       color:var(--muted);
@@ -73,6 +67,7 @@
     }
     @media (max-width: 980px){
       .grid{ grid-template-columns: 1fr; }
+      h1{ white-space: normal; } /* en móvil que se adapte */
     }
     .card{
       background: rgba(18,24,38,.88);
@@ -115,6 +110,7 @@
     .row{
       display:grid;
       gap:12px;
+      margin-top:12px;
     }
 
     .item{
@@ -136,10 +132,12 @@
       border-radius:999px;
       background: rgba(18,24,38,.35);
     }
+
+    /* Aumentamos letra de ítems */
     .q{
       margin:0;
-      font-size:14px;
-      line-height:1.45;
+      font-size:16px;
+      line-height:1.55;
     }
 
     .likert{
@@ -147,9 +145,6 @@
       grid-template-columns: repeat(5, 1fr);
       gap:8px;
       margin-top:10px;
-    }
-    @media (max-width:560px){
-      .likert{ grid-template-columns: repeat(5, 1fr); }
     }
     .opt{
       border:1px solid var(--line);
@@ -179,21 +174,6 @@
       font-weight:900;
       letter-spacing:.5px;
       color: var(--text);
-    }
-
-    /* Inputs premium */
-    .field{
-      width:100%;
-      padding:10px;
-      border-radius:12px;
-      border:1px solid var(--line);
-      background: rgba(18,24,38,.35);
-      color: var(--text);
-      outline:none;
-    }
-    .field:focus{
-      border-color: rgba(96,165,250,.6);
-      box-shadow: 0 0 0 3px rgba(96,165,250,.12);
     }
 
     .actions{
@@ -309,16 +289,11 @@
     }
   </style>
 </head>
+
 <body>
 <header>
   <div class="title">
-    <div>
-      <h1>Instrumento Empresarial Premium · Diagnóstico Organizacional (Likert 1–5)</h1>
-      <p class="sub">
-        Responde 20 ítems. Al final verás puntaje total, resultados por dimensión, resumen ejecutivo,
-        conclusiones y recomendaciones automáticas.
-      </p>
-    </div>
+    <h1>Instrumento Empresarial Premium · Diagnóstico Organizacional</h1>
     <div class="brand">Por: Soamy Lanza 2025.1</div>
   </div>
 </header>
@@ -351,45 +326,7 @@
           <span class="pill">Resultados inmediatos</span>
         </div>
 
-        <!-- Datos del respondiente (premium) -->
-        <div class="item" style="margin-top:12px; margin-bottom:12px;">
-          <div class="meta">
-            <span class="dim">Datos del respondiente (opcional)</span>
-            <span class="small muted">Útil para segmentar por área/rol</span>
-          </div>
-
-          <div style="display:grid; grid-template-columns: repeat(2,1fr); gap:10px;">
-            <div>
-              <div class="small muted">Empresa</div>
-              <input id="empresa" class="field" type="text" placeholder="Ej. CBS" />
-            </div>
-            <div>
-              <div class="small muted">Área / Departamento</div>
-              <input id="area" class="field" type="text" placeholder="Ej. Producción" />
-            </div>
-            <div>
-              <div class="small muted">Cargo / Rol</div>
-              <input id="rol" class="field" type="text" placeholder="Ej. Supervisor" />
-            </div>
-            <div>
-              <div class="small muted">Antigüedad</div>
-              <select id="antiguedad" class="field">
-                <option value="">Seleccionar…</option>
-                <option>0–6 meses</option>
-                <option>6–12 meses</option>
-                <option>1–3 años</option>
-                <option>3–5 años</option>
-                <option>5+ años</option>
-              </select>
-            </div>
-          </div>
-
-          <p class="small muted" style="margin-top:10px;">
-            Confidencialidad: este diagnóstico calcula resultados en el navegador del usuario.
-            (Si luego quieres guardar resultados centralizados en Google Sheets, te lo configuro.)
-          </p>
-        </div>
-
+        <!-- Items -->
         <div class="row" id="items"></div>
 
         <div class="sect">
@@ -433,7 +370,7 @@
           <div class="bar" id="bar"></div>
         </div>
 
-        <!-- Resumen ejecutivo premium -->
+        <!-- Resumen ejecutivo -->
         <div class="sect">
           <h3>Resumen ejecutivo</h3>
           <div id="execSummary" class="small muted"></div>
@@ -477,10 +414,8 @@
 </main>
 
 <footer>
-  <div>
-    <span class="muted">
-      Nota: Este instrumento es diagnóstico y orientativo; se interpreta mejor con contexto (tipo de empresa, tamaño, sector, etc.).
-    </span>
+  <div class="muted">
+    Nota: Instrumento diagnóstico orientativo; se interpreta mejor con contexto (sector, tamaño, estrategia, etc.).
   </div>
 </footer>
 
@@ -533,11 +468,8 @@
     { id:20, dim:"innovacion", text:"La organización se adapta con rapidez a los cambios del entorno." }
   ];
 
-  const LIKERT = [
-    { v:1 }, { v:2 }, { v:3 }, { v:4 }, { v:5 }
-  ];
-
-  const STORAGE_KEY = "diag_org_likert_premium_v1";
+  const LIKERT = [{v:1},{v:2},{v:3},{v:4},{v:5}];
+  const STORAGE_KEY = "diag_org_likert_premium_v2";
 
   // =========================
   // RENDER
@@ -549,14 +481,29 @@
     return (DIMENSIONS.find(d => d.key===key)?.name) || key;
   }
 
+  // Dimensión solo una vez (cuando cambia)
   function renderItems(){
     itemsEl.innerHTML = "";
+    let lastDim = null;
+
     ITEMS.forEach(it=>{
+      if(it.dim !== lastDim){
+        const dimHeader = document.createElement("div");
+        dimHeader.className = "item";
+        dimHeader.style.padding = "10px 12px";
+        dimHeader.innerHTML = `
+          <div class="meta" style="margin-bottom:0;">
+            <span class="dim">${dimName(it.dim)}</span>
+          </div>
+        `;
+        itemsEl.appendChild(dimHeader);
+        lastDim = it.dim;
+      }
+
       const wrap = document.createElement("div");
       wrap.className = "item";
       wrap.innerHTML = `
         <div class="meta">
-          <span class="dim">${dimName(it.dim)}</span>
           <span class="small muted">Ítem ${it.id} / 20</span>
         </div>
         <p class="q">${it.text}</p>
@@ -578,16 +525,6 @@
   // =========================
   // HELPERS
   // =========================
-  function getMeta(){
-    return {
-      empresa: document.getElementById("empresa")?.value?.trim() || "",
-      area: document.getElementById("area")?.value?.trim() || "",
-      rol: document.getElementById("rol")?.value?.trim() || "",
-      antiguedad: document.getElementById("antiguedad")?.value || "",
-      fecha: new Date().toISOString()
-    };
-  }
-
   function getResponses(){
     const res = {};
     ITEMS.forEach(it=>{
@@ -747,8 +684,7 @@
     }
 
     bottom.forEach(d=>{
-      const picks = baseRecs[d.key] || [];
-      picks.forEach(p=> recs.push(`<b>${d.name}:</b> ${p}`));
+      (baseRecs[d.key] || []).forEach(p=> recs.push(`<b>${d.name}:</b> ${p}`));
     });
 
     if(answered < totalItems){
@@ -782,9 +718,9 @@
     results.dims.forEach(d=>{
       const pct = d.answered ? (d.sum / (d.answered*5)) : 0;
       const scoreText = d.answered ? `${d.sum} pts · prom ${d.avg.toFixed(2)}/5` : "Sin respuestas";
-      const tag = document.createElement("div");
-      tag.className = "item";
-      tag.innerHTML = `
+      const box = document.createElement("div");
+      box.className = "item";
+      box.innerHTML = `
         <div class="meta">
           <span class="dim">${d.name}</span>
           <span class="tag ${d.answered ? d.level.color : ""}">
@@ -796,7 +732,7 @@
           <div class="bar" style="width:${clamp(pct*100,0,100)}%"></div>
         </div>
       `;
-      dimResultsEl.appendChild(tag);
+      dimResultsEl.appendChild(box);
     });
 
     conclusionsEl.innerHTML = results.conclusions.map(x=>`<li>${x}</li>`).join("");
@@ -830,7 +766,6 @@
       .join(" ");
 
     window.__LAST_RESULTS__ = results;
-    window.__LAST_META__ = getMeta();
   }
 
   // =========================
@@ -838,15 +773,8 @@
   // =========================
   function saveProgress(){
     const res = getResponses();
-    const meta = {
-      empresa: document.getElementById("empresa")?.value?.trim() || "",
-      area: document.getElementById("area")?.value?.trim() || "",
-      rol: document.getElementById("rol")?.value?.trim() || "",
-      antiguedad: document.getElementById("antiguedad")?.value || ""
-    };
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
       savedAt: new Date().toISOString(),
-      meta,
       responses: res
     }));
   }
@@ -888,28 +816,14 @@
       return;
     }
     setResponses(data.responses || {});
-    // Cargar meta
-    if(data.meta){
-      document.getElementById("empresa").value = data.meta.empresa || "";
-      document.getElementById("area").value = data.meta.area || "";
-      document.getElementById("rol").value = data.meta.rol || "";
-      document.getElementById("antiguedad").value = data.meta.antiguedad || "";
-    }
     setStatus(`📥 Avance cargado (guardado: ${new Date(data.savedAt).toLocaleString()}).`, "info");
   });
 
   document.getElementById("btnLimpiar").addEventListener("click", ()=>{
     ITEMS.forEach(it=>{
-      const nodes = document.querySelectorAll(`input[name="q${it.id}"]`);
-      nodes.forEach(n=> n.checked = false);
+      document.querySelectorAll(`input[name="q${it.id}"]`).forEach(n=> n.checked = false);
     });
     localStorage.removeItem(STORAGE_KEY);
-
-    document.getElementById("empresa").value = "";
-    document.getElementById("area").value = "";
-    document.getElementById("rol").value = "";
-    document.getElementById("antiguedad").value = "";
-
     setStatus("🧹 Respuestas limpiadas y avance eliminado.", "info");
 
     document.getElementById("totalScore").textContent = "—";
@@ -926,7 +840,6 @@
     pill.className = "pill";
 
     window.__LAST_RESULTS__ = null;
-    window.__LAST_META__ = null;
   });
 
   // =========================
@@ -946,7 +859,6 @@
       s.textContent = "Primero calcula resultados.";
       return;
     }
-    const meta = window.__LAST_META__ || getMeta();
 
     const dimLines = r.dims
       .filter(d=>d.answered>0)
@@ -957,15 +869,8 @@
     const recPlain = stripHtml(r.recs).slice(0,10).map(x=>`- ${x}`).join("\n");
 
     const text =
-`DIAGNÓSTICO ORGANIZACIONAL (Likert 1–5) · PREMIUM
+`INSTRUMENTO EMPRESARIAL PREMIUM · DIAGNÓSTICO ORGANIZACIONAL (Likert 1–5)
 Por: Soamy Lanza 2025.1
-
-Datos (opcional):
-- Empresa: ${meta.empresa || "—"}
-- Área: ${meta.area || "—"}
-- Rol: ${meta.rol || "—"}
-- Antigüedad: ${meta.antiguedad || "—"}
-- Fecha: ${new Date(meta.fecha).toLocaleString()}
 
 Resultados:
 - Puntaje total: ${r.total}/${r.maxTotal}
@@ -987,13 +892,11 @@ ${recPlain || "- (sin datos)"}
       await navigator.clipboard.writeText(text);
       s.textContent = "✅ Resumen copiado. Pégalo en WhatsApp/redes.";
     }catch(e){
-      s.textContent = "No se pudo copiar (tu navegador bloqueó el portapapeles). Usa Imprimir/PDF y copia desde ahí.";
+      s.textContent = "No se pudo copiar (bloqueo del navegador). Usa Imprimir/PDF.";
     }
   });
 
-  document.getElementById("btnImprimir").addEventListener("click", ()=>{
-    window.print();
-  });
+  document.getElementById("btnImprimir").addEventListener("click", ()=> window.print());
 
   function downloadFile(filename, content, mime){
     const blob = new Blob([content], {type: mime});
@@ -1012,9 +915,8 @@ ${recPlain || "- (sin datos)"}
     const s = document.getElementById("copyStatus");
     if(!r){ s.textContent = "Primero calcula resultados."; return; }
 
-    const meta = window.__LAST_META__ || getMeta();
     const payload = {
-      meta,
+      fecha: new Date().toISOString(),
       total: r.total,
       maxTotal: r.maxTotal,
       avg: Number(r.avg.toFixed(2)),
@@ -1037,11 +939,10 @@ ${recPlain || "- (sin datos)"}
     const s = document.getElementById("copyStatus");
     if(!r){ s.textContent = "Primero calcula resultados."; return; }
 
-    const meta = window.__LAST_META__ || getMeta();
-    const header = ["fecha","empresa","area","rol","antiguedad","dimension","avg","score","max","nivel"];
+    const header = ["fecha","dimension","avg","score","max","nivel"];
+    const fecha = new Date().toISOString();
     const rows = r.dims.map(d=>[
-      meta.fecha, meta.empresa, meta.area, meta.rol, meta.antiguedad,
-      d.name, d.avg.toFixed(2), d.sum, d.max, d.level.label
+      fecha, d.name, d.avg.toFixed(2), d.sum, d.max, d.level.label
     ]);
 
     const csv = [header, ...rows]
@@ -1062,12 +963,6 @@ ${recPlain || "- (sin datos)"}
       const data = JSON.parse(raw);
       if(data?.responses){
         setResponses(data.responses);
-        if(data.meta){
-          document.getElementById("empresa").value = data.meta.empresa || "";
-          document.getElementById("area").value = data.meta.area || "";
-          document.getElementById("rol").value = data.meta.rol || "";
-          document.getElementById("antiguedad").value = data.meta.antiguedad || "";
-        }
         setStatus(`📌 Avance detectado y pre-cargado (guardado: ${new Date(data.savedAt).toLocaleString()}).`, "info");
       }
     }catch(e){ /* ignore */ }
