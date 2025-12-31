@@ -1,0 +1,1113 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Mis metas 2026</title>
+  <meta name="theme-color" content="#0b1220" />
+  <style>
+    :root{
+      --bg1:#050814;
+      --bg2:#0b1220;
+      --card: rgba(255,255,255,.08);
+      --card2: rgba(255,255,255,.12);
+      --text: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.72);
+      --line: rgba(255,255,255,.18);
+      --good: #45f0a8;
+      --warn: #ffd166;
+      --bad: #ff5c7a;
+      --shadow: 0 18px 60px rgba(0,0,0,.45);
+      --radius: 18px;
+      --radius2: 14px;
+      --blur: 14px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      font-family: var(--sans);
+      color: var(--text);
+      overflow-x:hidden;
+      background:
+        radial-gradient(1200px 700px at 20% 15%, rgba(255,205,56,.18), transparent 60%),
+        radial-gradient(900px 650px at 90% 20%, rgba(127,90,240,.18), transparent 55%),
+        radial-gradient(900px 800px at 70% 110%, rgba(69,240,168,.12), transparent 60%),
+        linear-gradient(180deg, var(--bg1), var(--bg2));
+    }
+
+    /* Fireworks-ish particles (CSS only, no imágenes externas) */
+    .sky{
+      position:fixed; inset:0;
+      pointer-events:none;
+      opacity:.7;
+      filter: drop-shadow(0 0 20px rgba(255,255,255,.06));
+    }
+    .spark{
+      position:absolute;
+      width:3px; height:3px;
+      background:rgba(255,255,255,.9);
+      border-radius:50%;
+      box-shadow: 0 0 18px rgba(255,255,255,.35);
+      animation: floaty linear infinite;
+    }
+    @keyframes floaty{
+      from{ transform: translateY(20px); opacity:.0; }
+      15%{ opacity:.7; }
+      60%{ opacity:.25; }
+      to{ transform: translateY(-140px); opacity:0; }
+    }
+
+    .container{
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 22px 16px 60px;
+      position:relative;
+      z-index:1;
+    }
+
+    header{
+      display:flex;
+      gap:14px;
+      align-items:flex-start;
+      justify-content:space-between;
+      flex-wrap:wrap;
+      margin-bottom:16px;
+    }
+
+    .hero{
+      flex: 1 1 520px;
+      background: linear-gradient(135deg, rgba(255,255,255,.10), rgba(255,255,255,.05));
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 18px 18px 14px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(var(--blur));
+    }
+
+    .kicker{
+      font-family: var(--mono);
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      font-size:12px;
+      color: var(--muted);
+      display:flex; gap:10px; align-items:center;
+    }
+    .dot{
+      width:8px; height:8px; border-radius:999px;
+      background: linear-gradient(90deg, #ffd166, #7f5af0);
+      box-shadow: 0 0 18px rgba(255,209,102,.25);
+    }
+    h1{
+      margin:10px 0 6px;
+      font-size: clamp(26px, 3.2vw, 40px);
+      line-height:1.05;
+    }
+    .subtitle{
+      margin:0 0 10px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height:1.35;
+    }
+    .byline{
+      margin-top:10px;
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      color: var(--muted);
+      font-size:12px;
+    }
+    .byline strong{ color: rgba(255,255,255,.88); }
+
+    .actions{
+      flex: 0 0 auto;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:flex-start;
+      justify-content:flex-end;
+    }
+
+    .btn{
+      appearance:none;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.08);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 14px;
+      cursor:pointer;
+      font-weight:600;
+      font-size: 13px;
+      letter-spacing:.01em;
+      box-shadow: 0 10px 30px rgba(0,0,0,.25);
+      backdrop-filter: blur(var(--blur));
+      transition: transform .08s ease, background .15s ease, border-color .15s ease;
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
+      user-select:none;
+    }
+    .btn:hover{ transform: translateY(-1px); background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.25); }
+    .btn:active{ transform: translateY(0px); }
+    .btn.primary{
+      border-color: rgba(69,240,168,.35);
+      background: linear-gradient(135deg, rgba(69,240,168,.18), rgba(127,90,240,.10));
+    }
+    .btn.danger{
+      border-color: rgba(255,92,122,.35);
+      background: linear-gradient(135deg, rgba(255,92,122,.18), rgba(255,209,102,.08));
+    }
+    .btn.small{ padding:8px 10px; font-size:12px; border-radius:12px; }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap:14px;
+      margin-top:14px;
+    }
+    @media (max-width: 980px){
+      .grid{ grid-template-columns: 1fr; }
+      .actions{ justify-content:flex-start; }
+    }
+
+    .panel{
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.06);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(var(--blur));
+      overflow:hidden;
+    }
+    .panel .head{
+      padding: 14px 14px 10px;
+      border-bottom: 1px solid var(--line);
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .panel .head h2{
+      margin:0;
+      font-size:16px;
+      letter-spacing:.01em;
+    }
+    .panel .head p{
+      margin:4px 0 0;
+      color: var(--muted);
+      font-size:12px;
+      line-height:1.35;
+      max-width: 70ch;
+    }
+    .panel .body{ padding:14px; }
+
+    .row{
+      display:grid;
+      grid-template-columns: 1fr 200px 210px;
+      gap:10px;
+      align-items:end;
+      margin-bottom: 10px;
+    }
+    @media (max-width: 760px){
+      .row{ grid-template-columns: 1fr; }
+    }
+
+    label{
+      font-size:12px;
+      color: var(--muted);
+      display:block;
+      margin: 0 0 6px;
+    }
+    input[type="text"], input[type="date"], select, textarea{
+      width:100%;
+      padding: 10px 11px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(0,0,0,.18);
+      color: var(--text);
+      outline:none;
+      transition: border-color .15s ease, background .15s ease;
+    }
+    textarea{ min-height: 86px; resize: vertical; }
+    input:focus, select:focus, textarea:focus{
+      border-color: rgba(255,255,255,.35);
+      background: rgba(0,0,0,.24);
+    }
+
+    .split{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+    }
+
+    .chips{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-top: 10px;
+    }
+    .chip{
+      border:1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.06);
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size:12px;
+      color: var(--muted);
+      cursor:pointer;
+      user-select:none;
+      transition: background .15s ease, transform .08s ease;
+    }
+    .chip:hover{ background: rgba(255,255,255,.10); transform: translateY(-1px); }
+    .chip.active{
+      border-color: rgba(69,240,168,.35);
+      color: rgba(255,255,255,.88);
+      background: rgba(69,240,168,.10);
+    }
+
+    .list{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    .item{
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.06);
+      border-radius: var(--radius2);
+      padding: 12px 12px 10px;
+      display:grid;
+      grid-template-columns: 1fr auto;
+      gap:10px;
+    }
+    .item.done{
+      opacity:.75;
+      background: rgba(69,240,168,.07);
+      border-color: rgba(69,240,168,.25);
+    }
+    .item .title{
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+    }
+    .badge{
+      font-size:11px;
+      padding: 3px 8px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.18);
+      color: rgba(255,255,255,.86);
+      background: rgba(0,0,0,.18);
+      white-space:nowrap;
+      margin-top:2px;
+    }
+    .badge.metas{ border-color: rgba(127,90,240,.35); background: rgba(127,90,240,.12); }
+    .badge.dejar{ border-color: rgba(255,92,122,.35); background: rgba(255,92,122,.10); }
+    .badge.continuar{ border-color: rgba(255,209,102,.38); background: rgba(255,209,102,.10); }
+    .badge.empezar{ border-color: rgba(69,240,168,.35); background: rgba(69,240,168,.10); }
+
+    .item h3{
+      margin:0;
+      font-size:14px;
+      line-height:1.25;
+    }
+    .meta{
+      margin-top:6px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      color: var(--muted);
+      font-size:12px;
+      align-items:center;
+    }
+    .meta .pill{
+      font-family: var(--mono);
+      border:1px dashed rgba(255,255,255,.22);
+      padding: 2px 8px;
+      border-radius:999px;
+    }
+    .desc{
+      margin: 8px 0 0;
+      color: rgba(255,255,255,.82);
+      font-size:13px;
+      line-height:1.35;
+      white-space:pre-wrap;
+    }
+
+    .toolbar{
+      display:flex;
+      gap:8px;
+      justify-content:flex-end;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+
+    .hint{
+      margin-top:10px;
+      font-size:12px;
+      color: var(--muted);
+      line-height:1.35;
+    }
+
+    .footer{
+      margin-top: 14px;
+      color: rgba(255,255,255,.70);
+      font-size:12px;
+      text-align:center;
+      padding: 12px 10px 0;
+    }
+
+    .toast{
+      position: fixed;
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,.55);
+      border:1px solid rgba(255,255,255,.18);
+      padding: 10px 12px;
+      border-radius: 999px;
+      color: rgba(255,255,255,.92);
+      font-size: 12px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(var(--blur));
+      opacity:0;
+      pointer-events:none;
+      transition: opacity .18s ease, transform .18s ease;
+      z-index: 99;
+    }
+    .toast.show{ opacity:1; transform: translateX(-50%) translateY(-2px); }
+
+    .modal{
+      position: fixed; inset:0;
+      display:none;
+      place-items:center;
+      padding: 16px;
+      background: rgba(0,0,0,.55);
+      z-index: 100;
+    }
+    .modal.show{ display:grid; }
+    .modal .box{
+      width: min(760px, 100%);
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(15,18,30,.72);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(var(--blur));
+      overflow:hidden;
+    }
+    .modal .box .head{
+      padding: 14px 14px 10px;
+      border-bottom: 1px solid rgba(255,255,255,.16);
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+    }
+    .modal .box .head h2{ margin:0; font-size:15px; }
+    .modal .box .body{ padding: 14px; }
+    .modal .box .body pre{
+      margin:0;
+      padding: 12px;
+      border-radius: 14px;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.18);
+      color: rgba(255,255,255,.85);
+      overflow:auto;
+      max-height: 50vh;
+      font-size: 12px;
+      line-height: 1.35;
+      font-family: var(--mono);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="sky" id="sky" aria-hidden="true"></div>
+
+  <div class="container">
+    <header>
+      <section class="hero" role="banner">
+        <div class="kicker"><span class="dot"></span><span>Fin de 2025 · Arranque 2026</span></div>
+        <h1>Mis metas 2026</h1>
+        <p class="subtitle">
+          Cierra 2025 con intención y entra a 2026 con foco. Anota tus compromisos, ponles fecha límite y vuelve cuando quieras:
+          la app guarda todo en tu dispositivo (y también puedes exportar/importar un respaldo).
+        </p>
+        <div class="byline">
+          <span>🗓️ <span id="todayLabel"></span></span>
+          <span><strong>Por Soamy Lanza</strong></span>
+        </div>
+      </section>
+
+      <div class="actions">
+        <button class="btn primary" id="shareBtn" title="Compartir la app (si estás alojándola en un link)">
+          🔗 Compartir
+        </button>
+        <button class="btn" id="exportBtn" title="Descarga un respaldo JSON con tus metas">
+          ⬇️ Exportar
+        </button>
+        <label class="btn" for="importFile" title="Importa un respaldo JSON">
+          ⬆️ Importar
+          <input id="importFile" type="file" accept="application/json" hidden />
+        </label>
+        <button class="btn danger" id="resetBtn" title="Borra todo (sin piedad)">
+          🧨 Borrar todo
+        </button>
+      </div>
+    </header>
+
+    <main class="grid" role="main">
+      <!-- Formulario -->
+      <section class="panel" aria-label="Agregar compromiso">
+        <div class="head">
+          <div>
+            <h2>Agregar compromiso</h2>
+            <p>Elige categoría, escribe tu compromiso, agrega detalle (opcional) y una fecha límite. Se guarda automáticamente.</p>
+          </div>
+        </div>
+        <div class="body">
+          <div class="row">
+            <div>
+              <label for="title">Compromiso (título corto)</label>
+              <input id="title" type="text" maxlength="120" placeholder="Ej: Terminar mi portafolio de automatizaciones" />
+            </div>
+            <div>
+              <label for="category">Categoría</label>
+              <select id="category">
+                <option value="metas">Metas (2026)</option>
+                <option value="dejar">Dejar de hacer</option>
+                <option value="continuar">Continuar haciendo</option>
+                <option value="empezar">Empezar a hacer</option>
+              </select>
+            </div>
+            <div>
+              <label for="deadline">Fecha límite</label>
+              <input id="deadline" type="date" />
+            </div>
+          </div>
+
+          <div style="margin-bottom:10px;">
+            <label for="desc">Detalle (opcional)</label>
+            <textarea id="desc" placeholder="Ej: Definir 5 casos de uso, grabar demos, publicar en LinkedIn, etc."></textarea>
+          </div>
+
+          <div class="split">
+            <button class="btn primary" id="addBtn">✅ Guardar compromiso</button>
+            <div class="hint" id="autosaveHint">💾 Guardado automático activo</div>
+          </div>
+
+          <div class="hint">
+            Tip: si no pones fecha, igual se guarda… pero luego no digas que “se te fue el año”. 😄
+          </div>
+        </div>
+      </section>
+
+      <!-- Lista -->
+      <section class="panel" aria-label="Lista de compromisos">
+        <div class="head">
+          <div>
+            <h2>Mis compromisos</h2>
+            <p>Filtra por categoría, marca como hecho/a, edita o elimina. Todo queda guardado para cuando regreses.</p>
+          </div>
+
+          <div class="toolbar">
+            <select id="sort">
+              <option value="createdDesc">Más recientes</option>
+              <option value="deadlineAsc">Fecha límite (próxima)</option>
+              <option value="deadlineDesc">Fecha límite (lejana)</option>
+              <option value="alphaAsc">A-Z</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="body">
+          <div class="chips" role="tablist" aria-label="Filtros">
+            <div class="chip active" data-filter="all" role="tab" aria-selected="true">Todos</div>
+            <div class="chip" data-filter="metas" role="tab" aria-selected="false">Metas</div>
+            <div class="chip" data-filter="dejar" role="tab" aria-selected="false">Dejar</div>
+            <div class="chip" data-filter="continuar" role="tab" aria-selected="false">Continuar</div>
+            <div class="chip" data-filter="empezar" role="tab" aria-selected="false">Empezar</div>
+            <div class="chip" data-filter="done" role="tab" aria-selected="false">Hechos</div>
+            <div class="chip" data-filter="pending" role="tab" aria-selected="false">Pendientes</div>
+          </div>
+
+          <div class="hint" id="stats"></div>
+
+          <div class="list" id="list" style="margin-top:10px;"></div>
+
+          <div class="footer">
+            ✨ Que 2026 te agarre trabajando… pero también viviendo. — <strong>Por Soamy Lanza</strong>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <div class="modal" id="modal" role="dialog" aria-modal="true" aria-label="Compartir">
+    <div class="box">
+      <div class="head">
+        <h2>Compartir</h2>
+        <button class="btn small" id="closeModal">✖️ Cerrar</button>
+      </div>
+      <div class="body">
+        <p style="margin:0 0 10px; color: rgba(255,255,255,.78); font-size:13px; line-height:1.35;">
+          Si ya publicaste esta página en un link (GitHub Pages / Netlify / Vercel), pega aquí tu URL para generar un mensaje listo para WhatsApp/redes.
+        </p>
+        <div class="row" style="grid-template-columns: 1fr 210px;">
+          <div>
+            <label for="shareUrl">URL publicada</label>
+            <input id="shareUrl" type="text" placeholder="https://tusitio.com/mis-metas-2026" />
+          </div>
+          <div>
+            <button class="btn primary" id="makeMsgBtn" style="width:100%; justify-content:center;">🧾 Generar mensaje</button>
+          </div>
+        </div>
+
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
+          <button class="btn" id="copyMsgBtn">📋 Copiar mensaje</button>
+          <button class="btn" id="copyLinkBtn">🔗 Copiar link</button>
+          <button class="btn" id="webShareBtn">📲 Compartir (móvil)</button>
+        </div>
+
+        <div style="margin-top:12px;">
+          <label>Mensaje</label>
+          <pre id="shareMsg"></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+(() => {
+  const KEY = "mis_metas_2026_v1";
+  const $ = (id) => document.getElementById(id);
+
+  const titleEl = $("title");
+  const catEl = $("category");
+  const deadlineEl = $("deadline");
+  const descEl = $("desc");
+  const addBtn = $("addBtn");
+  const listEl = $("list");
+  const toastEl = $("toast");
+  const statsEl = $("stats");
+  const sortEl = $("sort");
+
+  const exportBtn = $("exportBtn");
+  const importFile = $("importFile");
+  const resetBtn = $("resetBtn");
+  const shareBtn = $("shareBtn");
+
+  const modal = $("modal");
+  const closeModal = $("closeModal");
+  const shareUrl = $("shareUrl");
+  const makeMsgBtn = $("makeMsgBtn");
+  const shareMsg = $("shareMsg");
+  const copyMsgBtn = $("copyMsgBtn");
+  const copyLinkBtn = $("copyLinkBtn");
+  const webShareBtn = $("webShareBtn");
+
+  let filter = "all";
+  let state = load();
+
+  // Fecha de hoy
+  const now = new Date();
+  $("todayLabel").textContent = now.toLocaleDateString("es-HN", { weekday:"long", year:"numeric", month:"long", day:"numeric" });
+
+  // Set default deadline a 2026-01-15 (guiño de año nuevo)
+  const pad = (n) => String(n).padStart(2,"0");
+  const defaultDeadline = new Date(Date.UTC(2026, 0, 15));
+  deadlineEl.value = `${defaultDeadline.getUTCFullYear()}-${pad(defaultDeadline.getUTCMonth()+1)}-${pad(defaultDeadline.getUTCDate())}`;
+
+  // Fireworks particles
+  makeSky();
+
+  // Render inicial
+  render();
+
+  // Eventos
+  addBtn.addEventListener("click", () => {
+    const t = titleEl.value.trim();
+    const c = catEl.value;
+    const d = deadlineEl.value || "";
+    const desc = descEl.value.trim();
+
+    if (!t) return toast("Ponle un título al compromiso (aunque sea breve).");
+
+    const item = {
+      id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(16).slice(2),
+      title: t,
+      category: c,
+      deadline: d,
+      desc,
+      done: false,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    };
+
+    state.items.unshift(item);
+    persist();
+    titleEl.value = "";
+    descEl.value = "";
+    toast("Guardado ✅");
+    render();
+  });
+
+  // Autosave (si el usuario escribe y cambia de idea)
+  [titleEl, catEl, deadlineEl, descEl].forEach(el => {
+    el.addEventListener("change", persistDraft);
+    el.addEventListener("input", debounce(persistDraft, 350));
+  });
+
+  sortEl.addEventListener("change", render);
+
+  document.querySelectorAll(".chip").forEach(chip => {
+    chip.addEventListener("click", () => {
+      document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+      chip.classList.add("active");
+      filter = chip.dataset.filter;
+      render();
+    });
+  });
+
+  exportBtn.addEventListener("click", () => {
+    const payload = JSON.stringify(state, null, 2);
+    const blob = new Blob([payload], { type: "application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `mis-metas-2026-${new Date().toISOString().slice(0,10)}.json`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+    toast("Respaldo descargado ⬇️");
+  });
+
+  importFile.addEventListener("change", async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try{
+      const text = await file.text();
+      const data = JSON.parse(text);
+      if (!data || !Array.isArray(data.items)) throw new Error("Formato no válido.");
+      state = normalize(data);
+      persist();
+      render();
+      toast("Importado ✅");
+    }catch(err){
+      toast("Ese JSON no parece de esta app 😅");
+      console.error(err);
+    }finally{
+      importFile.value = "";
+    }
+  });
+
+  resetBtn.addEventListener("click", () => {
+    const ok = confirm("¿Seguro que quieres borrar TODO? Esto no se puede deshacer.");
+    if (!ok) return;
+    state = { items: [], draft: emptyDraft() };
+    persist(true);
+    render();
+    toast("Todo borrado 🧨");
+  });
+
+  // Modal compartir
+  shareBtn.addEventListener("click", () => {
+    openModal();
+  });
+  closeModal.addEventListener("click", closeIt);
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) closeIt();
+  });
+
+  makeMsgBtn.addEventListener("click", () => {
+    const url = (shareUrl.value || "").trim();
+    const safeUrl = url || location.href;
+    const msg =
+`🎆 Mis metas 2026 (Fin 2025 / Inicio 2026)
+Organiza tus:
+✅ Metas
+🧹 Dejar de hacer
+🔁 Continuar haciendo
+🚀 Empezar a hacer
+con fecha límite + guardado automático.
+
+👉 ${safeUrl}
+
+Por Soamy Lanza`;
+    shareMsg.textContent = msg;
+    toast("Mensaje listo 🧾");
+  });
+
+  copyMsgBtn.addEventListener("click", async () => {
+    try{
+      await navigator.clipboard.writeText(shareMsg.textContent || "");
+      toast("Mensaje copiado 📋");
+    }catch{
+      toast("No pude copiar. Selecciona el texto y copia manual.");
+    }
+  });
+
+  copyLinkBtn.addEventListener("click", async () => {
+    const url = (shareUrl.value || "").trim() || location.href;
+    try{
+      await navigator.clipboard.writeText(url);
+      toast("Link copiado 🔗");
+    }catch{
+      toast("No pude copiar el link 😅");
+    }
+  });
+
+  webShareBtn.addEventListener("click", async () => {
+    const url = (shareUrl.value || "").trim() || location.href;
+    const text = shareMsg.textContent || `Mis metas 2026 — Por Soamy Lanza`;
+    if (!navigator.share){
+      toast("Tu navegador no tiene compartir rápido. Copia el mensaje/link 😉");
+      return;
+    }
+    try{
+      await navigator.share({ title: "Mis metas 2026", text, url });
+    }catch{
+      // Usuario canceló o error
+    }
+  });
+
+  // ----- Render / helpers -----
+
+  function render(){
+    // base
+    const items = [...state.items];
+
+    // stats
+    const total = items.length;
+    const done = items.filter(i => i.done).length;
+    const pending = total - done;
+
+    const soon = items
+      .filter(i => !i.done && i.deadline)
+      .map(i => ({...i, days: daysTo(i.deadline)}))
+      .filter(i => Number.isFinite(i.days))
+      .sort((a,b) => a.days - b.days)[0];
+
+    statsEl.textContent =
+      total === 0
+        ? "Aún no has agregado compromisos. (Tranquila/o… todavía estamos a tiempo 😄)"
+        : `Total: ${total} · Hechos: ${done} · Pendientes: ${pending}` +
+          (soon ? ` · Próximo vencimiento: "${soon.title}" en ${soon.days} día(s).` : "");
+
+    // filter
+    let view = items.filter(i => {
+      if (filter === "all") return true;
+      if (filter === "done") return i.done;
+      if (filter === "pending") return !i.done;
+      return i.category === filter;
+    });
+
+    // sort
+    const s = sortEl.value;
+    view.sort((a,b) => {
+      if (s === "createdDesc") return b.createdAt - a.createdAt;
+      if (s === "alphaAsc") return a.title.localeCompare(b.title, "es");
+      if (s === "deadlineAsc") return (a.deadline || "9999-12-31").localeCompare(b.deadline || "9999-12-31");
+      if (s === "deadlineDesc") return (b.deadline || "0000-01-01").localeCompare(a.deadline || "0000-01-01");
+      return 0;
+    });
+
+    listEl.innerHTML = "";
+    if (view.length === 0){
+      const empty = document.createElement("div");
+      empty.className = "hint";
+      empty.textContent = "No hay elementos en este filtro. (Eso también es progreso: menos caos, más claridad).";
+      listEl.appendChild(empty);
+      return;
+    }
+
+    for (const it of view){
+      listEl.appendChild(renderItem(it));
+    }
+  }
+
+  function renderItem(it){
+    const wrap = document.createElement("div");
+    wrap.className = "item" + (it.done ? " done" : "");
+
+    const left = document.createElement("div");
+
+    const top = document.createElement("div");
+    top.className = "title";
+
+    const badge = document.createElement("span");
+    badge.className = "badge " + it.category;
+    badge.textContent = labelCat(it.category);
+
+    const h = document.createElement("h3");
+    h.textContent = it.title;
+
+    top.appendChild(badge);
+    const titleBox = document.createElement("div");
+    titleBox.appendChild(h);
+
+    const meta = document.createElement("div");
+    meta.className = "meta";
+
+    const created = document.createElement("span");
+    created.className = "pill";
+    created.textContent = "Creado: " + new Date(it.createdAt).toLocaleDateString("es-HN");
+
+    meta.appendChild(created);
+
+    if (it.deadline){
+      const dl = document.createElement("span");
+      dl.className = "pill";
+      const days = daysTo(it.deadline);
+      const flag = !it.done && Number.isFinite(days) && days < 0 ? "⚠️" : "⏳";
+      dl.textContent = `${flag} Límite: ${formatDate(it.deadline)} (${Number.isFinite(days) ? days + " día(s)" : "s/f"})`;
+      meta.appendChild(dl);
+    }else{
+      const dl = document.createElement("span");
+      dl.className = "pill";
+      dl.textContent = "⏳ Límite: (sin fecha)";
+      meta.appendChild(dl);
+    }
+
+    titleBox.appendChild(meta);
+
+    if (it.desc){
+      const d = document.createElement("div");
+      d.className = "desc";
+      d.textContent = it.desc;
+      titleBox.appendChild(d);
+    }
+
+    top.appendChild(titleBox);
+    left.appendChild(top);
+
+    const right = document.createElement("div");
+    right.className = "toolbar";
+
+    const doneBtn = document.createElement("button");
+    doneBtn.className = "btn small";
+    doneBtn.textContent = it.done ? "↩️ Desmarcar" : "✅ Hecho";
+    doneBtn.addEventListener("click", () => {
+      it.done = !it.done;
+      it.updatedAt = Date.now();
+      persist();
+      render();
+      toast(it.done ? "Marcado como hecho ✅" : "Volvió a pendientes ↩️");
+    });
+
+    const editBtn = document.createElement("button");
+    editBtn.className = "btn small";
+    editBtn.textContent = "✏️ Editar";
+    editBtn.addEventListener("click", () => editItem(it.id));
+
+    const delBtn = document.createElement("button");
+    delBtn.className = "btn small danger";
+    delBtn.textContent = "🗑️";
+    delBtn.title = "Eliminar";
+    delBtn.addEventListener("click", () => {
+      const ok = confirm("¿Eliminar este compromiso?");
+      if (!ok) return;
+      state.items = state.items.filter(x => x.id !== it.id);
+      persist();
+      render();
+      toast("Eliminado 🗑️");
+    });
+
+    right.appendChild(doneBtn);
+    right.appendChild(editBtn);
+    right.appendChild(delBtn);
+
+    wrap.appendChild(left);
+    wrap.appendChild(right);
+
+    return wrap;
+  }
+
+  function editItem(id){
+    const it = state.items.find(x => x.id === id);
+    if (!it) return;
+
+    // Cargamos al formulario para editar de forma simple
+    titleEl.value = it.title;
+    catEl.value = it.category;
+    deadlineEl.value = it.deadline || "";
+    descEl.value = it.desc || "";
+
+    const ok = confirm("Edita en el formulario y presiona 'Guardar compromiso'.\n¿Quieres reemplazar el compromiso actual con lo editado?");
+    if (!ok) return;
+
+    // “Modo edición”: al guardar, reemplazamos el item
+    const oldHandler = addBtn.onclick;
+    addBtn.onclick = null;
+
+    const tmpListener = () => {
+      const t = titleEl.value.trim();
+      if (!t) return toast("El título no puede quedar vacío.");
+
+      it.title = t;
+      it.category = catEl.value;
+      it.deadline = deadlineEl.value || "";
+      it.desc = descEl.value.trim();
+      it.updatedAt = Date.now();
+
+      persist();
+      toast("Actualizado ✨");
+      render();
+
+      // reset UI
+      titleEl.value = "";
+      descEl.value = "";
+      addBtn.removeEventListener("click", tmpListener);
+      addBtn.addEventListener("click", defaultAdd);
+    };
+
+    // Cambiamos temporalmente el botón
+    addBtn.removeEventListener("click", defaultAdd);
+    addBtn.addEventListener("click", tmpListener);
+    toast("Editando: al guardar se actualizará el compromiso ✏️");
+  }
+
+  function defaultAdd(){
+    addBtn.click(); // no-op (placeholder); el listener real ya existe arriba
+  }
+
+  // Persist
+  function persist(skipToast){
+    localStorage.setItem(KEY, JSON.stringify(state));
+    if (!skipToast) persistDraft();
+  }
+
+  function persistDraft(){
+    state.draft = {
+      title: titleEl.value,
+      category: catEl.value,
+      deadline: deadlineEl.value,
+      desc: descEl.value
+    };
+    localStorage.setItem(KEY, JSON.stringify(state));
+  }
+
+  function load(){
+    try{
+      const raw = localStorage.getItem(KEY);
+      if (!raw) return { items: [], draft: emptyDraft() };
+      const data = JSON.parse(raw);
+      const norm = normalize(data);
+
+      // recupera draft al cargar
+      if (norm.draft){
+        titleEl.value = norm.draft.title || "";
+        catEl.value = norm.draft.category || "metas";
+        deadlineEl.value = norm.draft.deadline || deadlineEl.value;
+        descEl.value = norm.draft.desc || "";
+      }
+      return norm;
+    }catch(e){
+      return { items: [], draft: emptyDraft() };
+    }
+  }
+
+  function normalize(data){
+    const items = Array.isArray(data.items) ? data.items : [];
+    return {
+      items: items.map(x => ({
+        id: String(x.id ?? (Date.now()+Math.random())),
+        title: String(x.title ?? "").slice(0,120),
+        category: ["metas","dejar","continuar","empezar"].includes(x.category) ? x.category : "metas",
+        deadline: x.deadline ? String(x.deadline) : "",
+        desc: x.desc ? String(x.desc) : "",
+        done: Boolean(x.done),
+        createdAt: Number(x.createdAt ?? Date.now()),
+        updatedAt: Number(x.updatedAt ?? Date.now()),
+      })),
+      draft: data.draft ? {
+        title: String(data.draft.title ?? ""),
+        category: ["metas","dejar","continuar","empezar"].includes(data.draft.category) ? data.draft.category : "metas",
+        deadline: String(data.draft.deadline ?? ""),
+        desc: String(data.draft.desc ?? ""),
+      } : emptyDraft()
+    };
+  }
+
+  function emptyDraft(){
+    return { title:"", category:"metas", deadline:"", desc:"" };
+  }
+
+  // Utils
+  function labelCat(c){
+    return c === "metas" ? "Metas 2026"
+      : c === "dejar" ? "Dejar de hacer"
+      : c === "continuar" ? "Continuar haciendo"
+      : "Empezar a hacer";
+  }
+
+  function formatDate(yyyy_mm_dd){
+    try{
+      const [y,m,d] = yyyy_mm_dd.split("-").map(Number);
+      const dt = new Date(y, (m-1), d);
+      return dt.toLocaleDateString("es-HN", { year:"numeric", month:"short", day:"numeric" });
+    }catch{
+      return yyyy_mm_dd;
+    }
+  }
+
+  function daysTo(yyyy_mm_dd){
+    const [y,m,d] = yyyy_mm_dd.split("-").map(Number);
+    const target = new Date(y, m-1, d);
+    const today = new Date();
+    target.setHours(0,0,0,0);
+    today.setHours(0,0,0,0);
+    return Math.round((target - today) / 86400000);
+  }
+
+  function toast(msg){
+    toastEl.textContent = msg;
+    toastEl.classList.add("show");
+    clearTimeout(toastEl._t);
+    toastEl._t = setTimeout(() => toastEl.classList.remove("show"), 2200);
+  }
+
+  function debounce(fn, ms){
+    let t;
+    return (...args) => {
+      clearTimeout(t);
+      t = setTimeout(() => fn(...args), ms);
+    };
+  }
+
+  function openModal(){
+    modal.classList.add("show");
+    // auto mensaje
+    if (!shareMsg.textContent) makeMsgBtn.click();
+    // autopopulate
+    if (!shareUrl.value) shareUrl.value = location.href;
+  }
+  function closeIt(){ modal.classList.remove("show"); }
+
+  function makeSky(){
+    const sky = $("sky");
+    const count = 46;
+    for (let i=0; i<count; i++){
+      const s = document.createElement("div");
+      s.className = "spark";
+      const left = Math.random()*100;
+      const top = 60 + Math.random()*45; // más hacia abajo para que suban
+      const dur = 6 + Math.random()*9;
+      const delay = Math.random()*6;
+      const size = 2 + Math.random()*2.5;
+      s.style.left = left + "vw";
+      s.style.top = top + "vh";
+      s.style.width = size + "px";
+      s.style.height = size + "px";
+      s.style.animationDuration = dur + "s";
+      s.style.animationDelay = delay + "s";
+      s.style.opacity = 0.25 + Math.random()*0.55;
+      sky.appendChild(s);
+    }
+  }
+})();
+</script>
+</body>
+</html>
