@@ -9,7 +9,6 @@
     :root{
       --bg1:#050814;
       --bg2:#0b1220;
-      --card: rgba(255,255,255,.08);
       --text: rgba(255,255,255,.92);
       --muted: rgba(255,255,255,.72);
       --line: rgba(255,255,255,.18);
@@ -61,7 +60,7 @@
     .container{
       max-width: 1100px;
       margin: 0 auto;
-      padding: 22px 16px 60px;
+      padding: 22px 16px 28px;
       position:relative;
       z-index:1;
     }
@@ -72,7 +71,7 @@
       align-items:flex-start;
       justify-content:space-between;
       flex-wrap:wrap;
-      margin-bottom:16px;
+      margin-bottom:12px;
     }
 
     .hero{
@@ -119,19 +118,6 @@
     }
     .byline strong{ color: rgba(255,255,255,.88); }
 
-    .actions{
-      flex: 0 0 auto;
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      align-items:flex-start;
-      justify-content:flex-end;
-
-      position: sticky;
-      top: 10px;
-      z-index: 5;
-    }
-
     .btn{
       appearance:none;
       border:1px solid var(--line);
@@ -163,26 +149,34 @@
     }
     .btn.small{ padding:8px 10px; font-size:12px; border-radius:12px; }
 
-    @media (max-width: 600px){
-      .actions{
-        width: 100%;
-        justify-content: space-between;
-      }
-      .btn{
-        padding: 9px 10px;
-        font-size: 12px;
-      }
+    /* Barra inferior izquierda (acciones) */
+    .bottomBar{
+      position: fixed;
+      left: 16px;
+      bottom: 16px;
+      z-index: 20;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
     }
+    .bottomBar .btn{ padding: 9px 10px; font-size: 12px; }
+
+    /* Evitar que tape contenido */
+    .spacerBottom{ height: 72px; }
 
     .grid{
       display:grid;
       grid-template-columns: 1.2fr .8fr;
       gap:14px;
-      margin-top:14px;
+      margin-top:10px;
+      align-items:start;
     }
     @media (max-width: 980px){
       .grid{ grid-template-columns: 1fr; }
-      .actions{ justify-content:flex-start; }
+      .bottomBar{ left: 10px; right:10px; bottom:10px; justify-content:space-between; }
+      .bottomBar .btn{ flex: 1 1 auto; justify-content:center; }
+      .spacerBottom{ height: 110px; }
     }
 
     .panel{
@@ -215,6 +209,12 @@
       max-width: 70ch;
     }
     .panel .body{ padding:14px; }
+
+    /* Mis metas más arriba */
+    .panel.metasPanel{ margin-top: -10px; }
+    @media (max-width: 980px){
+      .panel.metasPanel{ margin-top: 0; }
+    }
 
     .row{
       display:grid;
@@ -255,6 +255,41 @@
       align-items:center;
       justify-content:space-between;
     }
+
+    /* Sugerencias */
+    .suggestions{
+      margin-top:12px;
+      padding-top:12px;
+      border-top: 1px solid rgba(255,255,255,.14);
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+    .suggestions .hintTitle{
+      font-size:12px;
+      color: var(--muted);
+      display:flex;
+      gap:8px;
+      align-items:center;
+      margin:0;
+    }
+    .sugList{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+    .sug{
+      border:1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.06);
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-size:12px;
+      color: rgba(255,255,255,.86);
+      cursor:pointer;
+      user-select:none;
+      transition: background .15s ease, transform .08s ease, border-color .15s ease;
+    }
+    .sug:hover{ background: rgba(255,255,255,.10); transform: translateY(-1px); border-color: rgba(255,255,255,.28); }
 
     .chips{
       display:flex;
@@ -365,7 +400,7 @@
     .toast{
       position: fixed;
       left: 50%;
-      bottom: 18px;
+      bottom: 86px; /* encima de bottomBar */
       transform: translateX(-50%);
       background: rgba(0,0,0,.55);
       border:1px solid rgba(255,255,255,.18);
@@ -428,7 +463,7 @@
     @media (min-width: 981px){
       body{ overflow: hidden; }
       .container{ height: 100vh; }
-      .grid{ height: calc(100vh - 170px); }
+      .grid{ height: calc(100vh - 160px); }
       .panel{ height: 100%; display:flex; flex-direction:column; }
       .panel .body{ overflow:auto; }
     }
@@ -444,31 +479,14 @@
         <div class="kicker"><span class="dot"></span><span>Fin de 2025 · Arranque 2026</span></div>
         <h1>Mis metas 2026</h1>
         <p class="subtitle">
-          Cierra 2025 con intención y entra a 2026 con foco. Anota tus compromisos, ponles fecha
-          límite y vuelve cuando quieras: la app guarda todo en tu dispositivo (y también puedes
-          exportar/importar un respaldo).
+          Cierra 2025 con intención y entra a 2026 con foco. Escribe tus metas, asigna fecha límite y regresa cuando quieras:
+          la app guarda todo en tu dispositivo (y también puedes exportar/importar un respaldo).
         </p>
         <div class="byline">
           <span>🗓️ <span id="todayLabel"></span></span>
           <span><strong>Por Soamy Lanza</strong></span>
         </div>
       </section>
-
-      <div class="actions">
-        <button class="btn primary" id="shareBtn" title="Compartir la app (si estás alojándola en un link)">
-          🔗 Compartir
-        </button>
-        <button class="btn" id="exportBtn" title="Descarga un respaldo JSON">
-          ⬇️ Exportar
-        </button>
-        <label class="btn" for="importFile" title="Importa un respaldo JSON">
-          ⬆️ Importar
-          <input id="importFile" type="file" accept="application/json" hidden />
-        </label>
-        <button class="btn danger" id="resetBtn" title="Borra todo">
-          🧨 Borrar
-        </button>
-      </div>
     </header>
 
     <main class="grid" role="main">
@@ -505,18 +523,21 @@
             <div class="hint" id="autosaveHint">💾 Guardado automático activo</div>
           </div>
 
-          <div class="hint">
-            Tip: si no pones fecha, igual se guarda… pero luego no digas que “se te fue el año”. 😄
+          <!-- Sugerencias (5 metas realistas) -->
+          <div class="suggestions" aria-label="Sugerencias de metas">
+            <p class="hintTitle">💡 Sugerencias rápidas (clic para usar)</p>
+            <div class="sugList" id="sugList"></div>
+            <div class="hint">Tip: una meta realista es una meta con fecha. (Sí, duele… pero funciona 😄)</div>
           </div>
         </div>
       </section>
 
       <!-- Lista -->
-      <section class="panel" aria-label="Lista de metas">
+      <section class="panel metasPanel" aria-label="Lista de metas">
         <div class="head">
           <div>
             <h2>Mis metas</h2>
-            <p>Filtra por categoría, marca como hecho/a, edita o elimina. Todo queda guardado para cuando regreses.</p>
+            <p>Filtra por categoría, marca como hecho/a, edita o elimina. Aquí se ven las metas guardadas.</p>
           </div>
 
           <div class="toolbar">
@@ -540,7 +561,6 @@
           </div>
 
           <div class="hint" id="stats"></div>
-
           <div class="list" id="list" style="margin-top:10px;"></div>
 
           <div class="footer">
@@ -549,6 +569,25 @@
         </div>
       </section>
     </main>
+
+    <div class="spacerBottom" aria-hidden="true"></div>
+  </div>
+
+  <!-- Barra inferior izquierda: Compartir / Exportar / Importar / Borrar -->
+  <div class="bottomBar" aria-label="Acciones">
+    <button class="btn primary" id="shareBtn" title="Compartir la app">
+      🔗 Compartir
+    </button>
+    <button class="btn" id="exportBtn" title="Descarga un respaldo JSON">
+      ⬇️ Exportar
+    </button>
+    <label class="btn" for="importFile" title="Importa un respaldo JSON">
+      ⬆️ Importar
+      <input id="importFile" type="file" accept="application/json" hidden />
+    </label>
+    <button class="btn danger" id="resetBtn" title="Borra todo">
+      🧨 Borrar
+    </button>
   </div>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -589,7 +628,7 @@
 
 <script>
 (() => {
-  const KEY = "mis_metas_2026_v2";
+  const KEY = "mis_metas_2026_v3";
   const $ = (id) => document.getElementById(id);
 
   const titleEl = $("title");
@@ -615,6 +654,8 @@
   const copyLinkBtn = $("copyLinkBtn");
   const webShareBtn = $("webShareBtn");
 
+  const sugListEl = $("sugList");
+
   let filter = "all";
   let state = load();
 
@@ -622,13 +663,23 @@
   const now = new Date();
   $("todayLabel").textContent = now.toLocaleDateString("es-HN", { weekday:"long", year:"numeric", month:"long", day:"numeric" });
 
-  // Default deadline: 2026-01-15 (puedes dejarlo vacío si quieres)
+  // Default deadline: 2026-01-15 (cámbialo a "" si lo quieres vacío)
   const pad = (n) => String(n).padStart(2,"0");
   const defaultDeadline = new Date(Date.UTC(2026, 0, 15));
   deadlineEl.value = `${defaultDeadline.getUTCFullYear()}-${pad(defaultDeadline.getUTCMonth()+1)}-${pad(defaultDeadline.getUTCDate())}`;
 
   // Partículas
   makeSky();
+
+  // Sugerencias (5 metas alcanzables/realistas)
+  const suggestions = [
+    "Ahorrar un monto fijo cada mes",
+    "Hacer ejercicio 3 veces por semana",
+    "Tomar 2 litros de agua al día",
+    "Dormir 7–8 horas la mayoría de días",
+    "Leer 1 libro al mes"
+  ];
+  renderSuggestions();
 
   // Render inicial
   render();
@@ -658,7 +709,7 @@
     render();
   });
 
-  // Autosave (sin detalle)
+  // Autosave
   [titleEl, catEl, deadlineEl].forEach(el => {
     el.addEventListener("change", persistDraft);
     el.addEventListener("input", debounce(persistDraft, 350));
@@ -834,7 +885,7 @@ Por Soamy Lanza`;
     if (view.length === 0){
       const empty = document.createElement("div");
       empty.className = "hint";
-      empty.textContent = "No hay elementos en este filtro. (Menos caos, más claridad).";
+      empty.textContent = "No hay metas en este filtro. (Menos caos, más claridad).";
       listEl.appendChild(empty);
       return;
     }
@@ -940,7 +991,6 @@ Por Soamy Lanza`;
     const ok = confirm("Edita en el formulario y presiona 'Guardar meta'.\n¿Quieres actualizar esta meta?");
     if (!ok) return;
 
-    addBtn.dataset.editing = id;
     toast("Editando: al guardar se actualizará la meta ✏️");
 
     const handler = () => {
@@ -957,8 +1007,6 @@ Por Soamy Lanza`;
       render();
 
       titleEl.value = "";
-      addBtn.dataset.editing = "";
-
       addBtn.removeEventListener("click", handler);
       addBtn.addEventListener("click", defaultAdd);
     };
@@ -968,6 +1016,23 @@ Por Soamy Lanza`;
   }
 
   function defaultAdd(){}
+
+  function renderSuggestions(){
+    sugListEl.innerHTML = "";
+    suggestions.forEach(text => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "sug";
+      b.textContent = text;
+      b.addEventListener("click", () => {
+        titleEl.value = text;
+        titleEl.focus();
+        toast("Sugerencia aplicada ✅");
+        persistDraft();
+      });
+      sugListEl.appendChild(b);
+    });
+  }
 
   // Persist
   function persist(skipToast){
