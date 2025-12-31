@@ -59,19 +59,19 @@
     .container{
       max-width: 1100px;
       margin: 0 auto;
-      padding: 18px 16px 18px;
+      padding: 16px 14px 18px;
       position:relative;
       z-index:1;
     }
 
-    /* Barra de acciones superior (✅ lo pedido) */
+    /* Acciones superiores */
     .topActions{
       display:flex;
       gap:10px;
       flex-wrap:wrap;
       align-items:center;
-      justify-content:flex-start; /* alineado a la izquierda */
-      margin: 0 0 12px 0;
+      justify-content:flex-start;
+      margin: 0 0 10px 0;
     }
 
     header{
@@ -88,7 +88,7 @@
       background: linear-gradient(135deg, rgba(255,255,255,.10), rgba(255,255,255,.05));
       border: 1px solid var(--line);
       border-radius: var(--radius);
-      padding: 18px 18px 14px;
+      padding: 16px 16px 12px;
       box-shadow: var(--shadow);
       backdrop-filter: blur(var(--blur));
     }
@@ -108,7 +108,7 @@
     }
     h1{
       margin:10px 0 6px;
-      font-size: clamp(26px, 3.2vw, 40px);
+      font-size: clamp(24px, 3vw, 38px);
       line-height:1.05;
     }
     .subtitle{
@@ -135,7 +135,7 @@
       padding: 10px 12px;
       border-radius: 14px;
       cursor:pointer;
-      font-weight:600;
+      font-weight:700;
       font-size: 13px;
       letter-spacing:.01em;
       box-shadow: 0 10px 30px rgba(0,0,0,.25);
@@ -158,6 +158,26 @@
       background: linear-gradient(135deg, rgba(255,92,122,.18), rgba(255,209,102,.08));
     }
     .btn.small{ padding:8px 10px; font-size:12px; border-radius:12px; }
+
+    /* ✅ en móvil, acciones en UNA sola línea */
+    @media (max-width: 520px){
+      .topActions{
+        flex-wrap: nowrap;     /* no permitir salto de línea */
+        gap:8px;
+        overflow:hidden;
+      }
+      .topActions .btn{
+        flex: 1 1 0;
+        justify-content:center;
+        padding: 9px 8px;
+        font-size: 12px;
+        border-radius: 999px;
+        gap:6px;
+      }
+      .topActions .btn span.lbl{ display:none; } /* (por si quieres texto corto con span) */
+      /* ✅ bajar un poquito el H1 para que quepa mejor */
+      h1{ font-size: 26px; }
+    }
 
     .shareNote{
       margin-top: 6px;
@@ -182,7 +202,7 @@
       border-radius: 999px;
       padding: 6px 10px;
       cursor:pointer;
-      font-weight:700;
+      font-weight:800;
     }
 
     .grid{
@@ -475,11 +495,10 @@
       font-family: var(--mono);
     }
 
-    /* PC: “una sola pantalla” */
     @media (min-width: 981px){
       body{ overflow: hidden; }
       .container{ height: 100vh; }
-      .grid{ height: calc(100vh - 260px); } /* más espacio para topActions + hero */
+      .grid{ height: calc(100vh - 260px); }
       .panel{ height: 100%; }
       .panel .body{ overflow:auto; }
     }
@@ -491,7 +510,7 @@
 
   <div class="container">
 
-    <!-- ✅ Acciones arriba a la izquierda -->
+    <!-- ✅ Acciones arriba (móvil en una sola línea) -->
     <div class="topActions" aria-label="Acciones superiores">
       <button class="btn primary" id="shareBtn" title="Compartir la app">🔗 Compartir</button>
       <button class="btn" id="exportBtn" title="Descarga un respaldo JSON">⬇️ Exportar</button>
@@ -502,7 +521,6 @@
       <button class="btn danger" id="resetBtn" title="Borra todo">🧨 Borrar</button>
     </div>
 
-    <!-- ✅ Mensaje compartir antes de metas -->
     <div class="shareNote" id="shareNote">
       <span>📌 <b>Tip:</b> Antes de establecer tus metas, usa <b>Compartir</b> si quieres mandarle esta app a alguien por WhatsApp o redes.</span>
       <button class="x" id="closeShareNote" title="Cerrar">✖</button>
@@ -524,7 +542,6 @@
     </header>
 
     <main class="grid" role="main">
-      <!-- Formulario -->
       <section class="panel" aria-label="Agregar meta">
         <div class="head">
           <div>
@@ -569,7 +586,6 @@
         </div>
       </section>
 
-      <!-- Lista -->
       <section class="panel" aria-label="Lista de metas">
         <div class="head">
           <div>
@@ -646,7 +662,7 @@
 
 <script>
 (() => {
-  const KEY = "mis_metas_2026_v5";
+  const KEY = "mis_metas_2026_v6";
   const $ = (id) => document.getElementById(id);
 
   const titleEl = $("title");
@@ -688,10 +704,8 @@
   const defaultDeadline = new Date(Date.UTC(2026, 0, 15));
   deadlineEl.value = `${defaultDeadline.getUTCFullYear()}-${pad(defaultDeadline.getUTCMonth()+1)}-${pad(defaultDeadline.getUTCDate())}`;
 
-  // Partículas
   makeSky();
 
-  // Sugerencias
   const suggestions = [
     "Ahorrar un monto fijo cada mes",
     "Hacer ejercicio 3 veces por semana",
@@ -700,18 +714,15 @@
     "Leer 1 libro al mes"
   ];
   renderSuggestions();
-
   render();
 
-  // Guardar meta
   addBtn.addEventListener("click", () => {
     const t = titleEl.value.trim();
     const c = catEl.value;
     const d = deadlineEl.value || "";
-
     if (!t) return toast("Pon una meta (aunque sea breve).");
 
-    const item = {
+    state.items.unshift({
       id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(16).slice(2),
       title: t,
       category: c,
@@ -719,16 +730,14 @@
       done: false,
       createdAt: Date.now(),
       updatedAt: Date.now(),
-    };
+    });
 
-    state.items.unshift(item);
     persist();
     titleEl.value = "";
     toast("Guardado ✅");
     render();
   });
 
-  // Autosave draft
   [titleEl, catEl, deadlineEl].forEach(el => {
     el.addEventListener("change", persistDraft);
     el.addEventListener("input", debounce(persistDraft, 350));
@@ -745,14 +754,12 @@
     });
   });
 
-  // Export
   exportBtn.addEventListener("click", () => {
     const compact = state.items.map(i => ({
       meta: i.title,
       categoria: labelCat(i.category),
       fecha_limite: i.deadline || ""
     }));
-
     const payload = JSON.stringify(compact, null, 2);
     const blob = new Blob([payload], { type: "application/json" });
     const a = document.createElement("a");
@@ -763,11 +770,9 @@
     toast("Respaldo descargado ⬇️");
   });
 
-  // Import
   importFile.addEventListener("change", async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
     try{
       const text = await file.text();
       const data = JSON.parse(text);
@@ -776,7 +781,6 @@
       const mapped = data.map(x => {
         const meta = String(x.meta ?? "").trim();
         const fecha = String(x.fecha_limite ?? "").trim();
-
         const rawCat = String(x.categoria ?? "").toLowerCase();
         let cat = "empezar";
         if (rawCat.includes("dejar")) cat = "dejar";
@@ -815,65 +819,43 @@
     toast("Todo borrado 🧨");
   });
 
-  // Compartir modal
   shareBtn.addEventListener("click", () => openModal());
   closeModal.addEventListener("click", closeIt);
   modal.addEventListener("click", (e) => { if (e.target === modal) closeIt(); });
 
   makeMsgBtn.addEventListener("click", () => {
-    const url = (shareUrl.value || "").trim();
-    const safeUrl = url || location.href;
-    const msg =
+    const url = (shareUrl.value || "").trim() || location.href;
+    shareMsg.textContent =
 `🎆 Mis metas 2026 (Fin 2025 / Inicio 2026)
 🧹 Dejar · 🔁 Continuar · 🚀 Empezar + fecha límite
-👉 ${safeUrl}
+👉 ${url}
 
 Por Soamy Lanza`;
-    shareMsg.textContent = msg;
     toast("Mensaje listo 🧾");
   });
 
   copyMsgBtn.addEventListener("click", async () => {
-    try{
-      await navigator.clipboard.writeText(shareMsg.textContent || "");
-      toast("Mensaje copiado 📋");
-    }catch{
-      toast("No pude copiar. Selecciona el texto y copia manual.");
-    }
+    try{ await navigator.clipboard.writeText(shareMsg.textContent || ""); toast("Mensaje copiado 📋"); }
+    catch{ toast("No pude copiar. Copia manual 😅"); }
   });
 
   copyLinkBtn.addEventListener("click", async () => {
     const url = (shareUrl.value || "").trim() || location.href;
-    try{
-      await navigator.clipboard.writeText(url);
-      toast("Link copiado 🔗");
-    }catch{
-      toast("No pude copiar el link 😅");
-    }
+    try{ await navigator.clipboard.writeText(url); toast("Link copiado 🔗"); }
+    catch{ toast("No pude copiar el link 😅"); }
   });
 
   webShareBtn.addEventListener("click", async () => {
     const url = (shareUrl.value || "").trim() || location.href;
     const text = shareMsg.textContent || `Mis metas 2026 — Por Soamy Lanza`;
-    if (!navigator.share){
-      toast("Tu navegador no tiene compartir rápido. Copia el mensaje/link 😉");
-      return;
-    }
-    try{
-      await navigator.share({ title: "Mis metas 2026", text, url });
-    }catch{}
+    if (!navigator.share){ toast("No hay compartir rápido. Copia el mensaje/link 😉"); return; }
+    try{ await navigator.share({ title:"Mis metas 2026", text, url }); }catch{}
   });
 
-  // Cerrar tip
-  closeShareNote?.addEventListener("click", () => {
-    shareNote.style.display = "none";
-    toast("Tip ocultado 👌");
-  });
+  closeShareNote?.addEventListener("click", () => { shareNote.style.display="none"; });
 
-  // ----- Render -----
   function render(){
     const items = [...state.items];
-
     const total = items.length;
     const done = items.filter(i => i.done).length;
     const pending = total - done;
@@ -914,10 +896,7 @@ Por Soamy Lanza`;
       listEl.appendChild(empty);
       return;
     }
-
-    for (const it of view){
-      listEl.appendChild(renderItem(it));
-    }
+    for (const it of view) listEl.appendChild(renderItem(it));
   }
 
   function renderItem(it){
@@ -925,7 +904,6 @@ Por Soamy Lanza`;
     wrap.className = "item" + (it.done ? " done" : "");
 
     const left = document.createElement("div");
-
     const top = document.createElement("div");
     top.className = "title";
 
@@ -937,6 +915,7 @@ Por Soamy Lanza`;
     h.textContent = it.title;
 
     top.appendChild(badge);
+
     const titleBox = document.createElement("div");
     titleBox.appendChild(h);
 
@@ -1001,14 +980,12 @@ Por Soamy Lanza`;
 
     wrap.appendChild(left);
     wrap.appendChild(right);
-
     return wrap;
   }
 
   function editItem(id){
     const it = state.items.find(x => x.id === id);
     if (!it) return;
-
     titleEl.value = it.title;
     catEl.value = it.category;
     deadlineEl.value = it.deadline || "";
@@ -1043,6 +1020,13 @@ Por Soamy Lanza`;
 
   function renderSuggestions(){
     sugListEl.innerHTML = "";
+    const suggestions = [
+      "Ahorrar un monto fijo cada mes",
+      "Hacer ejercicio 3 veces por semana",
+      "Tomar 2 litros de agua al día",
+      "Dormir 7–8 horas la mayoría de días",
+      "Leer 1 libro al mes"
+    ];
     suggestions.forEach(text => {
       const b = document.createElement("button");
       b.type = "button";
@@ -1062,13 +1046,8 @@ Por Soamy Lanza`;
     localStorage.setItem(KEY, JSON.stringify(state));
     if (!skipDraft) persistDraft();
   }
-
   function persistDraft(){
-    state.draft = {
-      title: titleEl.value,
-      category: catEl.value,
-      deadline: deadlineEl.value
-    };
+    state.draft = { title: titleEl.value, category: catEl.value, deadline: deadlineEl.value };
     localStorage.setItem(KEY, JSON.stringify(state));
   }
 
@@ -1078,7 +1057,6 @@ Por Soamy Lanza`;
       if (!raw) return { items: [], draft: emptyDraft() };
       const data = JSON.parse(raw);
       const norm = normalize(data);
-
       if (norm.draft){
         titleEl.value = norm.draft.title || "";
         catEl.value = norm.draft.category || "empezar";
@@ -1109,7 +1087,6 @@ Por Soamy Lanza`;
       } : emptyDraft()
     };
   }
-
   function emptyDraft(){ return { title:"", category:"empezar", deadline:"" }; }
 
   function labelCat(c){
@@ -1123,9 +1100,7 @@ Por Soamy Lanza`;
       const [y,m,d] = yyyy_mm_dd.split("-").map(Number);
       const dt = new Date(y, (m-1), d);
       return dt.toLocaleDateString("es-HN", { year:"numeric", month:"short", day:"numeric" });
-    }catch{
-      return yyyy_mm_dd;
-    }
+    }catch{ return yyyy_mm_dd; }
   }
 
   function daysTo(yyyy_mm_dd){
@@ -1146,10 +1121,7 @@ Por Soamy Lanza`;
 
   function debounce(fn, ms){
     let t;
-    return (...args) => {
-      clearTimeout(t);
-      t = setTimeout(() => fn(...args), ms);
-    };
+    return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
   }
 
   function openModal(){
@@ -1159,12 +1131,14 @@ Por Soamy Lanza`;
   }
   function closeIt(){ modal.classList.remove("show"); }
 
-  closeModal.addEventListener("click", closeIt);
-  modal.addEventListener("click", (e) => { if (e.target === modal) closeIt(); });
+  // Modal handlers
+  $("shareBtn").addEventListener("click", openModal);
+  $("closeModal").addEventListener("click", closeIt);
+  $("modal").addEventListener("click", (e) => { if (e.target === $("modal")) closeIt(); });
 
-  makeMsgBtn.addEventListener("click", () => {
-    const url = (shareUrl.value || "").trim() || location.href;
-    shareMsg.textContent =
+  $("makeMsgBtn").addEventListener("click", () => {
+    const url = ($("shareUrl").value || "").trim() || location.href;
+    $("shareMsg").textContent =
 `🎆 Mis metas 2026 (Fin 2025 / Inicio 2026)
 🧹 Dejar · 🔁 Continuar · 🚀 Empezar + fecha límite
 👉 ${url}
@@ -1173,44 +1147,39 @@ Por Soamy Lanza`;
     toast("Mensaje listo 🧾");
   });
 
-  copyMsgBtn.addEventListener("click", async () => {
-    try{ await navigator.clipboard.writeText(shareMsg.textContent || ""); toast("Mensaje copiado 📋"); }
+  $("copyMsgBtn").addEventListener("click", async () => {
+    try{ await navigator.clipboard.writeText($("shareMsg").textContent || ""); toast("Mensaje copiado 📋"); }
     catch{ toast("No pude copiar. Copia manual 😅"); }
   });
 
-  copyLinkBtn.addEventListener("click", async () => {
-    const url = (shareUrl.value || "").trim() || location.href;
+  $("copyLinkBtn").addEventListener("click", async () => {
+    const url = ($("shareUrl").value || "").trim() || location.href;
     try{ await navigator.clipboard.writeText(url); toast("Link copiado 🔗"); }
     catch{ toast("No pude copiar el link 😅"); }
   });
 
-  webShareBtn.addEventListener("click", async () => {
-    const url = (shareUrl.value || "").trim() || location.href;
-    const text = shareMsg.textContent || `Mis metas 2026 — Por Soamy Lanza`;
+  $("webShareBtn").addEventListener("click", async () => {
+    const url = ($("shareUrl").value || "").trim() || location.href;
+    const text = $("shareMsg").textContent || `Mis metas 2026 — Por Soamy Lanza`;
     if (!navigator.share){ toast("No hay compartir rápido. Copia el mensaje/link 😉"); return; }
     try{ await navigator.share({ title:"Mis metas 2026", text, url }); }catch{}
   });
 
-  closeShareNote?.addEventListener("click", () => { shareNote.style.display="none"; });
+  $("closeShareNote")?.addEventListener("click", () => { $("shareNote").style.display="none"; });
 
-  // Partículas
   function makeSky(){
     const sky = $("sky");
     const count = 46;
     for (let i=0; i<count; i++){
       const s = document.createElement("div");
       s.className = "spark";
-      const left = Math.random()*100;
-      const top = 60 + Math.random()*45;
-      const dur = 6 + Math.random()*9;
-      const delay = Math.random()*6;
+      s.style.left = (Math.random()*100) + "vw";
+      s.style.top = (60 + Math.random()*45) + "vh";
       const size = 2 + Math.random()*2.5;
-      s.style.left = left + "vw";
-      s.style.top = top + "vh";
       s.style.width = size + "px";
       s.style.height = size + "px";
-      s.style.animationDuration = dur + "s";
-      s.style.animationDelay = delay + "s";
+      s.style.animationDuration = (6 + Math.random()*9) + "s";
+      s.style.animationDelay = (Math.random()*6) + "s";
       s.style.opacity = 0.25 + Math.random()*0.55;
       sky.appendChild(s);
     }
