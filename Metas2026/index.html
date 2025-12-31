@@ -10,13 +10,9 @@
       --bg1:#050814;
       --bg2:#0b1220;
       --card: rgba(255,255,255,.08);
-      --card2: rgba(255,255,255,.12);
       --text: rgba(255,255,255,.92);
       --muted: rgba(255,255,255,.72);
       --line: rgba(255,255,255,.18);
-      --good: #45f0a8;
-      --warn: #ffd166;
-      --bad: #ff5c7a;
       --shadow: 0 18px 60px rgba(0,0,0,.45);
       --radius: 18px;
       --radius2: 14px;
@@ -39,12 +35,13 @@
         linear-gradient(180deg, var(--bg1), var(--bg2));
     }
 
-    /* Fireworks-ish particles (CSS only, no imágenes externas) */
+    /* Partículas tipo “fin de año” */
     .sky{
       position:fixed; inset:0;
       pointer-events:none;
       opacity:.7;
       filter: drop-shadow(0 0 20px rgba(255,255,255,.06));
+      z-index:0;
     }
     .spark{
       position:absolute;
@@ -129,6 +126,10 @@
       flex-wrap:wrap;
       align-items:flex-start;
       justify-content:flex-end;
+
+      position: sticky;
+      top: 10px;
+      z-index: 5;
     }
 
     .btn{
@@ -161,6 +162,17 @@
       background: linear-gradient(135deg, rgba(255,92,122,.18), rgba(255,209,102,.08));
     }
     .btn.small{ padding:8px 10px; font-size:12px; border-radius:12px; }
+
+    @media (max-width: 600px){
+      .actions{
+        width: 100%;
+        justify-content: space-between;
+      }
+      .btn{
+        padding: 9px 10px;
+        font-size: 12px;
+      }
+    }
 
     .grid{
       display:grid;
@@ -206,7 +218,7 @@
 
     .row{
       display:grid;
-      grid-template-columns: 1fr 200px 210px;
+      grid-template-columns: 1fr 240px 210px;
       gap:10px;
       align-items:end;
       margin-bottom: 10px;
@@ -221,7 +233,7 @@
       display:block;
       margin: 0 0 6px;
     }
-    input[type="text"], input[type="date"], select, textarea{
+    input[type="text"], input[type="date"], select{
       width:100%;
       padding: 10px 11px;
       border-radius: 14px;
@@ -231,8 +243,7 @@
       outline:none;
       transition: border-color .15s ease, background .15s ease;
     }
-    textarea{ min-height: 86px; resize: vertical; }
-    input:focus, select:focus, textarea:focus{
+    input:focus, select:focus{
       border-color: rgba(255,255,255,.35);
       background: rgba(0,0,0,.24);
     }
@@ -303,7 +314,6 @@
       white-space:nowrap;
       margin-top:2px;
     }
-    .badge.metas{ border-color: rgba(127,90,240,.35); background: rgba(127,90,240,.12); }
     .badge.dejar{ border-color: rgba(255,92,122,.35); background: rgba(255,92,122,.10); }
     .badge.continuar{ border-color: rgba(255,209,102,.38); background: rgba(255,209,102,.10); }
     .badge.empezar{ border-color: rgba(69,240,168,.35); background: rgba(69,240,168,.10); }
@@ -327,13 +337,6 @@
       border:1px dashed rgba(255,255,255,.22);
       padding: 2px 8px;
       border-radius:999px;
-    }
-    .desc{
-      margin: 8px 0 0;
-      color: rgba(255,255,255,.82);
-      font-size:13px;
-      line-height:1.35;
-      white-space:pre-wrap;
     }
 
     .toolbar{
@@ -420,6 +423,15 @@
       line-height: 1.35;
       font-family: var(--mono);
     }
+
+    /* PC: “una sola pantalla” (scroll dentro de paneles) */
+    @media (min-width: 981px){
+      body{ overflow: hidden; }
+      .container{ height: 100vh; }
+      .grid{ height: calc(100vh - 170px); }
+      .panel{ height: 100%; display:flex; flex-direction:column; }
+      .panel .body{ overflow:auto; }
+    }
   </style>
 </head>
 
@@ -432,8 +444,9 @@
         <div class="kicker"><span class="dot"></span><span>Fin de 2025 · Arranque 2026</span></div>
         <h1>Mis metas 2026</h1>
         <p class="subtitle">
-          Cierra 2025 con intención y entra a 2026 con foco. Anota tus compromisos, ponles fecha límite y vuelve cuando quieras:
-          la app guarda todo en tu dispositivo (y también puedes exportar/importar un respaldo).
+          Cierra 2025 con intención y entra a 2026 con foco. Anota tus compromisos, ponles fecha
+          límite y vuelve cuando quieras: la app guarda todo en tu dispositivo (y también puedes
+          exportar/importar un respaldo).
         </p>
         <div class="byline">
           <span>🗓️ <span id="todayLabel"></span></span>
@@ -445,41 +458,40 @@
         <button class="btn primary" id="shareBtn" title="Compartir la app (si estás alojándola en un link)">
           🔗 Compartir
         </button>
-        <button class="btn" id="exportBtn" title="Descarga un respaldo JSON con tus metas">
+        <button class="btn" id="exportBtn" title="Descarga un respaldo JSON">
           ⬇️ Exportar
         </button>
         <label class="btn" for="importFile" title="Importa un respaldo JSON">
           ⬆️ Importar
           <input id="importFile" type="file" accept="application/json" hidden />
         </label>
-        <button class="btn danger" id="resetBtn" title="Borra todo (sin piedad)">
-          🧨 Borrar todo
+        <button class="btn danger" id="resetBtn" title="Borra todo">
+          🧨 Borrar
         </button>
       </div>
     </header>
 
     <main class="grid" role="main">
       <!-- Formulario -->
-      <section class="panel" aria-label="Agregar compromiso">
+      <section class="panel" aria-label="Agregar meta">
         <div class="head">
           <div>
-            <h2>Agregar compromiso</h2>
-            <p>Elige categoría, escribe tu compromiso, agrega detalle (opcional) y una fecha límite. Se guarda automáticamente.</p>
+            <h2>Agregar meta</h2>
+            <p>Elige categoría, escribe tu meta y una fecha límite. Se guarda automáticamente.</p>
           </div>
         </div>
         <div class="body">
           <div class="row">
             <div>
-              <label for="title">Compromiso (título corto)</label>
-              <input id="title" type="text" maxlength="120" placeholder="Ej: Terminar mi portafolio de automatizaciones" />
+              <label for="title">Meta</label>
+              <input id="title" type="text" maxlength="120" placeholder="Ej: Dejar de fumar" />
             </div>
             <div>
               <label for="category">Categoría</label>
               <select id="category">
-                <option value="metas">Metas (2026)</option>
-                <option value="dejar">Dejar de hacer</option>
-                <option value="continuar">Continuar haciendo</option>
                 <option value="empezar">Empezar a hacer</option>
+                <option value="continuar">Continuar haciendo</option>
+                <option value="dejar">Dejar de hacer</option>
               </select>
             </div>
             <div>
@@ -488,13 +500,8 @@
             </div>
           </div>
 
-          <div style="margin-bottom:10px;">
-            <label for="desc">Detalle (opcional)</label>
-            <textarea id="desc" placeholder="Ej: Definir 5 casos de uso, grabar demos, publicar en LinkedIn, etc."></textarea>
-          </div>
-
           <div class="split">
-            <button class="btn primary" id="addBtn">✅ Guardar compromiso</button>
+            <button class="btn primary" id="addBtn">✅ Guardar meta</button>
             <div class="hint" id="autosaveHint">💾 Guardado automático activo</div>
           </div>
 
@@ -505,10 +512,10 @@
       </section>
 
       <!-- Lista -->
-      <section class="panel" aria-label="Lista de compromisos">
+      <section class="panel" aria-label="Lista de metas">
         <div class="head">
           <div>
-            <h2>Mis compromisos</h2>
+            <h2>Mis metas</h2>
             <p>Filtra por categoría, marca como hecho/a, edita o elimina. Todo queda guardado para cuando regreses.</p>
           </div>
 
@@ -525,7 +532,6 @@
         <div class="body">
           <div class="chips" role="tablist" aria-label="Filtros">
             <div class="chip active" data-filter="all" role="tab" aria-selected="true">Todos</div>
-            <div class="chip" data-filter="metas" role="tab" aria-selected="false">Metas</div>
             <div class="chip" data-filter="dejar" role="tab" aria-selected="false">Dejar</div>
             <div class="chip" data-filter="continuar" role="tab" aria-selected="false">Continuar</div>
             <div class="chip" data-filter="empezar" role="tab" aria-selected="false">Empezar</div>
@@ -555,12 +561,12 @@
       </div>
       <div class="body">
         <p style="margin:0 0 10px; color: rgba(255,255,255,.78); font-size:13px; line-height:1.35;">
-          Si ya publicaste esta página en un link (GitHub Pages / Netlify / Vercel), pega aquí tu URL para generar un mensaje listo para WhatsApp/redes.
+          Pega tu URL publicada para generar un mensaje listo para WhatsApp/redes.
         </p>
         <div class="row" style="grid-template-columns: 1fr 210px;">
           <div>
             <label for="shareUrl">URL publicada</label>
-            <input id="shareUrl" type="text" placeholder="https://tusitio.com/mis-metas-2026" />
+            <input id="shareUrl" type="text" placeholder="https://tusitio.com/Metas2026" />
           </div>
           <div>
             <button class="btn primary" id="makeMsgBtn" style="width:100%; justify-content:center;">🧾 Generar mensaje</button>
@@ -583,13 +589,12 @@
 
 <script>
 (() => {
-  const KEY = "mis_metas_2026_v1";
+  const KEY = "mis_metas_2026_v2";
   const $ = (id) => document.getElementById(id);
 
   const titleEl = $("title");
   const catEl = $("category");
   const deadlineEl = $("deadline");
-  const descEl = $("desc");
   const addBtn = $("addBtn");
   const listEl = $("list");
   const toastEl = $("toast");
@@ -617,32 +622,30 @@
   const now = new Date();
   $("todayLabel").textContent = now.toLocaleDateString("es-HN", { weekday:"long", year:"numeric", month:"long", day:"numeric" });
 
-  // Set default deadline a 2026-01-15 (guiño de año nuevo)
+  // Default deadline: 2026-01-15 (puedes dejarlo vacío si quieres)
   const pad = (n) => String(n).padStart(2,"0");
   const defaultDeadline = new Date(Date.UTC(2026, 0, 15));
   deadlineEl.value = `${defaultDeadline.getUTCFullYear()}-${pad(defaultDeadline.getUTCMonth()+1)}-${pad(defaultDeadline.getUTCDate())}`;
 
-  // Fireworks particles
+  // Partículas
   makeSky();
 
   // Render inicial
   render();
 
-  // Eventos
+  // Guardar meta
   addBtn.addEventListener("click", () => {
     const t = titleEl.value.trim();
     const c = catEl.value;
     const d = deadlineEl.value || "";
-    const desc = descEl.value.trim();
 
-    if (!t) return toast("Ponle un título al compromiso (aunque sea breve).");
+    if (!t) return toast("Pon una meta (aunque sea breve).");
 
     const item = {
       id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(16).slice(2),
       title: t,
       category: c,
       deadline: d,
-      desc,
       done: false,
       createdAt: Date.now(),
       updatedAt: Date.now(),
@@ -651,13 +654,12 @@
     state.items.unshift(item);
     persist();
     titleEl.value = "";
-    descEl.value = "";
     toast("Guardado ✅");
     render();
   });
 
-  // Autosave (si el usuario escribe y cambia de idea)
-  [titleEl, catEl, deadlineEl, descEl].forEach(el => {
+  // Autosave (sin detalle)
+  [titleEl, catEl, deadlineEl].forEach(el => {
     el.addEventListener("change", persistDraft);
     el.addEventListener("input", debounce(persistDraft, 350));
   });
@@ -673,8 +675,15 @@
     });
   });
 
+  // Export: SOLO meta, categoria, fecha_limite
   exportBtn.addEventListener("click", () => {
-    const payload = JSON.stringify(state, null, 2);
+    const compact = state.items.map(i => ({
+      meta: i.title,
+      categoria: labelCat(i.category),
+      fecha_limite: i.deadline || ""
+    }));
+
+    const payload = JSON.stringify(compact, null, 2);
     const blob = new Blob([payload], { type: "application/json" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
@@ -684,14 +693,38 @@
     toast("Respaldo descargado ⬇️");
   });
 
+  // Import: formato compacto
   importFile.addEventListener("change", async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
     try{
       const text = await file.text();
       const data = JSON.parse(text);
-      if (!data || !Array.isArray(data.items)) throw new Error("Formato no válido.");
-      state = normalize(data);
+      if (!Array.isArray(data)) throw new Error("Formato no válido.");
+
+      const mapped = data.map(x => {
+        const meta = String(x.meta ?? "").trim();
+        const fecha = String(x.fecha_limite ?? "").trim();
+
+        const rawCat = String(x.categoria ?? "").toLowerCase();
+        let cat = "empezar";
+        if (rawCat.includes("dejar")) cat = "dejar";
+        else if (rawCat.includes("continuar")) cat = "continuar";
+        else if (rawCat.includes("empezar")) cat = "empezar";
+
+        return {
+          id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(16).slice(2),
+          title: meta || "Sin título",
+          category: cat,
+          deadline: fecha,
+          done: false,
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+        };
+      });
+
+      state.items = mapped.concat(state.items);
       persist();
       render();
       toast("Importado ✅");
@@ -712,27 +745,17 @@
     toast("Todo borrado 🧨");
   });
 
-  // Modal compartir
-  shareBtn.addEventListener("click", () => {
-    openModal();
-  });
+  // Compartir modal
+  shareBtn.addEventListener("click", () => openModal());
   closeModal.addEventListener("click", closeIt);
-  modal.addEventListener("click", (e) => {
-    if (e.target === modal) closeIt();
-  });
+  modal.addEventListener("click", (e) => { if (e.target === modal) closeIt(); });
 
   makeMsgBtn.addEventListener("click", () => {
     const url = (shareUrl.value || "").trim();
     const safeUrl = url || location.href;
     const msg =
 `🎆 Mis metas 2026 (Fin 2025 / Inicio 2026)
-Organiza tus:
-✅ Metas
-🧹 Dejar de hacer
-🔁 Continuar haciendo
-🚀 Empezar a hacer
-con fecha límite + guardado automático.
-
+🧹 Dejar · 🔁 Continuar · 🚀 Empezar + fecha límite
 👉 ${safeUrl}
 
 Por Soamy Lanza`;
@@ -768,18 +791,13 @@ Por Soamy Lanza`;
     }
     try{
       await navigator.share({ title: "Mis metas 2026", text, url });
-    }catch{
-      // Usuario canceló o error
-    }
+    }catch{}
   });
 
-  // ----- Render / helpers -----
-
+  // ----- Render -----
   function render(){
-    // base
     const items = [...state.items];
 
-    // stats
     const total = items.length;
     const done = items.filter(i => i.done).length;
     const pending = total - done;
@@ -792,11 +810,10 @@ Por Soamy Lanza`;
 
     statsEl.textContent =
       total === 0
-        ? "Aún no has agregado compromisos. (Tranquila/o… todavía estamos a tiempo 😄)"
+        ? "Aún no has agregado metas. (Tranquila/o… todavía estamos a tiempo 😄)"
         : `Total: ${total} · Hechos: ${done} · Pendientes: ${pending}` +
           (soon ? ` · Próximo vencimiento: "${soon.title}" en ${soon.days} día(s).` : "");
 
-    // filter
     let view = items.filter(i => {
       if (filter === "all") return true;
       if (filter === "done") return i.done;
@@ -804,7 +821,6 @@ Por Soamy Lanza`;
       return i.category === filter;
     });
 
-    // sort
     const s = sortEl.value;
     view.sort((a,b) => {
       if (s === "createdDesc") return b.createdAt - a.createdAt;
@@ -818,7 +834,7 @@ Por Soamy Lanza`;
     if (view.length === 0){
       const empty = document.createElement("div");
       empty.className = "hint";
-      empty.textContent = "No hay elementos en este filtro. (Eso también es progreso: menos caos, más claridad).";
+      empty.textContent = "No hay elementos en este filtro. (Menos caos, más claridad).";
       listEl.appendChild(empty);
       return;
     }
@@ -854,32 +870,20 @@ Por Soamy Lanza`;
     const created = document.createElement("span");
     created.className = "pill";
     created.textContent = "Creado: " + new Date(it.createdAt).toLocaleDateString("es-HN");
-
     meta.appendChild(created);
 
+    const dl = document.createElement("span");
+    dl.className = "pill";
     if (it.deadline){
-      const dl = document.createElement("span");
-      dl.className = "pill";
       const days = daysTo(it.deadline);
       const flag = !it.done && Number.isFinite(days) && days < 0 ? "⚠️" : "⏳";
       dl.textContent = `${flag} Límite: ${formatDate(it.deadline)} (${Number.isFinite(days) ? days + " día(s)" : "s/f"})`;
-      meta.appendChild(dl);
     }else{
-      const dl = document.createElement("span");
-      dl.className = "pill";
       dl.textContent = "⏳ Límite: (sin fecha)";
-      meta.appendChild(dl);
     }
+    meta.appendChild(dl);
 
     titleBox.appendChild(meta);
-
-    if (it.desc){
-      const d = document.createElement("div");
-      d.className = "desc";
-      d.textContent = it.desc;
-      titleBox.appendChild(d);
-    }
-
     top.appendChild(titleBox);
     left.appendChild(top);
 
@@ -907,7 +911,7 @@ Por Soamy Lanza`;
     delBtn.textContent = "🗑️";
     delBtn.title = "Eliminar";
     delBtn.addEventListener("click", () => {
-      const ok = confirm("¿Eliminar este compromiso?");
+      const ok = confirm("¿Eliminar esta meta?");
       if (!ok) return;
       state.items = state.items.filter(x => x.id !== it.id);
       persist();
@@ -929,49 +933,41 @@ Por Soamy Lanza`;
     const it = state.items.find(x => x.id === id);
     if (!it) return;
 
-    // Cargamos al formulario para editar de forma simple
     titleEl.value = it.title;
     catEl.value = it.category;
     deadlineEl.value = it.deadline || "";
-    descEl.value = it.desc || "";
 
-    const ok = confirm("Edita en el formulario y presiona 'Guardar compromiso'.\n¿Quieres reemplazar el compromiso actual con lo editado?");
+    const ok = confirm("Edita en el formulario y presiona 'Guardar meta'.\n¿Quieres actualizar esta meta?");
     if (!ok) return;
 
-    // “Modo edición”: al guardar, reemplazamos el item
-    const oldHandler = addBtn.onclick;
-    addBtn.onclick = null;
+    addBtn.dataset.editing = id;
+    toast("Editando: al guardar se actualizará la meta ✏️");
 
-    const tmpListener = () => {
+    const handler = () => {
       const t = titleEl.value.trim();
-      if (!t) return toast("El título no puede quedar vacío.");
+      if (!t) return toast("La meta no puede quedar vacía.");
 
       it.title = t;
       it.category = catEl.value;
       it.deadline = deadlineEl.value || "";
-      it.desc = descEl.value.trim();
       it.updatedAt = Date.now();
 
       persist();
       toast("Actualizado ✨");
       render();
 
-      // reset UI
       titleEl.value = "";
-      descEl.value = "";
-      addBtn.removeEventListener("click", tmpListener);
+      addBtn.dataset.editing = "";
+
+      addBtn.removeEventListener("click", handler);
       addBtn.addEventListener("click", defaultAdd);
     };
 
-    // Cambiamos temporalmente el botón
     addBtn.removeEventListener("click", defaultAdd);
-    addBtn.addEventListener("click", tmpListener);
-    toast("Editando: al guardar se actualizará el compromiso ✏️");
+    addBtn.addEventListener("click", handler);
   }
 
-  function defaultAdd(){
-    addBtn.click(); // no-op (placeholder); el listener real ya existe arriba
-  }
+  function defaultAdd(){}
 
   // Persist
   function persist(skipToast){
@@ -983,8 +979,7 @@ Por Soamy Lanza`;
     state.draft = {
       title: titleEl.value,
       category: catEl.value,
-      deadline: deadlineEl.value,
-      desc: descEl.value
+      deadline: deadlineEl.value
     };
     localStorage.setItem(KEY, JSON.stringify(state));
   }
@@ -996,12 +991,10 @@ Por Soamy Lanza`;
       const data = JSON.parse(raw);
       const norm = normalize(data);
 
-      // recupera draft al cargar
       if (norm.draft){
         titleEl.value = norm.draft.title || "";
-        catEl.value = norm.draft.category || "metas";
+        catEl.value = norm.draft.category || "empezar";
         deadlineEl.value = norm.draft.deadline || deadlineEl.value;
-        descEl.value = norm.draft.desc || "";
       }
       return norm;
     }catch(e){
@@ -1015,30 +1008,27 @@ Por Soamy Lanza`;
       items: items.map(x => ({
         id: String(x.id ?? (Date.now()+Math.random())),
         title: String(x.title ?? "").slice(0,120),
-        category: ["metas","dejar","continuar","empezar"].includes(x.category) ? x.category : "metas",
+        category: ["dejar","continuar","empezar"].includes(x.category) ? x.category : "empezar",
         deadline: x.deadline ? String(x.deadline) : "",
-        desc: x.desc ? String(x.desc) : "",
         done: Boolean(x.done),
         createdAt: Number(x.createdAt ?? Date.now()),
         updatedAt: Number(x.updatedAt ?? Date.now()),
       })),
       draft: data.draft ? {
         title: String(data.draft.title ?? ""),
-        category: ["metas","dejar","continuar","empezar"].includes(data.draft.category) ? data.draft.category : "metas",
+        category: ["dejar","continuar","empezar"].includes(data.draft.category) ? data.draft.category : "empezar",
         deadline: String(data.draft.deadline ?? ""),
-        desc: String(data.draft.desc ?? ""),
       } : emptyDraft()
     };
   }
 
   function emptyDraft(){
-    return { title:"", category:"metas", deadline:"", desc:"" };
+    return { title:"", category:"empezar", deadline:"" };
   }
 
   // Utils
   function labelCat(c){
-    return c === "metas" ? "Metas 2026"
-      : c === "dejar" ? "Dejar de hacer"
+    return c === "dejar" ? "Dejar de hacer"
       : c === "continuar" ? "Continuar haciendo"
       : "Empezar a hacer";
   }
@@ -1079,9 +1069,7 @@ Por Soamy Lanza`;
 
   function openModal(){
     modal.classList.add("show");
-    // auto mensaje
     if (!shareMsg.textContent) makeMsgBtn.click();
-    // autopopulate
     if (!shareUrl.value) shareUrl.value = location.href;
   }
   function closeIt(){ modal.classList.remove("show"); }
@@ -1093,7 +1081,7 @@ Por Soamy Lanza`;
       const s = document.createElement("div");
       s.className = "spark";
       const left = Math.random()*100;
-      const top = 60 + Math.random()*45; // más hacia abajo para que suban
+      const top = 60 + Math.random()*45;
       const dur = 6 + Math.random()*9;
       const delay = Math.random()*6;
       const size = 2 + Math.random()*2.5;
