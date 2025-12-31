@@ -34,7 +34,7 @@
         linear-gradient(180deg, var(--bg1), var(--bg2));
     }
 
-    /* Partículas tipo “fin de año” */
+    /* Partículas fin de año */
     .sky{
       position:fixed; inset:0;
       pointer-events:none;
@@ -149,34 +149,75 @@
     }
     .btn.small{ padding:8px 10px; font-size:12px; border-radius:12px; }
 
-    /* Barra inferior izquierda (acciones) */
+    /* Barra inferior centrada (acciones) */
     .bottomBar{
       position: fixed;
-      left: 16px;
+      left: 50%;
       bottom: 16px;
+      transform: translateX(-50%);
       z-index: 20;
       display:flex;
       gap:10px;
       flex-wrap:wrap;
       align-items:center;
+      justify-content:center;
+      width: min(980px, calc(100% - 24px));
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.24);
+      backdrop-filter: blur(var(--blur));
+      box-shadow: 0 16px 50px rgba(0,0,0,.35);
     }
-    .bottomBar .btn{ padding: 9px 10px; font-size: 12px; }
+    .bottomBar .btn{ padding: 9px 10px; font-size: 12px; border-radius: 999px; }
 
-    /* Evitar que tape contenido */
-    .spacerBottom{ height: 72px; }
+    /* Mensaje “Compartir” antes de metas */
+    .shareNote{
+      position: fixed;
+      left: 50%;
+      bottom: 86px;
+      transform: translateX(-50%);
+      width: min(980px, calc(100% - 24px));
+      z-index: 19;
+      border:1px dashed rgba(255,255,255,.18);
+      background: rgba(255,255,255,.06);
+      color: rgba(255,255,255,.82);
+      padding: 10px 12px;
+      border-radius: 16px;
+      font-size: 12px;
+      line-height: 1.35;
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:center;
+      backdrop-filter: blur(var(--blur));
+    }
+    .shareNote b{ color: rgba(255,255,255,.92); }
+    .shareNote .x{
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(0,0,0,.18);
+      color: rgba(255,255,255,.82);
+      border-radius: 999px;
+      padding: 6px 10px;
+      cursor:pointer;
+      font-weight:700;
+    }
+
+    /* Espacio inferior para que se vean los mensajes al final */
+    .spacerBottom{ height: 140px; }
 
     .grid{
       display:grid;
       grid-template-columns: 1.2fr .8fr;
       gap:14px;
       margin-top:10px;
-      align-items:start;
+      align-items:stretch; /* ✅ alinea arriba ambos paneles */
     }
     @media (max-width: 980px){
-      .grid{ grid-template-columns: 1fr; }
-      .bottomBar{ left: 10px; right:10px; bottom:10px; justify-content:space-between; }
-      .bottomBar .btn{ flex: 1 1 auto; justify-content:center; }
-      .spacerBottom{ height: 110px; }
+      .grid{ grid-template-columns: 1fr; align-items:stretch; }
+      .bottomBar{ bottom: 10px; }
+      .spacerBottom{ height: 180px; }
+      .shareNote{ bottom: 104px; }
     }
 
     .panel{
@@ -186,6 +227,9 @@
       box-shadow: var(--shadow);
       backdrop-filter: blur(var(--blur));
       overflow:hidden;
+      display:flex;
+      flex-direction:column;
+      min-height: 0;
     }
     .panel .head{
       padding: 14px 14px 10px;
@@ -208,12 +252,9 @@
       line-height:1.35;
       max-width: 70ch;
     }
-    .panel .body{ padding:14px; }
-
-    /* Mis metas más arriba */
-    .panel.metasPanel{ margin-top: -10px; }
-    @media (max-width: 980px){
-      .panel.metasPanel{ margin-top: 0; }
+    .panel .body{
+      padding:14px;
+      overflow:auto; /* ✅ para que se vean mensajes al final sin romper pantalla */
     }
 
     .row{
@@ -256,7 +297,6 @@
       justify-content:space-between;
     }
 
-    /* Sugerencias */
     .suggestions{
       margin-top:12px;
       padding-top:12px;
@@ -400,7 +440,7 @@
     .toast{
       position: fixed;
       left: 50%;
-      bottom: 86px; /* encima de bottomBar */
+      bottom: 150px; /* arriba del shareNote y bottomBar */
       transform: translateX(-50%);
       background: rgba(0,0,0,.55);
       border:1px solid rgba(255,255,255,.18);
@@ -459,12 +499,12 @@
       font-family: var(--mono);
     }
 
-    /* PC: “una sola pantalla” (scroll dentro de paneles) */
+    /* PC: “una sola pantalla” */
     @media (min-width: 981px){
       body{ overflow: hidden; }
       .container{ height: 100vh; }
       .grid{ height: calc(100vh - 160px); }
-      .panel{ height: 100%; display:flex; flex-direction:column; }
+      .panel{ height: 100%; }
       .panel .body{ overflow:auto; }
     }
   </style>
@@ -523,17 +563,21 @@
             <div class="hint" id="autosaveHint">💾 Guardado automático activo</div>
           </div>
 
-          <!-- Sugerencias (5 metas realistas) -->
           <div class="suggestions" aria-label="Sugerencias de metas">
             <p class="hintTitle">💡 Sugerencias rápidas (clic para usar)</p>
             <div class="sugList" id="sugList"></div>
             <div class="hint">Tip: una meta realista es una meta con fecha. (Sí, duele… pero funciona 😄)</div>
           </div>
+
+          <!-- Mensaje final del recuadro izquierdo (asegurar visible) -->
+          <div class="hint" style="margin-top:14px;">
+            ✅ Consejo: empieza con 3 metas y cumple 1. (Eso ya es más que “lo intento el lunes”).
+          </div>
         </div>
       </section>
 
       <!-- Lista -->
-      <section class="panel metasPanel" aria-label="Lista de metas">
+      <section class="panel" aria-label="Lista de metas">
         <div class="head">
           <div>
             <h2>Mis metas</h2>
@@ -563,6 +607,7 @@
           <div class="hint" id="stats"></div>
           <div class="list" id="list" style="margin-top:10px;"></div>
 
+          <!-- Mensaje final del recuadro derecho (asegurar visible) -->
           <div class="footer">
             ✨ Que 2026 te agarre trabajando… pero también viviendo. — <strong>Por Soamy Lanza</strong>
           </div>
@@ -573,21 +618,21 @@
     <div class="spacerBottom" aria-hidden="true"></div>
   </div>
 
-  <!-- Barra inferior izquierda: Compartir / Exportar / Importar / Borrar -->
+  <!-- Mensaje compartir -->
+  <div class="shareNote" id="shareNote">
+    <span>📌 <b>Tip:</b> Antes de establecer tus metas, usa <b>Compartir</b> si quieres mandarle esta app a alguien por WhatsApp o redes.</span>
+    <button class="x" id="closeShareNote" title="Cerrar">✖</button>
+  </div>
+
+  <!-- Barra inferior centrada -->
   <div class="bottomBar" aria-label="Acciones">
-    <button class="btn primary" id="shareBtn" title="Compartir la app">
-      🔗 Compartir
-    </button>
-    <button class="btn" id="exportBtn" title="Descarga un respaldo JSON">
-      ⬇️ Exportar
-    </button>
+    <button class="btn primary" id="shareBtn" title="Compartir la app">🔗 Compartir</button>
+    <button class="btn" id="exportBtn" title="Descarga un respaldo JSON">⬇️ Exportar</button>
     <label class="btn" for="importFile" title="Importa un respaldo JSON">
       ⬆️ Importar
       <input id="importFile" type="file" accept="application/json" hidden />
     </label>
-    <button class="btn danger" id="resetBtn" title="Borra todo">
-      🧨 Borrar
-    </button>
+    <button class="btn danger" id="resetBtn" title="Borra todo">🧨 Borrar</button>
   </div>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -628,7 +673,7 @@
 
 <script>
 (() => {
-  const KEY = "mis_metas_2026_v3";
+  const KEY = "mis_metas_2026_v4";
   const $ = (id) => document.getElementById(id);
 
   const titleEl = $("title");
@@ -656,6 +701,9 @@
 
   const sugListEl = $("sugList");
 
+  const shareNote = $("shareNote");
+  const closeShareNote = $("closeShareNote");
+
   let filter = "all";
   let state = load();
 
@@ -663,7 +711,7 @@
   const now = new Date();
   $("todayLabel").textContent = now.toLocaleDateString("es-HN", { weekday:"long", year:"numeric", month:"long", day:"numeric" });
 
-  // Default deadline: 2026-01-15 (cámbialo a "" si lo quieres vacío)
+  // Default deadline (déjalo vacío si quieres)
   const pad = (n) => String(n).padStart(2,"0");
   const defaultDeadline = new Date(Date.UTC(2026, 0, 15));
   deadlineEl.value = `${defaultDeadline.getUTCFullYear()}-${pad(defaultDeadline.getUTCMonth()+1)}-${pad(defaultDeadline.getUTCDate())}`;
@@ -671,7 +719,7 @@
   // Partículas
   makeSky();
 
-  // Sugerencias (5 metas alcanzables/realistas)
+  // Sugerencias
   const suggestions = [
     "Ahorrar un monto fijo cada mes",
     "Hacer ejercicio 3 veces por semana",
@@ -726,7 +774,7 @@
     });
   });
 
-  // Export: SOLO meta, categoria, fecha_limite
+  // Export
   exportBtn.addEventListener("click", () => {
     const compact = state.items.map(i => ({
       meta: i.title,
@@ -744,7 +792,7 @@
     toast("Respaldo descargado ⬇️");
   });
 
-  // Import: formato compacto
+  // Import
   importFile.addEventListener("change", async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -843,6 +891,12 @@ Por Soamy Lanza`;
     try{
       await navigator.share({ title: "Mis metas 2026", text, url });
     }catch{}
+  });
+
+  // Cerrar mensaje compartir
+  closeShareNote.addEventListener("click", () => {
+    shareNote.style.display = "none";
+    toast("Tip ocultado 👌");
   });
 
   // ----- Render -----
