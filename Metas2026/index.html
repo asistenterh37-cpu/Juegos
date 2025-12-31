@@ -19,7 +19,6 @@
       --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
       --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
     }
-
     *{ box-sizing:border-box; }
     html,body{ height:100%; }
     body{
@@ -60,9 +59,19 @@
     .container{
       max-width: 1100px;
       margin: 0 auto;
-      padding: 22px 16px 28px;
+      padding: 18px 16px 18px;
       position:relative;
       z-index:1;
+    }
+
+    /* Barra de acciones superior (✅ lo pedido) */
+    .topActions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:flex-start; /* alineado a la izquierda */
+      margin: 0 0 12px 0;
     }
 
     header{
@@ -136,6 +145,7 @@
       gap:8px;
       align-items:center;
       user-select:none;
+      white-space:nowrap;
     }
     .btn:hover{ transform: translateY(-1px); background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.25); }
     .btn:active{ transform: translateY(0px); }
@@ -149,36 +159,8 @@
     }
     .btn.small{ padding:8px 10px; font-size:12px; border-radius:12px; }
 
-    /* Barra inferior centrada (acciones) */
-    .bottomBar{
-      position: fixed;
-      left: 50%;
-      bottom: 16px;
-      transform: translateX(-50%);
-      z-index: 20;
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      align-items:center;
-      justify-content:center;
-      width: min(980px, calc(100% - 24px));
-      padding: 8px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,.14);
-      background: rgba(0,0,0,.24);
-      backdrop-filter: blur(var(--blur));
-      box-shadow: 0 16px 50px rgba(0,0,0,.35);
-    }
-    .bottomBar .btn{ padding: 9px 10px; font-size: 12px; border-radius: 999px; }
-
-    /* Mensaje “Compartir” antes de metas */
     .shareNote{
-      position: fixed;
-      left: 50%;
-      bottom: 86px;
-      transform: translateX(-50%);
-      width: min(980px, calc(100% - 24px));
-      z-index: 19;
+      margin-top: 6px;
       border:1px dashed rgba(255,255,255,.18);
       background: rgba(255,255,255,.06);
       color: rgba(255,255,255,.82);
@@ -203,21 +185,15 @@
       font-weight:700;
     }
 
-    /* Espacio inferior para que se vean los mensajes al final */
-    .spacerBottom{ height: 140px; }
-
     .grid{
       display:grid;
       grid-template-columns: 1.2fr .8fr;
       gap:14px;
       margin-top:10px;
-      align-items:stretch; /* ✅ alinea arriba ambos paneles */
+      align-items:stretch;
     }
     @media (max-width: 980px){
-      .grid{ grid-template-columns: 1fr; align-items:stretch; }
-      .bottomBar{ bottom: 10px; }
-      .spacerBottom{ height: 180px; }
-      .shareNote{ bottom: 104px; }
+      .grid{ grid-template-columns: 1fr; }
     }
 
     .panel{
@@ -254,7 +230,7 @@
     }
     .panel .body{
       padding:14px;
-      overflow:auto; /* ✅ para que se vean mensajes al final sin romper pantalla */
+      overflow:auto;
     }
 
     .row{
@@ -440,7 +416,7 @@
     .toast{
       position: fixed;
       left: 50%;
-      bottom: 150px; /* arriba del shareNote y bottomBar */
+      top: 16px;
       transform: translateX(-50%);
       background: rgba(0,0,0,.55);
       border:1px solid rgba(255,255,255,.18);
@@ -503,7 +479,7 @@
     @media (min-width: 981px){
       body{ overflow: hidden; }
       .container{ height: 100vh; }
-      .grid{ height: calc(100vh - 160px); }
+      .grid{ height: calc(100vh - 260px); } /* más espacio para topActions + hero */
       .panel{ height: 100%; }
       .panel .body{ overflow:auto; }
     }
@@ -514,6 +490,24 @@
   <div class="sky" id="sky" aria-hidden="true"></div>
 
   <div class="container">
+
+    <!-- ✅ Acciones arriba a la izquierda -->
+    <div class="topActions" aria-label="Acciones superiores">
+      <button class="btn primary" id="shareBtn" title="Compartir la app">🔗 Compartir</button>
+      <button class="btn" id="exportBtn" title="Descarga un respaldo JSON">⬇️ Exportar</button>
+      <label class="btn" for="importFile" title="Importa un respaldo JSON">
+        ⬆️ Importar
+        <input id="importFile" type="file" accept="application/json" hidden />
+      </label>
+      <button class="btn danger" id="resetBtn" title="Borra todo">🧨 Borrar</button>
+    </div>
+
+    <!-- ✅ Mensaje compartir antes de metas -->
+    <div class="shareNote" id="shareNote">
+      <span>📌 <b>Tip:</b> Antes de establecer tus metas, usa <b>Compartir</b> si quieres mandarle esta app a alguien por WhatsApp o redes.</span>
+      <button class="x" id="closeShareNote" title="Cerrar">✖</button>
+    </div>
+
     <header>
       <section class="hero" role="banner">
         <div class="kicker"><span class="dot"></span><span>Fin de 2025 · Arranque 2026</span></div>
@@ -569,7 +563,6 @@
             <div class="hint">Tip: una meta realista es una meta con fecha. (Sí, duele… pero funciona 😄)</div>
           </div>
 
-          <!-- Mensaje final del recuadro izquierdo (asegurar visible) -->
           <div class="hint" style="margin-top:14px;">
             ✅ Consejo: empieza con 3 metas y cumple 1. (Eso ya es más que “lo intento el lunes”).
           </div>
@@ -607,32 +600,12 @@
           <div class="hint" id="stats"></div>
           <div class="list" id="list" style="margin-top:10px;"></div>
 
-          <!-- Mensaje final del recuadro derecho (asegurar visible) -->
           <div class="footer">
             ✨ Que 2026 te agarre trabajando… pero también viviendo. — <strong>Por Soamy Lanza</strong>
           </div>
         </div>
       </section>
     </main>
-
-    <div class="spacerBottom" aria-hidden="true"></div>
-  </div>
-
-  <!-- Mensaje compartir -->
-  <div class="shareNote" id="shareNote">
-    <span>📌 <b>Tip:</b> Antes de establecer tus metas, usa <b>Compartir</b> si quieres mandarle esta app a alguien por WhatsApp o redes.</span>
-    <button class="x" id="closeShareNote" title="Cerrar">✖</button>
-  </div>
-
-  <!-- Barra inferior centrada -->
-  <div class="bottomBar" aria-label="Acciones">
-    <button class="btn primary" id="shareBtn" title="Compartir la app">🔗 Compartir</button>
-    <button class="btn" id="exportBtn" title="Descarga un respaldo JSON">⬇️ Exportar</button>
-    <label class="btn" for="importFile" title="Importa un respaldo JSON">
-      ⬆️ Importar
-      <input id="importFile" type="file" accept="application/json" hidden />
-    </label>
-    <button class="btn danger" id="resetBtn" title="Borra todo">🧨 Borrar</button>
   </div>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -673,7 +646,7 @@
 
 <script>
 (() => {
-  const KEY = "mis_metas_2026_v4";
+  const KEY = "mis_metas_2026_v5";
   const $ = (id) => document.getElementById(id);
 
   const titleEl = $("title");
@@ -700,7 +673,6 @@
   const webShareBtn = $("webShareBtn");
 
   const sugListEl = $("sugList");
-
   const shareNote = $("shareNote");
   const closeShareNote = $("closeShareNote");
 
@@ -711,7 +683,7 @@
   const now = new Date();
   $("todayLabel").textContent = now.toLocaleDateString("es-HN", { weekday:"long", year:"numeric", month:"long", day:"numeric" });
 
-  // Default deadline (déjalo vacío si quieres)
+  // Default deadline
   const pad = (n) => String(n).padStart(2,"0");
   const defaultDeadline = new Date(Date.UTC(2026, 0, 15));
   deadlineEl.value = `${defaultDeadline.getUTCFullYear()}-${pad(defaultDeadline.getUTCMonth()+1)}-${pad(defaultDeadline.getUTCDate())}`;
@@ -729,7 +701,6 @@
   ];
   renderSuggestions();
 
-  // Render inicial
   render();
 
   // Guardar meta
@@ -757,7 +728,7 @@
     render();
   });
 
-  // Autosave
+  // Autosave draft
   [titleEl, catEl, deadlineEl].forEach(el => {
     el.addEventListener("change", persistDraft);
     el.addEventListener("input", debounce(persistDraft, 350));
@@ -893,8 +864,8 @@ Por Soamy Lanza`;
     }catch{}
   });
 
-  // Cerrar mensaje compartir
-  closeShareNote.addEventListener("click", () => {
+  // Cerrar tip
+  closeShareNote?.addEventListener("click", () => {
     shareNote.style.display = "none";
     toast("Tip ocultado 👌");
   });
@@ -1068,7 +1039,6 @@ Por Soamy Lanza`;
     addBtn.removeEventListener("click", defaultAdd);
     addBtn.addEventListener("click", handler);
   }
-
   function defaultAdd(){}
 
   function renderSuggestions(){
@@ -1088,10 +1058,9 @@ Por Soamy Lanza`;
     });
   }
 
-  // Persist
-  function persist(skipToast){
+  function persist(skipDraft){
     localStorage.setItem(KEY, JSON.stringify(state));
-    if (!skipToast) persistDraft();
+    if (!skipDraft) persistDraft();
   }
 
   function persistDraft(){
@@ -1116,7 +1085,7 @@ Por Soamy Lanza`;
         deadlineEl.value = norm.draft.deadline || deadlineEl.value;
       }
       return norm;
-    }catch(e){
+    }catch{
       return { items: [], draft: emptyDraft() };
     }
   }
@@ -1141,11 +1110,8 @@ Por Soamy Lanza`;
     };
   }
 
-  function emptyDraft(){
-    return { title:"", category:"empezar", deadline:"" };
-  }
+  function emptyDraft(){ return { title:"", category:"empezar", deadline:"" }; }
 
-  // Utils
   function labelCat(c){
     return c === "dejar" ? "Dejar de hacer"
       : c === "continuar" ? "Continuar haciendo"
@@ -1193,6 +1159,41 @@ Por Soamy Lanza`;
   }
   function closeIt(){ modal.classList.remove("show"); }
 
+  closeModal.addEventListener("click", closeIt);
+  modal.addEventListener("click", (e) => { if (e.target === modal) closeIt(); });
+
+  makeMsgBtn.addEventListener("click", () => {
+    const url = (shareUrl.value || "").trim() || location.href;
+    shareMsg.textContent =
+`🎆 Mis metas 2026 (Fin 2025 / Inicio 2026)
+🧹 Dejar · 🔁 Continuar · 🚀 Empezar + fecha límite
+👉 ${url}
+
+Por Soamy Lanza`;
+    toast("Mensaje listo 🧾");
+  });
+
+  copyMsgBtn.addEventListener("click", async () => {
+    try{ await navigator.clipboard.writeText(shareMsg.textContent || ""); toast("Mensaje copiado 📋"); }
+    catch{ toast("No pude copiar. Copia manual 😅"); }
+  });
+
+  copyLinkBtn.addEventListener("click", async () => {
+    const url = (shareUrl.value || "").trim() || location.href;
+    try{ await navigator.clipboard.writeText(url); toast("Link copiado 🔗"); }
+    catch{ toast("No pude copiar el link 😅"); }
+  });
+
+  webShareBtn.addEventListener("click", async () => {
+    const url = (shareUrl.value || "").trim() || location.href;
+    const text = shareMsg.textContent || `Mis metas 2026 — Por Soamy Lanza`;
+    if (!navigator.share){ toast("No hay compartir rápido. Copia el mensaje/link 😉"); return; }
+    try{ await navigator.share({ title:"Mis metas 2026", text, url }); }catch{}
+  });
+
+  closeShareNote?.addEventListener("click", () => { shareNote.style.display="none"; });
+
+  // Partículas
   function makeSky(){
     const sky = $("sky");
     const count = 46;
