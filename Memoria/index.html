@@ -13,10 +13,24 @@
       --muted:#94a3b8;
       --good:#22c55e;
       --warn:#f59e0b;
-      --bad:#ef4444;
       --shadow: 0 14px 40px rgba(0,0,0,.45);
       --r: 18px;
+
+      /* ✅ Reserva aproximada del alto del header+controles (PC) */
+      --uiH: 250px;
+
+      /* ✅ Tamaño final del tablero: limita por ancho y por alto disponible */
+      --boardSize: min(560px, calc(100svh - var(--uiH)), calc(100vw - 40px));
     }
+
+    @media (max-width: 700px){
+      :root{
+        /* en móvil hay más UI (botones, textos) */
+        --uiH: 310px;
+        --boardSize: min(520px, calc(100svh - var(--uiH)), calc(100vw - 28px));
+      }
+    }
+
     *{box-sizing:border-box}
     html,body{height:100%}
     body{
@@ -26,7 +40,7 @@
                   radial-gradient(900px 500px at 85% 12%, rgba(245,158,11,.12), transparent 55%),
                   var(--bg);
       color:var(--text);
-      overflow:hidden;
+      overflow:hidden; /* ✅ sin scroll */
     }
     .app{
       height:100svh;
@@ -85,6 +99,7 @@
       white-space:nowrap;
     }
     .pill b{font-variant-numeric: tabular-nums;}
+
     main{
       flex:1 1 auto;
       min-height:0;
@@ -136,12 +151,14 @@
       background: rgba(245,158,11,.14);
     }
     button:disabled{opacity:.6; cursor:not-allowed}
+
     .hint{
       color:var(--muted);
       font-size:13px;
       line-height:1.35;
       flex:0 0 auto;
     }
+
     .boardWrap{
       flex:1 1 auto;
       min-height:0;
@@ -150,19 +167,20 @@
       justify-content:center;
       overflow:hidden;
     }
+
+    /* ✅ TABLERO: ahora usa tamaño calculado por alto disponible */
     .board{
       display:grid;
-      gap: min(1.2vw, 10px);
-      width: min(92vw, 560px);
-      height: min(92vw, 560px);
-      max-width: calc(100svh - 250px);
-      max-height: calc(100svh - 250px);
-      padding: min(1.2vw, 12px);
+      gap: min(1.1vw, 10px);
+      width: var(--boardSize);
+      height: var(--boardSize);
+      padding: min(1.1vw, 12px);
       border:1px solid var(--line);
       border-radius: 18px;
       background: rgba(11,15,20,.35);
       box-shadow: 0 10px 26px rgba(0,0,0,.35);
     }
+
     .cardBtn{
       position:relative;
       border-radius: 16px;
@@ -171,7 +189,7 @@
       display:flex;
       align-items:center;
       justify-content:center;
-      font-size: clamp(18px, 3.2vw, 30px);
+      font-size: clamp(16px, 2.5vw, 30px);
       cursor:pointer;
       transition: transform .12s ease, background .12s ease, border-color .12s ease;
       outline:none;
@@ -205,13 +223,14 @@
       justify-content:center;
       opacity:.85;
       transition: opacity .12s ease;
-      font-size: clamp(16px, 2.9vw, 26px);
+      font-size: clamp(14px, 2.2vw, 26px);
       color: rgba(229,231,235,.75);
     }
     .cardBtn.revealed .backMark,
     .cardBtn.matched .backMark{
       opacity:0;
     }
+
     .footer{
       display:flex;
       flex-wrap:wrap;
@@ -277,7 +296,7 @@
       <div class="hint">
         <b>Instrucciones:</b> toca dos cartas para revelar. Si son iguales, se quedan abiertas.
         Si no, se voltean de nuevo. Gana cuando completes todas las parejas.
-        En PC puedes usar clic; en móvil toca. El cronómetro inicia en tu primera jugada.
+        El cronómetro inicia en tu primera jugada.
       </div>
 
       <div class="boardWrap">
@@ -358,9 +377,9 @@
     "🌈","⭐","🌙","⚡","🔥","💎","🧠","👻","🤖","👾"
   ];
 
-  let N = 4; // grid size
-  let deck = []; // {id, face, state}
-  let first = null; // index
+  let N = 4;
+  let deck = [];
+  let first = null;
   let lock = false;
   let moves = 0;
   let pairs = 0;
@@ -429,15 +448,9 @@
     });
   };
 
-  const reveal = (i) => {
-    deck[i].state = "revealed";
-  };
-  const hide = (i) => {
-    deck[i].state = "hidden";
-  };
-  const match = (i) => {
-    deck[i].state = "matched";
-  };
+  const reveal = (i) => deck[i].state = "revealed";
+  const hide = (i) => deck[i].state = "hidden";
+  const match = (i) => deck[i].state = "matched";
 
   const onFlip = (i) => {
     if (lock) return;
@@ -453,9 +466,7 @@
       return;
     }
 
-    // second card
     moves++;
-
     const a = first;
     const b = i;
 
@@ -475,7 +486,6 @@
       return;
     }
 
-    // not match
     lock = true;
     updateHUD();
     setStatus("warn", "No coinciden… intenta otra vez.");
@@ -502,13 +512,12 @@
   };
 
   const restart = () => {
-    // mismo tamaño, tablero nuevo (reiniciar completo)
     moves = 0;
     pairs = 0;
     first = null;
     lock = false;
     resetTimer();
-    setStatus("warn", "Reiniciado. Ahora sí, sin distraerte 😄");
+    setStatus("warn", "Reiniciado. ¡Más rápido esta vez! 😄");
     buildDeck();
     updateHUD();
     render();
@@ -534,13 +543,11 @@
     }
   };
 
-  // Events
   newBtn.addEventListener("click", newGame);
   restartBtn.addEventListener("click", restart);
   sizeSel.addEventListener("change", newGame);
   shareBtn.addEventListener("click", share);
 
-  // Init
   newGame();
 })();
 </script>
