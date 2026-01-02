@@ -2,599 +2,816 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Test de Toxicidad Laboral • Por Soamy Lanza</title>
   <style>
     :root{
       --bg:#071018;
-      --card:rgba(16,24,40,.72);
-      --card2:rgba(12,18,32,.78);
+      --card: rgba(16,24,40,.70);
+      --card2: rgba(12,18,32,.78);
       --text:#e8eefc;
       --muted:#a9b6d3;
-      --border:rgba(255,255,255,.12);
+      --border: rgba(255,255,255,.12);
       --accent:#18c07a;
       --warn:#f7b731;
       --danger:#ff5c7a;
-      --shadow: 0 24px 60px rgba(0,0,0,.45);
+      --shadow: 0 20px 60px rgba(0,0,0,.45);
       --radius:18px;
     }
     *{box-sizing:border-box}
+    html,body{height:100%}
     body{
       margin:0;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue", sans-serif;
       color:var(--text);
-      background: radial-gradient(900px 500px at 15% 10%, rgba(24,192,122,.22), transparent 55%),
-                  radial-gradient(800px 520px at 85% 20%, rgba(120,100,255,.18), transparent 55%),
-                  radial-gradient(700px 420px at 35% 95%, rgba(255,92,122,.14), transparent 60%),
-                  var(--bg);
-      min-height:100vh;
+      background:
+        radial-gradient(1100px 700px at 20% -10%, rgba(24,192,122,.22), transparent 55%),
+        radial-gradient(900px 650px at 85% 0%, rgba(247,183,49,.18), transparent 55%),
+        radial-gradient(900px 650px at 90% 80%, rgba(255,92,122,.12), transparent 55%),
+        linear-gradient(180deg, #050b11, var(--bg));
+      overflow-x:hidden;
     }
-    .wrap{max-width:1100px;margin:24px auto;padding:0 16px}
-    .hero{
-      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+    .wrap{
+      max-width: 1100px;
+      margin: 28px auto;
+      padding: 0 16px 40px;
+    }
+    .header{
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
       border:1px solid var(--border);
-      border-radius:24px;
-      padding:18px 18px;
       box-shadow: var(--shadow);
-      display:flex; gap:16px; align-items:flex-start; justify-content:space-between;
-      flex-wrap:wrap;
-    }
-    .hero h1{margin:0;font-size:26px; letter-spacing:.2px; display:flex; align-items:center; gap:10px}
-    .hero p{margin:6px 0 0; color:var(--muted); line-height:1.4}
-    .meta{
-      display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end;
-      align-items:center;
-    }
-    .pill{
-      background: rgba(0,0,0,.25);
-      border:1px solid var(--border);
-      border-radius:999px;
-      padding:10px 12px;
-      display:flex; gap:10px; align-items:center;
-      min-width: 180px;
+      border-radius: 22px;
+      padding: 18px 18px 16px;
+      display:flex;
+      gap:14px;
+      align-items:flex-start;
       justify-content:space-between;
     }
-    .pill strong{font-variant-numeric: tabular-nums; font-size:14px}
-    .pill span{color:var(--muted); font-size:13px}
-    .grid{
-      margin-top:18px;
-      display:grid;
-      grid-template-columns: 360px 1fr;
-      gap:16px;
+    .title{
+      display:flex; gap:12px; align-items:flex-start;
     }
-    @media (max-width: 980px){
-      .grid{grid-template-columns: 1fr}
-      .meta{justify-content:flex-start}
-      .pill{min-width: 160px}
+    .badge{
+      width:42px; height:42px; border-radius:14px;
+      display:grid; place-items:center;
+      background: rgba(24,192,122,.16);
+      border:1px solid rgba(24,192,122,.35);
+      box-shadow: 0 8px 25px rgba(0,0,0,.35);
+      font-size:22px;
+      flex:0 0 auto;
+    }
+    h1{
+      margin:0;
+      font-size: 22px;
+      letter-spacing:.2px;
+      line-height:1.25;
+    }
+    .sub{
+      margin-top:4px;
+      color:var(--muted);
+      font-size: 13.5px;
+      line-height:1.35;
+    }
+    .by{
+      margin-top:4px;
+      font-weight:600;
+      color:#d7e4ff;
+      font-size: 13.5px;
     }
 
-    .panel{
-      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+    .grid{
+      margin-top:16px;
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap:16px;
+      align-items:start;
+    }
+    @media (max-width: 980px){
+      .grid{grid-template-columns:1fr}
+    }
+
+    .card{
+      background: var(--card);
       border:1px solid var(--border);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
       overflow:hidden;
     }
-    .panel .inner{padding:16px}
-    .sectionTitle{
-      margin:0 0 10px;
-      font-size:14px; letter-spacing:.2px;
-      color:#d7e3ff;
-      opacity:.95;
-      display:flex; align-items:center; gap:10px;
-    }
-    .small{color:var(--muted); font-size:13px; line-height:1.4}
-    .legend{
-      margin-top:12px;
-      border-top:1px solid var(--border);
-      padding-top:12px;
-      display:grid;
-      grid-template-columns: 1fr;
-      gap:8px;
-    }
-    .legend .row{
-      display:flex; align-items:center; justify-content:space-between;
+    .card .inner{ padding: 14px; }
+    .card .inner.pad2{ padding: 16px; }
+
+    .toolbar{
+      display:flex;
+      flex-wrap:wrap;
       gap:10px;
-      padding:10px 12px;
-      border:1px solid var(--border);
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom: 10px;
+    }
+    .pillrow{
+      display:flex; flex-wrap:wrap; gap:10px; align-items:center;
+    }
+    .pill{
+      display:flex; gap:8px; align-items:center;
+      padding: 10px 12px;
       background: rgba(0,0,0,.18);
-      border-radius: 14px;
-      font-size:13px;
-      color:var(--muted);
-    }
-    .controls{
-      display:flex; gap:10px; flex-wrap:wrap;
-      margin-top:12px;
-    }
-    button{
       border:1px solid var(--border);
-      background: rgba(0,0,0,.25);
-      color:var(--text);
-      padding:12px 14px;
-      border-radius: 14px;
-      font-weight: 700;
+      border-radius: 999px;
+      font-size: 13px;
+      color: #dbe7ff;
+      white-space:nowrap;
+    }
+    .pill strong{font-weight:800}
+    .btnrow{display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:flex-end}
+    button, .btn{
       cursor:pointer;
+      border-radius: 14px;
+      border:1px solid var(--border);
+      padding: 11px 14px;
+      font-weight:700;
+      color: var(--text);
+      background: rgba(0,0,0,.18);
       transition: transform .06s ease, background .2s ease, border-color .2s ease;
+      user-select:none;
     }
     button:hover{transform: translateY(-1px); border-color: rgba(255,255,255,.22)}
-    button.primary{
-      background: rgba(24,192,122,.16);
-      border-color: rgba(24,192,122,.45);
+    .btn.primary{
+      background: rgba(24,192,122,.18);
+      border-color: rgba(24,192,122,.38);
     }
-    button.danger{
-      background: rgba(255,92,122,.13);
+    .btn.warn{
+      background: rgba(247,183,49,.14);
+      border-color: rgba(247,183,49,.35);
+    }
+    .btn.danger{
+      background: rgba(255,92,122,.12);
       border-color: rgba(255,92,122,.35);
     }
-    button:disabled{opacity:.55; cursor:not-allowed; transform:none}
-    .shareNote{margin-top:10px; color:var(--muted); font-size:12.5px}
+
+    .panel{
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: 16px;
+      padding: 12px;
+    }
+    .panel h3{
+      margin:0 0 8px;
+      font-size: 14px;
+      letter-spacing:.2px;
+    }
+    .panel p, .panel li{
+      margin:0;
+      color: var(--muted);
+      font-size: 13.5px;
+      line-height: 1.45;
+    }
+    .panel ul{margin:8px 0 0 18px; padding:0}
+    .panel li{margin:4px 0}
+
+    .scaleBox{
+      margin-top: 12px;
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:10px;
+    }
+    .scaleLegend{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      align-items:center;
+      color: var(--muted);
+      font-size: 13px;
+      line-height:1.25;
+    }
+    .scaleLegend span{
+      border:1px solid var(--border);
+      background: rgba(0,0,0,.15);
+      border-radius: 999px;
+      padding: 7px 10px;
+      white-space:nowrap;
+    }
 
     .items{
       display:grid;
       gap:10px;
-      padding:14px;
+      margin-top: 10px;
     }
     .item{
-      border:1px solid var(--border);
       background: rgba(0,0,0,.18);
+      border:1px solid rgba(255,255,255,.10);
       border-radius: 16px;
-      padding:12px 12px;
-      display:grid;
-      grid-template-columns: 1fr auto;
-      gap:12px;
-      align-items:center;
+      padding: 12px;
+    }
+    .itemTop{
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      justify-content:space-between;
     }
     .q{
-      min-width: 0;
-    }
-    .q .cat{
-      font-size:12px; color:var(--muted);
-      display:flex; gap:8px; align-items:center; flex-wrap:wrap;
-      margin-bottom:4px;
+      margin:0;
+      font-size: 14px;
+      line-height:1.35;
+      color:#e9f0ff;
     }
     .tagR{
-      font-size:11px;
-      padding:2px 8px;
-      border-radius:999px;
-      border:1px solid rgba(24,192,122,.45);
+      flex:0 0 auto;
+      font-size: 12px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border:1px solid rgba(24,192,122,.35);
       background: rgba(24,192,122,.12);
-      color:#bff7df;
+      color:#c9ffe9;
     }
-    .q .text{
-      font-size:14px;
-      line-height:1.35;
-      color:#e8eefc;
+    .opts{
+      margin-top:10px;
+      display:grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap:8px;
     }
-    .scale{
-      display:flex; gap:6px;
+    @media (max-width: 560px){
+      .opts{grid-template-columns: repeat(5, minmax(0,1fr));}
+      .item{padding: 11px;}
+      .q{font-size: 13.5px;}
     }
-    .scale label{
-      width:42px; height:42px;
-      display:grid; place-items:center;
-      border-radius: 12px;
-      border:1px solid var(--border);
-      background: rgba(0,0,0,.18);
-      cursor:pointer;
+    .opt{
+      position:relative;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.04);
+      border-radius: 14px;
+      padding: 10px 6px;
+      text-align:center;
       font-weight:800;
-      font-variant-numeric: tabular-nums;
-      user-select:none;
+      color:#e9f0ff;
+      cursor:pointer;
       transition: transform .06s ease, border-color .2s ease, background .2s ease;
+      user-select:none;
     }
-    .scale input{display:none}
-    .scale input:checked + span{
-      border-color: rgba(24,192,122,.65);
-      background: rgba(24,192,122,.20);
-      transform: translateY(-1px);
+    .opt:hover{ transform: translateY(-1px); border-color: rgba(255,255,255,.20); }
+    .opt input{ position:absolute; inset:0; opacity:0; cursor:pointer; }
+    .opt[data-checked="true"]{
+      background: rgba(24,192,122,.18);
+      border-color: rgba(24,192,122,.45);
+      box-shadow: 0 12px 30px rgba(0,0,0,.25);
     }
-    .scale span{
-      width:42px; height:42px;
-      display:grid; place-items:center;
-      border-radius: 12px;
-      border:1px solid var(--border);
-      background: transparent;
+
+    .rightCol{
+      display:grid;
+      gap:16px;
+      position:sticky;
+      top:14px;
+    }
+    @media (max-width: 980px){
+      .rightCol{position:static}
     }
 
     .resultBox{
-      margin-top:12px;
-      padding:12px 12px;
-      border:1px solid var(--border);
-      border-radius: 16px;
-      background: rgba(0,0,0,.18);
+      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      border:1px solid rgba(255,255,255,.12);
+      border-radius: 18px;
+      padding: 14px;
       display:grid;
-      gap:10px;
+      gap:12px;
     }
-    .bar{
-      height:12px;
-      border-radius:999px;
-      background: rgba(255,255,255,.08);
-      border:1px solid rgba(255,255,255,.10);
+    .scoreLine{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      align-items:center;
+      justify-content:space-between;
+    }
+    .big{
+      font-size: 26px;
+      font-weight: 900;
+      letter-spacing:.2px;
+    }
+    .level{
+      font-weight:900;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border:1px solid var(--border);
+      background: rgba(0,0,0,.18);
+      white-space:nowrap;
+    }
+    .meter{
+      height: 12px;
+      border-radius: 999px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.20);
       overflow:hidden;
     }
-    .bar > div{
+    .bar{
       height:100%;
       width:0%;
-      background: linear-gradient(90deg, rgba(24,192,122,.85), rgba(247,183,49,.85), rgba(255,92,122,.85));
-      border-radius:999px;
+      background: linear-gradient(90deg, rgba(24,192,122,.95), rgba(247,183,49,.95), rgba(255,92,122,.95));
       transition: width .35s ease;
     }
-    .resTop{
-      display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between;
+    .muted{color:var(--muted); font-size: 13.5px; line-height:1.45;}
+    .sectionTitle{
+      margin: 0 0 6px;
+      font-size: 14px;
+      font-weight: 900;
+      letter-spacing:.2px;
     }
-    .score{
-      font-size:16px;
-      font-weight:900;
-      display:flex; gap:10px; align-items:baseline;
+    .divider{
+      height:1px; background: rgba(255,255,255,.10);
+      margin: 6px 0;
     }
-    .score small{color:var(--muted); font-weight:700}
-    .badge{
-      padding:8px 10px;
-      border-radius: 999px;
-      border:1px solid var(--border);
-      background: rgba(0,0,0,.25);
-      font-weight:900;
-      font-size:13px;
-    }
-    .badge.low{border-color: rgba(24,192,122,.50); background: rgba(24,192,122,.12)}
-    .badge.mid{border-color: rgba(247,183,49,.55); background: rgba(247,183,49,.14)}
-    .badge.high{border-color: rgba(255,92,122,.55); background: rgba(255,92,122,.12)}
-    .muted{color:var(--muted)}
-    .footer{
-      margin: 18px 0 10px;
-      text-align:center;
-      color:rgba(200,210,235,.75);
-      font-size:12px;
-    }
+
     .toast{
-      position:fixed;
-      left:50%;
-      bottom:18px;
+      position: fixed;
+      left: 50%;
+      bottom: 16px;
       transform: translateX(-50%);
-      padding:10px 12px;
+      background: rgba(16,24,40,.92);
+      border: 1px solid rgba(255,255,255,.14);
+      color: #eaf1ff;
+      box-shadow: 0 20px 70px rgba(0,0,0,.55);
       border-radius: 999px;
-      border:1px solid rgba(255,255,255,.18);
-      background: rgba(0,0,0,.55);
-      color: var(--text);
-      box-shadow: var(--shadow);
-      opacity:0;
-      pointer-events:none;
-      transition: opacity .18s ease, transform .18s ease;
-      font-size:13px;
-      z-index: 9999;
+      padding: 10px 14px;
+      font-size: 13px;
+      display:none;
+      gap:8px;
+      align-items:center;
+      z-index: 50;
     }
-    .toast.show{
-      opacity:1;
-      transform: translateX(-50%) translateY(-2px);
+    .toast.show{display:flex}
+    .tiny{
+      font-size: 12px;
+      color: rgba(233,240,255,.75);
+      margin-top: 8px;
+    }
+    a{color:#bde7ff}
+    .foot{
+      margin-top: 12px;
+      color: rgba(233,240,255,.70);
+      font-size: 12px;
+      text-align:center;
     }
   </style>
 </head>
-
 <body>
   <div class="wrap">
-    <div class="hero">
-      <div>
-        <h1>🧪 Test de Toxicidad Laboral</h1>
-        <p class="small">
-          Instrucciones: responde según tu experiencia en los últimos <b>30 días</b>.
-          Escala Likert (1–5): 1 = Totalmente en desacuerdo · 5 = Totalmente de acuerdo.
-          <br><span class="muted">Por: <b>Soamy Lanza</b></span>
-        </p>
+    <div class="header">
+      <div class="title">
+        <div class="badge">🧪</div>
+        <div>
+          <h1>Nivel de Toxicidad Laboral</h1>
+          <div class="sub">
+            Responde según tu experiencia en los últimos <strong>30 días</strong>. Escala Likert (1 a 5).
+          </div>
+          <div class="by">Por: Soamy Lanza</div>
+        </div>
       </div>
-
-      <div class="meta">
-        <div class="pill"><span>⏱️ Tiempo</span><strong id="time">00:00</strong></div>
-        <div class="pill"><span>🧾 Respondidas</span><strong id="answered">0/20</strong></div>
-        <div class="pill"><span>📊 Puntaje</span><strong id="scoreMini">—</strong></div>
+      <div class="pillrow">
+        <div class="pill">⏱️ <span>Tiempo:</span> <strong id="time">00:00</strong></div>
+        <div class="pill">📋 <span>Respondidas:</span> <strong id="answered">0</strong>/20</div>
       </div>
     </div>
 
     <div class="grid">
-      <!-- Left -->
-      <div class="panel">
-        <div class="inner">
-          <h3 class="sectionTitle">📌 Escala</h3>
-          <div class="legend">
-            <div class="row"><span>1</span><span>Totalmente en desacuerdo</span></div>
-            <div class="row"><span>2</span><span>En desacuerdo</span></div>
-            <div class="row"><span>3</span><span>Ni de acuerdo ni en desacuerdo</span></div>
-            <div class="row"><span>4</span><span>De acuerdo</span></div>
-            <div class="row"><span>5</span><span>Totalmente de acuerdo</span></div>
-          </div>
-
-          <div class="controls">
-            <button class="primary" id="calcBtn">Calcular</button>
-            <button id="resetBtn" class="danger">Reiniciar</button>
-            <button id="shareBtn">Compartir</button>
-          </div>
-
-          <div class="resultBox" id="resultBox" style="display:none;">
-            <div class="resTop">
-              <div class="score">
-                <span id="score">0</span>
-                <small>/ 100</small>
-              </div>
-              <div class="badge" id="levelBadge">—</div>
+      <!-- LEFT: Form -->
+      <div class="card">
+        <div class="inner pad2">
+          <div class="toolbar">
+            <div class="pillrow">
+              <div class="pill">Instrucciones</div>
             </div>
-            <div class="bar"><div id="barFill"></div></div>
-            <div class="small muted" id="levelDesc"></div>
-            <div class="small muted">
-              Nota: Los ítems marcados con <span class="tagR">(R)</span> se invierten automáticamente (1↔5, 2↔4, 3↔3).
+            <div class="btnrow">
+              <button class="btn primary" id="calcBtn">Calcular</button>
+              <button class="btn warn" id="resetBtn" title="Borra respuestas y reinicia">Reiniciar</button>
+              <button class="btn" id="shareBtn">Compartir</button>
             </div>
           </div>
 
-          <div class="shareNote">
-            💡 Ideal para compartir: funciona en móvil/PC en una sola página (GitHub Pages).
+          <div class="panel">
+            <h3>Escala Likert (1 a 5)</h3>
+            <div class="scaleLegend">
+              <span><strong>1</strong> = Totalmente en desacuerdo</span>
+              <span><strong>2</strong> = En desacuerdo</span>
+              <span><strong>3</strong> = Ni de acuerdo ni en desacuerdo</span>
+              <span><strong>4</strong> = De acuerdo</span>
+              <span><strong>5</strong> = Totalmente de acuerdo</span>
+            </div>
+            <div class="tiny">
+              (R) = ítem invertido (positivo): se invierte automáticamente al calcular.
+            </div>
+          </div>
+
+          <div class="items" id="items"></div>
+
+          <div class="foot">
+            Nota: herramienta de autodiagnóstico. Úsala con confidencialidad y enfoque preventivo.
           </div>
         </div>
       </div>
 
-      <!-- Right -->
-      <div class="panel">
-        <div class="items" id="items"></div>
+      <!-- RIGHT: Results -->
+      <div class="rightCol">
+        <div class="card">
+          <div class="inner pad2">
+            <div class="resultBox">
+              <div class="scoreLine">
+                <div>
+                  <div class="muted">Puntaje total</div>
+                  <div class="big"><span id="score">—</span> <span class="muted">/ 100</span></div>
+                </div>
+                <div class="level" id="levelTag">Nivel: —</div>
+              </div>
+              <div class="meter" aria-label="barra de progreso">
+                <div class="bar" id="bar"></div>
+              </div>
+              <div class="muted" id="resultHint">
+                Completa el cuestionario y presiona <strong>Calcular</strong> para ver tu resultado.
+              </div>
+
+              <div class="divider"></div>
+
+              <div>
+                <div class="sectionTitle">Resultados</div>
+                <div class="muted" id="resultsText">—</div>
+              </div>
+
+              <div>
+                <div class="sectionTitle">Conclusiones</div>
+                <div class="muted" id="conclusionsText">—</div>
+              </div>
+
+              <div>
+                <div class="sectionTitle">Recomendaciones / Plan de mejora</div>
+                <div class="muted" id="recommendationsText">—</div>
+              </div>
+
+              <div class="tiny">
+                Tip: si es <strong>alto</strong> o <strong>muy alto</strong>, considera apoyo profesional y canales formales de intervención.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="inner pad2">
+            <div class="panel">
+              <h3>Puntuación</h3>
+              <p><strong>Rango total:</strong> 20 a 100 (sumando 20 ítems)</p>
+              <ul>
+                <li><strong>20–39:</strong> Bajo nivel de toxicidad</li>
+                <li><strong>40–59:</strong> Moderado (alerta)</li>
+                <li><strong>60–79:</strong> Alto (riesgo)</li>
+                <li><strong>80–100:</strong> Muy alto (urgente)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
-
-    <div class="footer">Hecho para compartir · 1 archivo · HTML + CSS + JS</div>
   </div>
 
-  <div class="toast" id="toast">Listo ✅</div>
+  <div class="toast" id="toast">✅ <span id="toastTxt"></span></div>
 
   <script>
-    const QUESTIONS = [
-      // Clima y respeto
-      { id: 1, cat: "Clima y respeto", text: "En mi equipo se trata a las personas con respeto, incluso bajo presión.", rev: true },
-      { id: 2, cat: "Clima y respeto", text: "He presenciado comentarios humillantes, burlas o sarcasmo hiriente en el trabajo.", rev: false },
-      { id: 3, cat: "Clima y respeto", text: "Me siento seguro/a de expresar ideas sin miedo a ridiculización o castigo.", rev: true },
-      { id: 4, cat: "Clima y respeto", text: "Los conflictos se manejan con diálogo y soluciones, no con ataques personales.", rev: true },
+    // --- Data ---
+    const ITEMS = [
+      { id: 1,  text: "En mi equipo se trata a las personas con respeto, incluso bajo presión.", reversed: true },
+      { id: 2,  text: "He presenciado comentarios humillantes, burlas o sarcasmo hiriente en el trabajo.", reversed: false },
+      { id: 3,  text: "Me siento seguro/a de expresar ideas sin miedo a ridiculización o castigo.", reversed: true },
+      { id: 4,  text: "Los conflictos se manejan con diálogo y soluciones, no con ataques personales.", reversed: true },
 
-      // Liderazgo y justicia
-      { id: 5, cat: "Liderazgo y justicia", text: "Las decisiones del liderazgo se sienten justas y coherentes.", rev: true },
-      { id: 6, cat: "Liderazgo y justicia", text: "He visto favoritismos que afectan tareas, oportunidades o reconocimientos.", rev: false },
-      { id: 7, cat: "Liderazgo y justicia", text: "Mi jefe/a da retroalimentación de forma profesional y constructiva.", rev: true },
-      { id: 8, cat: "Liderazgo y justicia", text: "Se usan amenazas, presión excesiva o miedo para “motivar” resultados.", rev: false },
+      { id: 5,  text: "Las decisiones del liderazgo se sienten justas y coherentes.", reversed: true },
+      { id: 6,  text: "He visto favoritismos que afectan tareas, oportunidades o reconocimientos.", reversed: false },
+      { id: 7,  text: "Mi jefe/a da retroalimentación de forma profesional y constructiva.", reversed: true },
+      { id: 8,  text: "Se usan amenazas, presión excesiva o miedo para “motivar” resultados.", reversed: false },
 
-      // Comunicación y confianza
-      { id: 9,  cat: "Comunicación y confianza", text: "La información importante se comunica a tiempo y con claridad.", rev: true },
-      { id: 10, cat: "Comunicación y confianza", text: "Se ocultan datos o se “juega política” para dejar mal a otros.", rev: false },
-      { id: 11, cat: "Comunicación y confianza", text: "Siento que puedo pedir ayuda sin que lo usen en mi contra.", rev: true },
-      { id: 12, cat: "Comunicación y confianza", text: "Los rumores y chismes afectan el ambiente de trabajo.", rev: false },
+      { id: 9,  text: "La información importante se comunica a tiempo y con claridad.", reversed: true },
+      { id: 10, text: "Se ocultan datos o se “juega política” para dejar mal a otros.", reversed: false },
+      { id: 11, text: "Siento que puedo pedir ayuda sin que lo usen en mi contra.", reversed: true },
+      { id: 12, text: "Los rumores y chismes afectan el ambiente de trabajo.", reversed: false },
 
-      // Carga laboral y límites
-      { id: 13, cat: "Carga laboral y límites", text: "La carga laboral es razonable y se respeta el tiempo personal.", rev: true },
-      { id: 14, cat: "Carga laboral y límites", text: "Se espera que trabaje fuera de horario como algo normal o obligatorio.", rev: false },
-      { id: 15, cat: "Carga laboral y límites", text: "Puedo tomar descansos y permisos sin sentir culpa o represalias.", rev: true },
-      { id: 16, cat: "Carga laboral y límites", text: "El estrés y la urgencia son tan constantes que ya se sienten “normales”.", rev: false },
+      { id: 13, text: "La carga laboral es razonable y se respeta el tiempo personal.", reversed: true },
+      { id: 14, text: "Se espera que trabaje fuera de horario como algo normal o obligatorio.", reversed: false },
+      { id: 15, text: "Puedo tomar descansos y permisos sin sentir culpa o represalias.", reversed: true },
+      { id: 16, text: "El estrés y la urgencia son tan constantes que ya se sienten “normales”.", reversed: false },
 
-      // Bienestar y permanencia
-      { id: 17, cat: "Bienestar y permanencia", text: "Este trabajo impacta negativamente mi salud mental o emocional.", rev: false },
-      { id: 18, cat: "Bienestar y permanencia", text: "Me siento valorado/a y reconocido/a por mi aporte.", rev: true },
-      { id: 19, cat: "Bienestar y permanencia", text: "He pensado en renunciar principalmente por el ambiente, no por el trabajo en sí.", rev: false },
-      { id: 20, cat: "Bienestar y permanencia", text: "Las personas suelen culparse entre sí en vez de asumir responsabilidades compartidas.", rev: false },
+      { id: 17, text: "Este trabajo impacta negativamente mi salud mental o emocional.", reversed: false },
+      { id: 18, text: "Me siento valorado/a y reconocido/a por mi aporte.", reversed: true },
+      { id: 19, text: "He pensado en renunciar principalmente por el ambiente, no por el trabajo en sí.", reversed: false },
+      { id: 20, text: "Las personas suelen culparse entre sí en vez de asumir responsabilidades compartidas.", reversed: false },
     ];
 
+    const STORAGE_KEY = "toxicidad_laboral_v1";
+    const timeEl = document.getElementById("time");
+    const answeredEl = document.getElementById("answered");
     const itemsEl = document.getElementById("items");
+
+    const scoreEl = document.getElementById("score");
+    const levelTagEl = document.getElementById("levelTag");
+    const barEl = document.getElementById("bar");
+    const resultHintEl = document.getElementById("resultHint");
+
+    const resultsTextEl = document.getElementById("resultsText");
+    const conclusionsTextEl = document.getElementById("conclusionsText");
+    const recommendationsTextEl = document.getElementById("recommendationsText");
+
     const calcBtn = document.getElementById("calcBtn");
     const resetBtn = document.getElementById("resetBtn");
     const shareBtn = document.getElementById("shareBtn");
 
-    const answeredEl = document.getElementById("answered");
-    const scoreMini = document.getElementById("scoreMini");
+    const toast = document.getElementById("toast");
+    const toastTxt = document.getElementById("toastTxt");
 
-    const resultBox = document.getElementById("resultBox");
-    const scoreEl = document.getElementById("score");
-    const levelBadge = document.getElementById("levelBadge");
-    const levelDesc = document.getElementById("levelDesc");
-    const barFill = document.getElementById("barFill");
-
-    const toastEl = document.getElementById("toast");
-
-    // Timer
-    const timeEl = document.getElementById("time");
+    // --- Timer ---
+    let startTs = null;
     let timerId = null;
-    let startAt = null;
-    let started = false;
 
-    function showToast(msg){
-      toastEl.textContent = msg;
-      toastEl.classList.add("show");
-      setTimeout(() => toastEl.classList.remove("show"), 1600);
-    }
-
-    function fmtTime(sec){
-      const m = Math.floor(sec / 60);
-      const s = Math.floor(sec % 60);
+    function fmtTime(totalSeconds){
+      const m = Math.floor(totalSeconds / 60);
+      const s = Math.floor(totalSeconds % 60);
       return String(m).padStart(2,"0")+":"+String(s).padStart(2,"0");
     }
-
-    function ensureTimer(){
-      if(started) return;
-      started = true;
-      startAt = Date.now();
-      timerId = setInterval(() => {
-        const secs = (Date.now() - startAt) / 1000;
-        timeEl.textContent = fmtTime(secs);
-      }, 250);
+    function tick(){
+      if(!startTs) return;
+      const sec = (Date.now() - startTs) / 1000;
+      timeEl.textContent = fmtTime(sec);
     }
-
-    function stopTimer(){
+    function startTimerIfNeeded(){
+      if(startTs) return;
+      startTs = Date.now();
+      timerId = setInterval(tick, 250);
+      tick();
+      saveState();
+    }
+    function resetTimer(){
+      startTs = null;
       if(timerId) clearInterval(timerId);
       timerId = null;
-      started = false;
-      startAt = null;
       timeEl.textContent = "00:00";
     }
 
-    function invertLikert(v){
-      // 1↔5, 2↔4, 3↔3
-      return 6 - v;
+    // --- UI helpers ---
+    function showToast(msg){
+      toastTxt.textContent = msg;
+      toast.classList.add("show");
+      setTimeout(()=>toast.classList.remove("show"), 2200);
     }
 
-    function getAnswers(){
-      const map = new Map();
-      for(const q of QUESTIONS){
-        const sel = document.querySelector(`input[name="q${q.id}"]:checked`);
-        if(sel) map.set(q.id, Number(sel.value));
-      }
-      return map;
+    function getState(){
+      try{
+        const raw = localStorage.getItem(STORAGE_KEY);
+        return raw ? JSON.parse(raw) : null;
+      }catch{ return null; }
+    }
+    function saveState(){
+      const answers = {};
+      ITEMS.forEach(it=>{
+        const v = getSelectedValue(it.id);
+        if(v) answers[it.id] = v;
+      });
+      const st = { answers, startTs };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(st));
+      updateAnswered();
+    }
+    function clearState(){
+      localStorage.removeItem(STORAGE_KEY);
+    }
+
+    function getSelectedValue(itemId){
+      const r = document.querySelector(`input[name="q${itemId}"]:checked`);
+      return r ? Number(r.value) : 0;
     }
 
     function updateAnswered(){
-      const ans = getAnswers();
-      answeredEl.textContent = `${ans.size}/20`;
-      scoreMini.textContent = ans.size === 20 ? "Listo ✅" : "—";
+      let count = 0;
+      ITEMS.forEach(it => { if(getSelectedValue(it.id)) count++; });
+      answeredEl.textContent = count;
     }
 
+    // --- Render questionnaire ---
     function render(){
       itemsEl.innerHTML = "";
-      for(const q of QUESTIONS){
-        const item = document.createElement("div");
-        item.className = "item";
-
-        const left = document.createElement("div");
-        left.className = "q";
-        left.innerHTML = `
-          <div class="cat">
-            <span>${q.id}. ${q.cat}</span>
-            ${q.rev ? `<span class="tagR">(R)</span>` : ``}
+      ITEMS.forEach(it=>{
+        const div = document.createElement("div");
+        div.className = "item";
+        div.innerHTML = `
+          <div class="itemTop">
+            <p class="q"><strong>${it.id})</strong> ${escapeHtml(it.text)}</p>
+            ${it.reversed ? `<span class="tagR">(R)</span>` : ``}
           </div>
-          <div class="text">${q.text}</div>
+          <div class="opts" role="radiogroup" aria-label="Respuesta ${it.id}">
+            ${[1,2,3,4,5].map(v=>`
+              <label class="opt" data-v="${v}" data-checked="false">
+                <input type="radio" name="q${it.id}" value="${v}" aria-label="${v}">
+                ${v}
+              </label>
+            `).join("")}
+          </div>
         `;
+        itemsEl.appendChild(div);
 
-        const scale = document.createElement("div");
-        scale.className = "scale";
-        // 1..5
-        for(let v=1; v<=5; v++){
-          const id = `q${q.id}_${v}`;
-          const lab = document.createElement("label");
-          lab.setAttribute("for", id);
-          lab.innerHTML = `
-            <input id="${id}" name="q${q.id}" type="radio" value="${v}">
-            <span>${v}</span>
-          `;
-          scale.appendChild(lab);
-        }
-
-        item.appendChild(left);
-        item.appendChild(scale);
-        itemsEl.appendChild(item);
-      }
-
-      // start timer on first answer
-      itemsEl.addEventListener("change", () => {
-        ensureTimer();
-        updateAnswered();
+        // Event binding for highlighting
+        const opts = div.querySelectorAll(".opt");
+        opts.forEach(opt=>{
+          const input = opt.querySelector("input");
+          input.addEventListener("change", ()=>{
+            startTimerIfNeeded();
+            opts.forEach(o=>o.dataset.checked="false");
+            opt.dataset.checked="true";
+            saveState();
+          });
+        });
       });
+
+      // Load saved answers
+      const st = getState();
+      if(st?.answers){
+        ITEMS.forEach(it=>{
+          const val = st.answers[it.id];
+          if(val){
+            const input = document.querySelector(`input[name="q${it.id}"][value="${val}"]`);
+            if(input){
+              input.checked = true;
+              const label = input.closest(".opt");
+              const group = input.closest(".opts").querySelectorAll(".opt");
+              group.forEach(o=>o.dataset.checked="false");
+              label.dataset.checked="true";
+            }
+          }
+        });
+      }
+      if(st?.startTs){
+        startTs = st.startTs;
+        timerId = setInterval(tick, 250);
+        tick();
+      }
+      updateAnswered();
     }
 
-    function calculate(){
-      const answers = getAnswers();
-      updateAnswered();
+    function escapeHtml(str){
+      return String(str)
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
 
-      if(answers.size < 20){
-        showToast(`Faltan ${20 - answers.size} respuestas`);
-        // resaltado suave
-        for(const q of QUESTIONS){
-          const any = document.querySelector(`input[name="q${q.id}"]:checked`);
-          const card = document.querySelector(`input[name="q${q.id}"]`)?.closest(".item");
-          if(card){
-            card.style.outline = any ? "none" : "2px solid rgba(255,92,122,.35)";
-            card.style.outlineOffset = "2px";
-          }
-        }
-        return;
+    // --- Scoring ---
+    function invertLikert(v){
+      // 1<->5, 2<->4, 3<->3
+      return 6 - v;
+    }
+
+    function compute(){
+      let sum = 0;
+      let answered = 0;
+
+      for(const it of ITEMS){
+        const v = getSelectedValue(it.id);
+        if(!v) continue;
+        answered++;
+        sum += it.reversed ? invertLikert(v) : v;
       }
 
-      let total = 0;
-      for(const q of QUESTIONS){
-        let v = answers.get(q.id);
-        if(q.rev) v = invertLikert(v);
-        total += v;
+      if(answered < ITEMS.length){
+        showToast(`Te faltan ${ITEMS.length - answered} preguntas por responder.`);
+        return null;
       }
 
-      // Total range: 20..100
-      scoreEl.textContent = String(total);
-      const pct = Math.round(((total - 20) / 80) * 100); // 0..100
-      barFill.style.width = `${Math.max(0, Math.min(100, pct))}%`;
+      // sum range: 20..100
+      const score = sum;
+      return score;
+    }
 
-      let label = "";
-      let cls = "";
-      let desc = "";
+    function classify(score){
+      if(score <= 39) return "Bajo";
+      if(score <= 59) return "Moderado";
+      if(score <= 79) return "Alto";
+      return "Muy alto";
+    }
 
-      if(total <= 39){
-        label = "Bajo nivel de toxicidad";
-        cls = "low";
-        desc = "Ambiente generalmente sano. Mantén buenas prácticas: respeto, claridad y límites sostenibles.";
-      } else if(total <= 59){
-        label = "Moderado (alerta)";
-        cls = "mid";
-        desc = "Hay señales relevantes. Identifica focos: comunicación, favoritismos, carga laboral o chismes.";
-      } else if(total <= 79){
-        label = "Alto (riesgo)";
-        cls = "high";
-        desc = "Riesgo elevado. Prioriza acciones: conversaciones formales, soporte interno, ajustes de carga y límites.";
+    function getTexts(score){
+      const nivel = classify(score);
+
+      const resultados =
+        `Tu puntaje total es ${score}/100. Este resultado refleja tu experiencia percibida en los últimos 30 días ` +
+        `en aspectos como respeto, liderazgo, comunicación, carga laboral, límites y bienestar.`;
+
+      let conclusiones = "";
+      let recomendaciones = "";
+
+      if(nivel === "Bajo"){
+        conclusiones =
+          "El entorno se percibe mayormente saludable. Es probable que existan prácticas de respeto y comunicación funcionales. " +
+          "Aun así, conviene sostener hábitos positivos para evitar deterioro por presión o cambios.";
+        recomendaciones =
+          "• Mantener buenas prácticas (respeto, acuerdos, feedback).<br>" +
+          "• Reforzar reconocimiento y comunicación frecuente.<br>" +
+          "• Medición periódica (mensual/trimestral) para detectar señales tempranas.<br>" +
+          "• Promover pausas, límites sanos y claridad de roles.";
+      } else if(nivel === "Moderado"){
+        conclusiones =
+          "Se observan señales de tensión o prácticas que podrían deteriorar el clima si no se atienden. " +
+          "La organización está en zona de alerta: todavía es manejable con ajustes concretos.";
+        recomendaciones =
+          "• Revisar prácticas de liderazgo (coherencia, justicia, feedback).<br>" +
+          "• Establecer canales seguros para reportar conflictos y pedir ayuda.<br>" +
+          "• Alinear prioridades y ajustar cargas/expectativas realistas.<br>" +
+          "• Capacitar en manejo de conflicto y comunicación respetuosa.<br>" +
+          "• Definir reglas claras contra burlas, chismes y ataques personales.";
+      } else if(nivel === "Alto"){
+        conclusiones =
+          "El ambiente presenta dinámicas dañinas frecuentes que afectan el bienestar y el desempeño. " +
+          "Existe riesgo elevado de rotación, conflictos y desgaste emocional si no se interviene.";
+        recomendaciones =
+          "• Intervención prioritaria con plan formal (30–60 días) y responsables definidos.<br>" +
+          "• Diagnóstico profundo (entrevistas, focus groups, mapa de riesgos).<br>" +
+          "• Acciones correctivas sobre liderazgo y prácticas de presión/miedo.<br>" +
+          "• Revisión de roles, cargas, horarios y respeto de límites.<br>" +
+          "• Acompañamiento (coaching/psicología organizacional) y seguimiento semanal.";
       } else {
-        label = "Muy alto (urgente)";
-        cls = "high";
-        desc = "Señales críticas. Considera intervención urgente: RRHH, protocolos internos, apoyo profesional y medidas de protección.";
+        conclusiones =
+          "El entorno se percibe claramente perjudicial y representa un riesgo serio para la salud mental y la permanencia. " +
+          "Se recomienda actuar con urgencia y priorizar medidas de protección y contención.";
+        recomendaciones =
+          "• Acción inmediata: intervención psicosocial y plan de contención.<br>" +
+          "• Evaluación externa / auditoría de clima para objetividad.<br>" +
+          "• Canales confidenciales y protección activa contra represalias.<br>" +
+          "• Medidas urgentes: freno a amenazas, humillaciones y sobrecarga.<br>" +
+          "• Seguimiento directivo con indicadores (rotación, ausentismo, incidentes, clima).";
       }
 
-      levelBadge.className = `badge ${cls}`;
-      levelBadge.textContent = label;
-      levelDesc.textContent = desc;
+      return { nivel, resultados, conclusiones, recomendaciones };
+    }
 
-      resultBox.style.display = "grid";
-      scoreMini.textContent = `${total}/100`;
+    function renderResults(score){
+      const { nivel, resultados, conclusiones, recomendaciones } = getTexts(score);
+
+      scoreEl.textContent = String(score);
+      levelTagEl.textContent = `Nivel: ${nivel}`;
+
+      // bar 20..100 mapped to 0..100
+      const pct = Math.max(0, Math.min(100, ((score - 20) / 80) * 100));
+      barEl.style.width = pct.toFixed(1) + "%";
+
+      resultHintEl.innerHTML = `Interpretación automática: <strong>${nivel}</strong>.`;
+      resultsTextEl.textContent = resultados;
+      conclusionsTextEl.textContent = conclusiones;
+      recommendationsTextEl.innerHTML = recomendaciones;
+
       showToast("Resultado calculado ✅");
     }
 
-    function resetAll(){
-      const inputs = document.querySelectorAll('input[type="radio"]');
-      inputs.forEach(i => i.checked = false);
-      resultBox.style.display = "none";
-      barFill.style.width = "0%";
-      scoreMini.textContent = "—";
-      answeredEl.textContent = "0/20";
-      // quitar resaltados
-      document.querySelectorAll(".item").forEach(card => {
-        card.style.outline = "none";
-        card.style.outlineOffset = "0";
-      });
-      stopTimer();
-      showToast("Reiniciado");
-    }
+    // --- Actions ---
+    calcBtn.addEventListener("click", ()=>{
+      const score = compute();
+      if(score == null) return;
+      renderResults(score);
+    });
+
+    resetBtn.addEventListener("click", ()=>{
+      if(!confirm("¿Reiniciar? Se borrarán tus respuestas.")) return;
+      clearState();
+      resetTimer();
+      render();
+      scoreEl.textContent = "—";
+      levelTagEl.textContent = "Nivel: —";
+      barEl.style.width = "0%";
+      resultHintEl.innerHTML = "Completa el cuestionario y presiona <strong>Calcular</strong> para ver tu resultado.";
+      resultsTextEl.textContent = "—";
+      conclusionsTextEl.textContent = "—";
+      recommendationsTextEl.textContent = "—";
+      showToast("Reiniciado.");
+    });
 
     async function share(){
       const url = location.href;
-      const text = "Test de Toxicidad Laboral (Likert 1–5) • Por Soamy Lanza";
+      const text =
+        "Nivel de Toxicidad Laboral • Por Soamy Lanza\n" +
+        "Responde 20 ítems (1–5) y obtén tu nivel con resultados y recomendaciones.\n\n" +
+        url;
+
+      // Prefer Web Share API
       try{
         if(navigator.share){
           await navigator.share({ title: document.title, text, url });
-          showToast("Compartido ✅");
           return;
         }
-      }catch(e){ /* ignore */ }
+      }catch{}
 
+      // Clipboard fallback
       try{
         await navigator.clipboard.writeText(url);
         showToast("Link copiado ✅");
-      }catch(e){
+      }catch{
         prompt("Copia este link:", url);
       }
     }
-
-    // Events
-    calcBtn.addEventListener("click", calculate);
-    resetBtn.addEventListener("click", resetAll);
     shareBtn.addEventListener("click", share);
 
-    // Keyboard: Ctrl+Enter calcula
-    window.addEventListener("keydown", (e) => {
-      if((e.ctrlKey || e.metaKey) && e.key === "Enter"){
-        e.preventDefault();
-        calculate();
-      }
-    });
+    // Auto-save on unload
+    window.addEventListener("beforeunload", saveState);
 
+    // Init
     render();
-    updateAnswered();
   </script>
 </body>
 </html>
