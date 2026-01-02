@@ -13,7 +13,6 @@
       --shadow: 0 14px 40px rgba(0,0,0,.45);
       --radius: 18px;
 
-      /* Ajustables por JS según tamaño */
       --board-gap: 10px;
       --board-pad: 10px;
     }
@@ -28,6 +27,7 @@
       color: var(--text);
       overflow:hidden; /* una sola pantalla */
     }
+
     .app{
       height: 100svh;
       display:flex;
@@ -112,6 +112,7 @@
       gap: 10px;
       min-height: 0;
     }
+
     .controls{
       display:flex;
       flex-wrap:wrap;
@@ -163,16 +164,17 @@
       flex: 0 0 auto;
     }
 
+    /* ✅ La clave: el wrap puede achicarse, y el tablero se recalcula */
     .boardWrap{
       flex: 1 1 auto;
+      min-height: 0;
       display:flex;
       align-items:center;
       justify-content:center;
       overflow:hidden;
-      min-height: 0;
+      padding: 4px 0;
     }
 
-    /* ✅ Tablero: tamaño final lo calcula JS para que SIEMPRE quepa completo */
     .board{
       width: 300px;
       height: 300px;
@@ -184,6 +186,7 @@
       display:grid;
       gap: var(--board-gap);
       touch-action: manipulation;
+      flex: 0 0 auto;
     }
 
     .tile{
@@ -195,11 +198,10 @@
       background: linear-gradient(180deg, rgba(229,231,235,.10), rgba(229,231,235,.03));
       box-shadow: 0 8px 18px rgba(0,0,0,.35);
       font-weight: 700;
-      font-size: clamp(14px, 3.0vw, 26px);
+      font-size: clamp(14px, 2.4vw, 26px);
       font-variant-numeric: tabular-nums;
       transition: transform .08s ease, background .2s ease, border-color .2s ease;
     }
-    .tile:hover{ border-color: rgba(229,231,235,.35); }
     .tile:active{ transform: scale(.98); }
     .tile.empty{
       background: transparent;
@@ -237,8 +239,8 @@
 </head>
 
 <body>
-  <div class="app">
-    <header>
+  <div class="app" id="app">
+    <header id="topHeader">
       <div class="title">
         <h1>🧩 Rompecabezas Deslizante</h1>
         <small>Interactivo • 3×3 hasta 6×6 • listo para GitHub Pages</small>
@@ -252,8 +254,8 @@
     </header>
 
     <main>
-      <section class="panel">
-        <div class="controls">
+      <section class="panel" id="panel">
+        <div class="controls" id="controls">
           <div class="leftControls">
             <label>
               <select id="sizeSelect" aria-label="Tamaño del tablero">
@@ -275,7 +277,7 @@
           </div>
         </div>
 
-        <div class="hint">
+        <div class="hint" id="hint">
           Tip: toca o haz clic en una ficha junto al espacio vacío. En teclado: <b>WASD</b> o <b>flechas</b>.
         </div>
 
@@ -283,7 +285,7 @@
           <div class="board" id="board" role="grid" aria-label="Tablero del rompecabezas"></div>
         </div>
 
-        <div class="footer">
+        <div class="footer" id="footer">
           <div class="status" id="status">
             <span class="badge warn">En progreso</span>
             <span>• Nuevo tablero generado. ¡Dale!</span>
@@ -299,8 +301,16 @@
 <script>
 (() => {
   // ---------- DOM ----------
-  const boardEl = document.getElementById("board");
+  const appEl = document.getElementById("app");
+  const headerEl = document.getElementById("topHeader");
+  const panelEl  = document.getElementById("panel");
+  const controlsEl = document.getElementById("controls");
+  const hintEl = document.getElementById("hint");
+  const footerEl = document.getElementById("footer");
+
   const boardWrapEl = document.getElementById("boardWrap");
+  const boardEl = document.getElementById("board");
+
   const timeEl = document.getElementById("time");
   const movesEl = document.getElementById("moves");
   const sizeLabelEl = document.getElementById("sizeLabel");
@@ -315,16 +325,13 @@
 
   // ---------- Estado ----------
   let N = 4;
-  let tiles = [];        // 0 = vacío
+  let tiles = [];
   let emptyIndex = 0;
   let moves = 0;
 
-  // Guardamos "posiciones del vacío" para poder deshacer 100% seguro:
-  // - scrambleEmpties: [z0, z1, z2, ...] desde resuelto hasta estado inicial
-  // - userEmpties:    [z_beforeMove1, z_beforeMove2, ...]
+  // Historial basado en vacío ANTES del movimiento (undo 100% seguro)
   let scrambleEmpties = [];
   let userEmpties = [];
-
   let initialTiles = [];
 
   // Timer
@@ -371,25 +378,39 @@
     if (tiles[b] === 0) emptyIndex = b;
   };
 
-  // Ajusta gap/padding según N para que 6x6 quepa bonito
   const applyBoardDensity = () => {
-    // Más grande N => menos espacio
+    // reduce espacios para 6x6
     const gapMap = {3: 12, 4: 10, 5: 8, 6: 6};
     const padMap = {3: 12, 4: 10, 5: 9, 6: 8};
     document.documentElement.style.setProperty("--board-gap", (gapMap[N] ?? 10) + "px");
     document.documentElement.style.setProperty("--board-pad", (padMap[N] ?? 10) + "px");
-
-    // Un pelín más pequeña la tipografía en 6x6
-    boardEl.style.setProperty("font-size", N >= 6 ? "12px" : "14px");
   };
 
-  // ✅ Ajuste “que quepa completo” usando el espacio REAL del contenedor
+  // ✅ NUEVO FIT: usa el alto REAL disponible del panel, no el wrap
   const fitBoard = () => {
-    const wrapRect = boardWrapEl.getBoundingClientRect();
-    const pad = 8; // margen de seguridad
-    const size = Math.floor(Math.min(wrapRect.width, wrapRect.height) - pad);
+    // espacio vertical disponible dentro del panel:
+    const panelRect = panelEl.getBoundingClientRect();
+    const controlsRect = controlsEl.getBoundingClientRect();
+    const hintRect = hintEl.getBoundingClientRect();
+    const footerRect = footerEl.getBoundingClientRect();
 
-    // límites razonables (evita que explote o quede mini)
+    // altura disponible = alto del panel - (controles + hint + footer) - padding extra
+    const safety = 18; // colchón anti-corte
+    const availableH =
+      panelRect.height
+      - controlsRect.height
+      - hintRect.height
+      - footerRect.height
+      - safety;
+
+    // ancho disponible: el wrap (centrado)
+    const wrapRect = boardWrapEl.getBoundingClientRect();
+    const availableW = wrapRect.width - 10;
+
+    // tablero cuadrado => el tamaño es el mínimo entre W y H
+    const size = Math.floor(Math.min(availableW, availableH));
+
+    // límites razonables
     const finalSize = Math.max(240, Math.min(size, 620));
 
     boardEl.style.width = finalSize + "px";
@@ -429,9 +450,7 @@
     }
 
     resetBtn.disabled = initialTiles.length === 0 || solving;
-    // ✅ Resolver habilitado si NO está resuelto y no está resolviendo
     solveBtn.disabled = isSolved(tiles) || solving;
-
     newBtn.disabled = solving;
     clearBtn.disabled = solving;
     sizeSelect.disabled = solving;
@@ -447,7 +466,6 @@
       timeEl.textContent = fmtTime(elapsedMs);
     }, 100);
   };
-
   const stopTimer = () => {
     running = false;
     if (timerId){
@@ -455,7 +473,6 @@
       timerId = null;
     }
   };
-
   const resetTimer = () => {
     stopTimer();
     elapsedMs = 0;
@@ -466,7 +483,7 @@
   const doMoveIndex = (tileIndex, {recordUser=true} = {}) => {
     if (!isAdjacent(tileIndex, emptyIndex)) return false;
 
-    const oldEmpty = emptyIndex; // guardamos vacío ANTES del swap
+    const oldEmpty = emptyIndex;
     swap(tileIndex, emptyIndex);
     moves++;
 
@@ -485,15 +502,14 @@
     return doMoveIndex(neighbor);
   };
 
-  // ---------- Generación del tablero (scramble seguro) ----------
+  // ---------- Scramble seguro ----------
   const generateScramble = (k) => {
-    // partimos de resuelto
     const arr = [];
     for (let i=1; i<N*N; i++) arr.push(i);
     arr.push(0);
 
     let z = arr.indexOf(0);
-    const empties = [z]; // z0
+    const empties = [z];
 
     const neighbors = (idx) => {
       const {r,c} = indexToRC(idx);
@@ -509,11 +525,10 @@
     for (let t=0; t<k; t++){
       const ns = neighbors(z).filter(x => x !== prev);
       const pick = ns[Math.floor(Math.random()*ns.length)];
-      // swap en el arreglo local arr
       [arr[pick], arr[z]] = [arr[z], arr[pick]];
       prev = z;
       z = pick;
-      empties.push(z); // z1, z2...
+      empties.push(z);
     }
 
     return {arr, empties};
@@ -535,17 +550,14 @@
   };
 
   const newGame = () => {
-    // más grande N => más scramble
-    const k = Math.max(100, N*N*N + 60);
+    const k = Math.max(120, N*N*N + 80);
     const {arr, empties} = generateScramble(k);
-
     setBoard(arr, {saveInitial:true, setScrambleEmpties: empties});
     setStatus("warn", "Nuevo tablero generado. ¡Dale!");
   };
 
   const resetGame = () => {
     if (!initialTiles.length) return;
-    // resetea al estado inicial (mismo scramble)
     setBoard(initialTiles, {saveInitial:true});
     setStatus("warn", "Reiniciado al estado inicial.");
   };
@@ -560,8 +572,6 @@
     setStatus("ok", "Tablero resuelto (limpio).");
   };
 
-  // ✅ Resolver real: deshace user + deshace scramble
-  // Usamos “vacíos previos” -> siempre adyacentes, cero bugs.
   const solveAnimated = async () => {
     if (solving) return;
     if (isSolved(tiles)) return;
@@ -569,11 +579,8 @@
     solving = true;
     stopTimer();
 
-    // 1) Deshacer movimientos del usuario: para cada oldEmpty en reversa, swap(empty, oldEmpty)
     const undoUser = userEmpties.slice().reverse();
 
-    // 2) Deshacer scramble: empties = [z0..zk]. estado inicial tiene vacío = zk
-    // Para volver a resuelto: swap(zk, z{k-1}), luego swap(z{k-1}, z{k-2})...
     const undoScramble = [];
     if (scrambleEmpties && scrambleEmpties.length >= 2) {
       for (let i = scrambleEmpties.length - 1; i >= 1; i--) {
@@ -582,20 +589,15 @@
     }
 
     const steps = [...undoUser, ...undoScramble];
-    const delay = steps.length > 200 ? 6 : 14;
+    const delay = steps.length > 220 ? 6 : 14;
 
     for (const targetOldEmpty of steps) {
-      // Siempre adyacente si la historia está bien, pero por seguridad:
-      if (!isAdjacent(emptyIndex, targetOldEmpty)) {
-        // si algo raro pasa, nos salimos sin romper
-        break;
-      }
+      if (!isAdjacent(emptyIndex, targetOldEmpty)) break;
       swap(emptyIndex, targetOldEmpty);
       render();
       await new Promise(r => setTimeout(r, delay));
     }
 
-    // final: dejamos todo limpio
     userEmpties = [];
     moves = 0;
     resetTimer();
@@ -659,10 +661,9 @@
   solveBtn.addEventListener("click", solveAnimated);
   shareBtn.addEventListener("click", share);
 
-  // Recalcular tablero si cambia tamaño de ventana
-  window.addEventListener("resize", () => {
-    fitBoard();
-  });
+  // ✅ Recalcular después de cargar y al cambiar tamaño
+  window.addEventListener("load", () => { render(); });
+  window.addEventListener("resize", () => { render(); });
 
   // ---------- Init ----------
   clearGame();
