@@ -7,7 +7,6 @@
   <style>
     :root{
       --bg:#0b0f14;
-      --card:#121826;
       --line:#233049;
       --text:#e5e7eb;
       --muted:#94a3b8;
@@ -16,21 +15,8 @@
       --shadow: 0 14px 40px rgba(0,0,0,.45);
       --r: 18px;
 
-      /* ✅ Reserva aproximada del alto del header+controles (PC) */
-      --uiH: 250px;
-
-      /* ✅ Tamaño final del tablero: limita por ancho y por alto disponible */
-      --boardSize: min(560px, calc(100svh - var(--uiH)), calc(100vw - 40px));
+      --boardSize: 520px; /* lo setea JS según el espacio real */
     }
-
-    @media (max-width: 700px){
-      :root{
-        /* en móvil hay más UI (botones, textos) */
-        --uiH: 310px;
-        --boardSize: min(520px, calc(100svh - var(--uiH)), calc(100vw - 28px));
-      }
-    }
-
     *{box-sizing:border-box}
     html,body{height:100%}
     body{
@@ -40,7 +26,7 @@
                   radial-gradient(900px 500px at 85% 12%, rgba(245,158,11,.12), transparent 55%),
                   var(--bg);
       color:var(--text);
-      overflow:hidden; /* ✅ sin scroll */
+      overflow:hidden;
     }
     .app{
       height:100svh;
@@ -65,28 +51,11 @@
       gap:10px;
       flex:0 0 auto;
     }
-    .title{
-      display:flex;
-      flex-direction:column;
-      gap:2px;
-      min-width:260px;
-    }
-    .title h1{
-      margin:0;
-      font-size:18px;
-      display:flex;
-      align-items:center;
-      gap:8px;
-    }
+    .title{display:flex; flex-direction:column; gap:2px; min-width:260px;}
+    .title h1{margin:0; font-size:18px; display:flex; align-items:center; gap:8px;}
     .title small{color:var(--muted)}
     .byline{color:var(--muted); font-size:12px; margin-top:2px;}
-    .stats{
-      display:flex;
-      flex-wrap:wrap;
-      gap:10px;
-      align-items:center;
-      justify-content:flex-end;
-    }
+    .stats{display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:flex-end;}
     .pill{
       border:1px solid var(--line);
       border-radius:999px;
@@ -100,12 +69,7 @@
     }
     .pill b{font-variant-numeric: tabular-nums;}
 
-    main{
-      flex:1 1 auto;
-      min-height:0;
-      display:grid;
-      grid-template-columns: 1fr;
-    }
+    main{flex:1 1 auto; min-height:0; display:grid; grid-template-columns: 1fr;}
     .panel{
       background: rgba(18,24,38,.92);
       border:1px solid var(--line);
@@ -116,6 +80,8 @@
       flex-direction:column;
       gap:10px;
       min-height:0;
+      position:relative;
+      overflow:hidden;
     }
     .controls{
       display:flex;
@@ -125,12 +91,7 @@
       justify-content:space-between;
       flex:0 0 auto;
     }
-    .left,.right{
-      display:flex;
-      flex-wrap:wrap;
-      gap:8px;
-      align-items:center;
-    }
+    .left,.right{display:flex; flex-wrap:wrap; gap:8px; align-items:center;}
     select,button{
       border-radius:12px;
       border:1px solid var(--line);
@@ -142,15 +103,8 @@
       user-select:none;
       -webkit-tap-highlight-color: transparent;
     }
-    button.primary{
-      border-color: rgba(34,197,94,.45);
-      background: rgba(34,197,94,.14);
-    }
-    button.warn{
-      border-color: rgba(245,158,11,.45);
-      background: rgba(245,158,11,.14);
-    }
-    button:disabled{opacity:.6; cursor:not-allowed}
+    button.primary{border-color: rgba(34,197,94,.45); background: rgba(34,197,94,.14);}
+    button.warn{border-color: rgba(245,158,11,.45); background: rgba(245,158,11,.14);}
 
     .hint{
       color:var(--muted);
@@ -166,15 +120,15 @@
       align-items:center;
       justify-content:center;
       overflow:hidden;
+      padding-bottom: 58px; /* ✅ deja espacio para la franja flotante inferior */
     }
 
-    /* ✅ TABLERO: ahora usa tamaño calculado por alto disponible */
     .board{
       display:grid;
-      gap: min(1.1vw, 10px);
+      gap: min(1.0vw, 10px);
       width: var(--boardSize);
       height: var(--boardSize);
-      padding: min(1.1vw, 12px);
+      padding: min(1.0vw, 12px);
       border:1px solid var(--line);
       border-radius: 18px;
       background: rgba(11,15,20,.35);
@@ -189,56 +143,44 @@
       display:flex;
       align-items:center;
       justify-content:center;
-      font-size: clamp(16px, 2.5vw, 30px);
+      font-size: clamp(14px, 2.2vw, 28px);
       cursor:pointer;
       transition: transform .12s ease, background .12s ease, border-color .12s ease;
       outline:none;
       user-select:none;
     }
     .cardBtn:active{ transform: scale(.98); }
-    .cardBtn.revealed{
-      background: rgba(255,255,255,.08);
-      border-color: rgba(255,255,255,.14);
-    }
-    .cardBtn.matched{
-      background: rgba(34,197,94,.16);
-      border-color: rgba(34,197,94,.35);
-      cursor:default;
-    }
-    .face{
-      opacity:0;
-      transform: scale(.7);
-      transition: opacity .12s ease, transform .12s ease;
-    }
-    .cardBtn.revealed .face,
-    .cardBtn.matched .face{
-      opacity:1;
-      transform: scale(1);
-    }
+    .cardBtn.revealed{background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.14);}
+    .cardBtn.matched{background: rgba(34,197,94,.16); border-color: rgba(34,197,94,.35); cursor:default;}
+
+    .face{opacity:0; transform: scale(.7); transition: opacity .12s ease, transform .12s ease;}
+    .cardBtn.revealed .face,.cardBtn.matched .face{opacity:1; transform: scale(1);}
+
     .backMark{
-      position:absolute;
-      inset:0;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      opacity:.85;
-      transition: opacity .12s ease;
-      font-size: clamp(14px, 2.2vw, 26px);
+      position:absolute; inset:0;
+      display:flex; align-items:center; justify-content:center;
+      opacity:.85; transition: opacity .12s ease;
+      font-size: clamp(12px, 2.0vw, 24px);
       color: rgba(229,231,235,.75);
     }
-    .cardBtn.revealed .backMark,
-    .cardBtn.matched .backMark{
-      opacity:0;
-    }
+    .cardBtn.revealed .backMark,.cardBtn.matched .backMark{opacity:0;}
 
+    /* ✅ Footer flotante: ya no tapa el tablero */
     .footer{
+      position:absolute;
+      left:12px; right:12px; bottom:12px;
       display:flex;
       flex-wrap:wrap;
       gap:10px;
       align-items:center;
       justify-content:space-between;
-      flex:0 0 auto;
+      padding:8px 10px;
+      border-radius: 14px;
+      border:1px solid rgba(35,48,73,.9);
+      background: rgba(11,15,20,.55);
+      backdrop-filter: blur(10px);
     }
+
     .status{
       color:var(--muted);
       font-size:13px;
@@ -277,8 +219,8 @@
   </header>
 
   <main>
-    <section class="panel">
-      <div class="controls">
+    <section class="panel" id="panel">
+      <div class="controls" id="controls">
         <div class="left">
           <select id="sizeSel" aria-label="Tamaño">
             <option value="4" selected>4×4</option>
@@ -293,13 +235,13 @@
         </div>
       </div>
 
-      <div class="hint">
+      <div class="hint" id="hint">
         <b>Instrucciones:</b> toca dos cartas para revelar. Si son iguales, se quedan abiertas.
         Si no, se voltean de nuevo. Gana cuando completes todas las parejas.
         El cronómetro inicia en tu primera jugada.
       </div>
 
-      <div class="boardWrap">
+      <div class="boardWrap" id="boardWrap">
         <div class="board" id="board" aria-label="Tablero de Memoria"></div>
       </div>
 
@@ -316,7 +258,13 @@
 
 <script>
 (() => {
+  const root = document.documentElement;
+  const panelEl = document.getElementById("panel");
+  const controlsEl = document.getElementById("controls");
+  const hintEl = document.getElementById("hint");
+  const boardWrapEl = document.getElementById("boardWrap");
   const boardEl = document.getElementById("board");
+
   const sizeSel = document.getElementById("sizeSel");
   const newBtn = document.getElementById("newBtn");
   const restartBtn = document.getElementById("restartBtn");
@@ -328,6 +276,34 @@
   const pairsTotalEl = document.getElementById("pairsTotal");
   const sizeLabelEl = document.getElementById("sizeLabel");
   const statusEl = document.getElementById("status");
+
+  // ✅ Ajuste real del tablero según espacio disponible (PC y móvil)
+  function fitBoard(){
+    // altura total disponible dentro del panel
+    const panelH = panelEl.clientHeight;
+
+    // espacio ocupado por controles + texto + padding + footer flotante
+    const controlsH = controlsEl.offsetHeight;
+    const hintH = hintEl.offsetHeight;
+
+    // reserva para footer flotante + separación + padding extra
+    const footerReserve = 76; // coincide con padding-bottom de boardWrap y footer
+
+    // padding interno del panel aprox
+    const panelPadding = 24;
+
+    const availH = panelH - controlsH - hintH - footerReserve - panelPadding;
+
+    // ancho disponible dentro del boardWrap
+    const availW = boardWrapEl.clientWidth - 10;
+
+    // tamaño final
+    const size = Math.max(220, Math.floor(Math.min(availH, availW, 640)));
+    root.style.setProperty("--boardSize", size + "px");
+  }
+
+  window.addEventListener("resize", () => requestAnimationFrame(fitBoard));
+  window.addEventListener("orientationchange", () => setTimeout(fitBoard, 120));
 
   // Timer
   let timerId = null;
@@ -426,7 +402,6 @@
       const btn = document.createElement("button");
       btn.className = "cardBtn";
       btn.type = "button";
-      btn.setAttribute("aria-label", "Carta");
       btn.dataset.index = idx;
 
       const back = document.createElement("div");
@@ -446,6 +421,9 @@
       btn.addEventListener("click", () => onFlip(idx));
       boardEl.appendChild(btn);
     });
+
+    // ✅ cada render ajusta tamaño por si cambió el contenido/alto
+    requestAnimationFrame(fitBoard);
   };
 
   const reveal = (i) => deck[i].state = "revealed";
@@ -548,6 +526,8 @@
   sizeSel.addEventListener("change", newGame);
   shareBtn.addEventListener("click", share);
 
+  // Init
+  requestAnimationFrame(fitBoard);
   newGame();
 })();
 </script>
