@@ -1,0 +1,710 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1" />
+  <title>Código Secreto • Por Soamy Lanza</title>
+  <style>
+    :root{
+      --bg:#0b0f14;
+      --panel:#121826ee;
+      --line:#233049;
+      --text:#e5e7eb;
+      --muted:#94a3b8;
+      --good:#22c55e;
+      --warn:#f59e0b;
+      --bad:#ef4444;
+      --shadow: 0 14px 40px rgba(0,0,0,.45);
+      --r:18px;
+
+      /* Ajustes compactos para que quepa en una pantalla */
+      --rowH: 38px;
+      --peg: 26px;
+      --gap: 8px;
+      --boardMaxH: 420px;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background:
+        radial-gradient(900px 500px at 15% 10%, rgba(34,197,94,.14), transparent 55%),
+        radial-gradient(900px 500px at 85% 10%, rgba(245,158,11,.12), transparent 55%),
+        var(--bg);
+      color:var(--text);
+      overflow:hidden; /* ✅ una sola pantalla */
+    }
+
+    .app{
+      height:100svh;
+      max-width:1100px;
+      margin:0 auto;
+      padding:10px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      min-height:0;
+    }
+
+    header{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:var(--r);
+      box-shadow:var(--shadow);
+      padding:10px 12px;
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+    }
+    .hleft{display:flex; flex-direction:column; gap:2px;}
+    .hleft h1{margin:0; font-size:16px; display:flex; align-items:center; gap:8px;}
+    .hleft small{color:var(--muted); font-size:12px;}
+    .by{color:var(--muted); font-size:12px; margin-top:2px;}
+
+    .hright{
+      display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end;
+      align-items:center;
+    }
+    .pill{
+      border:1px solid var(--line);
+      background: rgba(11,15,20,.35);
+      border-radius:999px;
+      padding:7px 10px;
+      font-size:12px;
+      display:flex; gap:8px; align-items:center;
+      font-variant-numeric: tabular-nums;
+    }
+
+    main{
+      flex:1 1 auto;
+      min-height:0;
+    }
+
+    .panel{
+      height:100%;
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:var(--r);
+      box-shadow:var(--shadow);
+      padding:10px;
+      display:grid;
+      grid-template-columns: 340px 1fr;
+      gap:12px;
+      min-height:0;
+    }
+
+    .side{
+      min-height:0;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+
+    .box{
+      border:1px solid var(--line);
+      border-radius:16px;
+      background: rgba(11,15,20,.35);
+      padding:10px;
+    }
+
+    .controls{
+      display:flex; gap:8px; flex-wrap:wrap; align-items:center; justify-content:flex-start;
+    }
+    select, button{
+      border-radius:12px;
+      border:1px solid var(--line);
+      background: rgba(11,15,20,.35);
+      color: var(--text);
+      padding:10px 12px;
+      font-size:14px;
+      cursor:pointer;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    button.primary{ border-color: rgba(34,197,94,.5); background: rgba(34,197,94,.14); }
+    button.warn{ border-color: rgba(245,158,11,.5); background: rgba(245,158,11,.14); }
+    button.ghost{ border-color: rgba(148,163,184,.35); background: rgba(148,163,184,.06); }
+
+    .hint{color:var(--muted); font-size:13px; line-height:1.35;}
+    .hint b{color:var(--text)}
+    .status{
+      display:flex; gap:8px; align-items:center; flex-wrap:wrap;
+      font-size:13px; color:var(--muted);
+    }
+    .badge{
+      border:1px solid var(--line);
+      border-radius:999px;
+      padding:5px 9px;
+      font-size:12px;
+      background: rgba(11,15,20,.35);
+      color: var(--text);
+    }
+    .badge.ok{ border-color: rgba(34,197,94,.55); background: rgba(34,197,94,.10); }
+    .badge.warn{ border-color: rgba(245,158,11,.55); background: rgba(245,158,11,.10); }
+    .badge.bad{ border-color: rgba(239,68,68,.55); background: rgba(239,68,68,.10); }
+
+    /* Paleta de colores */
+    .palette{
+      display:flex; gap:10px; flex-wrap:wrap;
+      justify-content:flex-start;
+      padding-top:6px;
+    }
+    .colorBtn{
+      width:34px; height:34px; border-radius:999px;
+      border:1px solid rgba(255,255,255,.12);
+      box-shadow: 0 6px 18px rgba(0,0,0,.25);
+      cursor:pointer;
+      position:relative;
+    }
+    .colorBtn:active{ transform: scale(.98); }
+    .colorBtn.selected::after{
+      content:"";
+      position:absolute; inset:-4px;
+      border-radius:999px;
+      border:2px solid rgba(229,231,235,.85);
+      box-shadow: 0 0 0 2px rgba(0,0,0,.35);
+    }
+
+    /* Área tablero */
+    .boardArea{
+      min-height:0;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      align-items:center;
+      justify-content:flex-start;
+    }
+
+    .boardWrap{
+      width:100%;
+      min-height:0;
+      display:flex;
+      justify-content:center;
+      align-items:flex-start;
+      overflow:hidden;
+      padding-top:0;
+    }
+
+    .board{
+      width:min(100%, 680px);
+      max-height: var(--boardMaxH);
+      overflow:hidden; /* ✅ no scroll, ajustamos tamaños */
+      border:1px solid var(--line);
+      border-radius:16px;
+      background: rgba(11,15,20,.35);
+      padding:10px;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+
+    .row{
+      height: var(--rowH);
+      display:grid;
+      grid-template-columns: 1fr auto;
+      gap:10px;
+      align-items:center;
+      padding:6px 8px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.06);
+      background: rgba(255,255,255,.03);
+    }
+
+    .guess{
+      display:flex;
+      gap: var(--gap);
+      align-items:center;
+      justify-content:flex-start;
+      min-width:0;
+    }
+
+    .peg{
+      width: var(--peg);
+      height: var(--peg);
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      flex:0 0 auto;
+      cursor:pointer;
+      position:relative;
+    }
+    .peg.empty{ cursor:pointer; }
+    .peg.filled{ cursor:pointer; }
+
+    .feedback{
+      display:grid;
+      grid-template-columns: repeat(3, 10px);
+      grid-auto-rows: 10px;
+      gap:5px;
+      justify-content:end;
+      align-content:center;
+      padding-right:6px;
+    }
+    .fbDot{
+      width:10px; height:10px; border-radius:999px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.08);
+    }
+    .fbDot.black{ background: rgba(229,231,235,.95); border-color: rgba(229,231,235,.95); }
+    .fbDot.white{ background: rgba(148,163,184,.9); border-color: rgba(148,163,184,.9); }
+
+    .currentRow{
+      outline:2px solid rgba(34,197,94,.22);
+      border-color: rgba(34,197,94,.22);
+      background: rgba(34,197,94,.06);
+    }
+
+    .actionsRight{
+      width:min(100%, 680px);
+      display:flex;
+      gap:8px;
+      justify-content:space-between;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+
+    .submitBtn{
+      flex:1 1 auto;
+      min-width:180px;
+      text-align:center;
+      font-weight:700;
+    }
+
+    .mini{
+      font-size:12px; color:var(--muted);
+    }
+
+    @media (max-width: 860px){
+      header{ flex-direction:column; align-items:flex-start; }
+      .hright{ justify-content:flex-start; }
+      .panel{ grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app" id="app">
+    <header id="header">
+      <div class="hleft">
+        <h1>🔐 Código Secreto</h1>
+        <small>Juego de razonamiento: deduce el patrón usando pistas (exactos/colores correctos).</small>
+        <div class="by">Por: <b>Soamy Lanza</b></div>
+      </div>
+      <div class="hright">
+        <div class="pill">⏱️ <b id="time">00:00.0</b></div>
+        <div class="pill">🧠 Intentos: <b id="triesLeft">0</b></div>
+        <div class="pill">🎚️ Nivel: <b id="levelLabel">Bajo</b></div>
+      </div>
+    </header>
+
+    <main>
+      <section class="panel" id="panel">
+        <!-- IZQUIERDA -->
+        <aside class="side">
+          <div class="box">
+            <div class="controls">
+              <select id="levelSel" aria-label="Nivel">
+                <option value="low">Bajo</option>
+                <option value="mid" selected>Medio</option>
+                <option value="high">Alto</option>
+              </select>
+              <button class="primary" id="newBtn">Nuevo</button>
+              <button class="warn" id="restartBtn">Reiniciar</button>
+              <button class="ghost" id="shareBtn">Compartir</button>
+            </div>
+
+            <div class="hint" style="margin-top:10px">
+              <b>Instrucciones</b><br>
+              1) Elige un color en la paleta.<br>
+              2) Toca una ficha para pintarla (tócala otra vez para borrar).<br>
+              3) Presiona <b>Probar</b> cuando completes la fila.<br><br>
+              <b>Pistas:</b><br>
+              ⚪ Gris = color correcto pero en lugar incorrecto<br>
+              ⚫ Blanco = color correcto y lugar exacto<br>
+              <span class="mini">El cronómetro empieza en tu primera jugada.</span>
+            </div>
+          </div>
+
+          <div class="box">
+            <div class="hint"><b>Paleta</b> (toca un color y luego toca fichas):</div>
+            <div class="palette" id="palette"></div>
+          </div>
+
+          <div class="box">
+            <div class="status" id="status">
+              <span class="badge warn">En progreso</span>
+              <span>Generé un código nuevo. ¡A deducir!</span>
+            </div>
+          </div>
+
+          <div class="hint" style="opacity:.85">
+            Una sola pantalla • comparte el link por WhatsApp/redes
+          </div>
+        </aside>
+
+        <!-- DERECHA -->
+        <section class="boardArea">
+          <div class="actionsRight">
+            <button class="primary submitBtn" id="submitBtn">Probar fila</button>
+            <button class="ghost" id="clearRowBtn">Limpiar fila</button>
+          </div>
+
+          <div class="boardWrap">
+            <div class="board" id="board" aria-label="Tablero de intentos"></div>
+          </div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+<script>
+(() => {
+  const COLORS = [
+    {name:"Rojo",    hex:"#ef4444"},
+    {name:"Amarillo",hex:"#f59e0b"},
+    {name:"Verde",   hex:"#22c55e"},
+    {name:"Azul",    hex:"#3b82f6"},
+    {name:"Morado",  hex:"#a855f7"},
+    {name:"Cian",    hex:"#06b6d4"},
+    {name:"Rosa",    hex:"#ec4899"},
+    {name:"Naranja", hex:"#fb923c"}
+  ];
+
+  const LEVELS = {
+    low:  {label:"Bajo",  slots:4, colorCount:6, tries:12},
+    mid:  {label:"Medio", slots:5, colorCount:7, tries:10},
+    high: {label:"Alto",  slots:6, colorCount:8, tries:9}
+  };
+
+  const root = document.documentElement;
+  const levelSel = document.getElementById("levelSel");
+  const levelLabel = document.getElementById("levelLabel");
+  const newBtn = document.getElementById("newBtn");
+  const restartBtn = document.getElementById("restartBtn");
+  const shareBtn = document.getElementById("shareBtn");
+  const paletteEl = document.getElementById("palette");
+  const boardEl = document.getElementById("board");
+  const submitBtn = document.getElementById("submitBtn");
+  const clearRowBtn = document.getElementById("clearRowBtn");
+  const timeEl = document.getElementById("time");
+  const triesLeftEl = document.getElementById("triesLeft");
+  const statusEl = document.getElementById("status");
+
+  let cfg = LEVELS.mid;
+  let secret = [];
+  let selectedColor = null;
+
+  // Timer
+  let timerId = null, runningTimer=false, startTime=0, elapsedMs=0;
+  const fmtTime = (ms) => {
+    const m = Math.floor(ms/60000);
+    const s = Math.floor((ms%60000)/1000);
+    const t = Math.floor((ms%1000)/100);
+    return `${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}.${t}`;
+  };
+  const startTimer = () => {
+    if (runningTimer) return;
+    runningTimer = true;
+    startTime = performance.now() - elapsedMs;
+    if (timerId) clearInterval(timerId);
+    timerId = setInterval(() => {
+      elapsedMs = performance.now() - startTime;
+      timeEl.textContent = fmtTime(elapsedMs);
+    }, 100);
+  };
+  const stopTimer = () => { runningTimer=false; if(timerId){clearInterval(timerId); timerId=null;} };
+  const resetTimer = () => { stopTimer(); elapsedMs=0; timeEl.textContent=fmtTime(0); };
+
+  const setStatus = (type, text) => {
+    const cls = type==="ok" ? "badge ok" : type==="bad" ? "badge bad" : "badge warn";
+    const label = type==="ok" ? "¡Ganaste!" : type==="bad" ? "Perdiste" : "En progreso";
+    statusEl.innerHTML = `<span class="${cls}">${label}</span><span>${text}</span>`;
+  };
+
+  // Board state
+  let rows = []; // {guess:[idx|null], feedback:{black,white}, done}
+  let currentRow = 0;
+
+  const rnd = (n) => Math.floor(Math.random()*n);
+
+  // ✅ genera secreto (con repetición permitida: más razonamiento)
+  const genSecret = () => {
+    secret = [];
+    for(let i=0;i<cfg.slots;i++){
+      secret.push(rnd(cfg.colorCount));
+    }
+  };
+
+  const buildPalette = () => {
+    paletteEl.innerHTML = "";
+    selectedColor = 0;
+    for(let i=0;i<cfg.colorCount;i++){
+      const c = COLORS[i];
+      const b = document.createElement("div");
+      b.className = "colorBtn";
+      b.title = c.name;
+      b.style.background = c.hex;
+      b.dataset.idx = i;
+      b.addEventListener("click", () => {
+        selectedColor = i;
+        [...paletteEl.children].forEach(ch => ch.classList.remove("selected"));
+        b.classList.add("selected");
+      });
+      if (i===selectedColor) b.classList.add("selected");
+      paletteEl.appendChild(b);
+    }
+  };
+
+  // Feedback: black = exacto; white = color correcto mal puesto
+  const computeFeedback = (guess) => {
+    const s = secret.slice();
+    const g = guess.slice();
+
+    let black = 0;
+    // 1) exactos
+    for(let i=0;i<cfg.slots;i++){
+      if (g[i] === s[i]){
+        black++;
+        g[i] = null;
+        s[i] = -1;
+      }
+    }
+    // 2) colores correctos en posición incorrecta
+    let white = 0;
+    for(let i=0;i<cfg.slots;i++){
+      if (g[i] === null) continue;
+      const idx = s.indexOf(g[i]);
+      if (idx !== -1){
+        white++;
+        s[idx] = -1;
+      }
+    }
+    return {black, white};
+  };
+
+  const updateTries = () => {
+    const remaining = cfg.tries - currentRow;
+    triesLeftEl.textContent = remaining;
+  };
+
+  const renderBoard = () => {
+    boardEl.innerHTML = "";
+
+    rows.forEach((r, ri) => {
+      const row = document.createElement("div");
+      row.className = "row" + (ri===currentRow && !r.done ? " currentRow" : "");
+      row.dataset.row = ri;
+
+      const guess = document.createElement("div");
+      guess.className = "guess";
+
+      for(let i=0;i<cfg.slots;i++){
+        const peg = document.createElement("div");
+        peg.className = "peg " + (r.guess[i] == null ? "empty" : "filled");
+        peg.dataset.slot = i;
+
+        if (r.guess[i] != null){
+          peg.style.background = COLORS[r.guess[i]].hex;
+          peg.style.borderColor = "rgba(255,255,255,.18)";
+        } else {
+          peg.style.background = "rgba(255,255,255,.06)";
+        }
+
+        if (!r.done && ri===currentRow){
+          peg.addEventListener("click", () => {
+            startTimer();
+            // tocar para borrar si ya está, o poner color seleccionado
+            if (r.guess[i] != null) r.guess[i] = null;
+            else r.guess[i] = selectedColor;
+            renderBoard();
+          });
+        }
+
+        guess.appendChild(peg);
+      }
+
+      const fb = document.createElement("div");
+      fb.className = "feedback";
+      // total dots = slots (compacto)
+      const dots = [];
+      for(let k=0;k<r.feedback.black;k++) dots.push("black");
+      for(let k=0;k<r.feedback.white;k++) dots.push("white");
+      while(dots.length < cfg.slots) dots.push("none");
+
+      // mostramos en grilla 3 columnas (compacto)
+      dots.forEach(t => {
+        const d = document.createElement("div");
+        d.className = "fbDot" + (t==="black" ? " black" : t==="white" ? " white" : "");
+        fb.appendChild(d);
+      });
+
+      row.appendChild(guess);
+      row.appendChild(fb);
+      boardEl.appendChild(row);
+    });
+  };
+
+  const clearCurrentRow = () => {
+    const r = rows[currentRow];
+    if (!r || r.done) return;
+    r.guess = Array(cfg.slots).fill(null);
+    renderBoard();
+  };
+
+  const isRowComplete = (r) => r.guess.every(v => v != null);
+
+  const revealSecretText = () => secret.map(i => COLORS[i].hex).join(",");
+
+  const submitRow = () => {
+    const r = rows[currentRow];
+    if (!r || r.done) return;
+
+    if (!isRowComplete(r)){
+      setStatus("warn", "Completa toda la fila antes de probar.");
+      return;
+    }
+
+    startTimer();
+    r.feedback = computeFeedback(r.guess);
+    r.done = true;
+
+    // win?
+    if (r.feedback.black === cfg.slots){
+      stopTimer();
+      setStatus("ok", `¡Lo lograste! Tiempo: ${fmtTime(elapsedMs)} • Nivel: ${cfg.label}`);
+      submitBtn.disabled = true;
+      clearRowBtn.disabled = true;
+      renderBoard();
+      return;
+    }
+
+    currentRow++;
+
+    if (currentRow >= cfg.tries){
+      stopTimer();
+      const code = secret.map(i => COLORS[i].name).join(" · ");
+      setStatus("bad", `Se acabaron los intentos. Código: ${code}`);
+      submitBtn.disabled = true;
+      clearRowBtn.disabled = true;
+      renderBoard();
+      updateTries();
+      return;
+    }
+
+    updateTries();
+    setStatus("warn", "Pista lista. Ajusta tu hipótesis y sigue.");
+    renderBoard();
+  };
+
+  // ✅ Fit para que siempre quepa en una sola pantalla
+  function fitUI(){
+    const vvH = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+    const headerH = document.getElementById("header").getBoundingClientRect().height;
+    const appPad = 20; // aprox (padding + gaps)
+    const free = vvH - headerH - appPad - 24; // safety
+
+    // limite de alto del tablero dentro del panel
+    const boardMax = Math.max(260, Math.min(520, free - 90)); // 90 para botones arriba
+    root.style.setProperty("--boardMaxH", boardMax + "px");
+
+    // ajusta tamaños por slots y pantalla
+    let rowH = 38, peg = 26, gap = 8;
+    if (cfg.slots === 6){ rowH = 36; peg = 24; gap = 7; }
+    if (cfg.slots === 4){ rowH = 40; peg = 28; gap = 9; }
+
+    // pantallas bajas (ej 1366x768): compacta más
+    if (vvH < 760){
+      rowH -= 4; peg -= 2; gap -= 1;
+    }
+    root.style.setProperty("--rowH", rowH + "px");
+    root.style.setProperty("--peg", peg + "px");
+    root.style.setProperty("--gap", gap + "px");
+  }
+
+  const newGame = () => {
+    cfg = LEVELS[levelSel.value];
+    levelLabel.textContent = cfg.label;
+
+    resetTimer();
+    genSecret();
+    buildPalette();
+
+    rows = Array.from({length: cfg.tries}, () => ({
+      guess: Array(cfg.slots).fill(null),
+      feedback: {black:0, white:0},
+      done: false
+    }));
+
+    currentRow = 0;
+    submitBtn.disabled = false;
+    clearRowBtn.disabled = false;
+
+    setStatus("warn", "Generé un código nuevo. ¡A deducir!");
+    updateTries();
+    fitUI();
+    renderBoard();
+  };
+
+  const restart = () => {
+    resetTimer();
+    // mismo nivel, nuevo secreto
+    genSecret();
+    rows.forEach(r => { r.guess.fill(null); r.feedback={black:0,white:0}; r.done=false; });
+    currentRow = 0;
+    submitBtn.disabled = false;
+    clearRowBtn.disabled = false;
+    setStatus("warn", "Reiniciado. Nuevo código, misma dificultad.");
+    updateTries();
+    fitUI();
+    renderBoard();
+  };
+
+  const share = async () => {
+    const url = location.href;
+    const text = `🔐 Código Secreto (${cfg.label}) — Por Soamy Lanza. ¿Puedes deducir el patrón?`;
+    try{
+      if (navigator.share){
+        await navigator.share({ title: document.title, text, url });
+      } else {
+        await navigator.clipboard.writeText(url);
+        alert("Link copiado ✅\nPégalo en WhatsApp o redes.");
+      }
+    } catch {
+      try{
+        await navigator.clipboard.writeText(url);
+        alert("Link copiado ✅");
+      } catch {
+        prompt("Copia este link:", url);
+      }
+    }
+  };
+
+  // Events
+  newBtn.addEventListener("click", newGame);
+  restartBtn.addEventListener("click", restart);
+  shareBtn.addEventListener("click", share);
+  submitBtn.addEventListener("click", submitRow);
+  clearRowBtn.addEventListener("click", clearCurrentRow);
+  levelSel.addEventListener("change", newGame);
+
+  window.addEventListener("resize", () => { fitUI(); renderBoard(); });
+  window.addEventListener("orientationchange", () => setTimeout(() => { fitUI(); renderBoard(); }, 80));
+  if (window.visualViewport){
+    visualViewport.addEventListener("resize", () => { fitUI(); renderBoard(); });
+    visualViewport.addEventListener("scroll", () => { fitUI(); renderBoard(); });
+  }
+
+  // Init
+  newGame();
+
+  // “Easter egg” para debug (sin mostrarlo al usuario):
+  // console.log("secret:", revealSecretText());
+})();
+</script>
+</body>
+</html>
