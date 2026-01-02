@@ -1,0 +1,713 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ROI del Talento • Plantilla interactiva • Por Soamy Lanza</title>
+  <style>
+    :root{
+      --bg:#071018;
+      --card:rgba(16,24,40,.72);
+      --card2:rgba(12,18,32,.78);
+      --text:#e8eefc;
+      --muted:#a9b6d3;
+      --border:rgba(255,255,255,.12);
+      --accent:#18c07a;
+      --warn:#f7b731;
+      --danger:#ff5c7a;
+      --shadow:0 20px 60px rgba(0,0,0,.45);
+      --radius:18px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial;
+      color:var(--text);
+      background:
+        radial-gradient(1100px 700px at 20% -10%, rgba(24,192,122,.22), transparent 55%),
+        radial-gradient(900px 650px at 85% 0%, rgba(247,183,49,.18), transparent 55%),
+        radial-gradient(900px 650px at 90% 80%, rgba(255,92,122,.12), transparent 55%),
+        linear-gradient(180deg, #050b11, var(--bg));
+      overflow-x:hidden;
+    }
+    .wrap{max-width:1100px;margin:26px auto;padding:0 16px 40px}
+    .hero{
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid var(--border);
+      box-shadow:var(--shadow);
+      border-radius:22px;
+      padding:18px;
+      display:flex;
+      gap:14px;
+      justify-content:space-between;
+      align-items:flex-start;
+      flex-wrap:wrap;
+    }
+    .title{
+      display:flex; gap:12px; align-items:flex-start;
+    }
+    .logo{
+      width:42px;height:42px;border-radius:14px;
+      display:grid;place-items:center;
+      background: rgba(24,192,122,.16);
+      border:1px solid rgba(24,192,122,.35);
+      box-shadow:0 10px 30px rgba(0,0,0,.35);
+      font-size:22px;
+      flex:0 0 auto;
+    }
+    h1{margin:0;font-size:22px;line-height:1.25;letter-spacing:.2px}
+    .sub{margin-top:4px;color:var(--muted);font-size:13.5px;line-height:1.35}
+    .by{margin-top:4px;font-weight:700;color:#d7e4ff;font-size:13.5px}
+    .pillrow{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+    .pill{
+      display:flex;gap:8px;align-items:center;
+      padding:10px 12px;
+      background: rgba(0,0,0,.18);
+      border:1px solid var(--border);
+      border-radius:999px;
+      font-size:13px;
+      white-space:nowrap;
+      color:#dbe7ff;
+    }
+    .pill strong{font-weight:900}
+    .grid{
+      margin-top:16px;
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:16px;
+      align-items:start;
+    }
+    @media(max-width:980px){.grid{grid-template-columns:1fr}}
+    .card{
+      background: var(--card);
+      border:1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+    .inner{padding:16px}
+    .sectionTitle{
+      margin:0 0 10px;
+      font-size:14px;
+      font-weight:900;
+      letter-spacing:.2px;
+    }
+    .muted{color:var(--muted);font-size:13.5px;line-height:1.45}
+    .row{
+      display:grid;
+      grid-template-columns: 1fr 240px;
+      gap:10px;
+      align-items:center;
+      margin:10px 0;
+    }
+    @media(max-width:560px){.row{grid-template-columns:1fr}}
+    label{font-size:13px;color:#dbe7ff;font-weight:700}
+    input, select, textarea{
+      width:100%;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.20);
+      color: var(--text);
+      padding:11px 12px;
+      outline:none;
+      font-size:14px;
+    }
+    textarea{min-height:76px;resize:vertical}
+    .btnrow{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+    button{
+      cursor:pointer;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.12);
+      padding:11px 14px;
+      font-weight:900;
+      color:var(--text);
+      background: rgba(0,0,0,.18);
+      transition: transform .06s ease, border-color .2s ease, background .2s ease;
+      user-select:none;
+    }
+    button:hover{transform: translateY(-1px); border-color: rgba(255,255,255,.22)}
+    .primary{background: rgba(24,192,122,.18); border-color: rgba(24,192,122,.38)}
+    .warn{background: rgba(247,183,49,.14); border-color: rgba(247,183,49,.35)}
+    .danger{background: rgba(255,92,122,.12); border-color: rgba(255,92,122,.35)}
+    .table{
+      width:100%;
+      border-collapse:separate;
+      border-spacing:0;
+      overflow:hidden;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.16);
+    }
+    .table th, .table td{
+      padding:10px 10px;
+      border-bottom:1px solid rgba(255,255,255,.08);
+      text-align:left;
+      font-size:13.5px;
+      vertical-align:top;
+    }
+    .table th{
+      color:var(--muted);
+      font-weight:900;
+      background: rgba(0,0,0,.18);
+    }
+    .table tr:last-child td{border-bottom:none}
+    .kpi{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+      margin-top:12px;
+    }
+    @media(max-width:560px){.kpi{grid-template-columns:1fr}}
+    .box{
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.18);
+      border-radius:16px;
+      padding:12px;
+      display:grid;
+      gap:8px;
+    }
+    .big{
+      font-size:24px;
+      font-weight:1000;
+      letter-spacing:.2px;
+    }
+    .tag{
+      display:inline-flex;
+      padding:8px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.18);
+      font-weight:900;
+      font-size:13px;
+      white-space:nowrap;
+    }
+    .tag.good{border-color: rgba(24,192,122,.50); background: rgba(24,192,122,.12)}
+    .tag.mid{border-color: rgba(247,183,49,.55); background: rgba(247,183,49,.14)}
+    .tag.bad{border-color: rgba(255,92,122,.55); background: rgba(255,92,122,.12)}
+    .meter{
+      height:12px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.20);
+      overflow:hidden;
+    }
+    .bar{
+      height:100%;
+      width:0%;
+      background: linear-gradient(90deg, rgba(255,92,122,.95), rgba(247,183,49,.95), rgba(24,192,122,.95));
+      transition: width .35s ease;
+    }
+    .foot{margin-top:14px;text-align:center;color:rgba(233,240,255,.70);font-size:12px}
+    .toast{
+      position:fixed; left:50%; bottom:16px; transform:translateX(-50%);
+      background: rgba(16,24,40,.92);
+      border:1px solid rgba(255,255,255,.14);
+      color:#eaf1ff;
+      box-shadow: var(--shadow);
+      border-radius:999px;
+      padding:10px 14px;
+      font-size:13px;
+      display:none;
+      gap:8px;
+      align-items:center;
+      z-index:50;
+    }
+    .toast.show{display:flex}
+    .hint{
+      margin-top:10px;
+      padding:12px;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.16);
+      color:var(--muted);
+      font-size:13.5px;
+      line-height:1.45;
+    }
+    .hint b{color:#e9f0ff}
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="hero">
+      <div class="title">
+        <div class="logo">📈</div>
+        <div>
+          <h1>ROI del Talento — Plantilla interactiva</h1>
+          <div class="sub">
+            Calcula retorno en % con inversión (A) y beneficios (B). Guarda localmente, exporta resumen y comparte por GitHub Pages.
+          </div>
+          <div class="by">Por: Soamy Lanza</div>
+        </div>
+      </div>
+      <div class="pillrow">
+        <div class="pill">💰 Inversión (A): <strong id="aMini">—</strong></div>
+        <div class="pill">✅ Beneficio (B): <strong id="bMini">—</strong></div>
+        <div class="pill">📊 ROI: <strong id="roiMini">—</strong></div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <!-- Left: Inputs -->
+      <div class="card">
+        <div class="inner">
+          <div class="sectionTitle">1) Información general</div>
+
+          <div class="row">
+            <label>Área / Proyecto</label>
+            <input id="area" placeholder="Ej: Producción, Ventas, RRHH, Planta..." />
+          </div>
+
+          <div class="row">
+            <label>Tipo de iniciativa</label>
+            <select id="tipo">
+              <option>Capacitación</option>
+              <option>Clima</option>
+              <option>Liderazgo</option>
+              <option>Reclutamiento</option>
+              <option>Bienestar</option>
+              <option>Otro</option>
+            </select>
+          </div>
+
+          <div class="row">
+            <label>Periodo evaluado</label>
+            <input id="periodo" placeholder="Ej: Ene–Mar 2026" />
+          </div>
+
+          <div class="row">
+            <label>Responsable</label>
+            <input id="responsable" placeholder="Nombre" />
+          </div>
+
+          <div class="row">
+            <label># colaboradores impactados</label>
+            <input id="n" type="number" min="0" step="1" placeholder="0" />
+          </div>
+
+          <div class="sectionTitle" style="margin-top:18px;">2) Inversión en Talento (A)</div>
+          <table class="table" aria-label="Inversión en talento">
+            <thead>
+              <tr><th>Concepto</th><th>Monto</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Salarios relacionados al proyecto</td><td><input class="money a" id="a1" inputmode="decimal" placeholder="0.00"></td></tr>
+              <tr><td>Reclutamiento / selección</td><td><input class="money a" id="a2" inputmode="decimal" placeholder="0.00"></td></tr>
+              <tr><td>Capacitación / formación</td><td><input class="money a" id="a3" inputmode="decimal" placeholder="0.00"></td></tr>
+              <tr><td>Consultoría externa</td><td><input class="money a" id="a4" inputmode="decimal" placeholder="0.00"></td></tr>
+              <tr><td>Herramientas / plataformas</td><td><input class="money a" id="a5" inputmode="decimal" placeholder="0.00"></td></tr>
+              <tr><td>Beneficios / bienestar</td><td><input class="money a" id="a6" inputmode="decimal" placeholder="0.00"></td></tr>
+              <tr><td><b>Inversión total (A)</b></td><td><b id="aTotal">—</b></td></tr>
+            </tbody>
+          </table>
+
+          <div class="sectionTitle" style="margin-top:18px;">3) Beneficios económicos (B)</div>
+          <table class="table" aria-label="Beneficios económicos">
+            <thead>
+              <tr><th>Mejora</th><th>Beneficio</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Reducción de rotación</td><td><input class="money b" id="b1" inputmode="decimal" placeholder="0.00"></td></tr>
+              <tr><td>Menos ausentismo</td><td><input class="money b" id="b2" inputmode="decimal" placeholder="0.00"></td></tr>
+              <tr><td>Aumento de productividad</td><td><input class="money b" id="b3" inputmode="decimal" placeholder="0.00"></td></tr>
+              <tr><td>Menos errores / retrabajos</td><td><input class="money b" id="b4" inputmode="decimal" placeholder="0.00"></td></tr>
+              <tr><td>Otros beneficios</td><td><input class="money b" id="b5" inputmode="decimal" placeholder="0.00"></td></tr>
+              <tr><td><b>Beneficio total (B)</b></td><td><b id="bTotal">—</b></td></tr>
+            </tbody>
+          </table>
+
+          <div class="btnrow">
+            <button class="primary" id="calcBtn">Calcular ROI</button>
+            <button class="warn" id="exportBtn">Copiar resumen</button>
+            <button class="danger" id="resetBtn">Reiniciar</button>
+            <button id="shareBtn">Compartir</button>
+          </div>
+
+          <div class="hint">
+            <b>Fórmula:</b> ROI del Talento (%) = (B − A) / A × 100. <br>
+            • ROI &gt; 0 = genera valor · ROI = 0 equilibrio · ROI &lt; 0 no recupera la inversión.
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Results -->
+      <div class="card">
+        <div class="inner">
+          <div class="sectionTitle">Resultados</div>
+
+          <div class="kpi">
+            <div class="box">
+              <div class="muted">Inversión total (A)</div>
+              <div class="big" id="aBig">—</div>
+              <div class="muted">Suma de costos de talento</div>
+            </div>
+            <div class="box">
+              <div class="muted">Beneficio total (B)</div>
+              <div class="big" id="bBig">—</div>
+              <div class="muted">Ahorros + mejoras monetizadas</div>
+            </div>
+          </div>
+
+          <div class="box" style="margin-top:12px;">
+            <div style="display:flex;gap:10px;justify-content:space-between;align-items:center;flex-wrap:wrap">
+              <div>
+                <div class="muted">ROI del Talento</div>
+                <div class="big" id="roiBig">—</div>
+              </div>
+              <div class="tag" id="roiTag">—</div>
+            </div>
+
+            <div class="meter" aria-label="barra de retorno (referencial)">
+              <div class="bar" id="roiBar"></div>
+            </div>
+
+            <div class="muted" id="roiExplain" style="margin-top:8px;">
+              Ingresa A y B y presiona <b>Calcular ROI</b>.
+            </div>
+          </div>
+
+          <div class="sectionTitle" style="margin-top:16px;">Conclusiones</div>
+          <div class="box">
+            <div class="muted" id="conclusionText">—</div>
+          </div>
+
+          <div class="sectionTitle" style="margin-top:16px;">Recomendaciones</div>
+          <div class="box">
+            <div class="muted" id="recoText">—</div>
+          </div>
+
+          <div class="sectionTitle" style="margin-top:16px;">Notas / Evidencias</div>
+          <textarea id="notas" placeholder="Escribe evidencias y supuestos: costo por reemplazo, valor hora, fórmula de productividad, etc."></textarea>
+
+          <div class="foot">1 archivo · Ideal para GitHub Pages · Por Soamy Lanza</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">✅ <span id="toastTxt"></span></div>
+
+  <script>
+    const STORAGE_KEY = "roi_talento_v1";
+
+    const $ = (id) => document.getElementById(id);
+    const aInputs = Array.from(document.querySelectorAll(".money.a"));
+    const bInputs = Array.from(document.querySelectorAll(".money.b"));
+
+    const aTotalEl = $("aTotal"), bTotalEl = $("bTotal");
+    const aMini = $("aMini"), bMini = $("bMini"), roiMini = $("roiMini");
+    const aBig = $("aBig"), bBig = $("bBig"), roiBig = $("roiBig");
+    const roiTag = $("roiTag"), roiBar = $("roiBar");
+    const roiExplain = $("roiExplain");
+    const conclusionText = $("conclusionText");
+    const recoText = $("recoText");
+
+    const toast = $("toast"), toastTxt = $("toastTxt");
+
+    function showToast(msg){
+      toastTxt.textContent = msg;
+      toast.classList.add("show");
+      setTimeout(()=>toast.classList.remove("show"), 2200);
+    }
+
+    function parseMoney(v){
+      if(typeof v !== "string") v = String(v ?? "");
+      // allow "1,234.56" or "1.234,56" (simple)
+      const s = v.trim().replace(/\s+/g,"");
+      if(!s) return 0;
+      // if contains comma and dot, assume comma thousands
+      let norm = s;
+      if(s.includes(",") && s.includes(".")){
+        norm = s.replace(/,/g,"");
+      } else if(s.includes(",") && !s.includes(".")){
+        // treat comma as decimal
+        norm = s.replace(",",".");
+      }
+      const n = Number(norm);
+      return Number.isFinite(n) ? n : 0;
+    }
+
+    function money(n){
+      if(!Number.isFinite(n)) return "—";
+      return new Intl.NumberFormat("es-ES", { style:"currency", currency:"USD", maximumFractionDigits:2 }).format(n);
+    }
+
+    function pct(n){
+      if(!Number.isFinite(n)) return "—";
+      return (n).toFixed(2) + "%";
+    }
+
+    function sumInputs(list){
+      let s = 0;
+      for(const el of list) s += parseMoney(el.value);
+      return s;
+    }
+
+    function save(){
+      const state = {
+        area: $("area").value,
+        tipo: $("tipo").value,
+        periodo: $("periodo").value,
+        responsable: $("responsable").value,
+        n: $("n").value,
+        notas: $("notas").value,
+        a: Object.fromEntries(aInputs.map(i => [i.id, i.value])),
+        b: Object.fromEntries(bInputs.map(i => [i.id, i.value])),
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function load(){
+      try{
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if(!raw) return;
+        const st = JSON.parse(raw);
+        $("area").value = st.area ?? "";
+        $("tipo").value = st.tipo ?? "Capacitación";
+        $("periodo").value = st.periodo ?? "";
+        $("responsable").value = st.responsable ?? "";
+        $("n").value = st.n ?? "";
+        $("notas").value = st.notas ?? "";
+        if(st.a) aInputs.forEach(i => i.value = st.a[i.id] ?? "");
+        if(st.b) bInputs.forEach(i => i.value = st.b[i.id] ?? "");
+      }catch{}
+    }
+
+    function clearState(){
+      localStorage.removeItem(STORAGE_KEY);
+    }
+
+    function updateTotals(){
+      const A = sumInputs(aInputs);
+      const B = sumInputs(bInputs);
+      aTotalEl.textContent = money(A);
+      bTotalEl.textContent = money(B);
+      aMini.textContent = money(A);
+      bMini.textContent = money(B);
+
+      // Mini ROI if A>0
+      const roi = A > 0 ? ((B - A) / A) * 100 : NaN;
+      roiMini.textContent = A > 0 ? pct(roi) : "—";
+
+      aBig.textContent = money(A);
+      bBig.textContent = money(B);
+
+      save();
+    }
+
+    function explain(roi, A, B){
+      const area = ($("area").value || "—");
+      const tipo = ($("tipo").value || "—");
+      const periodo = ($("periodo").value || "—");
+
+      const base =
+        `Proyecto/Área: ${area}. Iniciativa: ${tipo}. Periodo: ${periodo}. ` +
+        `Inversión A=${money(A)} y beneficio B=${money(B)}.`;
+
+      if(!Number.isFinite(roi)){
+        return base + " Ingresa una inversión A mayor que 0 para calcular el ROI.";
+      }
+
+      if(roi > 0){
+        return base + ` El ROI es positivo (${pct(roi)}), lo que sugiere que la inversión en talento generó retorno medible.`;
+      }
+      if(roi === 0){
+        return base + " El ROI está en punto de equilibrio (0%). Se recuperó la inversión pero no hubo ganancia adicional.";
+      }
+      return base + ` El ROI es negativo (${pct(roi)}). No se recuperó la inversión con los beneficios monetizados.`;
+    }
+
+    function conclusionsAndRecommendations(roi, A, B){
+      if(!Number.isFinite(roi)){
+        return {
+          tag:{text:"Falta inversión A", cls:"mid"},
+          concl:"Para calcular el ROI necesitas una inversión total (A) mayor que 0. Completa los costos y vuelve a calcular.",
+          reco:
+            "• Define qué costos entran en A (salarios, reclutamiento, capacitación, herramientas, etc.).<br>" +
+            "• Monetiza beneficios B: rotación evitada, ausentismo, productividad, errores, etc.<br>" +
+            "• Agrega evidencias/supuestos en Notas para justificar el cálculo."
+        };
+      }
+
+      // ROI bar: map from -100%..+200% to 0..100 for visual
+      // clamp to keep it readable
+      const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
+      const norm = clamp((roi + 100) / 300 * 100, 0, 100);
+      roiBar.style.width = norm.toFixed(1) + "%";
+
+      if(roi >= 50){
+        return {
+          tag:{text:"ROI Alto ✅", cls:"good"},
+          concl:
+            "El retorno es alto y sugiere que la iniciativa de talento fue eficiente. Es defendible para escalar o replicar " +
+            "si se mantienen las condiciones y la calidad de ejecución.",
+          reco:
+            "• Escalar la iniciativa a otras áreas similares.<br>" +
+            "• Convertir la práctica en estándar (política/proceso) y medir trimestralmente.<br>" +
+            "• Documentar ‘qué funcionó’ (contenidos, líderes, metodología) para replicabilidad.<br>" +
+            "• Controlar riesgos: mantener calidad y evitar sobrecarga."
+        };
+      }
+
+      if(roi > 0 && roi < 50){
+        return {
+          tag:{text:"ROI Positivo 👍", cls:"good"},
+          concl:
+            "La inversión generó retorno positivo. Hay valor, aunque puede mejorar si se optimizan costos o se potencia el impacto " +
+            "en indicadores clave (rotación, productividad, errores).",
+          reco:
+            "• Optimizar costos sin afectar calidad (proveedores, horas, herramientas).<br>" +
+            "• Aumentar impacto: reforzar seguimiento, coaching, aplicación en el puesto.<br>" +
+            "• Medir por cohorte/área para identificar dónde rinde más.<br>" +
+            "• Definir KPIs de salida: desempeño, calidad, tiempos, rotación."
+        };
+      }
+
+      if(roi === 0){
+        return {
+          tag:{text:"Equilibrio (0%)", cls:"mid"},
+          concl:
+            "La iniciativa recuperó su costo, pero no generó retorno adicional medible. Puede que el impacto exista pero no esté " +
+            "bien monetizado o necesita más tiempo/ajustes para reflejarse en resultados.",
+          reco:
+            "• Revisar monetización de beneficios (B): ¿está subestimada?<br>" +
+            "• Ajustar diseño: foco en habilidades/áreas con impacto más directo.<br>" +
+            "• Extender periodo de medición si el efecto es tardío.<br>" +
+            "• Asegurar aplicación: compromisos, seguimiento y evaluación post."
+        };
+      }
+
+      // roi < 0
+      return {
+        tag:{text:"ROI Negativo ⚠️", cls:"bad"},
+        concl:
+          "Con los datos actuales, la inversión no se recuperó. Puede deberse a costos altos, beneficios mal definidos/medidos, " +
+          "o ejecución que no logró cambiar indicadores clave.",
+        reco:
+          "• Revisar supuestos y evidencias: costo por reemplazo, valor hora, métricas base/post.<br>" +
+          "• Rediseñar intervención: objetivos claros, población objetivo correcta, contenido práctico.<br>" +
+          "• Reducir costos o pilotear en grupos pequeños antes de escalar.<br>" +
+          "• Medir impacto real con indicadores ligados al negocio (calidad, tiempos, ventas, mermas)."
+      };
+    }
+
+    function renderROI(){
+      const A = sumInputs(aInputs);
+      const B = sumInputs(bInputs);
+
+      const roi = A > 0 ? ((B - A) / A) * 100 : NaN;
+
+      roiBig.textContent = A > 0 ? pct(roi) : "—";
+      roiMini.textContent = A > 0 ? pct(roi) : "—";
+
+      roiExplain.textContent = explain(roi, A, B);
+
+      const pack = conclusionsAndRecommendations(roi, A, B);
+      roiTag.className = "tag " + pack.tag.cls;
+      roiTag.textContent = pack.tag.text;
+
+      conclusionText.textContent = pack.concl;
+      recoText.innerHTML = pack.reco;
+
+      showToast("ROI calculado ✅");
+      save();
+    }
+
+    async function copySummary(){
+      const A = sumInputs(aInputs);
+      const B = sumInputs(bInputs);
+      const roi = A > 0 ? ((B - A) / A) * 100 : NaN;
+      const area = $("area").value || "—";
+      const tipo = $("tipo").value || "—";
+      const periodo = $("periodo").value || "—";
+      const responsable = $("responsable").value || "—";
+      const n = $("n").value || "—";
+      const notas = $("notas").value || "—";
+
+      const txt =
+`ROI del Talento — Resumen
+Por: Soamy Lanza
+
+Área/Proyecto: ${area}
+Tipo de iniciativa: ${tipo}
+Periodo: ${periodo}
+Responsable: ${responsable}
+Colaboradores impactados: ${n}
+
+Inversión total (A): ${money(A)}
+Beneficio total (B): ${money(B)}
+ROI del Talento: ${A>0 ? pct(roi) : "—"}
+
+Notas/Evidencias:
+${notas}
+`;
+
+      try{
+        await navigator.clipboard.writeText(txt);
+        showToast("Resumen copiado ✅");
+      }catch{
+        prompt("Copia el resumen:", txt);
+      }
+    }
+
+    async function share(){
+      const url = location.href;
+      const text = "ROI del Talento — Plantilla interactiva • Por Soamy Lanza";
+      try{
+        if(navigator.share){
+          await navigator.share({ title: document.title, text, url });
+          showToast("Compartido ✅");
+          return;
+        }
+      }catch{}
+      try{
+        await navigator.clipboard.writeText(url);
+        showToast("Link copiado ✅");
+      }catch{
+        prompt("Copia este link:", url);
+      }
+    }
+
+    function resetAll(){
+      if(!confirm("¿Reiniciar la plantilla? Se borrarán los datos guardados.")) return;
+      clearState();
+      // clear fields
+      ["area","periodo","responsable","n","notas"].forEach(id => $(id).value = "");
+      $("tipo").value = "Capacitación";
+      [...aInputs, ...bInputs].forEach(i => i.value = "");
+      // reset outputs
+      aTotalEl.textContent = "—";
+      bTotalEl.textContent = "—";
+      aMini.textContent = "—";
+      bMini.textContent = "—";
+      roiMini.textContent = "—";
+      aBig.textContent = "—";
+      bBig.textContent = "—";
+      roiBig.textContent = "—";
+      roiTag.className = "tag";
+      roiTag.textContent = "—";
+      roiBar.style.width = "0%";
+      roiExplain.textContent = "Ingresa A y B y presiona Calcular ROI.";
+      conclusionText.textContent = "—";
+      recoText.textContent = "—";
+      showToast("Reiniciado.");
+    }
+
+    // bind
+    $("calcBtn").addEventListener("click", renderROI);
+    $("exportBtn").addEventListener("click", copySummary);
+    $("resetBtn").addEventListener("click", resetAll);
+    $("shareBtn").addEventListener("click", share);
+
+    // live totals
+    [...aInputs, ...bInputs, $("area"), $("tipo"), $("periodo"), $("responsable"), $("n"), $("notas")].forEach(el=>{
+      el.addEventListener("input", updateTotals);
+      el.addEventListener("change", updateTotals);
+    });
+
+    // init
+    load();
+    updateTotals();
+  </script>
+</body>
+</html>
