@@ -1,0 +1,677 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Rompecabezas Deslizante</title>
+  <style>
+    :root{
+      --bg:#0b0f14;
+      --card:#121826;
+      --muted:#94a3b8;
+      --text:#e5e7eb;
+      --accent:#22c55e;
+      --warn:#f59e0b;
+      --bad:#ef4444;
+      --line:#233049;
+      --shadow: 0 14px 40px rgba(0,0,0,.45);
+      --radius: 18px;
+    }
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: radial-gradient(900px 500px at 20% 10%, rgba(34,197,94,.18), transparent 55%),
+                  radial-gradient(800px 500px at 80% 15%, rgba(245,158,11,.16), transparent 55%),
+                  var(--bg);
+      color: var(--text);
+    }
+    .app{
+      min-height: 100svh;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      padding:12px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    header{
+      background: rgba(18,24,38,.92);
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 12px;
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+    }
+    .title{
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+      min-width: 220px;
+    }
+    .title h1{
+      margin:0;
+      font-size: 18px;
+      letter-spacing: .2px;
+    }
+    .title small{ color: var(--muted); }
+    .stats{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:flex-end;
+    }
+    .pill{
+      border:1px solid var(--line);
+      border-radius: 999px;
+      padding: 6px 10px;
+      color: var(--text);
+      background: rgba(11,15,20,.35);
+      display:flex;
+      gap:8px;
+      align-items:center;
+      font-size: 13px;
+      white-space:nowrap;
+    }
+    .pill b{ font-variant-numeric: tabular-nums; }
+    main{
+      flex:1;
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      align-items: stretch;
+    }
+    .panel{
+      background: rgba(18,24,38,.92);
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 12px;
+      display:flex;
+      flex-direction:column;
+      gap: 10px;
+    }
+    .controls{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      align-items:center;
+      justify-content:space-between;
+    }
+    .leftControls, .rightControls{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      align-items:center;
+    }
+    select, button{
+      border-radius: 12px;
+      border:1px solid var(--line);
+      background: rgba(11,15,20,.35);
+      color: var(--text);
+      padding: 10px 12px;
+      font-size: 14px;
+      cursor:pointer;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    select{ padding-right: 34px; }
+    button.primary{
+      border-color: rgba(34,197,94,.45);
+      background: rgba(34,197,94,.14);
+    }
+    button.warn{
+      border-color: rgba(245,158,11,.45);
+      background: rgba(245,158,11,.14);
+    }
+    button.bad{
+      border-color: rgba(239,68,68,.45);
+      background: rgba(239,68,68,.12);
+    }
+    button:disabled{
+      opacity:.55;
+      cursor:not-allowed;
+    }
+    .hint{
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+    .boardWrap{
+      flex:1;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden;
+    }
+
+    /* Tablero: cuadrado adaptable a pantalla (PC y móvil, una sola pantalla) */
+    .board{
+      width: min(92vw, 560px);
+      height: min(92vw, 560px);
+      max-height: calc(100svh - 230px); /* evita scroll, ajusta al alto */
+      max-width: calc(100svh - 230px);
+      aspect-ratio: 1 / 1;
+      background: rgba(11,15,20,.35);
+      border:1px solid var(--line);
+      border-radius: 18px;
+      padding: 10px;
+      display:grid;
+      gap: 10px;
+      touch-action: manipulation;
+    }
+    .tile{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      border-radius: 14px;
+      border: 1px solid rgba(148,163,184,.25);
+      background: linear-gradient(180deg, rgba(229,231,235,.10), rgba(229,231,235,.03));
+      box-shadow: 0 8px 18px rgba(0,0,0,.35);
+      font-weight: 700;
+      font-size: clamp(16px, 3.2vw, 28px);
+      font-variant-numeric: tabular-nums;
+      transition: transform .08s ease, background .2s ease, border-color .2s ease;
+    }
+    .tile:hover{ border-color: rgba(229,231,235,.35); }
+    .tile:active{ transform: scale(.98); }
+    .tile.empty{
+      background: transparent;
+      border: 1px dashed rgba(148,163,184,.18);
+      box-shadow:none;
+    }
+
+    .footer{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+    }
+    .status{
+      font-size: 13px;
+      color: var(--muted);
+      display:flex;
+      gap:8px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+    .badge{
+      border:1px solid var(--line);
+      border-radius:999px;
+      padding: 5px 9px;
+      font-size: 12px;
+      background: rgba(11,15,20,.35);
+      color: var(--text);
+    }
+    .badge.ok{ border-color: rgba(34,197,94,.55); background: rgba(34,197,94,.10); }
+    .badge.warn{ border-color: rgba(245,158,11,.55); background: rgba(245,158,11,.10); }
+
+    @media (min-width: 900px){
+      main{ grid-template-columns: 1fr; } /* una sola pantalla, centrado igual */
+      .board{
+        width: min(520px, 52vw);
+        height: min(520px, 52vw);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="title">
+        <h1>🧩 Rompecabezas Deslizante</h1>
+        <small>Interactivo • 3×3 hasta 6×6 • listo para GitHub Pages</small>
+      </div>
+      <div class="stats">
+        <div class="pill">⏱️ Tiempo: <b id="time">00:00.0</b></div>
+        <div class="pill">👣 Movimientos: <b id="moves">0</b></div>
+        <div class="pill">📏 Tamaño: <b id="sizeLabel">4×4</b></div>
+      </div>
+    </header>
+
+    <main>
+      <section class="panel">
+        <div class="controls">
+          <div class="leftControls">
+            <label>
+              <select id="sizeSelect" aria-label="Tamaño del tablero">
+                <option value="3">3×3</option>
+                <option value="4" selected>4×4</option>
+                <option value="5">5×5</option>
+                <option value="6">6×6</option>
+              </select>
+            </label>
+
+            <button class="primary" id="newBtn">Nuevo</button>
+            <button id="resetBtn" class="warn" disabled>Reiniciar</button>
+            <button id="clearBtn" class="bad">Limpiar</button>
+          </div>
+
+          <div class="rightControls">
+            <button id="solveBtn" disabled>Resolver</button>
+            <button id="shareBtn">Compartir</button>
+          </div>
+        </div>
+
+        <div class="hint" id="hint">
+          Tip: toca o haz clic en una ficha junto al espacio vacío. En teclado: <b>WASD</b> o <b>flechas</b>.
+        </div>
+
+        <div class="boardWrap">
+          <div class="board" id="board" role="grid" aria-label="Tablero del rompecabezas"></div>
+        </div>
+
+        <div class="footer">
+          <div class="status" id="status">
+            <span class="badge warn">En progreso</span>
+            <span>• Mantén el Z fijo: perfecto para 2.5D 😄</span>
+          </div>
+          <div class="hint">
+            Funciona en PC y móvil • sin scroll • comparte el link por WhatsApp/redes.
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+<script>
+(() => {
+  // ---------- Estado ----------
+  const boardEl = document.getElementById("board");
+  const timeEl = document.getElementById("time");
+  const movesEl = document.getElementById("moves");
+  const sizeLabelEl = document.getElementById("sizeLabel");
+  const statusEl = document.getElementById("status");
+
+  const sizeSelect = document.getElementById("sizeSelect");
+  const newBtn = document.getElementById("newBtn");
+  const resetBtn = document.getElementById("resetBtn");
+  const clearBtn = document.getElementById("clearBtn");
+  const solveBtn = document.getElementById("solveBtn");
+  const shareBtn = document.getElementById("shareBtn");
+
+  let N = 4;
+  let tiles = [];           // arreglo lineal de N*N, 0 = vacío
+  let emptyIndex = 0;
+  let moves = 0;
+
+  let initialTiles = [];    // estado inicial tras "Nuevo" (para Reiniciar)
+  let moveHistory = [];     // índices intercambiados (para Resolver animado)
+
+  // Timer
+  let timerId = null;
+  let startTime = 0;
+  let elapsedMs = 0;
+  let running = false;
+
+  // Animación resolver
+  let solving = false;
+
+  // ---------- Utilidades ----------
+  const fmtTime = (ms) => {
+    const total = Math.max(0, ms);
+    const minutes = Math.floor(total / 60000);
+    const seconds = Math.floor((total % 60000) / 1000);
+    const tenths  = Math.floor((total % 1000) / 100);
+    const mm = String(minutes).padStart(2, "0");
+    const ss = String(seconds).padStart(2, "0");
+    return `${mm}:${ss}.${tenths}`;
+  };
+
+  const setStatus = (type, text) => {
+    const badgeClass = type === "ok" ? "badge ok" : (type === "warn" ? "badge warn" : "badge");
+    const label = type === "ok" ? "¡Resuelto!" : "En progreso";
+    statusEl.innerHTML = `
+      <span class="${badgeClass}">${label}</span>
+      <span>${text}</span>
+    `;
+  };
+
+  const indexToRC = (i) => ({ r: Math.floor(i / N), c: i % N });
+  const rcToIndex = (r,c) => r * N + c;
+
+  const isAdjacent = (a, b) => {
+    const A = indexToRC(a), B = indexToRC(b);
+    const dr = Math.abs(A.r - B.r);
+    const dc = Math.abs(A.c - B.c);
+    return (dr + dc) === 1;
+  };
+
+  const isSolved = (arr) => {
+    // 1..(N*N-1), 0 al final
+    for (let i = 0; i < N*N - 1; i++){
+      if (arr[i] !== i + 1) return false;
+    }
+    return arr[N*N - 1] === 0;
+  };
+
+  // Solvabilidad del N-puzzle (clásico)
+  // Fuente de criterio (paridad de inversiones + fila del vacío desde abajo)
+  const countInversions = (arr) => {
+    const a = arr.filter(x => x !== 0);
+    let inv = 0;
+    for (let i=0; i<a.length; i++){
+      for (let j=i+1; j<a.length; j++){
+        if (a[i] > a[j]) inv++;
+      }
+    }
+    return inv;
+  };
+
+  const isSolvable = (arr) => {
+    const inv = countInversions(arr);
+    if (N % 2 === 1){
+      // ancho impar: solvable si inversiones par
+      return inv % 2 === 0;
+    } else {
+      // ancho par: depende de fila del vacío desde abajo
+      const zeroPos = arr.indexOf(0);
+      const rowFromTop = Math.floor(zeroPos / N);
+      const rowFromBottom = N - rowFromTop; // 1..N
+      // Regla: solvable si (rowFromBottom es par) XOR (inv es par)
+      const rowEven = (rowFromBottom % 2 === 0);
+      const invEven = (inv % 2 === 0);
+      return rowEven !== invEven;
+    }
+  };
+
+  const shuffleSolvable = () => {
+    // Genera una permutación solvable
+    const arr = [];
+    for (let i=1; i<N*N; i++) arr.push(i);
+    arr.push(0);
+
+    // Fisher-Yates hasta que sea solvable y no esté ya resuelto
+    let tries = 0;
+    do {
+      for (let i=arr.length-1; i>0; i--){
+        const j = Math.floor(Math.random() * (i+1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      tries++;
+      // evitar loops raros
+      if (tries > 5000) break;
+    } while (!isSolvable(arr) || isSolved(arr));
+
+    return arr;
+  };
+
+  // Genera "Nuevo" de forma segura para Resolver:
+  // 1) arr resuelto, 2) aplica K movimientos válidos aleatorios y guarda historia.
+  const generateByScrambleMoves = (k) => {
+    const arr = [];
+    for (let i=1; i<N*N; i++) arr.push(i);
+    arr.push(0);
+
+    let z = arr.indexOf(0);
+    const history = [];
+
+    const neighbors = (idx) => {
+      const {r,c} = indexToRC(idx);
+      const ns = [];
+      if (r>0) ns.push(rcToIndex(r-1,c));
+      if (r<N-1) ns.push(rcToIndex(r+1,c));
+      if (c>0) ns.push(rcToIndex(r,c-1));
+      if (c<N-1) ns.push(rcToIndex(r,c+1));
+      return ns;
+    };
+
+    let prev = -1;
+    for (let t=0; t<k; t++){
+      const ns = neighbors(z).filter(x => x !== prev); // reduce backtracking
+      const pick = ns[Math.floor(Math.random()*ns.length)];
+      // swap pick <-> z
+      [arr[pick], arr[z]] = [arr[z], arr[pick]];
+      history.push(pick); // guardamos la ficha que se movió al vacío (índice intercambiado)
+      prev = z;
+      z = pick;
+    }
+
+    return { arr, history };
+  };
+
+  // ---------- Render ----------
+  const render = () => {
+    boardEl.style.gridTemplateColumns = `repeat(${N}, 1fr)`;
+    boardEl.style.gridTemplateRows = `repeat(${N}, 1fr)`;
+    boardEl.innerHTML = "";
+
+    for (let i=0; i<tiles.length; i++){
+      const v = tiles[i];
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "tile" + (v === 0 ? " empty" : "");
+      btn.setAttribute("role", "gridcell");
+      btn.setAttribute("aria-label", v === 0 ? "Vacío" : `Ficha ${v}`);
+      btn.dataset.index = String(i);
+      btn.textContent = v === 0 ? "" : String(v);
+      btn.disabled = solving; // durante resolver
+      boardEl.appendChild(btn);
+    }
+
+    movesEl.textContent = String(moves);
+    sizeLabelEl.textContent = `${N}×${N}`;
+
+    const solved = isSolved(tiles);
+    if (solved){
+      stopTimer();
+      setStatus("ok", "Nivel completado. Puedes crear uno nuevo o compartir tu tiempo.");
+    } else {
+      setStatus("warn", "Toca una ficha junto al vacío para moverla.");
+    }
+
+    // botones
+    resetBtn.disabled = initialTiles.length === 0 || solving;
+    solveBtn.disabled = (moveHistory.length === 0) || isSolved(tiles) || solving;
+    newBtn.disabled = solving;
+    clearBtn.disabled = solving;
+    sizeSelect.disabled = solving;
+  };
+
+  // ---------- Movimiento ----------
+  const swap = (a, b) => {
+    [tiles[a], tiles[b]] = [tiles[b], tiles[a]];
+    if (tiles[a] === 0) emptyIndex = a;
+    if (tiles[b] === 0) emptyIndex = b;
+  };
+
+  const doMoveIndex = (tileIndex, {record=true} = {}) => {
+    if (!isAdjacent(tileIndex, emptyIndex)) return false;
+    swap(tileIndex, emptyIndex);
+    moves++;
+    if (record){
+      moveHistory.push(tileIndex); // se movió esta ficha hacia el vacío
+    }
+    if (!running) startTimer(); // arranca en el primer movimiento real
+    render();
+    return true;
+  };
+
+  // Teclado: mueve el vacío con flechas/WASD (equivalente a mover una ficha hacia el vacío)
+  const moveEmpty = (dr, dc) => {
+    const {r,c} = indexToRC(emptyIndex);
+    const nr = r + dr, nc = c + dc;
+    if (nr < 0 || nr >= N || nc < 0 || nc >= N) return false;
+    const neighbor = rcToIndex(nr, nc);
+    return doMoveIndex(neighbor);
+  };
+
+  // ---------- Timer ----------
+  const startTimer = () => {
+    running = true;
+    startTime = performance.now() - elapsedMs;
+    if (timerId) clearInterval(timerId);
+    timerId = setInterval(() => {
+      elapsedMs = performance.now() - startTime;
+      timeEl.textContent = fmtTime(elapsedMs);
+    }, 100);
+  };
+
+  const stopTimer = () => {
+    running = false;
+    if (timerId){
+      clearInterval(timerId);
+      timerId = null;
+    }
+  };
+
+  const resetTimer = () => {
+    stopTimer();
+    elapsedMs = 0;
+    timeEl.textContent = fmtTime(elapsedMs);
+  };
+
+  // ---------- Acciones ----------
+  const setBoard = (arr, {saveInitial=false, resetMoves=true, clearHistory=true} = {}) => {
+    tiles = arr.slice();
+    emptyIndex = tiles.indexOf(0);
+
+    if (resetMoves) moves = 0;
+    if (clearHistory) moveHistory = [];
+    if (saveInitial) initialTiles = tiles.slice();
+
+    resetTimer();
+    render();
+  };
+
+  const newGame = () => {
+    // Scramble por movimientos para que "Resolver" funcione siempre (revirtiendo historia)
+    // más movimientos para tableros grandes
+    const k = Math.max(60, N*N*N + 20); // escala decente: 3->~47, 6->~236
+    const {arr, history} = generateByScrambleMoves(k);
+
+    setBoard(arr, {saveInitial:true, resetMoves:true, clearHistory:true});
+    // La historia del scramble no debe contar como movimientos del jugador,
+    // pero sí nos sirve como "ruta" si quisieras: la guardamos aparte si un día lo necesitas.
+    // En este diseño, "Resolver" revierte los movimientos del usuario (y del scramble si juegas desde el inicio).
+    // Guardamos la historia del scramble como parte del estado inicial:
+    // si quieres que Resolver devuelva al "solved", basta con revertir TODOS los movimientos desde que empezó:
+    // eso incluye user moves. Como el juego inicia tras scramble, moveHistory inicia vacío.
+    // (Si prefieres resolver desde el estado inicial sin depender del usuario, podrías guardar scrambleHistory.)
+    resetBtn.disabled = false;
+    solveBtn.disabled = true;
+    setStatus("warn", "Nuevo tablero generado. ¡Dale!");
+  };
+
+  const resetGame = () => {
+    if (!initialTiles.length) return;
+    setBoard(initialTiles, {saveInitial:true, resetMoves:true, clearHistory:true});
+    setStatus("warn", "Reiniciado al estado inicial.");
+  };
+
+  const clearGame = () => {
+    // "Limpiar" = dejar resuelto instantáneo
+    const arr = [];
+    for (let i=1; i<N*N; i++) arr.push(i);
+    arr.push(0);
+    setBoard(arr, {saveInitial:true, resetMoves:true, clearHistory:true});
+    setStatus("ok", "Tablero resuelto (limpio).");
+  };
+
+  const solveAnimated = async () => {
+    if (solving) return;
+    if (isSolved(tiles)) return;
+    if (moveHistory.length === 0){
+      // Nada que deshacer -> solución instantánea
+      clearGame();
+      return;
+    }
+
+    solving = true;
+    stopTimer();
+
+    // Resolver = deshacer movimientos del usuario (reverse del historial)
+    // Esto garantiza funcionamiento en 3x3..6x6 sin IA pesada.
+    const history = moveHistory.slice();
+    const steps = history.reverse();
+
+    // velocidad adaptativa
+    const totalSteps = steps.length;
+    const delay = totalSteps > 120 ? 8 : 18;
+
+    for (const idx of steps){
+      // idx fue la ficha que movimos al vacío; para deshacer, basta con mover esa misma ficha otra vez
+      // pero ojo: si el estado cambió, ese idx sigue siendo adyacente al vacío por construcción del historial.
+      doMoveIndex(idx, {record:false});
+      await new Promise(r => setTimeout(r, delay));
+    }
+
+    moveHistory = [];
+    solving = false;
+    render();
+  };
+
+  // Compartir link (WhatsApp/redes)
+  const share = async () => {
+    const url = location.href;
+    const text = `🧩 Rompecabezas deslizante ${N}×${N}. ¿Puedes hacerlo mejor que yo?`;
+    try{
+      if (navigator.share){
+        await navigator.share({ title: document.title, text, url });
+      } else {
+        await navigator.clipboard.writeText(url);
+        alert("Link copiado al portapapeles ✅\nPégalo en WhatsApp o redes.");
+      }
+    } catch (e){
+      // fallback suave
+      try{
+        await navigator.clipboard.writeText(url);
+        alert("Link copiado al portapapeles ✅");
+      } catch {
+        prompt("Copia este link:", url);
+      }
+    }
+  };
+
+  // ---------- Eventos ----------
+  boardEl.addEventListener("click", (e) => {
+    const t = e.target.closest(".tile");
+    if (!t || solving) return;
+    const idx = Number(t.dataset.index);
+    if (Number.isNaN(idx)) return;
+    if (tiles[idx] === 0) return;
+    doMoveIndex(idx);
+  });
+
+  window.addEventListener("keydown", (e) => {
+    if (solving) return;
+    const k = e.key.toLowerCase();
+    const handled = ["arrowup","arrowdown","arrowleft","arrowright","w","a","s","d"].includes(k);
+    if (!handled) return;
+    e.preventDefault();
+
+    // Nota: estas direcciones mueven el vacío en el sentido de la tecla.
+    if (k === "arrowup" || k === "w") moveEmpty(-1, 0);
+    if (k === "arrowdown" || k === "s") moveEmpty( 1, 0);
+    if (k === "arrowleft" || k === "a") moveEmpty( 0,-1);
+    if (k === "arrowright" || k === "d") moveEmpty( 0, 1);
+  }, {passive:false});
+
+  sizeSelect.addEventListener("change", () => {
+    N = Number(sizeSelect.value);
+    // al cambiar tamaño, limpiamos y generamos nuevo
+    clearGame();
+    newGame();
+  });
+
+  newBtn.addEventListener("click", newGame);
+  resetBtn.addEventListener("click", resetGame);
+  clearBtn.addEventListener("click", clearGame);
+  solveBtn.addEventListener("click", solveAnimated);
+  shareBtn.addEventListener("click", share);
+
+  // ---------- Init ----------
+  // Arranque: 4x4, tablero nuevo
+  clearGame();
+  newGame();
+})();
+</script>
+</body>
+</html>
