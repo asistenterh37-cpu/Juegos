@@ -15,8 +15,15 @@
       --shadow: 0 14px 40px rgba(0,0,0,.45);
       --r: 18px;
 
-      --boardSize: 520px; /* lo setea JS según el espacio real */
+      /* JS los ajusta */
+      --boardSize: 380px;
+      --gap: 10px;
+      --pad: 12px;
+      --cardRadius: 16px;
+      --cardFont: 26px;
+      --backFont: 22px;
     }
+
     *{box-sizing:border-box}
     html,body{height:100%}
     body{
@@ -26,8 +33,9 @@
                   radial-gradient(900px 500px at 85% 12%, rgba(245,158,11,.12), transparent 55%),
                   var(--bg);
       color:var(--text);
-      overflow:hidden;
+      overflow:hidden; /* ✅ sin scroll */
     }
+
     .app{
       height:100svh;
       max-width:1100px;
@@ -38,6 +46,7 @@
       gap:12px;
       min-height:0;
     }
+
     header{
       background: rgba(18,24,38,.92);
       border:1px solid var(--line);
@@ -51,11 +60,30 @@
       gap:10px;
       flex:0 0 auto;
     }
-    .title{display:flex; flex-direction:column; gap:2px; min-width:260px;}
-    .title h1{margin:0; font-size:18px; display:flex; align-items:center; gap:8px;}
+
+    .title{
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+      min-width:260px;
+    }
+    .title h1{
+      margin:0;
+      font-size:18px;
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
     .title small{color:var(--muted)}
     .byline{color:var(--muted); font-size:12px; margin-top:2px;}
-    .stats{display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:flex-end;}
+
+    .stats{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      align-items:center;
+      justify-content:flex-end;
+    }
     .pill{
       border:1px solid var(--line);
       border-radius:999px;
@@ -69,7 +97,13 @@
     }
     .pill b{font-variant-numeric: tabular-nums;}
 
-    main{flex:1 1 auto; min-height:0; display:grid; grid-template-columns: 1fr;}
+    main{
+      flex:1 1 auto;
+      min-height:0;
+      display:grid;
+      grid-template-columns: 1fr;
+    }
+
     .panel{
       background: rgba(18,24,38,.92);
       border:1px solid var(--line);
@@ -80,9 +114,8 @@
       flex-direction:column;
       gap:10px;
       min-height:0;
-      position:relative;
-      overflow:hidden;
     }
+
     .controls{
       display:flex;
       flex-wrap:wrap;
@@ -91,7 +124,13 @@
       justify-content:space-between;
       flex:0 0 auto;
     }
-    .left,.right{display:flex; flex-wrap:wrap; gap:8px; align-items:center;}
+    .left,.right{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      align-items:center;
+    }
+
     select,button{
       border-radius:12px;
       border:1px solid var(--line);
@@ -103,8 +142,14 @@
       user-select:none;
       -webkit-tap-highlight-color: transparent;
     }
-    button.primary{border-color: rgba(34,197,94,.45); background: rgba(34,197,94,.14);}
-    button.warn{border-color: rgba(245,158,11,.45); background: rgba(245,158,11,.14);}
+    button.primary{
+      border-color: rgba(34,197,94,.45);
+      background: rgba(34,197,94,.14);
+    }
+    button.warn{
+      border-color: rgba(245,158,11,.45);
+      background: rgba(245,158,11,.14);
+    }
 
     .hint{
       color:var(--muted);
@@ -113,6 +158,7 @@
       flex:0 0 auto;
     }
 
+    /* ✅ ESTE WRAP NO DECIDE EL TAMAÑO; sólo centra */
     .boardWrap{
       flex:1 1 auto;
       min-height:0;
@@ -120,15 +166,15 @@
       align-items:center;
       justify-content:center;
       overflow:hidden;
-      padding-bottom: 58px; /* ✅ deja espacio para la franja flotante inferior */
     }
 
+    /* ✅ Tamaño 100% decidido por JS: siempre cabe */
     .board{
       display:grid;
-      gap: min(1.0vw, 10px);
+      gap: var(--gap);
       width: var(--boardSize);
       height: var(--boardSize);
-      padding: min(1.0vw, 12px);
+      padding: var(--pad);
       border:1px solid var(--line);
       border-radius: 18px;
       background: rgba(11,15,20,.35);
@@ -137,50 +183,60 @@
 
     .cardBtn{
       position:relative;
-      border-radius: 16px;
+      border-radius: var(--cardRadius);
       border:1px solid rgba(255,255,255,.08);
       background: rgba(255,255,255,.04);
       display:flex;
       align-items:center;
       justify-content:center;
-      font-size: clamp(14px, 2.2vw, 28px);
+      font-size: var(--cardFont);
       cursor:pointer;
       transition: transform .12s ease, background .12s ease, border-color .12s ease;
       outline:none;
       user-select:none;
     }
     .cardBtn:active{ transform: scale(.98); }
-    .cardBtn.revealed{background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.14);}
-    .cardBtn.matched{background: rgba(34,197,94,.16); border-color: rgba(34,197,94,.35); cursor:default;}
-
-    .face{opacity:0; transform: scale(.7); transition: opacity .12s ease, transform .12s ease;}
-    .cardBtn.revealed .face,.cardBtn.matched .face{opacity:1; transform: scale(1);}
-
+    .cardBtn.revealed{
+      background: rgba(255,255,255,.08);
+      border-color: rgba(255,255,255,.14);
+    }
+    .cardBtn.matched{
+      background: rgba(34,197,94,.16);
+      border-color: rgba(34,197,94,.35);
+      cursor:default;
+    }
+    .face{
+      opacity:0;
+      transform: scale(.7);
+      transition: opacity .12s ease, transform .12s ease;
+    }
+    .cardBtn.revealed .face,
+    .cardBtn.matched .face{
+      opacity:1;
+      transform: scale(1);
+    }
     .backMark{
-      position:absolute; inset:0;
-      display:flex; align-items:center; justify-content:center;
-      opacity:.85; transition: opacity .12s ease;
-      font-size: clamp(12px, 2.0vw, 24px);
+      position:absolute;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      opacity:.85;
+      transition: opacity .12s ease;
+      font-size: var(--backFont);
       color: rgba(229,231,235,.75);
     }
-    .cardBtn.revealed .backMark,.cardBtn.matched .backMark{opacity:0;}
+    .cardBtn.revealed .backMark,
+    .cardBtn.matched .backMark{ opacity:0; }
 
-    /* ✅ Footer flotante: ya no tapa el tablero */
     .footer{
-      position:absolute;
-      left:12px; right:12px; bottom:12px;
       display:flex;
       flex-wrap:wrap;
       gap:10px;
       align-items:center;
       justify-content:space-between;
-      padding:8px 10px;
-      border-radius: 14px;
-      border:1px solid rgba(35,48,73,.9);
-      background: rgba(11,15,20,.55);
-      backdrop-filter: blur(10px);
+      flex:0 0 auto;
     }
-
     .status{
       color:var(--muted);
       font-size:13px;
@@ -203,8 +259,8 @@
 </head>
 
 <body>
-<div class="app">
-  <header>
+<div class="app" id="app">
+  <header id="header">
     <div class="title">
       <h1>🧠 Memoria (Memory Cards)</h1>
       <small>Encuentra todas las parejas • 4×4 / 6×6 / 8×8</small>
@@ -245,7 +301,7 @@
         <div class="board" id="board" aria-label="Tablero de Memoria"></div>
       </div>
 
-      <div class="footer">
+      <div class="footer" id="footer">
         <div class="status" id="status">
           <span class="badge warn">En progreso</span>
           <span>Busca parejas lo más rápido posible.</span>
@@ -259,12 +315,16 @@
 <script>
 (() => {
   const root = document.documentElement;
-  const panelEl = document.getElementById("panel");
+
+  const appEl = document.getElementById("app");
+  const headerEl = document.getElementById("header");
+  const panelEl  = document.getElementById("panel");
   const controlsEl = document.getElementById("controls");
   const hintEl = document.getElementById("hint");
+  const footerEl = document.getElementById("footer");
   const boardWrapEl = document.getElementById("boardWrap");
-  const boardEl = document.getElementById("board");
 
+  const boardEl = document.getElementById("board");
   const sizeSel = document.getElementById("sizeSel");
   const newBtn = document.getElementById("newBtn");
   const restartBtn = document.getElementById("restartBtn");
@@ -277,40 +337,69 @@
   const sizeLabelEl = document.getElementById("sizeLabel");
   const statusEl = document.getElementById("status");
 
-  // ✅ Ajuste real del tablero según espacio disponible (PC y móvil)
-  function fitBoard(){
-    // altura total disponible dentro del panel
-    const panelH = panelEl.clientHeight;
+  function num(v){ return Number.parseFloat(v) || 0; }
 
-    // espacio ocupado por controles + texto + padding + footer flotante
-    const controlsH = controlsEl.offsetHeight;
-    const hintH = hintEl.offsetHeight;
+  // ✅ SOLUCIÓN DEFINITIVA: calcula boardSize restando alturas reales
+  function fitBoardDefinitivo(){
+    const N = Number(sizeSel.value);
 
-    // reserva para footer flotante + separación + padding extra
-    const footerReserve = 76; // coincide con padding-bottom de boardWrap y footer
+    // Usa visualViewport cuando existe (mejor con zoom)
+    const vvH = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+    const vvW = window.visualViewport ? window.visualViewport.width  : window.innerWidth;
 
-    // padding interno del panel aprox
-    const panelPadding = 24;
+    const appCS = getComputedStyle(appEl);
+    const panelCS = getComputedStyle(panelEl);
 
-    const availH = panelH - controlsH - hintH - footerReserve - panelPadding;
+    const appPadY = num(appCS.paddingTop) + num(appCS.paddingBottom);
+    const appGap  = num(appCS.rowGap || appCS.gap);
 
-    // ancho disponible dentro del boardWrap
-    const availW = boardWrapEl.clientWidth - 10;
+    const panelPadY = num(panelCS.paddingTop) + num(panelCS.paddingBottom);
+    const panelGap  = num(panelCS.rowGap || panelCS.gap);
 
-    // tamaño final
-    const size = Math.max(220, Math.floor(Math.min(availH, availW, 640)));
-    root.style.setProperty("--boardSize", size + "px");
+    const headerH   = headerEl.getBoundingClientRect().height;
+    const controlsH = controlsEl.getBoundingClientRect().height;
+    const hintH     = hintEl.getBoundingClientRect().height;
+    const footerH   = footerEl.getBoundingClientRect().height;
+
+    // Alto disponible para TODO el panel (debajo del header)
+    const freeH = vvH - appPadY - headerH - appGap;
+
+    // Dentro del panel, restamos padding + controles + hint + footer + gaps
+    const fixedInside =
+      panelPadY +
+      controlsH + hintH + footerH +
+      (panelGap * 3); // controls-hint, hint-board, board-footer aprox
+
+    const availBoardH = Math.max(200, freeH - fixedInside);
+
+    // Ancho disponible del tablero en el panel
+    const wrapW = boardWrapEl.getBoundingClientRect().width;
+    const availBoardW = Math.max(200, Math.min(wrapW, vvW) - 8);
+
+    // Ajustes compactos para 8x8 (para que siempre quepa)
+    const gap = (N === 8) ? 7 : (N === 6 ? 9 : 10);
+    const pad = (N === 8) ? 10 : 12;
+
+    // Tamaño final (con margen de seguridad)
+    const safety = (N === 8) ? 16 : 14;
+    const size = Math.floor(Math.min(availBoardH, availBoardW) - safety);
+
+    root.style.setProperty("--gap", gap + "px");
+    root.style.setProperty("--pad", pad + "px");
+    root.style.setProperty("--boardSize", Math.max(240, size) + "px");
+
+    // Ajusta tamaños de texto por N
+    const cardFont = (N === 8) ? 22 : (N === 6 ? 26 : 30);
+    const backFont = (N === 8) ? 18 : (N === 6 ? 22 : 26);
+    const rad = (N === 8) ? 14 : 16;
+
+    root.style.setProperty("--cardFont", cardFont + "px");
+    root.style.setProperty("--backFont", backFont + "px");
+    root.style.setProperty("--cardRadius", rad + "px");
   }
 
-  window.addEventListener("resize", () => requestAnimationFrame(fitBoard));
-  window.addEventListener("orientationchange", () => setTimeout(fitBoard, 120));
-
   // Timer
-  let timerId = null;
-  let runningTimer = false;
-  let startTime = 0;
-  let elapsedMs = 0;
-
+  let timerId = null, runningTimer = false, startTime = 0, elapsedMs = 0;
   const fmtTime = (ms) => {
     const m = Math.floor(ms/60000);
     const s = Math.floor((ms%60000)/1000);
@@ -327,15 +416,8 @@
       timeEl.textContent = fmtTime(elapsedMs);
     }, 100);
   };
-  const stopTimer = () => {
-    runningTimer = false;
-    if (timerId){ clearInterval(timerId); timerId = null; }
-  };
-  const resetTimer = () => {
-    stopTimer();
-    elapsedMs = 0;
-    timeEl.textContent = fmtTime(0);
-  };
+  const stopTimer = () => { runningTimer = false; if (timerId){ clearInterval(timerId); timerId=null; } };
+  const resetTimer = () => { stopTimer(); elapsedMs=0; timeEl.textContent=fmtTime(0); };
 
   const setStatus = (type, text) => {
     const cls = type === "ok" ? "badge ok" : "badge warn";
@@ -343,7 +425,7 @@
     statusEl.innerHTML = `<span class="${cls}">${label}</span><span>${text}</span>`;
   };
 
-  // Game state
+  // Game
   const EMOJIS = [
     "🍉","🍋","🍓","🍒","🥝","🍇","🍑","🍍","🥥","🍌",
     "🍔","🍕","🌮","🍟","🍣","🍩","🍪","🍫","🧁","🍿",
@@ -353,13 +435,7 @@
     "🌈","⭐","🌙","⚡","🔥","💎","🧠","👻","🤖","👾"
   ];
 
-  let N = 4;
-  let deck = [];
-  let first = null;
-  let lock = false;
-  let moves = 0;
-  let pairs = 0;
-  let totalPairs = 0;
+  let N = 4, deck = [], first = null, lock = false, moves = 0, pairs = 0, totalPairs = 0;
 
   const shuffle = (arr) => {
     for (let i=arr.length-1; i>0; i--){
@@ -397,6 +473,7 @@
   const render = () => {
     boardEl.innerHTML = "";
     setBoardGrid();
+    fitBoardDefinitivo(); // ✅ asegura que el tablero entra completo
 
     deck.forEach((c, idx) => {
       const btn = document.createElement("button");
@@ -421,9 +498,6 @@
       btn.addEventListener("click", () => onFlip(idx));
       boardEl.appendChild(btn);
     });
-
-    // ✅ cada render ajusta tamaño por si cambió el contenido/alto
-    requestAnimationFrame(fitBoard);
   };
 
   const reveal = (i) => deck[i].state = "revealed";
@@ -435,18 +509,13 @@
     if (deck[i].state !== "hidden") return;
 
     startTimer();
-
     reveal(i);
     render();
 
-    if (first === null){
-      first = i;
-      return;
-    }
+    if (first === null){ first = i; return; }
 
     moves++;
-    const a = first;
-    const b = i;
+    const a = first, b = i;
 
     if (deck[a].face === deck[b].face){
       match(a); match(b);
@@ -478,10 +547,7 @@
 
   const newGame = () => {
     N = Number(sizeSel.value);
-    moves = 0;
-    pairs = 0;
-    first = null;
-    lock = false;
+    moves = 0; pairs = 0; first = null; lock = false;
     resetTimer();
     setStatus("warn", "Nuevo tablero. ¡A jugar!");
     buildDeck();
@@ -490,10 +556,7 @@
   };
 
   const restart = () => {
-    moves = 0;
-    pairs = 0;
-    first = null;
-    lock = false;
+    moves = 0; pairs = 0; first = null; lock = false;
     resetTimer();
     setStatus("warn", "Reiniciado. ¡Más rápido esta vez! 😄");
     buildDeck();
@@ -526,9 +589,20 @@
   sizeSel.addEventListener("change", newGame);
   shareBtn.addEventListener("click", share);
 
+  // ✅ Recalcular con resize/zoom (visualViewport es clave)
+  const refit = () => { fitBoardDefinitivo(); };
+  window.addEventListener("resize", refit);
+  window.addEventListener("orientationchange", () => setTimeout(refit, 60));
+  if (window.visualViewport){
+    visualViewport.addEventListener("resize", refit);
+    visualViewport.addEventListener("scroll", refit);
+  }
+
   // Init
-  requestAnimationFrame(fitBoard);
   newGame();
+  // Ajustes extra por carga de fuentes
+  setTimeout(refit, 50);
+  setTimeout(refit, 250);
 })();
 </script>
 </body>
