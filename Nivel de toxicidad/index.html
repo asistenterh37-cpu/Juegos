@@ -1,0 +1,600 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Test de Toxicidad Laboral • Por Soamy Lanza</title>
+  <style>
+    :root{
+      --bg:#071018;
+      --card:rgba(16,24,40,.72);
+      --card2:rgba(12,18,32,.78);
+      --text:#e8eefc;
+      --muted:#a9b6d3;
+      --border:rgba(255,255,255,.12);
+      --accent:#18c07a;
+      --warn:#f7b731;
+      --danger:#ff5c7a;
+      --shadow: 0 24px 60px rgba(0,0,0,.45);
+      --radius:18px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      color:var(--text);
+      background: radial-gradient(900px 500px at 15% 10%, rgba(24,192,122,.22), transparent 55%),
+                  radial-gradient(800px 520px at 85% 20%, rgba(120,100,255,.18), transparent 55%),
+                  radial-gradient(700px 420px at 35% 95%, rgba(255,92,122,.14), transparent 60%),
+                  var(--bg);
+      min-height:100vh;
+    }
+    .wrap{max-width:1100px;margin:24px auto;padding:0 16px}
+    .hero{
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+      border:1px solid var(--border);
+      border-radius:24px;
+      padding:18px 18px;
+      box-shadow: var(--shadow);
+      display:flex; gap:16px; align-items:flex-start; justify-content:space-between;
+      flex-wrap:wrap;
+    }
+    .hero h1{margin:0;font-size:26px; letter-spacing:.2px; display:flex; align-items:center; gap:10px}
+    .hero p{margin:6px 0 0; color:var(--muted); line-height:1.4}
+    .meta{
+      display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end;
+      align-items:center;
+    }
+    .pill{
+      background: rgba(0,0,0,.25);
+      border:1px solid var(--border);
+      border-radius:999px;
+      padding:10px 12px;
+      display:flex; gap:10px; align-items:center;
+      min-width: 180px;
+      justify-content:space-between;
+    }
+    .pill strong{font-variant-numeric: tabular-nums; font-size:14px}
+    .pill span{color:var(--muted); font-size:13px}
+    .grid{
+      margin-top:18px;
+      display:grid;
+      grid-template-columns: 360px 1fr;
+      gap:16px;
+    }
+    @media (max-width: 980px){
+      .grid{grid-template-columns: 1fr}
+      .meta{justify-content:flex-start}
+      .pill{min-width: 160px}
+    }
+
+    .panel{
+      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      border:1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .panel .inner{padding:16px}
+    .sectionTitle{
+      margin:0 0 10px;
+      font-size:14px; letter-spacing:.2px;
+      color:#d7e3ff;
+      opacity:.95;
+      display:flex; align-items:center; gap:10px;
+    }
+    .small{color:var(--muted); font-size:13px; line-height:1.4}
+    .legend{
+      margin-top:12px;
+      border-top:1px solid var(--border);
+      padding-top:12px;
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:8px;
+    }
+    .legend .row{
+      display:flex; align-items:center; justify-content:space-between;
+      gap:10px;
+      padding:10px 12px;
+      border:1px solid var(--border);
+      background: rgba(0,0,0,.18);
+      border-radius: 14px;
+      font-size:13px;
+      color:var(--muted);
+    }
+    .controls{
+      display:flex; gap:10px; flex-wrap:wrap;
+      margin-top:12px;
+    }
+    button{
+      border:1px solid var(--border);
+      background: rgba(0,0,0,.25);
+      color:var(--text);
+      padding:12px 14px;
+      border-radius: 14px;
+      font-weight: 700;
+      cursor:pointer;
+      transition: transform .06s ease, background .2s ease, border-color .2s ease;
+    }
+    button:hover{transform: translateY(-1px); border-color: rgba(255,255,255,.22)}
+    button.primary{
+      background: rgba(24,192,122,.16);
+      border-color: rgba(24,192,122,.45);
+    }
+    button.danger{
+      background: rgba(255,92,122,.13);
+      border-color: rgba(255,92,122,.35);
+    }
+    button:disabled{opacity:.55; cursor:not-allowed; transform:none}
+    .shareNote{margin-top:10px; color:var(--muted); font-size:12.5px}
+
+    .items{
+      display:grid;
+      gap:10px;
+      padding:14px;
+    }
+    .item{
+      border:1px solid var(--border);
+      background: rgba(0,0,0,.18);
+      border-radius: 16px;
+      padding:12px 12px;
+      display:grid;
+      grid-template-columns: 1fr auto;
+      gap:12px;
+      align-items:center;
+    }
+    .q{
+      min-width: 0;
+    }
+    .q .cat{
+      font-size:12px; color:var(--muted);
+      display:flex; gap:8px; align-items:center; flex-wrap:wrap;
+      margin-bottom:4px;
+    }
+    .tagR{
+      font-size:11px;
+      padding:2px 8px;
+      border-radius:999px;
+      border:1px solid rgba(24,192,122,.45);
+      background: rgba(24,192,122,.12);
+      color:#bff7df;
+    }
+    .q .text{
+      font-size:14px;
+      line-height:1.35;
+      color:#e8eefc;
+    }
+    .scale{
+      display:flex; gap:6px;
+    }
+    .scale label{
+      width:42px; height:42px;
+      display:grid; place-items:center;
+      border-radius: 12px;
+      border:1px solid var(--border);
+      background: rgba(0,0,0,.18);
+      cursor:pointer;
+      font-weight:800;
+      font-variant-numeric: tabular-nums;
+      user-select:none;
+      transition: transform .06s ease, border-color .2s ease, background .2s ease;
+    }
+    .scale input{display:none}
+    .scale input:checked + span{
+      border-color: rgba(24,192,122,.65);
+      background: rgba(24,192,122,.20);
+      transform: translateY(-1px);
+    }
+    .scale span{
+      width:42px; height:42px;
+      display:grid; place-items:center;
+      border-radius: 12px;
+      border:1px solid var(--border);
+      background: transparent;
+    }
+
+    .resultBox{
+      margin-top:12px;
+      padding:12px 12px;
+      border:1px solid var(--border);
+      border-radius: 16px;
+      background: rgba(0,0,0,.18);
+      display:grid;
+      gap:10px;
+    }
+    .bar{
+      height:12px;
+      border-radius:999px;
+      background: rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.10);
+      overflow:hidden;
+    }
+    .bar > div{
+      height:100%;
+      width:0%;
+      background: linear-gradient(90deg, rgba(24,192,122,.85), rgba(247,183,49,.85), rgba(255,92,122,.85));
+      border-radius:999px;
+      transition: width .35s ease;
+    }
+    .resTop{
+      display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between;
+    }
+    .score{
+      font-size:16px;
+      font-weight:900;
+      display:flex; gap:10px; align-items:baseline;
+    }
+    .score small{color:var(--muted); font-weight:700}
+    .badge{
+      padding:8px 10px;
+      border-radius: 999px;
+      border:1px solid var(--border);
+      background: rgba(0,0,0,.25);
+      font-weight:900;
+      font-size:13px;
+    }
+    .badge.low{border-color: rgba(24,192,122,.50); background: rgba(24,192,122,.12)}
+    .badge.mid{border-color: rgba(247,183,49,.55); background: rgba(247,183,49,.14)}
+    .badge.high{border-color: rgba(255,92,122,.55); background: rgba(255,92,122,.12)}
+    .muted{color:var(--muted)}
+    .footer{
+      margin: 18px 0 10px;
+      text-align:center;
+      color:rgba(200,210,235,.75);
+      font-size:12px;
+    }
+    .toast{
+      position:fixed;
+      left:50%;
+      bottom:18px;
+      transform: translateX(-50%);
+      padding:10px 12px;
+      border-radius: 999px;
+      border:1px solid rgba(255,255,255,.18);
+      background: rgba(0,0,0,.55);
+      color: var(--text);
+      box-shadow: var(--shadow);
+      opacity:0;
+      pointer-events:none;
+      transition: opacity .18s ease, transform .18s ease;
+      font-size:13px;
+      z-index: 9999;
+    }
+    .toast.show{
+      opacity:1;
+      transform: translateX(-50%) translateY(-2px);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="hero">
+      <div>
+        <h1>🧪 Test de Toxicidad Laboral</h1>
+        <p class="small">
+          Instrucciones: responde según tu experiencia en los últimos <b>30 días</b>.
+          Escala Likert (1–5): 1 = Totalmente en desacuerdo · 5 = Totalmente de acuerdo.
+          <br><span class="muted">Por: <b>Soamy Lanza</b></span>
+        </p>
+      </div>
+
+      <div class="meta">
+        <div class="pill"><span>⏱️ Tiempo</span><strong id="time">00:00</strong></div>
+        <div class="pill"><span>🧾 Respondidas</span><strong id="answered">0/20</strong></div>
+        <div class="pill"><span>📊 Puntaje</span><strong id="scoreMini">—</strong></div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <!-- Left -->
+      <div class="panel">
+        <div class="inner">
+          <h3 class="sectionTitle">📌 Escala</h3>
+          <div class="legend">
+            <div class="row"><span>1</span><span>Totalmente en desacuerdo</span></div>
+            <div class="row"><span>2</span><span>En desacuerdo</span></div>
+            <div class="row"><span>3</span><span>Ni de acuerdo ni en desacuerdo</span></div>
+            <div class="row"><span>4</span><span>De acuerdo</span></div>
+            <div class="row"><span>5</span><span>Totalmente de acuerdo</span></div>
+          </div>
+
+          <div class="controls">
+            <button class="primary" id="calcBtn">Calcular</button>
+            <button id="resetBtn" class="danger">Reiniciar</button>
+            <button id="shareBtn">Compartir</button>
+          </div>
+
+          <div class="resultBox" id="resultBox" style="display:none;">
+            <div class="resTop">
+              <div class="score">
+                <span id="score">0</span>
+                <small>/ 100</small>
+              </div>
+              <div class="badge" id="levelBadge">—</div>
+            </div>
+            <div class="bar"><div id="barFill"></div></div>
+            <div class="small muted" id="levelDesc"></div>
+            <div class="small muted">
+              Nota: Los ítems marcados con <span class="tagR">(R)</span> se invierten automáticamente (1↔5, 2↔4, 3↔3).
+            </div>
+          </div>
+
+          <div class="shareNote">
+            💡 Ideal para compartir: funciona en móvil/PC en una sola página (GitHub Pages).
+          </div>
+        </div>
+      </div>
+
+      <!-- Right -->
+      <div class="panel">
+        <div class="items" id="items"></div>
+      </div>
+    </div>
+
+    <div class="footer">Hecho para compartir · 1 archivo · HTML + CSS + JS</div>
+  </div>
+
+  <div class="toast" id="toast">Listo ✅</div>
+
+  <script>
+    const QUESTIONS = [
+      // Clima y respeto
+      { id: 1, cat: "Clima y respeto", text: "En mi equipo se trata a las personas con respeto, incluso bajo presión.", rev: true },
+      { id: 2, cat: "Clima y respeto", text: "He presenciado comentarios humillantes, burlas o sarcasmo hiriente en el trabajo.", rev: false },
+      { id: 3, cat: "Clima y respeto", text: "Me siento seguro/a de expresar ideas sin miedo a ridiculización o castigo.", rev: true },
+      { id: 4, cat: "Clima y respeto", text: "Los conflictos se manejan con diálogo y soluciones, no con ataques personales.", rev: true },
+
+      // Liderazgo y justicia
+      { id: 5, cat: "Liderazgo y justicia", text: "Las decisiones del liderazgo se sienten justas y coherentes.", rev: true },
+      { id: 6, cat: "Liderazgo y justicia", text: "He visto favoritismos que afectan tareas, oportunidades o reconocimientos.", rev: false },
+      { id: 7, cat: "Liderazgo y justicia", text: "Mi jefe/a da retroalimentación de forma profesional y constructiva.", rev: true },
+      { id: 8, cat: "Liderazgo y justicia", text: "Se usan amenazas, presión excesiva o miedo para “motivar” resultados.", rev: false },
+
+      // Comunicación y confianza
+      { id: 9,  cat: "Comunicación y confianza", text: "La información importante se comunica a tiempo y con claridad.", rev: true },
+      { id: 10, cat: "Comunicación y confianza", text: "Se ocultan datos o se “juega política” para dejar mal a otros.", rev: false },
+      { id: 11, cat: "Comunicación y confianza", text: "Siento que puedo pedir ayuda sin que lo usen en mi contra.", rev: true },
+      { id: 12, cat: "Comunicación y confianza", text: "Los rumores y chismes afectan el ambiente de trabajo.", rev: false },
+
+      // Carga laboral y límites
+      { id: 13, cat: "Carga laboral y límites", text: "La carga laboral es razonable y se respeta el tiempo personal.", rev: true },
+      { id: 14, cat: "Carga laboral y límites", text: "Se espera que trabaje fuera de horario como algo normal o obligatorio.", rev: false },
+      { id: 15, cat: "Carga laboral y límites", text: "Puedo tomar descansos y permisos sin sentir culpa o represalias.", rev: true },
+      { id: 16, cat: "Carga laboral y límites", text: "El estrés y la urgencia son tan constantes que ya se sienten “normales”.", rev: false },
+
+      // Bienestar y permanencia
+      { id: 17, cat: "Bienestar y permanencia", text: "Este trabajo impacta negativamente mi salud mental o emocional.", rev: false },
+      { id: 18, cat: "Bienestar y permanencia", text: "Me siento valorado/a y reconocido/a por mi aporte.", rev: true },
+      { id: 19, cat: "Bienestar y permanencia", text: "He pensado en renunciar principalmente por el ambiente, no por el trabajo en sí.", rev: false },
+      { id: 20, cat: "Bienestar y permanencia", text: "Las personas suelen culparse entre sí en vez de asumir responsabilidades compartidas.", rev: false },
+    ];
+
+    const itemsEl = document.getElementById("items");
+    const calcBtn = document.getElementById("calcBtn");
+    const resetBtn = document.getElementById("resetBtn");
+    const shareBtn = document.getElementById("shareBtn");
+
+    const answeredEl = document.getElementById("answered");
+    const scoreMini = document.getElementById("scoreMini");
+
+    const resultBox = document.getElementById("resultBox");
+    const scoreEl = document.getElementById("score");
+    const levelBadge = document.getElementById("levelBadge");
+    const levelDesc = document.getElementById("levelDesc");
+    const barFill = document.getElementById("barFill");
+
+    const toastEl = document.getElementById("toast");
+
+    // Timer
+    const timeEl = document.getElementById("time");
+    let timerId = null;
+    let startAt = null;
+    let started = false;
+
+    function showToast(msg){
+      toastEl.textContent = msg;
+      toastEl.classList.add("show");
+      setTimeout(() => toastEl.classList.remove("show"), 1600);
+    }
+
+    function fmtTime(sec){
+      const m = Math.floor(sec / 60);
+      const s = Math.floor(sec % 60);
+      return String(m).padStart(2,"0")+":"+String(s).padStart(2,"0");
+    }
+
+    function ensureTimer(){
+      if(started) return;
+      started = true;
+      startAt = Date.now();
+      timerId = setInterval(() => {
+        const secs = (Date.now() - startAt) / 1000;
+        timeEl.textContent = fmtTime(secs);
+      }, 250);
+    }
+
+    function stopTimer(){
+      if(timerId) clearInterval(timerId);
+      timerId = null;
+      started = false;
+      startAt = null;
+      timeEl.textContent = "00:00";
+    }
+
+    function invertLikert(v){
+      // 1↔5, 2↔4, 3↔3
+      return 6 - v;
+    }
+
+    function getAnswers(){
+      const map = new Map();
+      for(const q of QUESTIONS){
+        const sel = document.querySelector(`input[name="q${q.id}"]:checked`);
+        if(sel) map.set(q.id, Number(sel.value));
+      }
+      return map;
+    }
+
+    function updateAnswered(){
+      const ans = getAnswers();
+      answeredEl.textContent = `${ans.size}/20`;
+      scoreMini.textContent = ans.size === 20 ? "Listo ✅" : "—";
+    }
+
+    function render(){
+      itemsEl.innerHTML = "";
+      for(const q of QUESTIONS){
+        const item = document.createElement("div");
+        item.className = "item";
+
+        const left = document.createElement("div");
+        left.className = "q";
+        left.innerHTML = `
+          <div class="cat">
+            <span>${q.id}. ${q.cat}</span>
+            ${q.rev ? `<span class="tagR">(R)</span>` : ``}
+          </div>
+          <div class="text">${q.text}</div>
+        `;
+
+        const scale = document.createElement("div");
+        scale.className = "scale";
+        // 1..5
+        for(let v=1; v<=5; v++){
+          const id = `q${q.id}_${v}`;
+          const lab = document.createElement("label");
+          lab.setAttribute("for", id);
+          lab.innerHTML = `
+            <input id="${id}" name="q${q.id}" type="radio" value="${v}">
+            <span>${v}</span>
+          `;
+          scale.appendChild(lab);
+        }
+
+        item.appendChild(left);
+        item.appendChild(scale);
+        itemsEl.appendChild(item);
+      }
+
+      // start timer on first answer
+      itemsEl.addEventListener("change", () => {
+        ensureTimer();
+        updateAnswered();
+      });
+    }
+
+    function calculate(){
+      const answers = getAnswers();
+      updateAnswered();
+
+      if(answers.size < 20){
+        showToast(`Faltan ${20 - answers.size} respuestas`);
+        // resaltado suave
+        for(const q of QUESTIONS){
+          const any = document.querySelector(`input[name="q${q.id}"]:checked`);
+          const card = document.querySelector(`input[name="q${q.id}"]`)?.closest(".item");
+          if(card){
+            card.style.outline = any ? "none" : "2px solid rgba(255,92,122,.35)";
+            card.style.outlineOffset = "2px";
+          }
+        }
+        return;
+      }
+
+      let total = 0;
+      for(const q of QUESTIONS){
+        let v = answers.get(q.id);
+        if(q.rev) v = invertLikert(v);
+        total += v;
+      }
+
+      // Total range: 20..100
+      scoreEl.textContent = String(total);
+      const pct = Math.round(((total - 20) / 80) * 100); // 0..100
+      barFill.style.width = `${Math.max(0, Math.min(100, pct))}%`;
+
+      let label = "";
+      let cls = "";
+      let desc = "";
+
+      if(total <= 39){
+        label = "Bajo nivel de toxicidad";
+        cls = "low";
+        desc = "Ambiente generalmente sano. Mantén buenas prácticas: respeto, claridad y límites sostenibles.";
+      } else if(total <= 59){
+        label = "Moderado (alerta)";
+        cls = "mid";
+        desc = "Hay señales relevantes. Identifica focos: comunicación, favoritismos, carga laboral o chismes.";
+      } else if(total <= 79){
+        label = "Alto (riesgo)";
+        cls = "high";
+        desc = "Riesgo elevado. Prioriza acciones: conversaciones formales, soporte interno, ajustes de carga y límites.";
+      } else {
+        label = "Muy alto (urgente)";
+        cls = "high";
+        desc = "Señales críticas. Considera intervención urgente: RRHH, protocolos internos, apoyo profesional y medidas de protección.";
+      }
+
+      levelBadge.className = `badge ${cls}`;
+      levelBadge.textContent = label;
+      levelDesc.textContent = desc;
+
+      resultBox.style.display = "grid";
+      scoreMini.textContent = `${total}/100`;
+      showToast("Resultado calculado ✅");
+    }
+
+    function resetAll(){
+      const inputs = document.querySelectorAll('input[type="radio"]');
+      inputs.forEach(i => i.checked = false);
+      resultBox.style.display = "none";
+      barFill.style.width = "0%";
+      scoreMini.textContent = "—";
+      answeredEl.textContent = "0/20";
+      // quitar resaltados
+      document.querySelectorAll(".item").forEach(card => {
+        card.style.outline = "none";
+        card.style.outlineOffset = "0";
+      });
+      stopTimer();
+      showToast("Reiniciado");
+    }
+
+    async function share(){
+      const url = location.href;
+      const text = "Test de Toxicidad Laboral (Likert 1–5) • Por Soamy Lanza";
+      try{
+        if(navigator.share){
+          await navigator.share({ title: document.title, text, url });
+          showToast("Compartido ✅");
+          return;
+        }
+      }catch(e){ /* ignore */ }
+
+      try{
+        await navigator.clipboard.writeText(url);
+        showToast("Link copiado ✅");
+      }catch(e){
+        prompt("Copia este link:", url);
+      }
+    }
+
+    // Events
+    calcBtn.addEventListener("click", calculate);
+    resetBtn.addEventListener("click", resetAll);
+    shareBtn.addEventListener("click", share);
+
+    // Keyboard: Ctrl+Enter calcula
+    window.addEventListener("keydown", (e) => {
+      if((e.ctrlKey || e.metaKey) && e.key === "Enter"){
+        e.preventDefault();
+        calculate();
+      }
+    });
+
+    render();
+    updateAnswered();
+  </script>
+</body>
+</html>
