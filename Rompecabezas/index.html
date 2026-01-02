@@ -7,15 +7,15 @@
   <style>
     :root{
       --bg:#0b0f14;
-      --card:#121826;
       --muted:#94a3b8;
       --text:#e5e7eb;
-      --accent:#22c55e;
-      --warn:#f59e0b;
-      --bad:#ef4444;
       --line:#233049;
       --shadow: 0 14px 40px rgba(0,0,0,.45);
       --radius: 18px;
+
+      /* Ajustables por JS según tamaño */
+      --board-gap: 10px;
+      --board-pad: 10px;
     }
     *{ box-sizing:border-box; }
     html,body{ height:100%; }
@@ -26,7 +26,7 @@
                   radial-gradient(800px 500px at 80% 15%, rgba(245,158,11,.16), transparent 55%),
                   var(--bg);
       color: var(--text);
-      overflow:hidden; /* clave para "una sola pantalla" */
+      overflow:hidden; /* una sola pantalla */
     }
     .app{
       height: 100svh;
@@ -36,7 +36,9 @@
       padding:12px;
       max-width: 1100px;
       margin: 0 auto;
+      min-height: 0;
     }
+
     header{
       background: rgba(18,24,38,.92);
       border:1px solid var(--line);
@@ -70,6 +72,7 @@
       font-size: 12px;
       margin-top: 2px;
     }
+
     .stats{
       display:flex;
       gap:10px;
@@ -96,7 +99,7 @@
       display:grid;
       grid-template-columns: 1fr;
       gap: 12px;
-      min-height: 0; /* importante para que el tablero no "empuje" */
+      min-height: 0;
     }
     .panel{
       background: rgba(18,24,38,.92);
@@ -123,6 +126,7 @@
       gap:8px;
       align-items:center;
     }
+
     select, button{
       border-radius: 12px;
       border:1px solid var(--line);
@@ -135,6 +139,7 @@
       -webkit-tap-highlight-color: transparent;
     }
     select{ padding-right: 34px; }
+
     button.primary{
       border-color: rgba(34,197,94,.45);
       background: rgba(34,197,94,.14);
@@ -167,23 +172,17 @@
       min-height: 0;
     }
 
-    /* ✅ Tablero: garantiza que quepa completo en PC y móvil */
+    /* ✅ Tablero: tamaño final lo calcula JS para que SIEMPRE quepa completo */
     .board{
-      /* límite por ancho */
-      width: min(92vw, 560px);
-      height: min(92vw, 560px);
-
-      /* límite por alto real disponible */
-      max-height: calc(100svh - 250px); /* header + controles + textos */
-      max-width:  calc(100svh - 250px);
-
+      width: 300px;
+      height: 300px;
       aspect-ratio: 1 / 1;
       background: rgba(11,15,20,.35);
       border:1px solid var(--line);
       border-radius: 18px;
-      padding: 10px;
+      padding: var(--board-pad);
       display:grid;
-      gap: 10px;
+      gap: var(--board-gap);
       touch-action: manipulation;
     }
 
@@ -196,7 +195,7 @@
       background: linear-gradient(180deg, rgba(229,231,235,.10), rgba(229,231,235,.03));
       box-shadow: 0 8px 18px rgba(0,0,0,.35);
       font-weight: 700;
-      font-size: clamp(16px, 3.2vw, 28px);
+      font-size: clamp(14px, 3.0vw, 26px);
       font-variant-numeric: tabular-nums;
       transition: transform .08s ease, background .2s ease, border-color .2s ease;
     }
@@ -234,17 +233,9 @@
     }
     .badge.ok{ border-color: rgba(34,197,94,.55); background: rgba(34,197,94,.10); }
     .badge.warn{ border-color: rgba(245,158,11,.55); background: rgba(245,158,11,.10); }
-
-    @media (min-width: 900px){
-      .board{
-        width: min(520px, 52vw);
-        height: min(520px, 52vw);
-        max-height: calc(100svh - 250px);
-        max-width:  calc(100svh - 250px);
-      }
-    }
   </style>
 </head>
+
 <body>
   <div class="app">
     <header>
@@ -284,11 +275,11 @@
           </div>
         </div>
 
-        <div class="hint" id="hint">
+        <div class="hint">
           Tip: toca o haz clic en una ficha junto al espacio vacío. En teclado: <b>WASD</b> o <b>flechas</b>.
         </div>
 
-        <div class="boardWrap">
+        <div class="boardWrap" id="boardWrap">
           <div class="board" id="board" role="grid" aria-label="Tablero del rompecabezas"></div>
         </div>
 
@@ -307,8 +298,9 @@
 
 <script>
 (() => {
-  // ---------- Estado ----------
+  // ---------- DOM ----------
   const boardEl = document.getElementById("board");
+  const boardWrapEl = document.getElementById("boardWrap");
   const timeEl = document.getElementById("time");
   const movesEl = document.getElementById("moves");
   const sizeLabelEl = document.getElementById("sizeLabel");
@@ -321,14 +313,19 @@
   const solveBtn = document.getElementById("solveBtn");
   const shareBtn = document.getElementById("shareBtn");
 
+  // ---------- Estado ----------
   let N = 4;
-  let tiles = [];           // arreglo lineal de N*N, 0 = vacío
+  let tiles = [];        // 0 = vacío
   let emptyIndex = 0;
   let moves = 0;
 
-  let initialTiles = [];    // estado inicial tras "Nuevo"
-  let scrambleHistory = []; // para resolver SIEMPRE (aunque no hayas movido)
-  let userHistory = [];     // para deshacer movimientos del usuario
+  // Guardamos "posiciones del vacío" para poder deshacer 100% seguro:
+  // - scrambleEmpties: [z0, z1, z2, ...] desde resuelto hasta estado inicial
+  // - userEmpties:    [z_beforeMove1, z_beforeMove2, ...]
+  let scrambleEmpties = [];
+  let userEmpties = [];
+
+  let initialTiles = [];
 
   // Timer
   let timerId = null;
@@ -336,27 +333,21 @@
   let elapsedMs = 0;
   let running = false;
 
-  // Animación resolver
   let solving = false;
 
-  // ---------- Utilidades ----------
+  // ---------- Helpers ----------
   const fmtTime = (ms) => {
     const total = Math.max(0, ms);
     const minutes = Math.floor(total / 60000);
     const seconds = Math.floor((total % 60000) / 1000);
     const tenths  = Math.floor((total % 1000) / 100);
-    const mm = String(minutes).padStart(2, "0");
-    const ss = String(seconds).padStart(2, "0");
-    return `${mm}:${ss}.${tenths}`;
+    return `${String(minutes).padStart(2,"0")}:${String(seconds).padStart(2,"0")}.${tenths}`;
   };
 
   const setStatus = (type, text) => {
-    const badgeClass = type === "ok" ? "badge ok" : "badge warn";
+    const cls = type === "ok" ? "badge ok" : "badge warn";
     const label = type === "ok" ? "¡Resuelto!" : "En progreso";
-    statusEl.innerHTML = `
-      <span class="${badgeClass}">${label}</span>
-      <span>${text}</span>
-    `;
+    statusEl.innerHTML = `<span class="${cls}">${label}</span><span>${text}</span>`;
   };
 
   const indexToRC = (i) => ({ r: Math.floor(i / N), c: i % N });
@@ -364,52 +355,52 @@
 
   const isAdjacent = (a, b) => {
     const A = indexToRC(a), B = indexToRC(b);
-    const dr = Math.abs(A.r - B.r);
-    const dc = Math.abs(A.c - B.c);
-    return (dr + dc) === 1;
+    return (Math.abs(A.r - B.r) + Math.abs(A.c - B.c)) === 1;
   };
 
   const isSolved = (arr) => {
-    for (let i = 0; i < N*N - 1; i++){
-      if (arr[i] !== i + 1) return false;
+    for (let i=0; i<N*N-1; i++){
+      if (arr[i] !== i+1) return false;
     }
-    return arr[N*N - 1] === 0;
+    return arr[N*N-1] === 0;
   };
 
-  // Genera "Nuevo" aplicando K movimientos desde resuelto y guardando historia
-  const generateByScrambleMoves = (k) => {
-    const arr = [];
-    for (let i=1; i<N*N; i++) arr.push(i);
-    arr.push(0);
+  const swap = (a, b) => {
+    [tiles[a], tiles[b]] = [tiles[b], tiles[a]];
+    if (tiles[a] === 0) emptyIndex = a;
+    if (tiles[b] === 0) emptyIndex = b;
+  };
 
-    let z = arr.indexOf(0);
-    const history = [];
+  // Ajusta gap/padding según N para que 6x6 quepa bonito
+  const applyBoardDensity = () => {
+    // Más grande N => menos espacio
+    const gapMap = {3: 12, 4: 10, 5: 8, 6: 6};
+    const padMap = {3: 12, 4: 10, 5: 9, 6: 8};
+    document.documentElement.style.setProperty("--board-gap", (gapMap[N] ?? 10) + "px");
+    document.documentElement.style.setProperty("--board-pad", (padMap[N] ?? 10) + "px");
 
-    const neighbors = (idx) => {
-      const {r,c} = indexToRC(idx);
-      const ns = [];
-      if (r>0) ns.push(rcToIndex(r-1,c));
-      if (r<N-1) ns.push(rcToIndex(r+1,c));
-      if (c>0) ns.push(rcToIndex(r,c-1));
-      if (c<N-1) ns.push(rcToIndex(r,c+1));
-      return ns;
-    };
+    // Un pelín más pequeña la tipografía en 6x6
+    boardEl.style.setProperty("font-size", N >= 6 ? "12px" : "14px");
+  };
 
-    let prev = -1;
-    for (let t=0; t<k; t++){
-      const ns = neighbors(z).filter(x => x !== prev);
-      const pick = ns[Math.floor(Math.random()*ns.length)];
-      [arr[pick], arr[z]] = [arr[z], arr[pick]];
-      history.push(pick); // ficha movida al vacío
-      prev = z;
-      z = pick;
-    }
+  // ✅ Ajuste “que quepa completo” usando el espacio REAL del contenedor
+  const fitBoard = () => {
+    const wrapRect = boardWrapEl.getBoundingClientRect();
+    const pad = 8; // margen de seguridad
+    const size = Math.floor(Math.min(wrapRect.width, wrapRect.height) - pad);
 
-    return { arr, history };
+    // límites razonables (evita que explote o quede mini)
+    const finalSize = Math.max(240, Math.min(size, 620));
+
+    boardEl.style.width = finalSize + "px";
+    boardEl.style.height = finalSize + "px";
   };
 
   // ---------- Render ----------
   const render = () => {
+    applyBoardDensity();
+    fitBoard();
+
     boardEl.style.gridTemplateColumns = `repeat(${N}, 1fr)`;
     boardEl.style.gridTemplateRows = `repeat(${N}, 1fr)`;
     boardEl.innerHTML = "";
@@ -430,7 +421,7 @@
     movesEl.textContent = String(moves);
     sizeLabelEl.textContent = `${N}×${N}`;
 
-    if (isSolved(tiles)){
+    if (isSolved(tiles)) {
       stopTimer();
       setStatus("ok", "Nivel completado. Comparte tu tiempo 😄");
     } else {
@@ -438,36 +429,12 @@
     }
 
     resetBtn.disabled = initialTiles.length === 0 || solving;
-    // ✅ Resolver siempre disponible (deshabilita solo si ya está resuelto o está resolviendo)
+    // ✅ Resolver habilitado si NO está resuelto y no está resolviendo
     solveBtn.disabled = isSolved(tiles) || solving;
+
     newBtn.disabled = solving;
     clearBtn.disabled = solving;
     sizeSelect.disabled = solving;
-  };
-
-  // ---------- Movimiento ----------
-  const swap = (a, b) => {
-    [tiles[a], tiles[b]] = [tiles[b], tiles[a]];
-    if (tiles[a] === 0) emptyIndex = a;
-    if (tiles[b] === 0) emptyIndex = b;
-  };
-
-  const doMoveIndex = (tileIndex, {recordUser=true} = {}) => {
-    if (!isAdjacent(tileIndex, emptyIndex)) return false;
-    swap(tileIndex, emptyIndex);
-    moves++;
-    if (recordUser) userHistory.push(tileIndex);
-    if (!running) startTimer();
-    render();
-    return true;
-  };
-
-  const moveEmpty = (dr, dc) => {
-    const {r,c} = indexToRC(emptyIndex);
-    const nr = r + dr, nc = c + dc;
-    if (nr < 0 || nr >= N || nc < 0 || nc >= N) return false;
-    const neighbor = rcToIndex(nr, nc);
-    return doMoveIndex(neighbor);
   };
 
   // ---------- Timer ----------
@@ -495,30 +462,90 @@
     timeEl.textContent = fmtTime(elapsedMs);
   };
 
+  // ---------- Movimientos ----------
+  const doMoveIndex = (tileIndex, {recordUser=true} = {}) => {
+    if (!isAdjacent(tileIndex, emptyIndex)) return false;
+
+    const oldEmpty = emptyIndex; // guardamos vacío ANTES del swap
+    swap(tileIndex, emptyIndex);
+    moves++;
+
+    if (recordUser) userEmpties.push(oldEmpty);
+
+    if (!running) startTimer();
+    render();
+    return true;
+  };
+
+  const moveEmpty = (dr, dc) => {
+    const {r,c} = indexToRC(emptyIndex);
+    const nr = r + dr, nc = c + dc;
+    if (nr < 0 || nr >= N || nc < 0 || nc >= N) return false;
+    const neighbor = rcToIndex(nr, nc);
+    return doMoveIndex(neighbor);
+  };
+
+  // ---------- Generación del tablero (scramble seguro) ----------
+  const generateScramble = (k) => {
+    // partimos de resuelto
+    const arr = [];
+    for (let i=1; i<N*N; i++) arr.push(i);
+    arr.push(0);
+
+    let z = arr.indexOf(0);
+    const empties = [z]; // z0
+
+    const neighbors = (idx) => {
+      const {r,c} = indexToRC(idx);
+      const ns = [];
+      if (r>0) ns.push(rcToIndex(r-1,c));
+      if (r<N-1) ns.push(rcToIndex(r+1,c));
+      if (c>0) ns.push(rcToIndex(r,c-1));
+      if (c<N-1) ns.push(rcToIndex(r,c+1));
+      return ns;
+    };
+
+    let prev = -1;
+    for (let t=0; t<k; t++){
+      const ns = neighbors(z).filter(x => x !== prev);
+      const pick = ns[Math.floor(Math.random()*ns.length)];
+      // swap en el arreglo local arr
+      [arr[pick], arr[z]] = [arr[z], arr[pick]];
+      prev = z;
+      z = pick;
+      empties.push(z); // z1, z2...
+    }
+
+    return {arr, empties};
+  };
+
   // ---------- Acciones ----------
-  const setBoard = (arr, {saveInitial=false} = {}) => {
+  const setBoard = (arr, {saveInitial=false, setScrambleEmpties=null} = {}) => {
     tiles = arr.slice();
     emptyIndex = tiles.indexOf(0);
 
     moves = 0;
-    userHistory = [];
+    userEmpties = [];
     resetTimer();
 
     if (saveInitial) initialTiles = tiles.slice();
+    if (Array.isArray(setScrambleEmpties)) scrambleEmpties = setScrambleEmpties.slice();
+
     render();
   };
 
   const newGame = () => {
-    const k = Math.max(80, N*N*N + 40);
-    const {arr, history} = generateByScrambleMoves(k);
-    scrambleHistory = history.slice();   // ✅ permite Resolver SIEMPRE
-    setBoard(arr, {saveInitial:true});
+    // más grande N => más scramble
+    const k = Math.max(100, N*N*N + 60);
+    const {arr, empties} = generateScramble(k);
+
+    setBoard(arr, {saveInitial:true, setScrambleEmpties: empties});
     setStatus("warn", "Nuevo tablero generado. ¡Dale!");
   };
 
   const resetGame = () => {
     if (!initialTiles.length) return;
-    // reset vuelve al estado inicial (mismo scramble)
+    // resetea al estado inicial (mismo scramble)
     setBoard(initialTiles, {saveInitial:true});
     setStatus("warn", "Reiniciado al estado inicial.");
   };
@@ -527,11 +554,14 @@
     const arr = [];
     for (let i=1; i<N*N; i++) arr.push(i);
     arr.push(0);
-    scrambleHistory = [];
+
+    scrambleEmpties = [];
     setBoard(arr, {saveInitial:true});
     setStatus("ok", "Tablero resuelto (limpio).");
   };
 
+  // ✅ Resolver real: deshace user + deshace scramble
+  // Usamos “vacíos previos” -> siempre adyacentes, cero bugs.
   const solveAnimated = async () => {
     if (solving) return;
     if (isSolved(tiles)) return;
@@ -539,37 +569,34 @@
     solving = true;
     stopTimer();
 
-    // Resolver en dos fases:
-    // 1) deshacer movimientos del usuario (userHistory)
-    // 2) deshacer scramble inicial (scrambleHistory)
-    // (ambas son reversibles porque el tablero se generó por movimientos válidos)
-    const steps = [
-      ...userHistory.slice().reverse(),
-      ...scrambleHistory.slice().reverse()
-    ];
+    // 1) Deshacer movimientos del usuario: para cada oldEmpty en reversa, swap(empty, oldEmpty)
+    const undoUser = userEmpties.slice().reverse();
 
-    const totalSteps = steps.length;
-    const delay = totalSteps > 160 ? 6 : 14;
+    // 2) Deshacer scramble: empties = [z0..zk]. estado inicial tiene vacío = zk
+    // Para volver a resuelto: swap(zk, z{k-1}), luego swap(z{k-1}, z{k-2})...
+    const undoScramble = [];
+    if (scrambleEmpties && scrambleEmpties.length >= 2) {
+      for (let i = scrambleEmpties.length - 1; i >= 1; i--) {
+        undoScramble.push(scrambleEmpties[i - 1]);
+      }
+    }
 
-    for (const idx of steps){
-      // idx siempre es adyacente al vacío si la historia corresponde al camino real
-      // y como estamos deshaciendo en orden inverso, es estable.
-      // no registramos como movimientos del usuario
-      if (!isAdjacent(idx, emptyIndex)) {
-        // Si por cualquier razón se desalineó (raro), intentamos continuar sin romper.
-        // Buscamos una ficha adyacente con el mismo valor NO aplica; mejor cortar con estilo.
+    const steps = [...undoUser, ...undoScramble];
+    const delay = steps.length > 200 ? 6 : 14;
+
+    for (const targetOldEmpty of steps) {
+      // Siempre adyacente si la historia está bien, pero por seguridad:
+      if (!isAdjacent(emptyIndex, targetOldEmpty)) {
+        // si algo raro pasa, nos salimos sin romper
         break;
       }
-      // swap directo sin contar movimientos
-      [tiles[idx], tiles[emptyIndex]] = [tiles[emptyIndex], tiles[idx]];
-      emptyIndex = idx;
-
+      swap(emptyIndex, targetOldEmpty);
       render();
       await new Promise(r => setTimeout(r, delay));
     }
 
-    // Deja el tablero resuelto
-    userHistory = [];
+    // final: dejamos todo limpio
+    userEmpties = [];
     moves = 0;
     resetTimer();
 
@@ -587,7 +614,7 @@
         await navigator.clipboard.writeText(url);
         alert("Link copiado ✅\nPégalo en WhatsApp o redes.");
       }
-    } catch (e){
+    } catch {
       try{
         await navigator.clipboard.writeText(url);
         alert("Link copiado ✅");
@@ -631,6 +658,11 @@
   clearBtn.addEventListener("click", clearGame);
   solveBtn.addEventListener("click", solveAnimated);
   shareBtn.addEventListener("click", share);
+
+  // Recalcular tablero si cambia tamaño de ventana
+  window.addEventListener("resize", () => {
+    fitBoard();
+  });
 
   // ---------- Init ----------
   clearGame();
