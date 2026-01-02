@@ -1,0 +1,548 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Memoria • Por Soamy Lanza</title>
+  <style>
+    :root{
+      --bg:#0b0f14;
+      --card:#121826;
+      --line:#233049;
+      --text:#e5e7eb;
+      --muted:#94a3b8;
+      --good:#22c55e;
+      --warn:#f59e0b;
+      --bad:#ef4444;
+      --shadow: 0 14px 40px rgba(0,0,0,.45);
+      --r: 18px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: radial-gradient(900px 500px at 18% 12%, rgba(34,197,94,.14), transparent 55%),
+                  radial-gradient(900px 500px at 85% 12%, rgba(245,158,11,.12), transparent 55%),
+                  var(--bg);
+      color:var(--text);
+      overflow:hidden;
+    }
+    .app{
+      height:100svh;
+      max-width:1100px;
+      margin:0 auto;
+      padding:12px;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      min-height:0;
+    }
+    header{
+      background: rgba(18,24,38,.92);
+      border:1px solid var(--line);
+      border-radius: var(--r);
+      box-shadow: var(--shadow);
+      padding:12px;
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      flex:0 0 auto;
+    }
+    .title{
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+      min-width:260px;
+    }
+    .title h1{
+      margin:0;
+      font-size:18px;
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    .title small{color:var(--muted)}
+    .byline{color:var(--muted); font-size:12px; margin-top:2px;}
+    .stats{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      align-items:center;
+      justify-content:flex-end;
+    }
+    .pill{
+      border:1px solid var(--line);
+      border-radius:999px;
+      padding:6px 10px;
+      background: rgba(11,15,20,.35);
+      font-size:13px;
+      display:flex;
+      gap:8px;
+      align-items:center;
+      white-space:nowrap;
+    }
+    .pill b{font-variant-numeric: tabular-nums;}
+    main{
+      flex:1 1 auto;
+      min-height:0;
+      display:grid;
+      grid-template-columns: 1fr;
+    }
+    .panel{
+      background: rgba(18,24,38,.92);
+      border:1px solid var(--line);
+      border-radius: var(--r);
+      box-shadow: var(--shadow);
+      padding:12px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      min-height:0;
+    }
+    .controls{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      align-items:center;
+      justify-content:space-between;
+      flex:0 0 auto;
+    }
+    .left,.right{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      align-items:center;
+    }
+    select,button{
+      border-radius:12px;
+      border:1px solid var(--line);
+      background: rgba(11,15,20,.35);
+      color: var(--text);
+      padding:10px 12px;
+      font-size:14px;
+      cursor:pointer;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    button.primary{
+      border-color: rgba(34,197,94,.45);
+      background: rgba(34,197,94,.14);
+    }
+    button.warn{
+      border-color: rgba(245,158,11,.45);
+      background: rgba(245,158,11,.14);
+    }
+    button:disabled{opacity:.6; cursor:not-allowed}
+    .hint{
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.35;
+      flex:0 0 auto;
+    }
+    .boardWrap{
+      flex:1 1 auto;
+      min-height:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden;
+    }
+    .board{
+      display:grid;
+      gap: min(1.2vw, 10px);
+      width: min(92vw, 560px);
+      height: min(92vw, 560px);
+      max-width: calc(100svh - 250px);
+      max-height: calc(100svh - 250px);
+      padding: min(1.2vw, 12px);
+      border:1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(11,15,20,.35);
+      box-shadow: 0 10px 26px rgba(0,0,0,.35);
+    }
+    .cardBtn{
+      position:relative;
+      border-radius: 16px;
+      border:1px solid rgba(255,255,255,.08);
+      background: rgba(255,255,255,.04);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size: clamp(18px, 3.2vw, 30px);
+      cursor:pointer;
+      transition: transform .12s ease, background .12s ease, border-color .12s ease;
+      outline:none;
+      user-select:none;
+    }
+    .cardBtn:active{ transform: scale(.98); }
+    .cardBtn.revealed{
+      background: rgba(255,255,255,.08);
+      border-color: rgba(255,255,255,.14);
+    }
+    .cardBtn.matched{
+      background: rgba(34,197,94,.16);
+      border-color: rgba(34,197,94,.35);
+      cursor:default;
+    }
+    .face{
+      opacity:0;
+      transform: scale(.7);
+      transition: opacity .12s ease, transform .12s ease;
+    }
+    .cardBtn.revealed .face,
+    .cardBtn.matched .face{
+      opacity:1;
+      transform: scale(1);
+    }
+    .backMark{
+      position:absolute;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      opacity:.85;
+      transition: opacity .12s ease;
+      font-size: clamp(16px, 2.9vw, 26px);
+      color: rgba(229,231,235,.75);
+    }
+    .cardBtn.revealed .backMark,
+    .cardBtn.matched .backMark{
+      opacity:0;
+    }
+    .footer{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      align-items:center;
+      justify-content:space-between;
+      flex:0 0 auto;
+    }
+    .status{
+      color:var(--muted);
+      font-size:13px;
+      display:flex;
+      gap:8px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+    .badge{
+      border:1px solid var(--line);
+      border-radius:999px;
+      padding:5px 9px;
+      font-size:12px;
+      background: rgba(11,15,20,.35);
+      color: var(--text);
+    }
+    .badge.ok{ border-color: rgba(34,197,94,.55); background: rgba(34,197,94,.10); }
+    .badge.warn{ border-color: rgba(245,158,11,.55); background: rgba(245,158,11,.10); }
+  </style>
+</head>
+
+<body>
+<div class="app">
+  <header>
+    <div class="title">
+      <h1>🧠 Memoria (Memory Cards)</h1>
+      <small>Encuentra todas las parejas • 4×4 / 6×6 / 8×8</small>
+      <div class="byline">Por: <b>Soamy Lanza</b></div>
+    </div>
+    <div class="stats">
+      <div class="pill">⏱️ Tiempo: <b id="time">00:00.0</b></div>
+      <div class="pill">🃏 Movidas: <b id="moves">0</b></div>
+      <div class="pill">✅ Parejas: <b id="pairs">0</b>/<b id="pairsTotal">0</b></div>
+      <div class="pill">📏 Tamaño: <b id="sizeLabel">4×4</b></div>
+    </div>
+  </header>
+
+  <main>
+    <section class="panel">
+      <div class="controls">
+        <div class="left">
+          <select id="sizeSel" aria-label="Tamaño">
+            <option value="4" selected>4×4</option>
+            <option value="6">6×6</option>
+            <option value="8">8×8</option>
+          </select>
+          <button class="primary" id="newBtn">Nuevo</button>
+          <button class="warn" id="restartBtn">Reiniciar</button>
+        </div>
+        <div class="right">
+          <button id="shareBtn">Compartir</button>
+        </div>
+      </div>
+
+      <div class="hint">
+        <b>Instrucciones:</b> toca dos cartas para revelar. Si son iguales, se quedan abiertas.
+        Si no, se voltean de nuevo. Gana cuando completes todas las parejas.
+        En PC puedes usar clic; en móvil toca. El cronómetro inicia en tu primera jugada.
+      </div>
+
+      <div class="boardWrap">
+        <div class="board" id="board" aria-label="Tablero de Memoria"></div>
+      </div>
+
+      <div class="footer">
+        <div class="status" id="status">
+          <span class="badge warn">En progreso</span>
+          <span>Busca parejas lo más rápido posible.</span>
+        </div>
+        <div class="hint">Una sola pantalla • comparte el link por WhatsApp/redes</div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+(() => {
+  const boardEl = document.getElementById("board");
+  const sizeSel = document.getElementById("sizeSel");
+  const newBtn = document.getElementById("newBtn");
+  const restartBtn = document.getElementById("restartBtn");
+  const shareBtn = document.getElementById("shareBtn");
+
+  const timeEl = document.getElementById("time");
+  const movesEl = document.getElementById("moves");
+  const pairsEl = document.getElementById("pairs");
+  const pairsTotalEl = document.getElementById("pairsTotal");
+  const sizeLabelEl = document.getElementById("sizeLabel");
+  const statusEl = document.getElementById("status");
+
+  // Timer
+  let timerId = null;
+  let runningTimer = false;
+  let startTime = 0;
+  let elapsedMs = 0;
+
+  const fmtTime = (ms) => {
+    const m = Math.floor(ms/60000);
+    const s = Math.floor((ms%60000)/1000);
+    const t = Math.floor((ms%1000)/100);
+    return `${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}.${t}`;
+  };
+  const startTimer = () => {
+    if (runningTimer) return;
+    runningTimer = true;
+    startTime = performance.now() - elapsedMs;
+    if (timerId) clearInterval(timerId);
+    timerId = setInterval(() => {
+      elapsedMs = performance.now() - startTime;
+      timeEl.textContent = fmtTime(elapsedMs);
+    }, 100);
+  };
+  const stopTimer = () => {
+    runningTimer = false;
+    if (timerId){ clearInterval(timerId); timerId = null; }
+  };
+  const resetTimer = () => {
+    stopTimer();
+    elapsedMs = 0;
+    timeEl.textContent = fmtTime(0);
+  };
+
+  const setStatus = (type, text) => {
+    const cls = type === "ok" ? "badge ok" : "badge warn";
+    const label = type === "ok" ? "¡Listo!" : "En progreso";
+    statusEl.innerHTML = `<span class="${cls}">${label}</span><span>${text}</span>`;
+  };
+
+  // Game state
+  const EMOJIS = [
+    "🍉","🍋","🍓","🍒","🥝","🍇","🍑","🍍","🥥","🍌",
+    "🍔","🍕","🌮","🍟","🍣","🍩","🍪","🍫","🧁","🍿",
+    "⚽","🏀","🎾","🎮","🎲","🎯","🧩","🎸","🎺","🪩",
+    "🐶","🐱","🦊","🐼","🐵","🐸","🦁","🐯","🐷","🐧",
+    "🚗","🚀","✈️","🚲","🛵","🛴","🚤","🛰️","🛸","🚁",
+    "🌈","⭐","🌙","⚡","🔥","💎","🧠","👻","🤖","👾"
+  ];
+
+  let N = 4; // grid size
+  let deck = []; // {id, face, state}
+  let first = null; // index
+  let lock = false;
+  let moves = 0;
+  let pairs = 0;
+  let totalPairs = 0;
+
+  const shuffle = (arr) => {
+    for (let i=arr.length-1; i>0; i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [arr[i],arr[j]] = [arr[j],arr[i]];
+    }
+    return arr;
+  };
+
+  const buildDeck = () => {
+    const totalCards = N*N;
+    totalPairs = totalCards/2;
+    const faces = shuffle([...EMOJIS]).slice(0, totalPairs);
+    const cards = [];
+    let id = 0;
+    for (const f of faces){
+      cards.push({ id: id++, face: f, state: "hidden" });
+      cards.push({ id: id++, face: f, state: "hidden" });
+    }
+    deck = shuffle(cards);
+  };
+
+  const updateHUD = () => {
+    movesEl.textContent = moves;
+    pairsEl.textContent = pairs;
+    pairsTotalEl.textContent = totalPairs;
+    sizeLabelEl.textContent = `${N}×${N}`;
+  };
+
+  const setBoardGrid = () => {
+    boardEl.style.gridTemplateColumns = `repeat(${N}, 1fr)`;
+    boardEl.style.gridTemplateRows = `repeat(${N}, 1fr)`;
+  };
+
+  const render = () => {
+    boardEl.innerHTML = "";
+    setBoardGrid();
+
+    deck.forEach((c, idx) => {
+      const btn = document.createElement("button");
+      btn.className = "cardBtn";
+      btn.type = "button";
+      btn.setAttribute("aria-label", "Carta");
+      btn.dataset.index = idx;
+
+      const back = document.createElement("div");
+      back.className = "backMark";
+      back.textContent = "❓";
+
+      const face = document.createElement("div");
+      face.className = "face";
+      face.textContent = c.face;
+
+      btn.appendChild(back);
+      btn.appendChild(face);
+
+      if (c.state === "revealed") btn.classList.add("revealed");
+      if (c.state === "matched") btn.classList.add("matched");
+
+      btn.addEventListener("click", () => onFlip(idx));
+      boardEl.appendChild(btn);
+    });
+  };
+
+  const reveal = (i) => {
+    deck[i].state = "revealed";
+  };
+  const hide = (i) => {
+    deck[i].state = "hidden";
+  };
+  const match = (i) => {
+    deck[i].state = "matched";
+  };
+
+  const onFlip = (i) => {
+    if (lock) return;
+    if (deck[i].state !== "hidden") return;
+
+    startTimer();
+
+    reveal(i);
+    render();
+
+    if (first === null){
+      first = i;
+      return;
+    }
+
+    // second card
+    moves++;
+
+    const a = first;
+    const b = i;
+
+    if (deck[a].face === deck[b].face){
+      match(a); match(b);
+      pairs++;
+      first = null;
+      render();
+      updateHUD();
+
+      if (pairs === totalPairs){
+        stopTimer();
+        setStatus("ok", `¡Ganaste! Tiempo: ${fmtTime(elapsedMs)} • Movidas: ${moves}`);
+      } else {
+        setStatus("warn", "¡Bien! Sigue buscando parejas.");
+      }
+      return;
+    }
+
+    // not match
+    lock = true;
+    updateHUD();
+    setStatus("warn", "No coinciden… intenta otra vez.");
+
+    setTimeout(() => {
+      hide(a); hide(b);
+      first = null;
+      lock = false;
+      render();
+    }, 650);
+  };
+
+  const newGame = () => {
+    N = Number(sizeSel.value);
+    moves = 0;
+    pairs = 0;
+    first = null;
+    lock = false;
+    resetTimer();
+    setStatus("warn", "Nuevo tablero. ¡A jugar!");
+    buildDeck();
+    updateHUD();
+    render();
+  };
+
+  const restart = () => {
+    // mismo tamaño, tablero nuevo (reiniciar completo)
+    moves = 0;
+    pairs = 0;
+    first = null;
+    lock = false;
+    resetTimer();
+    setStatus("warn", "Reiniciado. Ahora sí, sin distraerte 😄");
+    buildDeck();
+    updateHUD();
+    render();
+  };
+
+  const share = async () => {
+    const url = location.href;
+    const text = `🧠 Juego de Memoria (${N}×${N}) — Por Soamy Lanza. ¿Me ganas?`;
+    try{
+      if (navigator.share){
+        await navigator.share({ title: document.title, text, url });
+      } else {
+        await navigator.clipboard.writeText(url);
+        alert("Link copiado ✅\nPégalo en WhatsApp o redes.");
+      }
+    } catch {
+      try{
+        await navigator.clipboard.writeText(url);
+        alert("Link copiado ✅");
+      } catch {
+        prompt("Copia este link:", url);
+      }
+    }
+  };
+
+  // Events
+  newBtn.addEventListener("click", newGame);
+  restartBtn.addEventListener("click", restart);
+  sizeSel.addEventListener("change", newGame);
+  shareBtn.addEventListener("click", share);
+
+  // Init
+  newGame();
+})();
+</script>
+</body>
+</html>
