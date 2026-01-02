@@ -41,23 +41,25 @@
       height:100svh;
       max-width:1100px;
       margin:0 auto;
-      padding:12px;
+      padding:10px;             /* ↓ menos padding para ganar altura */
       display:flex;
       flex-direction:column;
-      gap:12px;
+      gap:10px;                 /* ↓ menos gap */
       min-height:0;
     }
 
+    /* ✅ HEADER MÁS PEQUEÑO y “pegado” a la izquierda */
     header{
+      width: clamp(320px, 62vw, 760px); /* recuadro superior reducido hacia la izquierda */
+      align-self:flex-start;
       background: rgba(18,24,38,.92);
       border:1px solid var(--line);
       border-radius: var(--r);
       box-shadow: var(--shadow);
-      padding:12px;
+      padding:10px 12px;        /* ↓ menos padding */
       display:flex;
-      flex-wrap:wrap;
-      align-items:center;
-      justify-content:space-between;
+      align-items:flex-start;
+      justify-content:flex-start;
       gap:10px;
       flex:0 0 auto;
     }
@@ -70,16 +72,13 @@
     }
     .title h1{
       margin:0;
-      font-size:18px;
+      font-size:16px;           /* ↓ más compacto */
       display:flex;
       align-items:center;
       gap:8px;
     }
-    .title small{color:var(--muted)}
+    .title small{color:var(--muted); font-size:12px;}
     .byline{color:var(--muted); font-size:12px; margin-top:2px;}
-
-    /* 🔽 Header ahora solo muestra el título (sin métricas) */
-    .statsTop{ display:none; }
 
     main{ flex:1 1 auto; min-height:0; }
 
@@ -89,10 +88,10 @@
       border:1px solid var(--line);
       border-radius: var(--r);
       box-shadow: var(--shadow);
-      padding:12px;
+      padding:10px;             /* ↓ menos padding */
       display:flex;
       flex-direction:column;
-      gap:10px;
+      gap:8px;
       min-height:0;
     }
 
@@ -160,14 +159,13 @@
       flex-wrap:wrap;
       justify-content:flex-start;
     }
-
     .shareBig{
       width:100%;
       justify-content:center;
       font-weight:600;
     }
 
-    /* ✅ NUEVO: métricas en la izquierda (abajo) */
+    /* métricas izquierda */
     .statsLeft{
       display:grid;
       grid-template-columns: 1fr;
@@ -186,14 +184,15 @@
     }
     .pill b{font-variant-numeric: tabular-nums;}
 
-    /* tablero arriba y centrado */
+    /* ✅ TABLERO MÁS ARRIBA */
     .boardArea{
       min-height:0;
       display:flex;
       flex-direction:column;
-      gap:10px;
+      gap:6px;                  /* ↓ menos gap */
       align-items:center;
-      justify-content:flex-start; /* arriba */
+      justify-content:flex-start;
+      padding-top:0;            /* sin padding arriba */
     }
 
     .boardWrap{
@@ -203,7 +202,8 @@
       justify-content:center;
       overflow:hidden;
       width:100%;
-      padding-top:0; /* 🔼 pegado arriba */
+      padding-top:0;            /* 🔼 pegado arriba */
+      margin-top:-4px;          /* 🔼 sube un poquito */
     }
 
     .board{
@@ -294,9 +294,11 @@
 
     /* Responsive móvil: una columna */
     @media (max-width: 820px){
+      header{ width:100%; }
       .layout{ grid-template-columns: 1fr; }
       .side{ order: 2; }
       .boardArea{ order: 1; }
+      .boardWrap{ margin-top:0; }
     }
   </style>
 </head>
@@ -339,7 +341,7 @@
             </div>
           </div>
 
-          <!-- ✅ métricas abajo a la izquierda -->
+          <!-- métricas abajo a la izquierda -->
           <div class="cardBox">
             <div class="statsLeft">
               <div class="pill">⏱️ Tiempo <b id="time">00:00.0</b></div>
@@ -395,7 +397,7 @@
 
   function num(v){ return Number.parseFloat(v) || 0; }
 
-  // ✅ Fit definitivo: prioriza ALTO disponible para que 8x8 muestre 8 filas completas
+  // ✅ Fit definitivo MÁS AGRESIVO (especialmente en 8x8)
   function fitBoard(){
     const N = Number(sizeSel.value);
 
@@ -412,33 +414,33 @@
 
     const headerH = headerEl.getBoundingClientRect().height;
 
-    // Alto total libre para el panel
+    // Alto libre para el panel
     const freeH = vvH - appPadY - headerH - appGap;
 
-    // Alto interno del panel (lo que se reparte entre columnas)
-    const insideH = Math.max(260, freeH - panelPadY);
+    // Alto interno del panel (lo que se usa para tablero)
+    const insideH = Math.max(240, freeH - panelPadY);
 
     // Ancho disponible del área derecha
     const boardAreaW = boardAreaEl.getBoundingClientRect().width;
 
-    // Ajustes para que quepa completo (más agresivo en 8x8)
-    const gap = (N === 8) ? 6 : (N === 6 ? 8 : 10);
-    const pad = (N === 8) ? 8 : 12;
+    // Ajustes (más compactos en 8x8)
+    const gap = (N === 8) ? 5 : (N === 6 ? 8 : 10);
+    const pad = (N === 8) ? 6 : 12;
 
     root.style.setProperty("--gap", gap + "px");
     root.style.setProperty("--pad", pad + "px");
 
-    // Safety para evitar que el borde se corte por sombras/antialias
-    const safety = (N === 8) ? 22 : (N === 6 ? 18 : 16);
+    // Safety: deja margen para bordes/sombra y evita cortar la última fila
+    const safety = (N === 8) ? 34 : (N === 6 ? 22 : 18);
 
-    // 🚀 El tamaño lo limitamos por: alto interno y ancho del área derecha
+    // Tamaño tablero limitado por alto interno y ancho del área
     const size = Math.floor(Math.min(insideH, boardAreaW, vvW) - safety);
 
-    root.style.setProperty("--boardSize", Math.max(240, size) + "px");
+    root.style.setProperty("--boardSize", Math.max(220, size) + "px");
 
     // Tipos por N
-    const cardFont = (N === 8) ? 20 : (N === 6 ? 25 : 30);
-    const backFont = (N === 8) ? 16 : (N === 6 ? 22 : 26);
+    const cardFont = (N === 8) ? 19 : (N === 6 ? 25 : 30);
+    const backFont = (N === 8) ? 15 : (N === 6 ? 22 : 26);
     const rad = (N === 8) ? 14 : 16;
 
     root.style.setProperty("--cardFont", cardFont + "px");
@@ -520,7 +522,7 @@
   const render = () => {
     boardEl.innerHTML = "";
     setBoardGrid();
-    fitBoard(); // ✅ clave
+    fitBoard();
 
     deck.forEach((c, idx) => {
       const btn = document.createElement("button");
