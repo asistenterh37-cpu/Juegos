@@ -1,308 +1,948 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Secuencia Perdida • Por Soamy Lanza</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Secuencia Perdida • Por Soamy Lanza</title>
+  <style>
+    :root{
+      --bg:#0b0f14;
+      --card:#111827;
+      --card2:#0f172a;
+      --stroke:rgba(255,255,255,.08);
+      --text:#e5e7eb;
+      --muted:#94a3b8;
+      --accent:#22c55e;
+      --warn:#f59e0b;
+      --bad:#ef4444;
+      --shadow: 0 12px 35px rgba(0,0,0,.45);
+      --r:18px;
 
-<style>
-:root{
-  --bg:#0b0f14;
-  --card:#121826;
-  --accent:#22c55e;
-  --warn:#f59e0b;
-  --bad:#ef4444;
-  --text:#e5e7eb;
-}
+      /* Ajuste para 1 pantalla (PC y móvil) */
+      --vh: 1vh;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
+      background:
+        radial-gradient(900px 600px at 15% 10%, rgba(34,197,94,.18), transparent 60%),
+        radial-gradient(800px 600px at 85% 20%, rgba(56,189,248,.14), transparent 55%),
+        radial-gradient(700px 600px at 70% 90%, rgba(245,158,11,.10), transparent 55%),
+        var(--bg);
+      color:var(--text);
+      overflow:hidden; /* sin scroll */
+    }
 
-*{box-sizing:border-box}
-body{
-  margin:0;
-  font-family:system-ui,Segoe UI,Roboto;
-  background:radial-gradient(circle at top,#0f172a,#020617);
-  color:var(--text);
-  min-height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-}
+    .app{
+      height: calc(var(--vh) * 100);
+      padding: clamp(10px, 2vw, 18px);
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
 
-.app{
-  width:100%;
-  max-width:900px;
-  background:linear-gradient(180deg,#0b1220,#050814);
-  border-radius:18px;
-  padding:18px;
-  box-shadow:0 20px 60px rgba(0,0,0,.6);
-}
+    .top{
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border: 1px solid var(--stroke);
+      border-radius: var(--r);
+      padding: 14px 16px;
+      box-shadow: var(--shadow);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      min-height: 86px;
+    }
+    .title{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+      min-width: 260px;
+    }
+    .title h1{
+      margin:0;
+      font-size: clamp(18px, 2.2vw, 24px);
+      line-height:1.1;
+      letter-spacing:.2px;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      white-space:nowrap;
+    }
+    .title .sub{
+      color:var(--muted);
+      font-size: 13px;
+    }
+    .title .by{
+      color: #cbd5e1;
+      font-size: 13px;
+    }
 
-.header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:12px;
-  flex-wrap:wrap;
-}
+    .hud{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+      align-items:center;
+    }
+    .pill{
+      border:1px solid var(--stroke);
+      background: rgba(0,0,0,.25);
+      border-radius: 999px;
+      padding: 10px 12px;
+      display:flex;
+      gap:10px;
+      align-items:center;
+      min-width: 120px;
+      justify-content:space-between;
+    }
+    .pill span{color:var(--muted); font-size:12px}
+    .pill b{font-variant-numeric: tabular-nums; font-size:14px}
 
-.title h1{
-  margin:0;
-  font-size:1.5rem;
-}
-.subtitle{
-  opacity:.8;
-  font-size:.9rem;
-}
+    .main{
+      flex:1;
+      display:grid;
+      grid-template-columns: 330px 1fr;
+      gap:12px;
+      min-height:0;
+    }
 
-.stats{
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-}
-.stat{
-  background:#0b1220;
-  padding:8px 12px;
-  border-radius:12px;
-  font-size:.9rem;
-}
+    .panel, .boardWrap{
+      border:1px solid var(--stroke);
+      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      border-radius: var(--r);
+      box-shadow: var(--shadow);
+      min-height:0;
+    }
 
-.main{
-  margin-top:16px;
-  display:grid;
-  grid-template-columns:280px 1fr;
-  gap:16px;
-}
+    .panel{
+      padding:12px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      min-height:0;
+    }
 
-.panel{
-  background:rgba(255,255,255,.03);
-  border-radius:14px;
-  padding:14px;
-}
+    .controlsRow{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
 
-.controls select, .controls button{
-  width:100%;
-  margin-bottom:8px;
-  padding:10px;
-  border-radius:10px;
-  border:none;
-  background:#0b1220;
-  color:var(--text);
-  font-size:1rem;
-}
+    select, button{
+      font: inherit;
+      border-radius: 14px;
+      border:1px solid var(--stroke);
+      background: rgba(0,0,0,.22);
+      color:var(--text);
+      padding: 10px 12px;
+      outline:none;
+      cursor:pointer;
+    }
+    select{min-width: 92px}
+    button{
+      transition: transform .05s ease, border-color .2s ease, background .2s ease;
+      user-select:none;
+    }
+    button:active{transform: translateY(1px)}
+    .btnNew{border-color: rgba(34,197,94,.35); background: rgba(34,197,94,.12)}
+    .btnReset{border-color: rgba(245,158,11,.35); background: rgba(245,158,11,.12)}
+    .btnShare{width:100%; padding: 12px 14px; font-weight: 700}
+    .btnShare{border-color: rgba(255,255,255,.14)}
+    .btnCheck{
+      width:100%;
+      padding: 14px 14px;
+      border-color: rgba(34,197,94,.35);
+      background: rgba(34,197,94,.10);
+      font-weight: 800;
+      font-size: 14px;
+    }
 
-.controls button{
-  cursor:pointer;
-  font-weight:600;
-}
-.controls .new{background:var(--accent); color:#052e16;}
-.controls .share{background:#1f2937}
+    .card{
+      border:1px solid var(--stroke);
+      background: rgba(0,0,0,.18);
+      border-radius: 14px;
+      padding: 10px 12px;
+    }
+    .card h3{
+      margin:0 0 6px 0;
+      font-size: 13px;
+      color:#cbd5e1;
+      letter-spacing:.2px;
+    }
+    .card p{
+      margin:0;
+      font-size: 13px;
+      color: var(--muted);
+      line-height:1.35;
+    }
 
-.sequence{
-  display:flex;
-  justify-content:center;
-  gap:12px;
-  flex-wrap:wrap;
-  margin:18px 0;
-}
+    .scoreGrid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:8px;
+    }
+    .scoreItem{
+      border:1px solid var(--stroke);
+      background: rgba(0,0,0,.16);
+      border-radius: 14px;
+      padding: 10px 12px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+    }
+    .scoreItem span{color: var(--muted); font-size: 12px}
+    .scoreItem b{font-variant-numeric: tabular-nums}
 
-.box{
-  width:70px;
-  height:70px;
-  border-radius:14px;
-  background:#0b1220;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  font-size:1.5rem;
-  font-weight:700;
-}
+    .status{
+      border-radius: 999px;
+      border: 1px solid rgba(245,158,11,.35);
+      background: rgba(245,158,11,.12);
+      padding: 6px 10px;
+      font-size: 12px;
+      color:#fde68a;
+      width: fit-content;
+      max-width: 100%;
+      white-space: nowrap;
+      overflow:hidden;
+      text-overflow: ellipsis;
+    }
+    .footerNote{
+      margin-top:auto;
+      color: var(--muted);
+      font-size: 12px;
+      display:flex;
+      justify-content:space-between;
+      gap:8px;
+      opacity:.95;
+    }
 
-.box.missing{
-  border:2px dashed var(--warn);
-  color:var(--warn);
-}
+    .boardWrap{
+      padding:12px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      min-height:0;
+    }
 
-.answer{
-  display:flex;
-  justify-content:center;
-  gap:10px;
-}
+    /* Zona de tablero: la hacemos "fit" para que SIEMPRE quepa */
+    .boardStage{
+      flex:1;
+      min-height:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      border:1px dashed rgba(255,255,255,.08);
+      border-radius: 14px;
+      background: rgba(0,0,0,.10);
+      overflow:hidden;
+      padding: 10px;
+    }
 
-.answer input{
-  width:120px;
-  padding:10px;
-  font-size:1.1rem;
-  border-radius:10px;
-  border:none;
-  text-align:center;
-  background:#020617;
-  color:var(--text);
-}
+    .sequenceCard{
+      border:1px solid var(--stroke);
+      background: rgba(0,0,0,.22);
+      border-radius: 18px;
+      padding: 14px 14px;
+      width: min(760px, 100%);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.03);
+    }
 
-.answer button{
-  padding:10px 16px;
-  border-radius:10px;
-  border:none;
-  background:var(--accent);
-  color:#052e16;
-  font-weight:700;
-  cursor:pointer;
-}
+    .seqTop{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .seqTitle{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+      min-width: 220px;
+    }
+    .seqTitle b{font-size: 14px}
+    .seqTitle span{font-size: 12px; color: var(--muted)}
+    .progress{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:flex-end;
+    }
+    .chip{
+      border:1px solid var(--stroke);
+      background: rgba(0,0,0,.18);
+      border-radius: 999px;
+      padding: 8px 10px;
+      font-size: 12px;
+      color:#cbd5e1;
+    }
 
-.feedback{
-  text-align:center;
-  margin-top:12px;
-  font-weight:600;
-}
+    .seqLine{
+      margin-top: 12px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:center;
+    }
+    .token{
+      min-width: 58px;
+      text-align:center;
+      padding: 10px 10px;
+      border-radius: 14px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.04);
+      font-weight: 800;
+      font-size: 18px;
+      font-variant-numeric: tabular-nums;
+    }
+    .token.missing{
+      border-color: rgba(56,189,248,.35);
+      background: rgba(56,189,248,.10);
+      color:#e0f2fe;
+    }
 
-.ok{color:var(--accent)}
-.bad{color:var(--bad)}
+    .answerRow{
+      margin-top: 12px;
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content:center;
+      flex-wrap:wrap;
+    }
+    .answerRow input{
+      width: 180px;
+      max-width: 60vw;
+      padding: 12px 12px;
+      border-radius: 14px;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.25);
+      color: var(--text);
+      outline:none;
+      font: inherit;
+      font-size: 16px;
+      text-align:center;
+      font-variant-numeric: tabular-nums;
+    }
 
-.footer{
-  margin-top:14px;
-  font-size:.85rem;
-  opacity:.7;
-  text-align:center;
-}
-@media(max-width:800px){
-  .main{grid-template-columns:1fr}
-}
-</style>
+    .hint{
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 12px;
+      text-align:center;
+      line-height:1.35;
+    }
+    .result{
+      margin-top: 10px;
+      text-align:center;
+      font-weight: 800;
+      font-size: 14px;
+      min-height: 18px;
+    }
+    .ok{color:#86efac}
+    .no{color:#fca5a5}
+
+    /* Responsive */
+    @media (max-width: 900px){
+      body{overflow:hidden}
+      .main{grid-template-columns: 1fr; }
+      .panel{order:2}
+      .boardWrap{order:1}
+      .top{min-height: 78px}
+      .pill{min-width: 110px}
+    }
+  </style>
 </head>
-
 <body>
-<div class="app">
-
-  <div class="header">
-    <div class="title">
-      <h1>🔍 Secuencia Perdida</h1>
-      <div class="subtitle">Descubre el número que falta • Por Soamy Lanza</div>
-    </div>
-    <div class="stats">
-      <div class="stat">⏱ <span id="time">00:00</span></div>
-      <div class="stat">🎯 Intentos: <span id="tries">0</span></div>
-      <div class="stat">📊 Nivel: <span id="levelTxt">Bajo</span></div>
-    </div>
-  </div>
-
-  <div class="main">
-    <div class="panel controls">
-      <select id="level">
-        <option value="easy">Bajo</option>
-        <option value="medium">Medio</option>
-        <option value="hard">Alto</option>
-      </select>
-      <button class="new" onclick="newGame()">Nuevo</button>
-      <button class="share" onclick="share()">Compartir</button>
-
-      <p style="font-size:.9rem;opacity:.8">
-        Instrucciones:<br>
-        Observa la secuencia, deduce el patrón y escribe el número que falta.
-      </p>
-    </div>
-
-    <div class="panel">
-      <div class="sequence" id="sequence"></div>
-
-      <div class="answer">
-        <input type="number" id="input" placeholder="¿?" />
-        <button onclick="check()">Probar</button>
+  <div class="app">
+    <header class="top">
+      <div class="title">
+        <h1>🧠 Secuencia Perdida</h1>
+        <div class="sub">Juego de razonamiento: encuentra el número que falta.</div>
+        <div class="by">Por: <b>Soamy Lanza</b></div>
       </div>
 
-      <div class="feedback" id="feedback"></div>
-    </div>
-  </div>
+      <div class="hud" aria-label="Indicadores">
+        <div class="pill"><span>⏱️ Tiempo</span><b id="time">00:00.0</b></div>
+        <div class="pill"><span>✅ Correctas</span><b id="correct">0</b></div>
+        <div class="pill"><span>🎯 Progreso</span><b id="progress">1/20</b></div>
+        <div class="pill"><span>📌 Nivel</span><b id="levelLabel">Bajo</b></div>
+      </div>
+    </header>
 
-  <div class="footer">
-    Una sola pantalla • comparte el link por WhatsApp/redes
-  </div>
+    <section class="main">
+      <aside class="panel">
+        <div class="controlsRow">
+          <select id="level">
+            <option value="bajo">Bajo</option>
+            <option value="medio">Medio</option>
+            <option value="alto">Alto</option>
+          </select>
 
-</div>
+          <button class="btnNew" id="newBtn">Nuevo</button>
+          <button class="btnReset" id="resetBtn">Reiniciar</button>
+          <button id="shareBtn">Compartir</button>
+        </div>
+
+        <div class="card">
+          <h3>Instrucciones</h3>
+          <p>
+            1) Observa la secuencia y detecta el patrón.<br>
+            2) Escribe el número que falta donde aparece <b>?</b>.<br>
+            3) Presiona <b>Comprobar</b>. Completa <b>20</b> para tu puntaje final.
+          </p>
+        </div>
+
+        <div class="scoreGrid" aria-label="Marcadores">
+          <div class="scoreItem"><span>⏱️ Tiempo</span><b id="time2">00:00.0</b></div>
+          <div class="scoreItem"><span>🧩 Racha</span><b id="streak">0</b></div>
+          <div class="scoreItem"><span>📝 Intentos</span><b id="tries">0</b></div>
+          <div class="scoreItem"><span>❌ Fallos</span><b id="wrong">0</b></div>
+        </div>
+
+        <div class="status" id="status">Listo. Presiona “Nuevo” o empieza.</div>
+
+        <div class="footerNote">
+          <span>Una sola pantalla</span>
+          <span>Comparte el link por WhatsApp/redes</span>
+        </div>
+      </aside>
+
+      <main class="boardWrap">
+        <button class="btnCheck" id="checkBtn">Comprobar</button>
+
+        <div class="boardStage" id="stage">
+          <div class="sequenceCard">
+            <div class="seqTop">
+              <div class="seqTitle">
+                <b id="qTitle">Secuencia 1</b>
+                <span id="qDesc">Detecta el patrón y encuentra el valor faltante.</span>
+              </div>
+              <div class="progress">
+                <span class="chip" id="chipType">Patrón: —</span>
+                <span class="chip" id="chipDiff">Dificultad: Bajo</span>
+              </div>
+            </div>
+
+            <div class="seqLine" id="seqLine" aria-label="Secuencia">
+              <!-- tokens -->
+            </div>
+
+            <div class="answerRow">
+              <input id="answer" inputmode="numeric" autocomplete="off" placeholder="Tu respuesta" />
+            </div>
+
+            <div class="result" id="result"></div>
+            <div class="hint" id="hint">
+              Tip: Si te atoras, mira diferencias entre términos, multiplicaciones o alternancias.
+            </div>
+          </div>
+        </div>
+      </main>
+    </section>
+  </div>
 
 <script>
-let secret=0, timer=null, seconds=0, tries=0;
-
-const timeEl=document.getElementById("time");
-const triesEl=document.getElementById("tries");
-const seqEl=document.getElementById("sequence");
-const feedback=document.getElementById("feedback");
-const levelSel=document.getElementById("level");
-const levelTxt=document.getElementById("levelTxt");
-
-function startTimer(){
-  clearInterval(timer);
-  seconds=0;
-  timer=setInterval(()=>{
-    seconds++;
-    let m=String(Math.floor(seconds/60)).padStart(2,"0");
-    let s=String(seconds%60).padStart(2,"0");
-    timeEl.textContent=`${m}:${s}`;
-  },1000);
-}
-
-function generate(){
-  let level=levelSel.value;
-  levelTxt.textContent=levelSel.options[levelSel.selectedIndex].text;
-
-  let seq=[], step, start;
-  if(level==="easy"){
-    step=[1,2,5][Math.floor(Math.random()*3)];
-    start=Math.floor(Math.random()*10);
-  }else if(level==="medium"){
-    step=[2,3,4][Math.floor(Math.random()*3)];
-    start=Math.floor(Math.random()*20);
-  }else{
-    step=[-2,3,5][Math.floor(Math.random()*3)];
-    start=Math.floor(Math.random()*30);
+(() => {
+  // ---- Viewport real (evita scroll por barras del navegador) ----
+  function setVH(){
+    const vh = (window.visualViewport ? window.visualViewport.height : window.innerHeight) * 0.01;
+    document.documentElement.style.setProperty('--vh', `${vh}px`);
+  }
+  setVH();
+  window.addEventListener('resize', setVH);
+  if(window.visualViewport){
+    window.visualViewport.addEventListener('resize', setVH);
+    window.visualViewport.addEventListener('scroll', setVH);
   }
 
-  for(let i=0;i<5;i++) seq.push(start+i*step);
-  let miss=Math.floor(Math.random()*5);
-  secret=seq[miss];
-  seq[miss]=null;
+  // ---- Utilidades ----
+  const $ = (id) => document.getElementById(id);
+  const pad2 = (n) => String(n).padStart(2,'0');
 
-  seqEl.innerHTML="";
-  seq.forEach(v=>{
-    let d=document.createElement("div");
-    d.className="box"+(v===null?" missing":"");
-    d.textContent=v===null?"?":v;
-    seqEl.appendChild(d);
-  });
-}
-
-function newGame(){
-  tries=0;
-  triesEl.textContent=0;
-  feedback.textContent="";
-  document.getElementById("input").value="";
-  startTimer();
-  generate();
-}
-
-function check(){
-  let val=Number(document.getElementById("input").value);
-  if(isNaN(val))return;
-  tries++;
-  triesEl.textContent=tries;
-  if(val===secret){
-    feedback.textContent="✅ ¡Correcto! Nueva secuencia.";
-    feedback.className="feedback ok";
-    generate();
-  }else{
-    feedback.textContent="❌ Incorrecto, intenta otra vez.";
-    feedback.className="feedback bad";
+  function fmtTime(ms){
+    const s = ms/1000;
+    const mm = Math.floor(s/60);
+    const ss = Math.floor(s%60);
+    const t = (s - Math.floor(s)).toFixed(1).slice(1); // .0
+    return `${pad2(mm)}:${pad2(ss)}${t}`;
   }
-}
 
-function share(){
-  const url=location.href;
-  navigator.clipboard.writeText(url).then(()=>{
-    alert("Link copiado ✅");
-  }).catch(()=>{
-    prompt("Copia este link:",url);
+  function shuffle(arr){
+    for(let i=arr.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [arr[i],arr[j]]=[arr[j],arr[i]];
+    }
+    return arr;
+  }
+
+  function randInt(a,b){ // inclusive
+    return Math.floor(Math.random()*(b-a+1))+a;
+  }
+
+  // ---- Generadores de secuencias por nivel ----
+  // Devuelven: { seq: number[], missingIndex: number, answer: number, type: string }
+  function genEasy(){
+    const types = ['+d', '-d', 'xk', 'cuadrados', 'fibo', 'pares'];
+    const pick = types[randInt(0, types.length-1)];
+    let seq = [], ans = 0, miss = randInt(1,3);
+
+    if(pick === '+d'){
+      const start = randInt(1,20);
+      const d = randInt(2,9);
+      seq = Array.from({length:5},(_,i)=> start + i*d);
+      ans = seq[miss];
+      return {seq, missingIndex: miss, answer: ans, type:`Suma +${d}`};
+    }
+
+    if(pick === '-d'){
+      const start = randInt(20,80);
+      const d = randInt(2,9);
+      seq = Array.from({length:5},(_,i)=> start - i*d);
+      ans = seq[miss];
+      return {seq, missingIndex: miss, answer: ans, type:`Resta -${d}`};
+    }
+
+    if(pick === 'xk'){
+      const start = randInt(1,6);
+      const k = randInt(2,4);
+      seq = Array.from({length:5},(_,i)=> start + i*k);
+      // conviértelo a múltiplos suaves
+      seq = seq.map(v => v*k);
+      ans = seq[miss];
+      return {seq, missingIndex: miss, answer: ans, type:`Múltiplos de ${k}`};
+    }
+
+    if(pick === 'cuadrados'){
+      const start = randInt(1,4);
+      seq = Array.from({length:5},(_,i)=> (start+i)**2);
+      ans = seq[miss];
+      return {seq, missingIndex: miss, answer: ans, type:`Cuadrados`};
+    }
+
+    if(pick === 'fibo'){
+      let a = randInt(1,5), b = randInt(1,6);
+      seq = [a,b];
+      for(let i=2;i<5;i++) seq.push(seq[i-1]+seq[i-2]);
+      ans = seq[miss];
+      return {seq, missingIndex: miss, answer: ans, type:`Fibonacci`};
+    }
+
+    // pares: +2 desde un impar/par
+    const start = randInt(0,1) ? randInt(2,18)*2 : randInt(1,19)*2-1;
+    const d = 2;
+    seq = Array.from({length:5},(_,i)=> start + i*d);
+    ans = seq[miss];
+    return {seq, missingIndex: miss, answer: ans, type:`Paso +2`};
+  }
+
+  function genMedium(){
+    const types = ['alterno', 'arit2', 'geom', 'triangular', 'mix'];
+    const pick = types[randInt(0, types.length-1)];
+    let seq = [], ans = 0, miss = randInt(1,3);
+
+    if(pick === 'alterno'){
+      // a,b,a,b... con dos pasos distintos
+      const a = randInt(2,20);
+      const b = a + randInt(3,12);
+      const da = randInt(1,6);
+      const db = randInt(1,6);
+      seq = [];
+      let x=a, y=b;
+      for(let i=0;i<5;i++){
+        if(i%2===0){ seq.push(x); x += da; }
+        else{ seq.push(y); y += db; }
+      }
+      ans = seq[miss];
+      return {seq, missingIndex: miss, answer: ans, type:`Alterna (2 series)`};
+    }
+
+    if(pick === 'arit2'){
+      // diferencias crecen: +d, +(d+1), ...
+      const start = randInt(1,20);
+      let d = randInt(2,6);
+      seq = [start];
+      for(let i=1;i<5;i++){
+        seq.push(seq[i-1] + d);
+        d += 1;
+      }
+      ans = seq[miss];
+      return {seq, missingIndex: miss, answer: ans, type:`Diferencias crecientes`};
+    }
+
+    if(pick === 'geom'){
+      const start = randInt(2,8);
+      const r = [2,3][randInt(0,1)];
+      seq = Array.from({length:5},(_,i)=> start * (r**i));
+      ans = seq[miss];
+      return {seq, missingIndex: miss, answer: ans, type:`Multiplica ×${r}`};
+    }
+
+    if(pick === 'triangular'){
+      // 1,3,6,10,15... (suma 1,2,3,4...)
+      const base = randInt(0,6);
+      seq = [];
+      let v = base;
+      for(let i=1;i<=5;i++){
+        v += i;
+        seq.push(v);
+      }
+      ans = seq[miss];
+      return {seq, missingIndex: miss, answer: ans, type:`Triangulares`};
+    }
+
+    // mix: +a, +b alternando
+    const start = randInt(1,25);
+    const a = randInt(2,9);
+    const b = randInt(2,9);
+    seq = [start];
+    for(let i=1;i<5;i++){
+      seq.push(seq[i-1] + (i%2? a : b));
+    }
+    ans = seq[miss];
+    return {seq, missingIndex: miss, answer: ans, type:`Suma alternada +${a}/+${b}`};
+  }
+
+  function genHard(){
+    const types = ['op', 'cuadPlus', 'dobleSerie', 'powMix', 'altMulAdd'];
+    const pick = types[randInt(0, types.length-1)];
+    let seq = [], ans = 0, miss = randInt(1,3);
+
+    if(pick === 'op'){
+      // operación encadenada: x2 + c, x2 + c...
+      let v = randInt(2,9);
+      const c = randInt(1,9);
+      seq = [v];
+      for(let i=1;i<5;i++){
+        v = v*2 + c;
+        seq.push(v);
+      }
+      ans = seq[miss];
+      return {seq, missingIndex: miss, answer: ans, type:`×2 + ${c}`};
+    }
+
+    if(pick === 'cuadPlus'){
+      // n^2 + k
+      const n0 = randInt(2,5);
+      const k = randInt(3,20);
+      seq = Array.from({length:5},(_,i)=> (n0+i)**2 + k);
+      ans = seq[miss];
+      return {seq, missingIndex: miss, answer: ans, type:`n² + ${k}`};
+    }
+
+    if(pick === 'dobleSerie'){
+      // suma de dos series: (a+i*d1) + (b+i*d2)
+      const a = randInt(1,20), b = randInt(1,20);
+      const d1 = randInt(1,6), d2 = randInt(1,6);
+      seq = Array.from({length:5},(_,i)=> (a+i*d1) + (b+i*d2));
+      ans = seq[miss];
+      return {seq, missingIndex: miss, answer: ans, type:`Suma de 2 progresiones`};
+    }
+
+    if(pick === 'powMix'){
+      // potencias suaves + alternancia
+      const start = randInt(2,5);
+      const add = randInt(1,7);
+      seq = [];
+      for(let i=0;i<5;i++){
+        const p = start+i;
+        seq.push((p*p) + (i%2===0 ? add : add*2));
+      }
+      ans = seq[miss];
+      return {seq, missingIndex: miss, answer: ans, type:`Cuadrados + alterna`};
+    }
+
+    // alterna: *r, +c
+    let v = randInt(2,12);
+    const r = [2,3][randInt(0,1)];
+    const c = randInt(2,10);
+    seq = [v];
+    for(let i=1;i<5;i++){
+      v = (i%2===1) ? (v*r) : (v + c);
+      seq.push(v);
+    }
+    ans = seq[miss];
+    return {seq, missingIndex: miss, answer: ans, type:`Alterna ×${r} / +${c}`};
+  }
+
+  function generateQuestion(level){
+    if(level === 'bajo') return genEasy();
+    if(level === 'medio') return genMedium();
+    return genHard();
+  }
+
+  // ---- Estado del juego ----
+  const state = {
+    level: 'bajo',
+    questions: [],
+    idx: 0,
+    correct: 0,
+    wrong: 0,
+    tries: 0,
+    streak: 0,
+    started: false,
+    t0: 0,
+    timer: null,
+    running: false,
+    current: null
+  };
+
+  // ---- UI refs ----
+  const levelSel = $('level');
+  const newBtn = $('newBtn');
+  const resetBtn = $('resetBtn');
+  const shareBtn = $('shareBtn');
+  const checkBtn = $('checkBtn');
+  const ansInp = $('answer');
+
+  const timeEl = $('time');
+  const timeEl2 = $('time2');
+  const correctEl = $('correct');
+  const wrongEl = $('wrong');
+  const triesEl = $('tries');
+  const streakEl = $('streak');
+  const progressEl = $('progress');
+  const levelLabel = $('levelLabel');
+
+  const statusEl = $('status');
+  const qTitle = $('qTitle');
+  const chipType = $('chipType');
+  const chipDiff = $('chipDiff');
+  const seqLine = $('seqLine');
+  const resultEl = $('result');
+  const hintEl = $('hint');
+
+  function setStatus(msg, kind='warn'){
+    statusEl.textContent = msg;
+    if(kind==='ok'){
+      statusEl.style.borderColor = 'rgba(34,197,94,.35)';
+      statusEl.style.background = 'rgba(34,197,94,.12)';
+      statusEl.style.color = '#bbf7d0';
+    }else if(kind==='bad'){
+      statusEl.style.borderColor = 'rgba(239,68,68,.35)';
+      statusEl.style.background = 'rgba(239,68,68,.12)';
+      statusEl.style.color = '#fecaca';
+    }else{
+      statusEl.style.borderColor = 'rgba(245,158,11,.35)';
+      statusEl.style.background = 'rgba(245,158,11,.12)';
+      statusEl.style.color = '#fde68a';
+    }
+  }
+
+  function updateHUD(){
+    correctEl.textContent = state.correct;
+    wrongEl.textContent = state.wrong;
+    triesEl.textContent = state.tries;
+    streakEl.textContent = state.streak;
+    progressEl.textContent = `${state.idx+1}/20`;
+    const lvlName = state.level.charAt(0).toUpperCase()+state.level.slice(1);
+    levelLabel.textContent = lvlName;
+    chipDiff.textContent = `Dificultad: ${lvlName}`;
+  }
+
+  function startTimer(){
+    if(state.running) return;
+    state.running = true;
+    state.started = true;
+    state.t0 = performance.now() - (state.elapsed || 0);
+    state.timer = setInterval(() => {
+      state.elapsed = performance.now() - state.t0;
+      const t = fmtTime(state.elapsed);
+      timeEl.textContent = t;
+      timeEl2.textContent = t;
+    }, 100);
+  }
+
+  function stopTimer(){
+    state.running = false;
+    if(state.timer){ clearInterval(state.timer); state.timer=null; }
+  }
+
+  function resetTimer(){
+    stopTimer();
+    state.elapsed = 0;
+    const t = fmtTime(0);
+    timeEl.textContent = t;
+    timeEl2.textContent = t;
+  }
+
+  function buildSet(){
+    // 20 preguntas del nivel (mezcla interna)
+    const qs = [];
+    for(let i=0;i<20;i++){
+      qs.push(generateQuestion(state.level));
+    }
+    // Un toque de mezcla para que no sea monótono
+    state.questions = shuffle(qs);
+    state.idx = 0;
+  }
+
+  function renderQuestion(){
+    state.current = state.questions[state.idx];
+    const q = state.current;
+
+    qTitle.textContent = `Secuencia ${state.idx+1}`;
+    chipType.textContent = `Patrón: ${q.type}`;
+
+    // render tokens
+    seqLine.innerHTML = '';
+    q.seq.forEach((v,i)=>{
+      const d = document.createElement('div');
+      d.className = 'token' + (i===q.missingIndex ? ' missing' : '');
+      d.textContent = (i===q.missingIndex) ? '?' : String(v);
+      seqLine.appendChild(d);
+    });
+
+    resultEl.textContent = '';
+    resultEl.className = 'result';
+    ansInp.value = '';
+    ansInp.focus({preventScroll:true});
+
+    // Hint según nivel
+    if(state.level==='bajo') hintEl.textContent = 'Tip: busca sumas/restas constantes o múltiplos.';
+    else if(state.level==='medio') hintEl.textContent = 'Tip: prueba alternancias (+a/+b), diferencias crecientes o multiplicación.';
+    else hintEl.textContent = 'Tip: combina reglas (× y +), o mira dos series intercaladas.';
+    updateHUD();
+  }
+
+  function endGame(){
+    stopTimer();
+    const total = 20;
+    const msg = `Final: ${state.correct}/${total} correctas. Tiempo: ${fmtTime(state.elapsed||0)}.`;
+    setStatus(msg, state.correct>=15 ? 'ok' : (state.correct>=10 ? 'warn' : 'bad'));
+    resultEl.textContent = msg;
+    resultEl.className = 'result ' + (state.correct>=15 ? 'ok' : (state.correct>=10 ? '' : 'no'));
+  }
+
+  function newGame(){
+    state.level = levelSel.value;
+    resetTimer();
+
+    state.correct = 0;
+    state.wrong = 0;
+    state.tries = 0;
+    state.streak = 0;
+    state.started = false;
+
+    buildSet();
+    renderQuestion();
+    setStatus('Nuevo set generado. ¡Dale!', 'warn');
+  }
+
+  function restart(){
+    // Reinicia con mismas preguntas (mismo set)
+    resetTimer();
+
+    state.correct = 0;
+    state.wrong = 0;
+    state.tries = 0;
+    state.streak = 0;
+    state.started = false;
+    state.idx = 0;
+
+    renderQuestion();
+    setStatus('Reiniciado (mismo set). ¡Vamos!', 'warn');
+  }
+
+  function checkAnswer(){
+    if(!state.current) return;
+
+    const raw = ansInp.value.trim();
+    if(raw === ''){
+      setStatus('Escribe una respuesta antes de comprobar.', 'bad');
+      return;
+    }
+
+    // Arranca cronómetro con la primera acción real
+    startTimer();
+
+    const val = Number(raw);
+    if(!Number.isFinite(val)){
+      setStatus('Tu respuesta debe ser un número.', 'bad');
+      return;
+    }
+
+    state.tries++;
+    const ok = (val === state.current.answer);
+
+    if(ok){
+      state.correct++;
+      state.streak++;
+      resultEl.textContent = '✅ Correcto. ¡Sigue!';
+      resultEl.className = 'result ok';
+      setStatus('Correcto ✅', 'ok');
+    }else{
+      state.wrong++;
+      state.streak = 0;
+      resultEl.textContent = `❌ Incorrecto. La respuesta era ${state.current.answer}.`;
+      resultEl.className = 'result no';
+      setStatus('Incorrecto ❌', 'bad');
+    }
+
+    updateHUD();
+
+    // Avanzar (pequeño delay para leer)
+    setTimeout(() => {
+      if(state.idx >= 19){
+        endGame();
+      }else{
+        state.idx++;
+        renderQuestion();
+        setStatus('Siguiente secuencia…', 'warn');
+      }
+    }, 520);
+  }
+
+  async function share(){
+    const url = location.href;
+    const text = `Secuencia Perdida 🧠 (Por: Soamy Lanza)\n¿Cuántas correctas sacas de 20?\n${url}`;
+    try{
+      if(navigator.share){
+        await navigator.share({title: document.title, text, url});
+      }else{
+        await navigator.clipboard.writeText(url);
+        alert('Link copiado ✅');
+      }
+    }catch(e){
+      try{
+        await navigator.clipboard.writeText(url);
+        alert('Link copiado ✅');
+      }catch(_){
+        prompt('Copia este link:', url);
+      }
+    }
+  }
+
+  // ---- Eventos ----
+  newBtn.addEventListener('click', newGame);
+  resetBtn.addEventListener('click', restart);
+  shareBtn.addEventListener('click', share);
+  checkBtn.addEventListener('click', checkAnswer);
+
+  levelSel.addEventListener('change', () => {
+    // Cambiar nivel = nuevo set
+    newGame();
   });
-}
 
-newGame();
+  ansInp.addEventListener('keydown', (e) => {
+    if(e.key === 'Enter'){
+      checkAnswer();
+    }
+  });
+
+  // ---- Init ----
+  // Autoinicio suave
+  state.level = levelSel.value;
+  newGame();
+})();
 </script>
 </body>
 </html>
