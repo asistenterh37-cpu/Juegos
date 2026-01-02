@@ -7,140 +7,64 @@
 
 <style>
 :root{
-  --bg:#0b1220;
-  --card:#121a2b;
-  --soft:#1a2440;
-  --accent:#22c55e;
-  --warn:#f59e0b;
-  --danger:#ef4444;
-  --text:#e5e7eb;
-  --muted:#9ca3af;
+  --bg:#0b1220; --card:#121a2b; --soft:#1a2440;
+  --accent:#22c55e; --warn:#f59e0b; --danger:#ef4444;
+  --text:#e5e7eb; --muted:#9ca3af;
 }
 *{box-sizing:border-box}
 body{
-  margin:0;
-  font-family:system-ui,-apple-system,Segoe UI,Roboto;
+  margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto;
   background:radial-gradient(1200px 600px at 20% -10%, #123 0%, var(--bg) 40%);
   color:var(--text);
 }
 .container{max-width:1200px;margin:auto;padding:20px}
 .card{
   background:linear-gradient(180deg,var(--card),#0e1526);
-  border-radius:16px;
-  padding:18px;
+  border-radius:16px; padding:18px;
   box-shadow:0 20px 50px rgba(0,0,0,.35);
 }
-.header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:16px;
-  flex-wrap:wrap;
-}
+.header{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
 .title{font-size:1.6rem;font-weight:700}
 .subtitle{color:var(--muted)}
 .badges{display:flex;gap:10px;flex-wrap:wrap}
-.badge{
-  background:#0f172a;
-  border:1px solid #1f2937;
-  border-radius:999px;
-  padding:6px 12px;
-  font-size:.85rem;
-}
-.main{
-  display:grid;
-  grid-template-columns:320px 1fr;
-  gap:18px;
-  margin-top:16px;
-}
-@media(max-width:900px){
-  .main{grid-template-columns:1fr}
-}
-.panel{
-  background:linear-gradient(180deg,var(--soft),#0f172a);
-  border-radius:14px;
-  padding:14px;
-}
+.badge{background:#0f172a;border:1px solid #1f2937;border-radius:999px;padding:6px 12px;font-size:.85rem}
+
+.main{display:grid;grid-template-columns:320px 1fr;gap:18px;margin-top:16px}
+@media(max-width:900px){.main{grid-template-columns:1fr}}
+
+.panel{background:linear-gradient(180deg,var(--soft),#0f172a);border-radius:14px;padding:14px}
 .controls select, .controls button{width:100%;margin-bottom:10px}
+
 button, select, input{
-  background:#0f172a;
-  color:var(--text);
-  border:1px solid #1f2937;
-  border-radius:10px;
-  padding:10px;
-  font-size:1rem;
+  background:#0f172a;color:var(--text);border:1px solid #1f2937;
+  border-radius:10px;padding:10px;font-size:1rem;
 }
 button.primary{background:#14532d;border-color:#22c55e}
 button.warn{background:#3b2f12;border-color:#f59e0b}
 button:active{transform:scale(.98)}
+
 .stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
-.stat{
-  background:#0f172a;
-  border-radius:10px;
-  padding:10px;
-  font-size:.9rem;
-}
-.sequence-card{
-  background:linear-gradient(180deg,#0f172a,#020617);
-  border-radius:16px;
-  padding:18px;
-  height:100%;
-}
-.seq{
-  display:flex;
-  justify-content:center;
-  gap:12px;
-  margin:18px 0;
-  flex-wrap:wrap;
-}
+.stat{background:#0f172a;border-radius:10px;padding:10px;font-size:.9rem}
+
+.sequence-card{background:linear-gradient(180deg,#0f172a,#020617);border-radius:16px;padding:18px;height:100%}
+.seq{display:flex;justify-content:center;gap:12px;margin:18px 0;flex-wrap:wrap}
 .num{
-  min-width:64px;
-  padding:14px 10px;
-  border-radius:12px;
-  background:#020617;
-  border:1px solid #1f2937;
-  font-size:1.2rem;
-  text-align:center;
-  display:flex;
-  align-items:center;
-  justify-content:center;
+  min-width:64px;padding:14px 10px;border-radius:12px;
+  background:#020617;border:1px solid #1f2937;font-size:1.2rem;text-align:center;
+  display:flex;align-items:center;justify-content:center;
 }
-.missing{
-  border-color:#22c55e;
-  box-shadow:0 0 0 3px rgba(34,197,94,.12);
-}
+.missing{border-color:#22c55e;box-shadow:0 0 0 3px rgba(34,197,94,.12)}
 .missing input{
-  width:100%;
-  background:transparent;
-  border:none;
-  outline:none;
-  color:var(--accent);
-  font-size:1.25rem;
-  text-align:center;
-  padding:0;
+  width:100%;background:transparent;border:none;outline:none;color:var(--accent);
+  font-size:1.25rem;text-align:center;padding:0;
 }
 .missing input::placeholder{color:rgba(34,197,94,.5)}
-.actions{
-  display:flex;
-  gap:10px;
-  justify-content:center;
-  flex-wrap:wrap;
-}
+.actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
 .actions button{min-width:180px}
-.msg{
-  margin-top:10px;
-  text-align:center;
-  color:var(--muted);
-  min-height:22px;
-}
+.msg{margin-top:10px;text-align:center;color:var(--muted);min-height:22px}
 .msg.ok{color:#86efac}
 .msg.bad{color:#fca5a5}
-.footer{
-  margin-top:10px;
-  font-size:.85rem;
-  color:var(--muted);
-  text-align:center;
-}
+.footer{margin-top:10px;font-size:.85rem;color:var(--muted);text-align:center}
 </style>
 </head>
 
@@ -156,7 +80,7 @@ button:active{transform:scale(.98)}
       <div class="badges">
         <div class="badge">⏱️ <span id="time">00:00</span></div>
         <div class="badge">✅ Correctas: <span id="correct">0</span></div>
-        <div class="badge">📊 Progreso: <span id="progress">0</span>/20</div>
+        <div class="badge">📊 Progreso: <span id="progress">0</span>/<span id="total">10</span></div>
       </div>
     </div>
 
@@ -180,7 +104,7 @@ button:active{transform:scale(.98)}
             <li>Observa la secuencia.</li>
             <li>Escribe el número en la casilla <b>?</b>.</li>
             <li>Presiona <b>Enter</b> o <b>Comprobar</b>.</li>
-            <li>Completa las 20 secuencias.</li>
+            <li>Completa las <b>10</b> secuencias de la partida.</li>
           </ol>
         </div>
 
@@ -199,13 +123,10 @@ button:active{transform:scale(.98)}
       <!-- DERECHA -->
       <div class="sequence-card">
         <h3 id="seqTitle">Secuencia 1</h3>
-
         <div class="seq" id="sequence"></div>
-
         <div class="actions">
           <button class="primary" id="checkBtn">Comprobar</button>
         </div>
-
         <div class="msg" id="msg"></div>
       </div>
     </div>
@@ -213,84 +134,46 @@ button:active{transform:scale(.98)}
 </div>
 
 <script>
-/* ===============================
-   SECUENCIAS (20 por nivel)
-   Puedes editar/expandir cuando quieras.
-================================ */
-const sequences = {
+/* ======================================================
+   POOLS: muchas secuencias por nivel (fuente del azar)
+   null = el lugar del "?"
+====================================================== */
+const POOL = {
   bajo: [
-    [3,6,9,null,15],
-    [2,4,6,null,10],
-    [5,10,15,null,25],
-    [1,2,3,null,5],
-    [10,20,null,40,50],
-    [7,11,15,null,23],
-    [100,90,null,70,60],
-    [4,8,12,null,20],
-    [9,7,5,null,1],
-    [11,22,33,null,55],
-    [2,3,5,8,null],      // fibonacci corto
-    [6,12,null,24,30],
-    [13,null,29,37,45],
-    [50,45,null,35,30],
-    [1,4,9,null,25],
-    [8,16,null,32,40],
-    [21,18,null,12,9],
-    [10,20,40,null,80],
-    [3,6,null,12,15],
-    [5,6,7,null,9]
+    [3,6,9,null,15],[2,4,6,null,10],[5,10,15,null,25],[1,2,3,null,5],[10,20,null,40,50],
+    [7,11,15,null,23],[100,90,null,70,60],[4,8,12,null,20],[9,7,5,null,1],[11,22,33,null,55],
+    [6,12,null,24,30],[50,45,null,35,30],[1,4,9,null,25],[8,16,null,32,40],[5,6,7,null,9],
+    [12,14,16,null,20],[30,27,24,null,18],[2,6,10,null,18],[9,18,27,null,45],[15,14,13,null,11],
+    [1,3,5,null,9],[2,3,4,null,6],[10,12,14,null,18],[20,25,30,null,40],[60,50,40,null,20]
   ],
   medio: [
-    [2,6,12,null,30],     // +4 +6 +8 +10
-    [1,4,10,null,28],     // +3 +6 +9 +12
-    [3,9,27,null,243],    // x3
-    [5,8,14,null,35],     // +3 +6 +9 +12
-    [40,20,10,null,2.5],  // /2
-    [7,14,28,null,112],   // x2
-    [2,5,11,null,29],     // +3 +6 +9 +12
-    [81,27,9,null,1],     // /3
-    [6,7,9,null,16],      // +1 +2 +3 +4
-    [10,13,19,null,34],   // +3 +6 +9 +12
-    [1,2,4,7,null],       // +1 +2 +3 +4
-    [9,18,36,null,144],   // x2
-    [100,97,91,null,70],  // -3 -6 -9 -12
-    [12,24,48,null,192],  // x2
-    [3,6,12,null,48],     // x2
-    [2,3,5,9,null],       // +1 +2 +4 +8
-    [5,15,45,null,405],   // x3
-    [2,8,26,null,242],    // x3+2
-    [4,9,19,null,49],     // x2+1
-    [50,47,41,null,20]    // -3 -6 -9 -12
+    [2,6,12,null,30],[1,4,10,null,28],[3,9,27,null,243],[40,20,10,null,2.5],[7,14,28,null,112],
+    [2,5,11,null,29],[81,27,9,null,1],[6,7,9,null,16],[10,13,19,null,34],[1,2,4,7,null],
+    [9,18,36,null,144],[100,97,91,null,70],[12,24,48,null,192],[3,6,12,null,48],[5,15,45,null,405],
+    [2,8,26,null,242],[4,9,19,null,49],[50,47,41,null,20],[5,8,14,null,35],[2,3,5,9,null],
+    [6,10,15,null,28],[20,18,15,null,8],[4,12,20,null,44],[3,5,9,null,21],[2,4,7,null,16]
   ],
   alto: [
-    [2,6,18,null,162],    // x3
-    [3,7,15,null,63],     // x2+1
-    [1,3,7,null,31],      // x2+1
-    [5,11,23,null,95],    // x2+1
-    [4,12,36,null,324],   // x3
-    [2,5,11,null,29],     // +3 +6 +9 +12
-    [10,9,7,null,0],      // -1 -2 -3 -4
-    [2,7,17,null,47],     // +5 +10 +15 +20
-    [6,13,27,null,86],    // +7 +14 +21 +28
-    [3,8,18,null,43],     // +5 +10 +15 +20
-    [1,4,12,null,108],    // x3 (desde 4)
-    [9,7,4,null,-4],      // -2 -3 -4 -5
-    [2,9,28,null,243],    // x3+3?
-    [8,6,3,null,-5],      // -2 -3 -4 -5
-    [2,4,8,null,32],      // x2
-    [7,10,16,null,35],    // +3 +6 +9 +12
-    [3,12,48,null,768],   // x4
-    [5,25,125,null,3125], // x5
-    [2,6,14,null,34],     // +4 +8 +12 +16
-    [100,50,25,null,6.25] // /2
+    [2,6,18,null,162],[3,7,15,null,63],[1,3,7,null,31],[5,11,23,null,95],[4,12,36,null,324],
+    [10,9,7,null,0],[2,7,17,null,47],[6,13,27,null,86],[9,7,4,null,-4],[8,6,3,null,-5],
+    [5,25,125,null,3125],[2,6,14,null,34],[100,50,25,null,6.25],[3,12,48,null,768],[2,4,8,null,32],
+    [7,10,16,null,35],[1,4,12,null,108],[6,24,96,null,1536],[4,9,16,null,36],[2,9,28,null,243],
+    [30,15,7.5,null,1.875],[1,5,14,null,30],[2,10,26,null,82],[3,8,18,null,43],[9,27,81,null,729]
   ]
 };
 
-/* ===============================
+/* ======================================================
+   CONFIG: cada partida tiene 10 secuencias
+====================================================== */
+const GAME_SIZE = 10;
+
+/* ======================================================
    ESTADO
-================================ */
+====================================================== */
 let level = "bajo";
+let game = [];          // las 10 secuencias actuales (la partida)
 let idx = 0;
+
 let correct = 0;
 let tries = 0;
 let fails = 0;
@@ -299,116 +182,148 @@ let streak = 0;
 let timer = null;
 let seconds = 0;
 
+// Para evitar repetición consecutiva:
+let lastSequenceKeyByLevel = { bajo:null, medio:null, alto:null };
+let lastGameKeyByLevel = { bajo:null, medio:null, alto:null };
+
 const seqDiv = document.getElementById("sequence");
 const msgEl = document.getElementById("msg");
 
-/* ===============================
+/* ======================================================
+   UTILS
+====================================================== */
+function formatMMSS(sec){
+  const m = String(Math.floor(sec/60)).padStart(2,"0");
+  const s = String(sec%60).padStart(2,"0");
+  return `${m}:${s}`;
+}
+function keyOfSeq(seq){ return seq.map(v => v===null ? "?" : String(v)).join(","); }
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+/* ======================================================
    TIMER
-================================ */
+====================================================== */
 function startTimer(){
   if(timer) return;
   timer = setInterval(()=>{
     seconds++;
-    const m = String(Math.floor(seconds/60)).padStart(2,"0");
-    const s = String(seconds%60).padStart(2,"0");
-    document.getElementById("time").textContent = `${m}:${s}`;
-    document.getElementById("time2").textContent = `${m}:${s}`;
+    const t = formatMMSS(seconds);
+    document.getElementById("time").textContent = t;
+    document.getElementById("time2").textContent = t;
   }, 1000);
 }
-
 function stopTimer(){
   clearInterval(timer);
   timer = null;
 }
 
-/* ===============================
-   LÓGICA DE RESPUESTA CORRECTA
-   (intenta deducir según tipo común)
-================================ */
+/* ======================================================
+   GENERAR PARTIDA (10 secuencias) SIN REPETIR SEGUIDO
+====================================================== */
+function generateGame(lvl){
+  const pool = POOL[lvl].map(s => s.slice()); // copia
+  if(pool.length < GAME_SIZE) throw new Error("Pool insuficiente.");
+
+  let attempt = 0;
+  while(attempt < 50){
+    attempt++;
+
+    // Mezcla y toma 10
+    let candidate = shuffle(pool).slice(0, GAME_SIZE);
+
+    // 1) Evitar que la primera secuencia sea igual a la última jugada del nivel
+    const firstKey = keyOfSeq(candidate[0]);
+    if(lastSequenceKeyByLevel[lvl] && firstKey === lastSequenceKeyByLevel[lvl]){
+      // simple swap con otra dentro del candidato
+      if(candidate.length > 1){
+        [candidate[0], candidate[1]] = [candidate[1], candidate[0]];
+      }
+    }
+
+    // 2) Evitar que el set (partida) sea igual al anterior set del nivel
+    const gameKey = candidate.map(keyOfSeq).join("|");
+    if(lastGameKeyByLevel[lvl] && gameKey === lastGameKeyByLevel[lvl]){
+      continue; // reintentar
+    }
+
+    // 3) Evitar repeticiones consecutivas dentro de la partida (por si el pool tuviera duplicados)
+    let ok = true;
+    for(let i=1;i<candidate.length;i++){
+      if(keyOfSeq(candidate[i]) === keyOfSeq(candidate[i-1])) { ok=false; break; }
+    }
+    if(!ok) continue;
+
+    // guardar keys de control
+    lastGameKeyByLevel[lvl] = gameKey;
+    lastSequenceKeyByLevel[lvl] = keyOfSeq(candidate[candidate.length-1]); // última de la partida
+
+    return candidate;
+  }
+
+  // si falla por alguna razón, igual devuelvo una mezcla
+  const fallback = shuffle(pool).slice(0, GAME_SIZE);
+  lastGameKeyByLevel[lvl] = fallback.map(keyOfSeq).join("|");
+  lastSequenceKeyByLevel[lvl] = keyOfSeq(fallback[fallback.length-1]);
+  return fallback;
+}
+
+/* ======================================================
+   CALCULAR RESPUESTA (heurísticas simples)
+====================================================== */
 function computeCorrectValue(seq){
   const pos = seq.indexOf(null);
 
-  // Caso: progresión aritmética (diferencia constante)
-  if(pos > 0 && pos < seq.length - 1 && Number.isFinite(seq[pos-1]) && Number.isFinite(seq[pos+1])){
-    const diff = seq[pos+1] - seq[pos-1];
-    if(Number.isFinite(diff)){
-      // si hay salto de 2 pasos, diff/2 es el paso real
-      const step = diff / 2;
-      if(Number.isFinite(step)) return seq[pos-1] + step;
-    }
-  }
-
-  // fallback: intentar detectar relación por dos primeros saltos (bajo/medio)
-  // si hay al menos 3 conocidos seguidos
-  const known = seq.map((v,i)=>({v,i})).filter(o=>o.v!==null);
-  // Si el null está en medio: usa vecinos inmediatos si existen
-  if(pos>0 && pos<seq.length-1 && seq[pos-1]!==null && seq[pos+1]!==null){
+  // si hay vecinos, intenta aritmética
+  if(pos>0 && pos<seq.length-1 && seq[pos-1]!=null && seq[pos+1]!=null){
     return (seq[pos-1] + seq[pos+1]) / 2;
   }
 
-  // Si el null está al final o al inicio, intenta usar diferencias
-  // usando los primeros 3 números conocidos
-  const vals = known.map(o=>o.v);
-  if(vals.length >= 4){
-    const d1 = vals[1]-vals[0];
-    const d2 = vals[2]-vals[1];
-    const d3 = vals[3]-vals[2];
-
-    // Si d1==d2==d3, es aritmética
+  // intenta aritmética con primeros 4 conocidos
+  const known = seq.filter(v => v!==null);
+  if(known.length >= 4){
+    const d1 = known[1]-known[0], d2 = known[2]-known[1], d3 = known[3]-known[2];
     if(Math.abs(d1-d2)<1e-9 && Math.abs(d2-d3)<1e-9){
-      if(pos === 0) return vals[0] - d1;
-      if(pos === seq.length-1) return vals[vals.length-1] + d1;
+      if(pos===0) return known[0]-d1;
+      if(pos===seq.length-1) return known[known.length-1]+d1;
     }
-
-    // Si parece geométrica (ratio constante)
-    if(vals[0] !== 0){
-      const r1 = vals[1]/vals[0];
-      const r2 = vals[2]/vals[1];
-      const r3 = vals[3]/vals[2];
+    // geométrica
+    if(known[0]!==0){
+      const r1=known[1]/known[0], r2=known[2]/known[1], r3=known[3]/known[2];
       if(Math.abs(r1-r2)<1e-9 && Math.abs(r2-r3)<1e-9){
-        const r = r1;
-        if(pos === 0) return vals[0] / r;
-        if(pos === seq.length-1) return vals[vals.length-1] * r;
+        if(pos===0) return known[0]/r1;
+        if(pos===seq.length-1) return known[known.length-1]*r1;
       }
     }
   }
-
-  // Último fallback: si el null está en medio, promedio
-  if(pos>0 && pos<seq.length-1 && seq[pos-1]!==null && seq[pos+1]!==null){
-    return (seq[pos-1] + seq[pos+1]) / 2;
-  }
-
-  // Si nada aplica, devuelve NaN
   return NaN;
 }
 
-/* ===============================
-   RENDER: el ? es un INPUT
-================================ */
+/* ======================================================
+   RENDER
+====================================================== */
 function render(){
-  const seq = sequences[level][idx];
+  const seq = game[idx];
   seqDiv.innerHTML = "";
 
-  const pos = seq.indexOf(null);
-
-  seq.forEach((n, i)=>{
+  seq.forEach((n)=>{
     const d = document.createElement("div");
     d.className = "num" + (n===null ? " missing" : "");
-    if(n === null){
+    if(n===null){
       const inp = document.createElement("input");
-      inp.type = "number";
-      inp.inputMode = "numeric";
-      inp.placeholder = "?";
-      inp.id = "missingInput";
-
-      // Enter = comprobar
-      inp.addEventListener("keydown", (e)=>{
-        if(e.key === "Enter"){
-          e.preventDefault();
-          check();
-        }
+      inp.type="number";
+      inp.inputMode="numeric";
+      inp.placeholder="?";
+      inp.id="missingInput";
+      inp.addEventListener("keydown",(e)=>{
+        if(e.key==="Enter"){ e.preventDefault(); check(); }
       });
-
       d.appendChild(inp);
     }else{
       d.textContent = n;
@@ -418,20 +333,17 @@ function render(){
 
   document.getElementById("seqTitle").textContent = `Secuencia ${idx+1}`;
   document.getElementById("progress").textContent = idx;
-
-  // foco inmediato al input del ?
-  setTimeout(()=>{
-    const mi = document.getElementById("missingInput");
-    if(mi) mi.focus();
-  }, 0);
+  document.getElementById("total").textContent = GAME_SIZE;
 
   msgEl.textContent = "";
   msgEl.className = "msg";
+
+  setTimeout(()=>{ document.getElementById("missingInput")?.focus(); },0);
 }
 
-/* ===============================
+/* ======================================================
    CHECK
-================================ */
+====================================================== */
 function check(){
   startTimer();
 
@@ -439,7 +351,7 @@ function check(){
   if(!input) return;
 
   const raw = input.value;
-  if(raw === "" || raw === null){
+  if(raw==="" || raw===null){
     msgEl.textContent = "Escribe un número en la casilla ?";
     msgEl.className = "msg bad";
     input.focus();
@@ -447,13 +359,12 @@ function check(){
   }
 
   const userVal = Number(raw);
-  const seq = sequences[level][idx];
+  const seq = game[idx];
   const correctVal = computeCorrectValue(seq);
 
   tries++;
   document.getElementById("tries").textContent = tries;
 
-  // Comparación tolerante (por si hay decimales)
   const ok = Number.isFinite(correctVal) && Math.abs(userVal - correctVal) < 1e-9;
 
   if(ok){
@@ -468,17 +379,16 @@ function check(){
     idx++;
     document.getElementById("progress").textContent = idx;
 
-    if(idx >= 20){
+    if(idx >= GAME_SIZE){
       stopTimer();
-      msgEl.textContent = `🎉 Finalizado: ${correct}/20 correctas.`;
+      msgEl.textContent = `🎉 Partida terminada: ${correct}/${GAME_SIZE} correctas.`;
       msgEl.className = "msg ok";
       return;
     }
-
     render();
   }else{
     fails++;
-    streak=0;
+    streak = 0;
     document.getElementById("fails").textContent = fails;
     document.getElementById("streak").textContent = streak;
 
@@ -489,28 +399,42 @@ function check(){
   }
 }
 
-/* ===============================
-   RESET / NUEVO
-================================ */
-function reset(){
+/* ======================================================
+   NUEVO / REINICIAR
+   - Nuevo: genera nueva partida aleatoria del nivel actual
+   - Reiniciar: reinicia stats y vuelve a empezar la misma partida
+====================================================== */
+function resetStats(keepTimer=false){
   idx=0; correct=0; tries=0; fails=0; streak=0;
-  seconds=0;
-  stopTimer();
-
   document.getElementById("correct").textContent = "0";
   document.getElementById("tries").textContent = "0";
   document.getElementById("fails").textContent = "0";
   document.getElementById("streak").textContent = "0";
   document.getElementById("progress").textContent = "0";
-  document.getElementById("time").textContent = "00:00";
-  document.getElementById("time2").textContent = "00:00";
 
+  if(!keepTimer){
+    seconds=0; stopTimer();
+    document.getElementById("time").textContent="00:00";
+    document.getElementById("time2").textContent="00:00";
+  }
+}
+
+function newGame(){
+  // nueva partida aleatoria según nivel
+  game = generateGame(level);
+  resetStats(false);
   render();
 }
 
-/* ===============================
+function restartSameGame(){
+  // reinicia todo pero deja el mismo set (misma partida)
+  resetStats(false);
+  render();
+}
+
+/* ======================================================
    SHARE
-================================ */
+====================================================== */
 async function share(){
   const url = location.href;
   try{
@@ -521,22 +445,22 @@ async function share(){
   }
 }
 
-/* ===============================
+/* ======================================================
    EVENTOS
-================================ */
+====================================================== */
 document.getElementById("checkBtn").addEventListener("click", check);
-document.getElementById("newBtn").addEventListener("click", reset);
-document.getElementById("resetBtn").addEventListener("click", reset);
+document.getElementById("newBtn").addEventListener("click", newGame);
+document.getElementById("resetBtn").addEventListener("click", restartSameGame);
 document.getElementById("shareBtn").addEventListener("click", share);
-document.getElementById("level").addEventListener("change", (e)=>{
+document.getElementById("level").addEventListener("change",(e)=>{
   level = e.target.value;
-  reset();
+  newGame(); // al cambiar nivel, genera partida nueva
 });
 
-/* ===============================
+/* ======================================================
    INIT
-================================ */
-reset();
+====================================================== */
+newGame();
 </script>
 </body>
 </html>
