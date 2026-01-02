@@ -37,10 +37,7 @@ body{
   gap:16px;
   flex-wrap:wrap;
 }
-.title{
-  font-size:1.6rem;
-  font-weight:700;
-}
+.title{font-size:1.6rem;font-weight:700}
 .subtitle{color:var(--muted)}
 .badges{display:flex;gap:10px;flex-wrap:wrap}
 .badge{
@@ -64,10 +61,7 @@ body{
   border-radius:14px;
   padding:14px;
 }
-.controls select, .controls button{
-  width:100%;
-  margin-bottom:10px;
-}
+.controls select, .controls button{width:100%;margin-bottom:10px}
 button, select, input{
   background:#0f172a;
   color:var(--text);
@@ -100,28 +94,53 @@ button:active{transform:scale(.98)}
   flex-wrap:wrap;
 }
 .num{
-  min-width:60px;
+  min-width:64px;
   padding:14px 10px;
   border-radius:12px;
   background:#020617;
   border:1px solid #1f2937;
   font-size:1.2rem;
   text-align:center;
+  display:flex;
+  align-items:center;
+  justify-content:center;
 }
-.missing{border-color:#22c55e;color:#22c55e}
-.answer{
+.missing{
+  border-color:#22c55e;
+  box-shadow:0 0 0 3px rgba(34,197,94,.12);
+}
+.missing input{
   width:100%;
-  font-size:1.2rem;
-  padding:12px;
+  background:transparent;
+  border:none;
+  outline:none;
+  color:var(--accent);
+  font-size:1.25rem;
   text-align:center;
+  padding:0;
 }
+.missing input::placeholder{color:rgba(34,197,94,.5)}
+.actions{
+  display:flex;
+  gap:10px;
+  justify-content:center;
+  flex-wrap:wrap;
+}
+.actions button{min-width:180px}
+.msg{
+  margin-top:10px;
+  text-align:center;
+  color:var(--muted);
+  min-height:22px;
+}
+.msg.ok{color:#86efac}
+.msg.bad{color:#fca5a5}
 .footer{
   margin-top:10px;
   font-size:.85rem;
   color:var(--muted);
   text-align:center;
 }
-.hidden{display:none}
 </style>
 </head>
 
@@ -159,7 +178,8 @@ button:active{transform:scale(.98)}
           <strong>Instrucciones</strong>
           <ol>
             <li>Observa la secuencia.</li>
-            <li>Encuentra el número que falta.</li>
+            <li>Escribe el número en la casilla <b>?</b>.</li>
+            <li>Presiona <b>Enter</b> o <b>Comprobar</b>.</li>
             <li>Completa las 20 secuencias.</li>
           </ol>
         </div>
@@ -179,15 +199,24 @@ button:active{transform:scale(.98)}
       <!-- DERECHA -->
       <div class="sequence-card">
         <h3 id="seqTitle">Secuencia 1</h3>
+
         <div class="seq" id="sequence"></div>
-        <input class="answer" id="answer" type="number" placeholder="Tu respuesta" />
-        <button class="primary" id="checkBtn">Comprobar</button>
+
+        <div class="actions">
+          <button class="primary" id="checkBtn">Comprobar</button>
+        </div>
+
+        <div class="msg" id="msg"></div>
       </div>
     </div>
   </div>
 </div>
 
 <script>
+/* ===============================
+   SECUENCIAS (20 por nivel)
+   Puedes editar/expandir cuando quieras.
+================================ */
 const sequences = {
   bajo: [
     [3,6,9,null,15],
@@ -200,7 +229,7 @@ const sequences = {
     [4,8,12,null,20],
     [9,7,5,null,1],
     [11,22,33,null,55],
-    [2,3,5,8,null],
+    [2,3,5,8,null],      // fibonacci corto
     [6,12,null,24,30],
     [13,null,29,37,45],
     [50,45,null,35,30],
@@ -211,85 +240,303 @@ const sequences = {
     [3,6,null,12,15],
     [5,6,7,null,9]
   ],
-  medio: [],
-  alto: []
+  medio: [
+    [2,6,12,null,30],     // +4 +6 +8 +10
+    [1,4,10,null,28],     // +3 +6 +9 +12
+    [3,9,27,null,243],    // x3
+    [5,8,14,null,35],     // +3 +6 +9 +12
+    [40,20,10,null,2.5],  // /2
+    [7,14,28,null,112],   // x2
+    [2,5,11,null,29],     // +3 +6 +9 +12
+    [81,27,9,null,1],     // /3
+    [6,7,9,null,16],      // +1 +2 +3 +4
+    [10,13,19,null,34],   // +3 +6 +9 +12
+    [1,2,4,7,null],       // +1 +2 +3 +4
+    [9,18,36,null,144],   // x2
+    [100,97,91,null,70],  // -3 -6 -9 -12
+    [12,24,48,null,192],  // x2
+    [3,6,12,null,48],     // x2
+    [2,3,5,9,null],       // +1 +2 +4 +8
+    [5,15,45,null,405],   // x3
+    [2,8,26,null,242],    // x3+2
+    [4,9,19,null,49],     // x2+1
+    [50,47,41,null,20]    // -3 -6 -9 -12
+  ],
+  alto: [
+    [2,6,18,null,162],    // x3
+    [3,7,15,null,63],     // x2+1
+    [1,3,7,null,31],      // x2+1
+    [5,11,23,null,95],    // x2+1
+    [4,12,36,null,324],   // x3
+    [2,5,11,null,29],     // +3 +6 +9 +12
+    [10,9,7,null,0],      // -1 -2 -3 -4
+    [2,7,17,null,47],     // +5 +10 +15 +20
+    [6,13,27,null,86],    // +7 +14 +21 +28
+    [3,8,18,null,43],     // +5 +10 +15 +20
+    [1,4,12,null,108],    // x3 (desde 4)
+    [9,7,4,null,-4],      // -2 -3 -4 -5
+    [2,9,28,null,243],    // x3+3?
+    [8,6,3,null,-5],      // -2 -3 -4 -5
+    [2,4,8,null,32],      // x2
+    [7,10,16,null,35],    // +3 +6 +9 +12
+    [3,12,48,null,768],   // x4
+    [5,25,125,null,3125], // x5
+    [2,6,14,null,34],     // +4 +8 +12 +16
+    [100,50,25,null,6.25] // /2
+  ]
 };
 
-let level="bajo", idx=0, correct=0, tries=0, fails=0, streak=0;
-let timer=null, seconds=0;
+/* ===============================
+   ESTADO
+================================ */
+let level = "bajo";
+let idx = 0;
+let correct = 0;
+let tries = 0;
+let fails = 0;
+let streak = 0;
 
-const seqDiv=document.getElementById("sequence");
-const answer=document.getElementById("answer");
+let timer = null;
+let seconds = 0;
 
-function render(){
-  const seq=sequences[level][idx];
-  seqDiv.innerHTML="";
-  seq.forEach(n=>{
-    const d=document.createElement("div");
-    d.className="num"+(n===null?" missing":"");
-    d.textContent=n===null?"?":n;
-    seqDiv.appendChild(d);
-  });
-  document.getElementById("seqTitle").textContent=`Secuencia ${idx+1}`;
-}
+const seqDiv = document.getElementById("sequence");
+const msgEl = document.getElementById("msg");
 
+/* ===============================
+   TIMER
+================================ */
 function startTimer(){
   if(timer) return;
-  timer=setInterval(()=>{
+  timer = setInterval(()=>{
     seconds++;
-    const m=String(Math.floor(seconds/60)).padStart(2,"0");
-    const s=String(seconds%60).padStart(2,"0");
-    document.getElementById("time").textContent=`${m}:${s}`;
-    document.getElementById("time2").textContent=`${m}:${s}`;
-  },1000);
+    const m = String(Math.floor(seconds/60)).padStart(2,"0");
+    const s = String(seconds%60).padStart(2,"0");
+    document.getElementById("time").textContent = `${m}:${s}`;
+    document.getElementById("time2").textContent = `${m}:${s}`;
+  }, 1000);
 }
 
+function stopTimer(){
+  clearInterval(timer);
+  timer = null;
+}
+
+/* ===============================
+   LÓGICA DE RESPUESTA CORRECTA
+   (intenta deducir según tipo común)
+================================ */
+function computeCorrectValue(seq){
+  const pos = seq.indexOf(null);
+
+  // Caso: progresión aritmética (diferencia constante)
+  if(pos > 0 && pos < seq.length - 1 && Number.isFinite(seq[pos-1]) && Number.isFinite(seq[pos+1])){
+    const diff = seq[pos+1] - seq[pos-1];
+    if(Number.isFinite(diff)){
+      // si hay salto de 2 pasos, diff/2 es el paso real
+      const step = diff / 2;
+      if(Number.isFinite(step)) return seq[pos-1] + step;
+    }
+  }
+
+  // fallback: intentar detectar relación por dos primeros saltos (bajo/medio)
+  // si hay al menos 3 conocidos seguidos
+  const known = seq.map((v,i)=>({v,i})).filter(o=>o.v!==null);
+  // Si el null está en medio: usa vecinos inmediatos si existen
+  if(pos>0 && pos<seq.length-1 && seq[pos-1]!==null && seq[pos+1]!==null){
+    return (seq[pos-1] + seq[pos+1]) / 2;
+  }
+
+  // Si el null está al final o al inicio, intenta usar diferencias
+  // usando los primeros 3 números conocidos
+  const vals = known.map(o=>o.v);
+  if(vals.length >= 4){
+    const d1 = vals[1]-vals[0];
+    const d2 = vals[2]-vals[1];
+    const d3 = vals[3]-vals[2];
+
+    // Si d1==d2==d3, es aritmética
+    if(Math.abs(d1-d2)<1e-9 && Math.abs(d2-d3)<1e-9){
+      if(pos === 0) return vals[0] - d1;
+      if(pos === seq.length-1) return vals[vals.length-1] + d1;
+    }
+
+    // Si parece geométrica (ratio constante)
+    if(vals[0] !== 0){
+      const r1 = vals[1]/vals[0];
+      const r2 = vals[2]/vals[1];
+      const r3 = vals[3]/vals[2];
+      if(Math.abs(r1-r2)<1e-9 && Math.abs(r2-r3)<1e-9){
+        const r = r1;
+        if(pos === 0) return vals[0] / r;
+        if(pos === seq.length-1) return vals[vals.length-1] * r;
+      }
+    }
+  }
+
+  // Último fallback: si el null está en medio, promedio
+  if(pos>0 && pos<seq.length-1 && seq[pos-1]!==null && seq[pos+1]!==null){
+    return (seq[pos-1] + seq[pos+1]) / 2;
+  }
+
+  // Si nada aplica, devuelve NaN
+  return NaN;
+}
+
+/* ===============================
+   RENDER: el ? es un INPUT
+================================ */
+function render(){
+  const seq = sequences[level][idx];
+  seqDiv.innerHTML = "";
+
+  const pos = seq.indexOf(null);
+
+  seq.forEach((n, i)=>{
+    const d = document.createElement("div");
+    d.className = "num" + (n===null ? " missing" : "");
+    if(n === null){
+      const inp = document.createElement("input");
+      inp.type = "number";
+      inp.inputMode = "numeric";
+      inp.placeholder = "?";
+      inp.id = "missingInput";
+
+      // Enter = comprobar
+      inp.addEventListener("keydown", (e)=>{
+        if(e.key === "Enter"){
+          e.preventDefault();
+          check();
+        }
+      });
+
+      d.appendChild(inp);
+    }else{
+      d.textContent = n;
+    }
+    seqDiv.appendChild(d);
+  });
+
+  document.getElementById("seqTitle").textContent = `Secuencia ${idx+1}`;
+  document.getElementById("progress").textContent = idx;
+
+  // foco inmediato al input del ?
+  setTimeout(()=>{
+    const mi = document.getElementById("missingInput");
+    if(mi) mi.focus();
+  }, 0);
+
+  msgEl.textContent = "";
+  msgEl.className = "msg";
+}
+
+/* ===============================
+   CHECK
+================================ */
 function check(){
   startTimer();
-  const seq=sequences[level][idx];
-  const pos=seq.indexOf(null);
-  const diff=seq[pos+1]-seq[pos-1];
-  const correctVal=seq[pos-1]+diff;
+
+  const input = document.getElementById("missingInput");
+  if(!input) return;
+
+  const raw = input.value;
+  if(raw === "" || raw === null){
+    msgEl.textContent = "Escribe un número en la casilla ?";
+    msgEl.className = "msg bad";
+    input.focus();
+    return;
+  }
+
+  const userVal = Number(raw);
+  const seq = sequences[level][idx];
+  const correctVal = computeCorrectValue(seq);
 
   tries++;
-  document.getElementById("tries").textContent=tries;
+  document.getElementById("tries").textContent = tries;
 
-  if(Number(answer.value)===correctVal){
-    correct++; streak++;
-    document.getElementById("correct").textContent=correct;
-    document.getElementById("streak").textContent=streak;
+  // Comparación tolerante (por si hay decimales)
+  const ok = Number.isFinite(correctVal) && Math.abs(userVal - correctVal) < 1e-9;
+
+  if(ok){
+    correct++;
+    streak++;
+    document.getElementById("correct").textContent = correct;
+    document.getElementById("streak").textContent = streak;
+
+    msgEl.textContent = "✅ Correcto. ¡Sigue!";
+    msgEl.className = "msg ok";
+
     idx++;
+    document.getElementById("progress").textContent = idx;
+
+    if(idx >= 20){
+      stopTimer();
+      msgEl.textContent = `🎉 Finalizado: ${correct}/20 correctas.`;
+      msgEl.className = "msg ok";
+      return;
+    }
+
+    render();
   }else{
-    fails++; streak=0;
-    document.getElementById("fails").textContent=fails;
-    document.getElementById("streak").textContent=streak;
+    fails++;
+    streak=0;
+    document.getElementById("fails").textContent = fails;
+    document.getElementById("streak").textContent = streak;
+
+    msgEl.textContent = "❌ Incorrecto. Intenta otra vez.";
+    msgEl.className = "msg bad";
+    input.select();
+    input.focus();
   }
-  document.getElementById("progress").textContent=idx;
-  answer.value="";
-  if(idx<20) render();
 }
 
-function reset(all=true){
+/* ===============================
+   RESET / NUEVO
+================================ */
+function reset(){
   idx=0; correct=0; tries=0; fails=0; streak=0;
   seconds=0;
-  clearInterval(timer); timer=null;
-  document.querySelectorAll("#correct,#tries,#fails,#streak").forEach(e=>e.textContent="0");
-  document.getElementById("progress").textContent="0";
-  document.getElementById("time").textContent="00:00";
-  document.getElementById("time2").textContent="00:00";
+  stopTimer();
+
+  document.getElementById("correct").textContent = "0";
+  document.getElementById("tries").textContent = "0";
+  document.getElementById("fails").textContent = "0";
+  document.getElementById("streak").textContent = "0";
+  document.getElementById("progress").textContent = "0";
+  document.getElementById("time").textContent = "00:00";
+  document.getElementById("time2").textContent = "00:00";
+
   render();
 }
 
-document.getElementById("checkBtn").onclick=check;
-document.getElementById("newBtn").onclick=()=>reset();
-document.getElementById("resetBtn").onclick=()=>reset();
-document.getElementById("level").onchange=e=>{level=e.target.value;reset();}
-document.getElementById("shareBtn").onclick=()=>{
-  const url=location.href;
-  navigator.clipboard.writeText(url).then(()=>alert("Link copiado ✅"));
-};
+/* ===============================
+   SHARE
+================================ */
+async function share(){
+  const url = location.href;
+  try{
+    await navigator.clipboard.writeText(url);
+    alert("Link copiado ✅");
+  }catch{
+    prompt("Copia este link:", url);
+  }
+}
 
-render();
+/* ===============================
+   EVENTOS
+================================ */
+document.getElementById("checkBtn").addEventListener("click", check);
+document.getElementById("newBtn").addEventListener("click", reset);
+document.getElementById("resetBtn").addEventListener("click", reset);
+document.getElementById("shareBtn").addEventListener("click", share);
+document.getElementById("level").addEventListener("change", (e)=>{
+  level = e.target.value;
+  reset();
+});
+
+/* ===============================
+   INIT
+================================ */
+reset();
 </script>
 </body>
 </html>
