@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Prueba CPA (Competencias • Potencial • Actitud)</title>
+  <link rel="stylesheet" href="styles.css" />
+  <meta name="description" content="Evaluación CPA de RRHH: Competencias, Potencial y Actitud. Resultados, conclusiones y recomendaciones." />
+</head>
+<body>
+  <header class="container header">
+    <div class="brand">
+      <div class="logo" aria-hidden="true">CPA</div>
+      <div>
+        <h1>Prueba CPA</h1>
+        <p class="subtitle">Competencias • Potencial • Actitud (RRHH)</p>
+      </div>
+    </div>
+    <div class="byline">Por <strong>Soamy Lanza</strong></div>
+  </header>
+
+  <main class="container">
+    <section class="card">
+      <h2>Instrucciones</h2>
+      <p>Responde según el comportamiento observado del colaborador en los últimos <strong>6 meses</strong>.</p>
+
+      <div class="likert">
+        <div class="likert-title">Escala Likert (1 a 5)</div>
+        <div class="likert-grid">
+          <div><strong>1</strong> Totalmente en desacuerdo</div>
+          <div><strong>2</strong> En desacuerdo</div>
+          <div><strong>3</strong> Ni de acuerdo ni en desacuerdo</div>
+          <div><strong>4</strong> De acuerdo</div>
+          <div><strong>5</strong> Totalmente de acuerdo</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Datos del colaborador</h2>
+      <div class="form-grid">
+        <label>
+          Nombre
+          <input id="nombre" type="text" placeholder="Ej. Ana Pérez" />
+        </label>
+        <label>
+          Puesto
+          <input id="puesto" type="text" placeholder="Ej. Analista de RRHH" />
+        </label>
+        <label>
+          Área / Departamento
+          <input id="area" type="text" placeholder="Ej. Recursos Humanos" />
+        </label>
+        <label>
+          Evaluador
+          <input id="evaluador" type="text" placeholder="Ej. Jefe directo / RRHH" />
+        </label>
+        <label>
+          Fecha
+          <input id="fecha" type="date" />
+        </label>
+      </div>
+
+      <div class="actions">
+        <button id="btn-autofill" class="btn ghost" type="button" title="Rellenar valores de ejemplo">Ejemplo</button>
+        <button id="btn-reset" class="btn danger" type="button">Limpiar</button>
+      </div>
+
+      <p class="hint">Tip: la app guarda tu avance automáticamente en este navegador.</p>
+    </section>
+
+    <section class="card">
+      <h2>I. Competencias (C)</h2>
+      <p class="muted">Evalúa qué tan bien hace su trabajo hoy.</p>
+      <div id="section-c" class="items"></div>
+    </section>
+
+    <section class="card">
+      <h2>II. Potencial (P)</h2>
+      <p class="muted">Evalúa hasta dónde puede llegar el colaborador.</p>
+      <div id="section-p" class="items"></div>
+    </section>
+
+    <section class="card">
+      <h2>III. Actitud (A)</h2>
+      <p class="muted">Evalúa cómo se comporta y se relaciona.</p>
+      <div id="section-a" class="items"></div>
+    </section>
+
+    <section class="card">
+      <h2>Resultados</h2>
+
+      <div class="scorecards">
+        <div class="scorecard">
+          <div class="score-title">Competencias</div>
+          <div class="score" id="score-c">—</div>
+          <div class="pill" id="level-c">Nivel: —</div>
+        </div>
+        <div class="scorecard">
+          <div class="score-title">Potencial</div>
+          <div class="score" id="score-p">—</div>
+          <div class="pill" id="level-p">Nivel: —</div>
+        </div>
+        <div class="scorecard">
+          <div class="score-title">Actitud</div>
+          <div class="score" id="score-a">—</div>
+          <div class="pill" id="level-a">Nivel: —</div>
+        </div>
+      </div>
+
+      <div class="summary">
+        <div>
+          <h3>Clasificación del Talento</h3>
+          <p class="big" id="talent-class">—</p>
+          <p class="muted" id="talent-note">Completa el cuestionario para ver la clasificación.</p>
+        </div>
+        <div class="mini">
+          <h3>Interpretación por dimensión</h3>
+          <ul>
+            <li><strong>32–40</strong> Alto</li>
+            <li><strong>21–31</strong> Medio</li>
+            <li><strong>8–20</strong> Bajo</li>
+          </ul>
+        </div>
+      </div>
+
+      <hr class="sep" />
+
+      <div class="textblocks">
+        <div class="textblock">
+          <h3>Conclusiones</h3>
+          <div id="conclusiones" class="prose">—</div>
+        </div>
+        <div class="textblock">
+          <h3>Recomendaciones / Plan de mejora</h3>
+          <div id="recomendaciones" class="prose">—</div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button id="btn-copy" class="btn" type="button">Copiar reporte</button>
+        <button id="btn-download" class="btn ghost" type="button">Descargar JSON</button>
+        <button id="btn-print" class="btn ghost" type="button">Imprimir / PDF</button>
+      </div>
+
+      <p class="hint">El botón “Imprimir / PDF” te permite guardarlo como PDF desde el navegador.</p>
+    </section>
+
+    <footer class="footer">
+      <div>Hecho con cariño (y con ganas de que RRHH deje de vivir en correos) 😅</div>
+      <div class="byline">Por <strong>Soamy Lanza</strong></div>
+    </footer>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
