@@ -3,145 +3,88 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Prueba CPA – Competencias, Potencial y Actitud</title>
+<title>Prueba CPA – Análisis de Talento</title>
 
 <style>
-/* ====== ESTILOS ====== */
-:root{
-  --bg:#0b0d12;
-  --card:#111521;
-  --text:#e8eef7;
-  --muted:#9aa4b2;
-  --accent:#7aa2ff;
-  --good:#9bffcc;
-  --warn:#ffd166;
-  --bad:#ff6b6b;
-  --border:rgba(255,255,255,.1);
-  --radius:16px;
-  --shadow:0 12px 28px rgba(0,0,0,.35);
-}
-*{box-sizing:border-box}
 body{
+  font-family: Arial, Helvetica, sans-serif;
+  background:#0f1220;
+  color:#f2f4f8;
   margin:0;
-  font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
-  background:var(--bg);
-  color:var(--text);
 }
 .container{max-width:1100px;margin:auto;padding:20px}
-header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:10px;
-}
-h1{margin:0;font-size:26px}
-.subtitle{color:var(--muted);font-size:14px}
-.byline{
-  padding:8px 12px;
-  border:1px solid var(--border);
-  border-radius:999px;
-  font-size:13px;
-  color:var(--muted);
-}
+h1,h2,h3{margin-top:0}
 .card{
-  background:var(--card);
-  border:1px solid var(--border);
-  border-radius:var(--radius);
+  background:#161a2e;
+  border-radius:14px;
   padding:18px;
   margin:16px 0;
-  box-shadow:var(--shadow);
 }
-.card h2{margin-top:0}
-.muted{color:var(--muted);font-size:14px}
+label{font-size:13px;color:#cbd0ff}
+input{
+  width:100%;
+  padding:8px;
+  border-radius:8px;
+  border:none;
+  margin-top:4px;
+}
 .grid{
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
   gap:10px;
 }
-label{font-size:13px;color:var(--muted)}
-input{
-  width:100%;
-  padding:10px;
-  border-radius:12px;
-  border:1px solid var(--border);
-  background:#0e1220;
-  color:var(--text);
-}
 .item{
   display:grid;
   grid-template-columns:1fr auto;
   gap:10px;
-  padding:12px;
-  border:1px solid var(--border);
-  border-radius:12px;
-  background:#0e1220;
-}
-.scale{display:flex;gap:6px}
-.scale input{display:none}
-.scale label{
-  width:34px;height:34px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  border:1px solid var(--border);
+  padding:10px;
+  background:#0f1220;
   border-radius:10px;
+  margin-bottom:8px;
+}
+.scale label{
+  margin:0 4px;
   cursor:pointer;
-  color:var(--muted);
 }
-.scale input:checked + label{
-  background:rgba(122,162,255,.2);
-  border-color:var(--accent);
-  color:var(--text);
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:10px;
 }
-.scores{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-  gap:10px;
+th,td{
+  border:1px solid #2a2f55;
+  padding:8px;
+  text-align:center;
 }
-.scorebox{
-  padding:14px;
-  border:1px solid var(--border);
-  border-radius:12px;
-  background:#0e1220;
-}
-.score{font-size:32px}
-.pill{
-  display:inline-block;
-  padding:4px 10px;
+th{background:#1f2450}
+.badge{
+  padding:4px 8px;
   border-radius:999px;
   font-size:12px;
-  margin-top:6px;
 }
-.good{background:rgba(155,255,204,.15);color:var(--good)}
-.warn{background:rgba(255,209,102,.15);color:var(--warn)}
-.bad{background:rgba(255,107,107,.15);color:var(--bad)}
-.actions{
-  display:flex;
-  flex-wrap:wrap;
-  gap:10px;
-  margin-top:12px;
-}
-button{
+.alto{background:#1f8f5f}
+.medio{background:#cfae2e}
+.bajo{background:#c44}
+.actions button{
+  margin-top:10px;
   padding:10px 14px;
-  border-radius:12px;
-  border:1px solid var(--border);
-  background:rgba(122,162,255,.2);
-  color:var(--text);
+  border:none;
+  border-radius:10px;
+  background:#5c6cff;
+  color:#fff;
   cursor:pointer;
-  font-weight:600;
 }
-button.secondary{background:transparent}
 footer{
-  margin:20px 0;
+  margin-top:20px;
   display:flex;
   justify-content:space-between;
-  color:var(--muted);
   font-size:13px;
+  color:#cbd0ff;
 }
 @media print{
-  button,.actions{display:none}
+  .actions{display:none}
   body{background:#fff;color:#000}
-  .card{box-shadow:none}
+  .card{background:#fff}
 }
 </style>
 </head>
@@ -149,176 +92,171 @@ footer{
 <body>
 <div class="container">
 
-<header>
-  <div>
-    <h1>Prueba CPA</h1>
-    <div class="subtitle">Competencias • Potencial • Actitud</div>
-  </div>
-  <div class="byline">Por <strong>Soamy Lanza</strong></div>
-</header>
+<h1>Prueba CPA</h1>
+<p>Competencias – Potencial – Actitud</p>
 
 <div class="card">
-  <h2>Datos del colaborador</h2>
-  <div class="grid">
-    <div><label>Nombre<input id="nombre"></label></div>
-    <div><label>Puesto<input id="puesto"></label></div>
-    <div><label>Área<input id="area"></label></div>
-    <div><label>Evaluador<input id="evaluador"></label></div>
-    <div><label>Fecha<input type="date" id="fecha"></label></div>
-  </div>
+<h2>Datos del colaborador</h2>
+<div class="grid">
+  <div><label>Nombre<input id="nombre"></label></div>
+  <div><label>Puesto<input id="puesto"></label></div>
+  <div><label>Área<input id="area"></label></div>
+  <div><label>Evaluador<input id="evaluador"></label></div>
+</div>
 </div>
 
 <div class="card">
-  <h2>I. Competencias</h2>
-  <div id="C"></div>
+<h2>I. Competencias</h2>
+<div id="C"></div>
 </div>
 
 <div class="card">
-  <h2>II. Potencial</h2>
-  <div id="P"></div>
+<h2>II. Potencial</h2>
+<div id="P"></div>
 </div>
 
 <div class="card">
-  <h2>III. Actitud</h2>
-  <div id="A"></div>
+<h2>III. Actitud</h2>
+<div id="A"></div>
 </div>
 
 <div class="card">
-  <h2>Resultados</h2>
-  <div class="scores">
-    <div class="scorebox"><strong>Competencias</strong><div class="score" id="scC">0</div><div id="lvC"></div></div>
-    <div class="scorebox"><strong>Potencial</strong><div class="score" id="scP">0</div><div id="lvP"></div></div>
-    <div class="scorebox"><strong>Actitud</strong><div class="score" id="scA">0</div><div id="lvA"></div></div>
-  </div>
+<h2>RESULTADOS</h2>
 
-  <h3>Clasificación</h3>
-  <p id="clasificacion" class="muted">Complete la evaluación</p>
+<table>
+<thead>
+<tr>
+<th>Dimensión</th>
+<th>Puntaje</th>
+<th>Nivel</th>
+</tr>
+</thead>
+<tbody>
+<tr><td>Competencias</td><td id="pC">—</td><td id="nC">—</td></tr>
+<tr><td>Potencial</td><td id="pP">—</td><td id="nP">—</td></tr>
+<tr><td>Actitud</td><td id="pA">—</td><td id="nA">—</td></tr>
+</tbody>
+</table>
 
-  <h3>Conclusiones</h3>
-  <div id="conclusiones" class="muted">—</div>
+<h3>📌 Interpretación de niveles</h3>
+<ul>
+<li><strong>32 – 40</strong> → Alto</li>
+<li><strong>21 – 31</strong> → Medio</li>
+<li><strong>8 – 20</strong> → Bajo</li>
+</ul>
 
-  <h3>Recomendaciones</h3>
-  <div id="recomendaciones" class="muted">—</div>
+<h3>🎯 CLASIFICACIÓN FINAL DEL TALENTO</h3>
+<table>
+<thead>
+<tr>
+<th>Perfil</th>
+<th>Interpretación</th>
+<th>Acción RRHH</th>
+</tr>
+</thead>
+<tbody id="clasificacionTabla">
+<tr><td colspan="3">Complete la evaluación</td></tr>
+</tbody>
+</table>
 
-  <div class="actions">
-    <button onclick="window.print()">Imprimir / PDF</button>
-    <button class="secondary" onclick="copiar()">Copiar reporte</button>
-  </div>
+<h3>🧭 CONCLUSIONES</h3>
+<div id="conclusiones">—</div>
+
+<div class="actions">
+<button onclick="window.print()">Imprimir / PDF</button>
+</div>
 </div>
 
 <footer>
-  <div>Hecho para RRHH que quieren datos, no corazonadas 😏</div>
-  <div>Por <strong>Soamy Lanza</strong></div>
+<div>Evaluación CPA profesional</div>
+<div>Por <strong>Soamy Lanza</strong></div>
 </footer>
 
 </div>
 
 <script>
-/* ====== LÓGICA CPA ====== */
-const data = {
-  C:[
-    "Cumple objetivos del puesto",
-    "Aplica conocimientos técnicos",
-    "Resuelve problemas",
-    "Organiza y prioriza su trabajo",
-    "Cumple plazos sin supervisión",
-    "Mantiene calidad bajo presión",
-    "Comunicación clara",
-    "Trabajo en equipo"
-  ],
-  P:[
-    "Aprende rápidamente",
-    "Se adapta a cambios",
-    "Asume nuevos retos",
-    "Iniciativa de mejora",
-    "Puede asumir más responsabilidad",
-    "Buen criterio en decisiones",
-    "Acepta retroalimentación",
-    "Pensamiento estratégico"
-  ],
-  A:[
-    "Compromiso organizacional",
-    "Actitud positiva",
-    "Respeta normas y valores",
-    "Asume errores",
-    "Relaciones laborales sanas",
-    "Colaboración",
-    "Apertura al cambio",
-    "Representa bien a la empresa"
-  ]
+const items={
+C:[
+"Cumple objetivos del puesto","Aplica conocimientos técnicos","Resuelve problemas",
+"Organiza su trabajo","Cumple plazos","Calidad bajo presión","Comunicación","Trabajo en equipo"
+],
+P:[
+"Aprende rápido","Se adapta","Asume retos","Iniciativa","Mayor responsabilidad",
+"Buen criterio","Acepta feedback","Pensamiento estratégico"
+],
+A:[
+"Compromiso","Actitud positiva","Respeto normas","Asume errores",
+"Relaciones sanas","Colabora","Apertura al cambio","Representa a la empresa"
+]
 };
 
-function render(section){
-  const div=document.getElementById(section);
-  data[section].forEach((t,i)=>{
-    const id=section+(i+1);
-    div.innerHTML+=`
-      <div class="item">
-        <div>${t}</div>
-        <div class="scale">
-          ${[1,2,3,4,5].map(n=>`
-            <input type="radio" name="${id}" id="${id+n}" value="${n}" onchange="calc()">
-            <label for="${id+n}">${n}</label>`).join("")}
-        </div>
-      </div>`;
+function render(sec){
+  const d=document.getElementById(sec);
+  items[sec].forEach((t,i)=>{
+    const id=sec+(i+1);
+    d.innerHTML+=`
+    <div class="item">
+      <div>${t}</div>
+      <div class="scale">
+        ${[1,2,3,4,5].map(n=>`
+        <input type="radio" name="${id}" value="${n}" onchange="calc()"> ${n}
+        `).join("")}
+      </div>
+    </div>`;
   });
 }
-
 ["C","P","A"].forEach(render);
 
-document.getElementById("fecha").valueAsDate=new Date();
-
 function nivel(v){
-  if(v>=32) return ["Alto","good"];
-  if(v>=21) return ["Medio","warn"];
-  return ["Bajo","bad"];
+  if(v>=32) return ["Alto","alto"];
+  if(v>=21) return ["Medio","medio"];
+  return ["Bajo","bajo"];
 }
 
 function calc(){
   let r={C:0,P:0,A:0};
   ["C","P","A"].forEach(s=>{
-    data[s].forEach((_,i)=>{
+    items[s].forEach((_,i)=>{
       const v=document.querySelector(`input[name=${s+(i+1)}]:checked`);
       if(v) r[s]+=+v.value;
     });
-    document.getElementById("sc"+s).innerText=r[s]+"/40";
+    document.getElementById("p"+s).innerText=r[s]+" / 40";
     const [txt,cls]=nivel(r[s]);
-    document.getElementById("lv"+s).innerHTML=`<span class="pill ${cls}">${txt}</span>`;
+    document.getElementById("n"+s).innerHTML=`<span class="badge ${cls}">${txt}</span>`;
   });
 
-  let clas="Perfil intermedio";
-  let concl=`Competencias: ${r.C}/40, Potencial: ${r.P}/40, Actitud: ${r.A}/40.`;
-  let rec="Definir plan de desarrollo y seguimiento.";
-
+  let perfil="",accion="",interp="";
   if(r.C>=32 && r.P>=32 && r.A>=32){
-    clas="🌟 Talento clave";
-    rec="Preparar promoción o plan de sucesión.";
+    perfil="🌟 Alto C – Alto P – Alta A";
+    interp="Talento clave";
+    accion="Plan de sucesión / promoción";
+  }else if(r.C>=32 && r.P>=21 && r.A>=32){
+    perfil="💎 Alto C – Medio P – Alta A";
+    interp="Especialista";
+    accion="Desarrollo técnico";
+  }else if(r.C>=21 && r.P>=32 && r.A>=32){
+    perfil="🚀 Medio C – Alto P – Alta A";
+    interp="Talento emergente";
+    accion="Plan acelerado";
   }else if(r.C>=32 && r.A<21){
-    clas="⚠️ Riesgo cultural";
-    rec="Coaching conductual y seguimiento.";
-  }else if(r.P>=32 && r.A>=32){
-    clas="🚀 Talento emergente";
-    rec="Capacitación acelerada.";
+    perfil="⚠️ Alto C – Baja A";
+    interp="Riesgo cultural";
+    accion="Coaching / alerta";
+  }else if(r.C<21 && r.P<21 && r.A<21){
+    perfil="🧯 Bajo C – Baja P – Baja A";
+    interp="Desempeño crítico";
+    accion="Plan correctivo";
   }
 
-  document.getElementById("clasificacion").innerText=clas;
-  document.getElementById("conclusiones").innerText=concl;
-  document.getElementById("recomendaciones").innerText=rec;
-}
+  document.getElementById("clasificacionTabla").innerHTML=
+    perfil?`<tr><td>${perfil}</td><td>${interp}</td><td>${accion}</td></tr>`:
+    `<tr><td colspan="3">Perfil intermedio – requiere análisis adicional</td></tr>`;
 
-function copiar(){
-  const t=`PRUEBA CPA – Por Soamy Lanza
-Nombre: ${nombre.value}
-Puesto: ${puesto.value}
-Área: ${area.value}
-Evaluador: ${evaluador.value}
-
-${clasificacion.innerText}
-${conclusiones.innerText}
-${recomendaciones.innerText}`;
-  navigator.clipboard.writeText(t);
-  alert("Reporte copiado");
+  document.getElementById("conclusiones").innerText=
+    `El colaborador presenta Competencias: ${r.C}/40, Potencial: ${r.P}/40 y Actitud: ${r.A}/40.
+     La clasificación permite orientar decisiones objetivas de desarrollo, sucesión o mejora.`;
 }
 </script>
+
 </body>
 </html>
