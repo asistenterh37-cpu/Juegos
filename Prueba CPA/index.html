@@ -1,157 +1,324 @@
 <!doctype html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Prueba CPA (Competencias • Potencial • Actitud)</title>
-  <link rel="stylesheet" href="styles.css" />
-  <meta name="description" content="Evaluación CPA de RRHH: Competencias, Potencial y Actitud. Resultados, conclusiones y recomendaciones." />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prueba CPA – Competencias, Potencial y Actitud</title>
+
+<style>
+/* ====== ESTILOS ====== */
+:root{
+  --bg:#0b0d12;
+  --card:#111521;
+  --text:#e8eef7;
+  --muted:#9aa4b2;
+  --accent:#7aa2ff;
+  --good:#9bffcc;
+  --warn:#ffd166;
+  --bad:#ff6b6b;
+  --border:rgba(255,255,255,.1);
+  --radius:16px;
+  --shadow:0 12px 28px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+  background:var(--bg);
+  color:var(--text);
+}
+.container{max-width:1100px;margin:auto;padding:20px}
+header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+}
+h1{margin:0;font-size:26px}
+.subtitle{color:var(--muted);font-size:14px}
+.byline{
+  padding:8px 12px;
+  border:1px solid var(--border);
+  border-radius:999px;
+  font-size:13px;
+  color:var(--muted);
+}
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:18px;
+  margin:16px 0;
+  box-shadow:var(--shadow);
+}
+.card h2{margin-top:0}
+.muted{color:var(--muted);font-size:14px}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:10px;
+}
+label{font-size:13px;color:var(--muted)}
+input{
+  width:100%;
+  padding:10px;
+  border-radius:12px;
+  border:1px solid var(--border);
+  background:#0e1220;
+  color:var(--text);
+}
+.item{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:10px;
+  padding:12px;
+  border:1px solid var(--border);
+  border-radius:12px;
+  background:#0e1220;
+}
+.scale{display:flex;gap:6px}
+.scale input{display:none}
+.scale label{
+  width:34px;height:34px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border:1px solid var(--border);
+  border-radius:10px;
+  cursor:pointer;
+  color:var(--muted);
+}
+.scale input:checked + label{
+  background:rgba(122,162,255,.2);
+  border-color:var(--accent);
+  color:var(--text);
+}
+.scores{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:10px;
+}
+.scorebox{
+  padding:14px;
+  border:1px solid var(--border);
+  border-radius:12px;
+  background:#0e1220;
+}
+.score{font-size:32px}
+.pill{
+  display:inline-block;
+  padding:4px 10px;
+  border-radius:999px;
+  font-size:12px;
+  margin-top:6px;
+}
+.good{background:rgba(155,255,204,.15);color:var(--good)}
+.warn{background:rgba(255,209,102,.15);color:var(--warn)}
+.bad{background:rgba(255,107,107,.15);color:var(--bad)}
+.actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-top:12px;
+}
+button{
+  padding:10px 14px;
+  border-radius:12px;
+  border:1px solid var(--border);
+  background:rgba(122,162,255,.2);
+  color:var(--text);
+  cursor:pointer;
+  font-weight:600;
+}
+button.secondary{background:transparent}
+footer{
+  margin:20px 0;
+  display:flex;
+  justify-content:space-between;
+  color:var(--muted);
+  font-size:13px;
+}
+@media print{
+  button,.actions{display:none}
+  body{background:#fff;color:#000}
+  .card{box-shadow:none}
+}
+</style>
 </head>
+
 <body>
-  <header class="container header">
-    <div class="brand">
-      <div class="logo" aria-hidden="true">CPA</div>
-      <div>
-        <h1>Prueba CPA</h1>
-        <p class="subtitle">Competencias • Potencial • Actitud (RRHH)</p>
-      </div>
-    </div>
-    <div class="byline">Por <strong>Soamy Lanza</strong></div>
-  </header>
+<div class="container">
 
-  <main class="container">
-    <section class="card">
-      <h2>Instrucciones</h2>
-      <p>Responde según el comportamiento observado del colaborador en los últimos <strong>6 meses</strong>.</p>
+<header>
+  <div>
+    <h1>Prueba CPA</h1>
+    <div class="subtitle">Competencias • Potencial • Actitud</div>
+  </div>
+  <div class="byline">Por <strong>Soamy Lanza</strong></div>
+</header>
 
-      <div class="likert">
-        <div class="likert-title">Escala Likert (1 a 5)</div>
-        <div class="likert-grid">
-          <div><strong>1</strong> Totalmente en desacuerdo</div>
-          <div><strong>2</strong> En desacuerdo</div>
-          <div><strong>3</strong> Ni de acuerdo ni en desacuerdo</div>
-          <div><strong>4</strong> De acuerdo</div>
-          <div><strong>5</strong> Totalmente de acuerdo</div>
+<div class="card">
+  <h2>Datos del colaborador</h2>
+  <div class="grid">
+    <div><label>Nombre<input id="nombre"></label></div>
+    <div><label>Puesto<input id="puesto"></label></div>
+    <div><label>Área<input id="area"></label></div>
+    <div><label>Evaluador<input id="evaluador"></label></div>
+    <div><label>Fecha<input type="date" id="fecha"></label></div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>I. Competencias</h2>
+  <div id="C"></div>
+</div>
+
+<div class="card">
+  <h2>II. Potencial</h2>
+  <div id="P"></div>
+</div>
+
+<div class="card">
+  <h2>III. Actitud</h2>
+  <div id="A"></div>
+</div>
+
+<div class="card">
+  <h2>Resultados</h2>
+  <div class="scores">
+    <div class="scorebox"><strong>Competencias</strong><div class="score" id="scC">0</div><div id="lvC"></div></div>
+    <div class="scorebox"><strong>Potencial</strong><div class="score" id="scP">0</div><div id="lvP"></div></div>
+    <div class="scorebox"><strong>Actitud</strong><div class="score" id="scA">0</div><div id="lvA"></div></div>
+  </div>
+
+  <h3>Clasificación</h3>
+  <p id="clasificacion" class="muted">Complete la evaluación</p>
+
+  <h3>Conclusiones</h3>
+  <div id="conclusiones" class="muted">—</div>
+
+  <h3>Recomendaciones</h3>
+  <div id="recomendaciones" class="muted">—</div>
+
+  <div class="actions">
+    <button onclick="window.print()">Imprimir / PDF</button>
+    <button class="secondary" onclick="copiar()">Copiar reporte</button>
+  </div>
+</div>
+
+<footer>
+  <div>Hecho para RRHH que quieren datos, no corazonadas 😏</div>
+  <div>Por <strong>Soamy Lanza</strong></div>
+</footer>
+
+</div>
+
+<script>
+/* ====== LÓGICA CPA ====== */
+const data = {
+  C:[
+    "Cumple objetivos del puesto",
+    "Aplica conocimientos técnicos",
+    "Resuelve problemas",
+    "Organiza y prioriza su trabajo",
+    "Cumple plazos sin supervisión",
+    "Mantiene calidad bajo presión",
+    "Comunicación clara",
+    "Trabajo en equipo"
+  ],
+  P:[
+    "Aprende rápidamente",
+    "Se adapta a cambios",
+    "Asume nuevos retos",
+    "Iniciativa de mejora",
+    "Puede asumir más responsabilidad",
+    "Buen criterio en decisiones",
+    "Acepta retroalimentación",
+    "Pensamiento estratégico"
+  ],
+  A:[
+    "Compromiso organizacional",
+    "Actitud positiva",
+    "Respeta normas y valores",
+    "Asume errores",
+    "Relaciones laborales sanas",
+    "Colaboración",
+    "Apertura al cambio",
+    "Representa bien a la empresa"
+  ]
+};
+
+function render(section){
+  const div=document.getElementById(section);
+  data[section].forEach((t,i)=>{
+    const id=section+(i+1);
+    div.innerHTML+=`
+      <div class="item">
+        <div>${t}</div>
+        <div class="scale">
+          ${[1,2,3,4,5].map(n=>`
+            <input type="radio" name="${id}" id="${id+n}" value="${n}" onchange="calc()">
+            <label for="${id+n}">${n}</label>`).join("")}
         </div>
-      </div>
-    </section>
+      </div>`;
+  });
+}
 
-    <section class="card">
-      <h2>Datos del colaborador</h2>
-      <div class="form-grid">
-        <label>
-          Nombre
-          <input id="nombre" type="text" placeholder="Ej. Ana Pérez" />
-        </label>
-        <label>
-          Puesto
-          <input id="puesto" type="text" placeholder="Ej. Analista de RRHH" />
-        </label>
-        <label>
-          Área / Departamento
-          <input id="area" type="text" placeholder="Ej. Recursos Humanos" />
-        </label>
-        <label>
-          Evaluador
-          <input id="evaluador" type="text" placeholder="Ej. Jefe directo / RRHH" />
-        </label>
-        <label>
-          Fecha
-          <input id="fecha" type="date" />
-        </label>
-      </div>
+["C","P","A"].forEach(render);
 
-      <div class="actions">
-        <button id="btn-autofill" class="btn ghost" type="button" title="Rellenar valores de ejemplo">Ejemplo</button>
-        <button id="btn-reset" class="btn danger" type="button">Limpiar</button>
-      </div>
+document.getElementById("fecha").valueAsDate=new Date();
 
-      <p class="hint">Tip: la app guarda tu avance automáticamente en este navegador.</p>
-    </section>
+function nivel(v){
+  if(v>=32) return ["Alto","good"];
+  if(v>=21) return ["Medio","warn"];
+  return ["Bajo","bad"];
+}
 
-    <section class="card">
-      <h2>I. Competencias (C)</h2>
-      <p class="muted">Evalúa qué tan bien hace su trabajo hoy.</p>
-      <div id="section-c" class="items"></div>
-    </section>
+function calc(){
+  let r={C:0,P:0,A:0};
+  ["C","P","A"].forEach(s=>{
+    data[s].forEach((_,i)=>{
+      const v=document.querySelector(`input[name=${s+(i+1)}]:checked`);
+      if(v) r[s]+=+v.value;
+    });
+    document.getElementById("sc"+s).innerText=r[s]+"/40";
+    const [txt,cls]=nivel(r[s]);
+    document.getElementById("lv"+s).innerHTML=`<span class="pill ${cls}">${txt}</span>`;
+  });
 
-    <section class="card">
-      <h2>II. Potencial (P)</h2>
-      <p class="muted">Evalúa hasta dónde puede llegar el colaborador.</p>
-      <div id="section-p" class="items"></div>
-    </section>
+  let clas="Perfil intermedio";
+  let concl=`Competencias: ${r.C}/40, Potencial: ${r.P}/40, Actitud: ${r.A}/40.`;
+  let rec="Definir plan de desarrollo y seguimiento.";
 
-    <section class="card">
-      <h2>III. Actitud (A)</h2>
-      <p class="muted">Evalúa cómo se comporta y se relaciona.</p>
-      <div id="section-a" class="items"></div>
-    </section>
+  if(r.C>=32 && r.P>=32 && r.A>=32){
+    clas="🌟 Talento clave";
+    rec="Preparar promoción o plan de sucesión.";
+  }else if(r.C>=32 && r.A<21){
+    clas="⚠️ Riesgo cultural";
+    rec="Coaching conductual y seguimiento.";
+  }else if(r.P>=32 && r.A>=32){
+    clas="🚀 Talento emergente";
+    rec="Capacitación acelerada.";
+  }
 
-    <section class="card">
-      <h2>Resultados</h2>
+  document.getElementById("clasificacion").innerText=clas;
+  document.getElementById("conclusiones").innerText=concl;
+  document.getElementById("recomendaciones").innerText=rec;
+}
 
-      <div class="scorecards">
-        <div class="scorecard">
-          <div class="score-title">Competencias</div>
-          <div class="score" id="score-c">—</div>
-          <div class="pill" id="level-c">Nivel: —</div>
-        </div>
-        <div class="scorecard">
-          <div class="score-title">Potencial</div>
-          <div class="score" id="score-p">—</div>
-          <div class="pill" id="level-p">Nivel: —</div>
-        </div>
-        <div class="scorecard">
-          <div class="score-title">Actitud</div>
-          <div class="score" id="score-a">—</div>
-          <div class="pill" id="level-a">Nivel: —</div>
-        </div>
-      </div>
+function copiar(){
+  const t=`PRUEBA CPA – Por Soamy Lanza
+Nombre: ${nombre.value}
+Puesto: ${puesto.value}
+Área: ${area.value}
+Evaluador: ${evaluador.value}
 
-      <div class="summary">
-        <div>
-          <h3>Clasificación del Talento</h3>
-          <p class="big" id="talent-class">—</p>
-          <p class="muted" id="talent-note">Completa el cuestionario para ver la clasificación.</p>
-        </div>
-        <div class="mini">
-          <h3>Interpretación por dimensión</h3>
-          <ul>
-            <li><strong>32–40</strong> Alto</li>
-            <li><strong>21–31</strong> Medio</li>
-            <li><strong>8–20</strong> Bajo</li>
-          </ul>
-        </div>
-      </div>
-
-      <hr class="sep" />
-
-      <div class="textblocks">
-        <div class="textblock">
-          <h3>Conclusiones</h3>
-          <div id="conclusiones" class="prose">—</div>
-        </div>
-        <div class="textblock">
-          <h3>Recomendaciones / Plan de mejora</h3>
-          <div id="recomendaciones" class="prose">—</div>
-        </div>
-      </div>
-
-      <div class="actions">
-        <button id="btn-copy" class="btn" type="button">Copiar reporte</button>
-        <button id="btn-download" class="btn ghost" type="button">Descargar JSON</button>
-        <button id="btn-print" class="btn ghost" type="button">Imprimir / PDF</button>
-      </div>
-
-      <p class="hint">El botón “Imprimir / PDF” te permite guardarlo como PDF desde el navegador.</p>
-    </section>
-
-    <footer class="footer">
-      <div>Hecho con cariño (y con ganas de que RRHH deje de vivir en correos) 😅</div>
-      <div class="byline">Por <strong>Soamy Lanza</strong></div>
-    </footer>
-  </main>
-
-  <script src="app.js"></script>
+${clasificacion.innerText}
+${conclusiones.innerText}
+${recomendaciones.innerText}`;
+  navigator.clipboard.writeText(t);
+  alert("Reporte copiado");
+}
+</script>
 </body>
 </html>
