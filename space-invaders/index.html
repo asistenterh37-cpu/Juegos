@@ -1,0 +1,1038 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
+  <title>Space Invaders — GitHub Pages</title>
+  <style>
+    :root{
+      --bg:#0b1020;
+      --panel:#0f1733;
+      --panel2:#0b132b;
+      --ink:#e9eefc;
+      --muted:#b6c2ffcc;
+      --line:#2b3566;
+      --good:#06d6a0;
+      --bad:#ff6b6b;
+      --accent:#4cc9f0;
+      --btn:#18214a;
+      --btn2:#24306a;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      background: radial-gradient(1200px 700px at 50% -100px, #1b2a6b 0%, var(--bg) 55%);
+      color:var(--ink);
+      overflow-x:hidden;
+    }
+    .wrap{
+      max-width:980px;
+      margin:18px auto;
+      padding:0 14px 18px;
+      display:grid;
+      gap:12px;
+      justify-items:center;
+    }
+    header{
+      width:100%;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:10px 12px;
+      border:1px solid var(--line);
+      border-radius:14px;
+      background:linear-gradient(180deg,var(--panel),var(--panel2));
+      box-shadow: 0 10px 30px rgba(0,0,0,.25);
+    }
+    header h1{
+      margin:0;
+      font-size:16px;
+      letter-spacing:.6px;
+      font-weight:750;
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+    header h1 .chip{
+      font-size:12px;
+      padding:3px 8px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      color:var(--muted);
+      background:#0c1431;
+    }
+    .stats{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+      font-size:13px;
+      color:var(--muted);
+    }
+    .stats b{color:var(--ink)}
+    .board{
+      width:100%;
+      border:1px solid var(--line);
+      border-radius:16px;
+      overflow:hidden;
+      background: linear-gradient(180deg, #060a16, #050815);
+      box-shadow: 0 12px 40px rgba(0,0,0,.35);
+      position:relative;
+    }
+    canvas{
+      display:block;
+      width:100%;
+      height:auto;
+      aspect-ratio: 16 / 10;
+      background: #050815;
+    }
+    .hudline{
+      width:100%;
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      color:var(--muted);
+      font-size:12.5px;
+      padding:0 2px;
+      flex-wrap:wrap;
+    }
+    .kbd{
+      padding:2px 6px;
+      border:1px solid var(--line);
+      border-radius:8px;
+      background:#0d1636;
+      color:var(--ink);
+      font-size:12px;
+      margin:0 3px;
+      white-space:nowrap;
+    }
+
+    /* Overlay menu */
+    .overlay{
+      position:absolute;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:16px;
+      background: linear-gradient(180deg, rgba(5,8,21,.78), rgba(5,8,21,.92));
+      backdrop-filter: blur(4px);
+    }
+    .card{
+      width:min(560px, 100%);
+      border:1px solid var(--line);
+      border-radius:18px;
+      background: linear-gradient(180deg, rgba(15,23,51,.95), rgba(11,19,43,.92));
+      box-shadow: 0 20px 60px rgba(0,0,0,.45);
+      padding:16px;
+      text-align:left;
+    }
+    .card h2{margin:0 0 6px; font-size:18px}
+    .card p{margin:6px 0; color:var(--muted); line-height:1.35}
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+      margin-top:12px;
+    }
+    @media (max-width:520px){
+      .grid{grid-template-columns:1fr}
+      header{flex-direction:column; align-items:flex-start}
+      .stats{justify-content:flex-start}
+    }
+    .btn{
+      appearance:none;
+      border:1px solid var(--line);
+      background: linear-gradient(180deg, var(--btn2), var(--btn));
+      color:var(--ink);
+      border-radius:14px;
+      padding:10px 12px;
+      font-weight:700;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      user-select:none;
+      box-shadow: 0 10px 25px rgba(0,0,0,.25);
+    }
+    .btn:active{transform: translateY(1px)}
+    .btn.secondary{
+      background: linear-gradient(180deg, #101a3f, #0c1431);
+      color:var(--muted);
+      font-weight:650;
+    }
+    .tog{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:10px 12px;
+      border:1px solid var(--line);
+      border-radius:14px;
+      background:#0c1431;
+      color:var(--muted);
+      font-size:13px;
+      margin-top:10px;
+    }
+    .tog input{transform: scale(1.15)}
+    .small{
+      font-size:12px;
+      color:var(--muted);
+      margin-top:10px;
+    }
+
+    /* Touch Controls */
+    .touchbar{
+      width:100%;
+      display:none;
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+      gap:10px;
+      margin-top:8px;
+    }
+    .touchbtn{
+      border:1px solid var(--line);
+      border-radius:16px;
+      background: linear-gradient(180deg, rgba(36,48,106,.85), rgba(24,33,74,.85));
+      padding:14px 10px;
+      font-weight:800;
+      text-align:center;
+      user-select:none;
+      touch-action: manipulation;
+      color:var(--ink);
+    }
+    .touchbtn:active{transform: translateY(1px)}
+    .touchhint{font-size:12px; color:var(--muted); text-align:center; margin-top:6px}
+    @media (pointer: coarse), (max-width: 820px){
+      .touchbar{display:grid;}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>SPACE INVADERS <span class="chip">Web + GitHub Pages</span></h1>
+      <div class="stats">
+        <div>Score: <b id="uiScore">0</b></div>
+        <div>Lives: <b id="uiLives">3</b></div>
+        <div>Level: <b id="uiLevel">1</b></div>
+        <div>Best: <b id="uiBest">0</b></div>
+      </div>
+    </header>
+
+    <div class="board">
+      <canvas id="game" width="960" height="600"></canvas>
+
+      <!-- MENU OVERLAY -->
+      <div class="overlay" id="overlay">
+        <div class="card">
+          <h2 id="overlayTitle">🚀 Space Invaders</h2>
+          <p id="overlayText">Derriba la flota, evita disparos, y caza el <b>UFO</b> para bonus. Cada ronda sube la velocidad.</p>
+
+          <div class="tog">
+            <div>🔊 Sonidos</div>
+            <label><input id="soundToggle" type="checkbox" checked /> Activados</label>
+          </div>
+
+          <div class="grid">
+            <button class="btn" id="btnStart">▶️ Iniciar</button>
+            <button class="btn secondary" id="btnHow">🎮 Controles</button>
+            <button class="btn secondary" id="btnResetBest">🧽 Reset Best</button>
+            <button class="btn secondary" id="btnResume" style="display:none;">⏸️ Reanudar</button>
+          </div>
+
+          <div class="small" id="helpBox" style="display:none;">
+            <div><b>PC:</b>
+              <span class="kbd">←</span><span class="kbd">→</span> mover ·
+              <span class="kbd">Espacio</span> disparar ·
+              <span class="kbd">P</span> pausa ·
+              <span class="kbd">R</span> reiniciar
+            </div>
+            <div style="margin-top:6px"><b>Móvil:</b> usa los botones táctiles debajo del juego.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hudline">
+      <div>
+        PC: <span class="kbd">←</span><span class="kbd">→</span> mover · <span class="kbd">Espacio</span> disparar · <span class="kbd">P</span> pausa · <span class="kbd">R</span> reiniciar
+      </div>
+      <div id="uiMsg"></div>
+    </div>
+
+    <!-- Touch controls (shown on mobile/coarse pointers) -->
+    <div class="touchbar" id="touchbar">
+      <div class="touchbtn" data-act="left">⬅️ IZQ</div>
+      <div class="touchbtn" data-act="right">➡️ DER</div>
+      <div class="touchbtn" data-act="shoot">💥 DISPARO</div>
+      <div class="touchbtn" data-act="pause">⏸️ PAUSA</div>
+    </div>
+    <div class="touchhint">Tip móvil: mantén presionado IZQ/DER para moverte continuo.</div>
+  </div>
+
+<script>
+(() => {
+  // ---------- Canvas ----------
+  const canvas = document.getElementById("game");
+  const ctx = canvas.getContext("2d");
+
+  // UI
+  const uiScore = document.getElementById("uiScore");
+  const uiLives = document.getElementById("uiLives");
+  const uiLevel = document.getElementById("uiLevel");
+  const uiBest  = document.getElementById("uiBest");
+  const uiMsg   = document.getElementById("uiMsg");
+
+  // Overlay/menu
+  const overlay = document.getElementById("overlay");
+  const overlayTitle = document.getElementById("overlayTitle");
+  const overlayText  = document.getElementById("overlayText");
+  const btnStart = document.getElementById("btnStart");
+  const btnHow = document.getElementById("btnHow");
+  const btnResetBest = document.getElementById("btnResetBest");
+  const btnResume = document.getElementById("btnResume");
+  const helpBox = document.getElementById("helpBox");
+  const soundToggle = document.getElementById("soundToggle");
+
+  // Touch
+  const touchbar = document.getElementById("touchbar");
+
+  // ---------- Helpers ----------
+  const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
+  const rnd = (a,b)=>a+Math.random()*(b-a);
+  const rectsOverlap = (a,b)=>
+    a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+
+  // ---------- Simple Audio (no files needed) ----------
+  let audioCtx = null;
+  let soundOn = true;
+  function ensureAudio(){
+    if (!audioCtx){
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (AC) audioCtx = new AC();
+    }
+    if (audioCtx && audioCtx.state === "suspended") audioCtx.resume().catch(()=>{});
+  }
+  function beep(freq=440, dur=0.06, type="square", gain=0.045){
+    if (!soundOn) return;
+    ensureAudio();
+    if (!audioCtx) return;
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.type = type;
+    o.frequency.value = freq;
+    g.gain.value = gain;
+
+    o.connect(g);
+    g.connect(audioCtx.destination);
+
+    const t = audioCtx.currentTime;
+    g.gain.setValueAtTime(gain, t);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+
+    o.start(t);
+    o.stop(t + dur + 0.02);
+  }
+  const sfx = {
+    shoot: ()=>beep(760, 0.05, "square", 0.05),
+    hit:   ()=>beep(220, 0.06, "sawtooth", 0.06),
+    enemyShoot: ()=>beep(420, 0.05, "triangle", 0.045),
+    ufo:   ()=>{ beep(880,0.06,"square",0.04); setTimeout(()=>beep(660,0.06,"square",0.04),60); },
+    level: ()=>{ beep(523,0.08,"triangle",0.05); setTimeout(()=>beep(784,0.10,"triangle",0.05),90); },
+    lose:  ()=>{ beep(196,0.12,"sawtooth",0.055); setTimeout(()=>beep(147,0.14,"sawtooth",0.055),130); },
+    win:   ()=>{ beep(659,0.09,"triangle",0.05); setTimeout(()=>beep(784,0.10,"triangle",0.05),110); setTimeout(()=>beep(988,0.12,"triangle",0.05),240); }
+  };
+
+  // ---------- Game State ----------
+  const BEST_KEY = "si_best_score_v1";
+  let best = Number(localStorage.getItem(BEST_KEY) || 0);
+
+  const state = {
+    running: false,
+    paused: false,
+    gameOver: false,
+    win: false,
+    score: 0,
+    lives: 3,
+    level: 1,
+    lastTime: 0,
+    stars: [],
+    shake: 0,
+  };
+
+  // Starfield
+  function initStars(){
+    state.stars = [];
+    for (let i=0;i<80;i++){
+      state.stars.push({ x: Math.random()*canvas.width, y: Math.random()*canvas.height, r: Math.random()*1.8+0.3, v: Math.random()*20+10 });
+    }
+  }
+  initStars();
+
+  // Player
+  const player = {
+    w: 64, h: 18,
+    x: canvas.width/2 - 32,
+    y: canvas.height - 54,
+    speed: 420,
+    cooldown: 0,
+    invuln: 0,
+  };
+
+  // Bullets
+  const bullets = []; // {x,y,w,h,vy,from}
+  function shootPlayer(){
+    if (!state.running || state.paused || state.gameOver) return;
+    if (player.cooldown > 0) return;
+    bullets.push({
+      x: player.x + player.w/2 - 3,
+      y: player.y - 14,
+      w: 6, h: 12,
+      vy: -620,
+      from: "player"
+    });
+    player.cooldown = 0.18;
+    sfx.shoot();
+  }
+
+  // Enemies (grid)
+  const enemy = {
+    cols: 10,
+    rows: 5,
+    w: 38,
+    h: 24,
+    padX: 14,
+    padY: 12,
+    offsetX: 140,
+    offsetY: 90,
+    dir: 1,
+    baseSpeed: 48,
+    drop: 22,
+    shootTimer: 0.9,
+    shootMin: 0.35,
+    shootMax: 0.85,
+  };
+  let enemies = [];
+
+  // Shields
+  let shields = [];
+  function spawnShields(){
+    shields = [];
+    const count = 4;
+    const y = canvas.height - 150;
+    const spacing = canvas.width/(count+1);
+    for (let i=1;i<=count;i++){
+      shields.push({ x: spacing*i - 50, y, w: 100, h: 34, hp: 14 });
+    }
+  }
+
+  // UFO bonus
+  const ufo = {
+    active: false,
+    x: -120,
+    y: 52,
+    w: 70,
+    h: 22,
+    vx: 190,
+    timer: 7.0,      // countdown to appear
+    nextMin: 7.0,
+    nextMax: 14.0
+  };
+  function resetUFOCountdown(){
+    ufo.timer = rnd(ufo.nextMin, ufo.nextMax);
+    ufo.active = false;
+    ufo.x = -120;
+  }
+
+  function spawnEnemies(){
+    enemies = [];
+    const totalW = enemy.cols*enemy.w + (enemy.cols-1)*enemy.padX;
+    enemy.offsetX = (canvas.width - totalW)/2;
+    for (let r=0;r<enemy.rows;r++){
+      for (let c=0;c<enemy.cols;c++){
+        enemies.push({
+          x: enemy.offsetX + c*(enemy.w+enemy.padX),
+          y: enemy.offsetY + r*(enemy.h+enemy.padY),
+          w: enemy.w,
+          h: enemy.h,
+          alive: true,
+          row: r,
+        });
+      }
+    }
+    enemy.dir = 1;
+    // More speed every level
+    enemy.baseSpeed = 48 + (state.level-1)*14;
+    enemy.drop = 20 + Math.min(10, (state.level-1)*2);
+    enemy.shootTimer = rnd(enemy.shootMin, enemy.shootMax);
+  }
+
+  function startNewGame(){
+    state.running = true;
+    state.paused = false;
+    state.gameOver = false;
+    state.win = false;
+    state.score = 0;
+    state.lives = 3;
+    state.level = 1;
+    bullets.length = 0;
+    player.x = canvas.width/2 - player.w/2;
+    player.cooldown = 0;
+    player.invuln = 0;
+    initStars();
+    spawnShields();
+    spawnEnemies();
+    resetUFOCountdown();
+    uiMsg.textContent = "";
+    updateUI();
+    hideOverlay();
+  }
+
+  function nextLevel(){
+    state.level += 1;
+    bullets.length = 0;
+    player.cooldown = 0;
+    player.invuln = Math.max(player.invuln, 0.8);
+    // restore some shield hp a bit (reward)
+    for (const sh of shields) sh.hp = Math.min(14, sh.hp + 3);
+    spawnEnemies();
+    resetUFOCountdown();
+    uiMsg.textContent = `🔥 Nivel ${state.level}`;
+    sfx.level();
+    updateUI();
+  }
+
+  function endGame(win){
+    state.gameOver = true;
+    state.running = false;
+    state.paused = false;
+    state.win = win;
+
+    if (state.score > best){
+      best = state.score;
+      localStorage.setItem(BEST_KEY, String(best));
+    }
+    updateUI();
+
+    overlayTitle.textContent = win ? "🏆 ¡Ronda completada!" : "💥 Game Over";
+    overlayText.textContent = win
+      ? `Subiste a nivel ${state.level + 1}. ¿List@ para más velocidad?`
+      : `Tu score fue ${state.score}. El UFO no perdona. 😅`;
+
+    btnStart.textContent = win ? "➡️ Siguiente nivel" : "🔄 Reiniciar";
+    btnResume.style.display = "none";
+
+    showOverlay();
+    if (win) sfx.win(); else sfx.lose();
+  }
+
+  function updateUI(){
+    uiScore.textContent = state.score;
+    uiLives.textContent = state.lives;
+    uiLevel.textContent = state.level;
+    uiBest.textContent = best;
+  }
+
+  function showOverlay(){ overlay.style.display = "flex"; }
+  function hideOverlay(){ overlay.style.display = "none"; helpBox.style.display="none"; }
+
+  // ---------- Input ----------
+  const keys = new Set();
+  const input = { left:false, right:false, shoot:false };
+
+  window.addEventListener("keydown", (e)=>{
+    if (e.code === "Space") e.preventDefault();
+    keys.add(e.code);
+
+    if (e.code === "Space") shootPlayer();
+    if (e.code === "KeyP"){
+      if (!state.gameOver && state.running){
+        state.paused = !state.paused;
+        uiMsg.textContent = state.paused ? "⏸ Pausa" : "";
+        // Show overlay pause button on pause (optional)
+        if (state.paused) {
+          overlayTitle.textContent = "⏸ Pausa";
+          overlayText.textContent = "Respira. Los aliens también parpadean (a veces).";
+          btnStart.style.display = "none";
+          btnResume.style.display = "flex";
+          showOverlay();
+        } else {
+          hideOverlay();
+          btnStart.style.display = "flex";
+        }
+      }
+    }
+    if (e.code === "KeyR"){
+      if (state.gameOver) startNewGame();
+    }
+    // unlocking audio on first interaction
+    ensureAudio();
+  });
+  window.addEventListener("keyup", (e)=>keys.delete(e.code));
+
+  // Touch buttons
+  function bindTouchButtons(){
+    if (!touchbar) return;
+    const map = {
+      left:  (down)=> input.left = down,
+      right: (down)=> input.right = down,
+      shoot: (down)=> { if (down) shootPlayer(); },
+      pause: (down)=> {
+        if (!down) return;
+        if (state.running && !state.gameOver){
+          state.paused = !state.paused;
+          uiMsg.textContent = state.paused ? "⏸ Pausa" : "";
+          if (state.paused){
+            overlayTitle.textContent = "⏸ Pausa";
+            overlayText.textContent = "Toca Reanudar o presiona P.";
+            btnStart.style.display = "none";
+            btnResume.style.display = "flex";
+            showOverlay();
+          } else {
+            hideOverlay();
+            btnStart.style.display = "flex";
+          }
+        }
+      }
+    };
+
+    function addPressHandlers(el, fn){
+      const on = (ev)=>{ ev.preventDefault(); ensureAudio(); fn(true); };
+      const off = (ev)=>{ ev.preventDefault(); fn(false); };
+      el.addEventListener("pointerdown", on);
+      el.addEventListener("pointerup", off);
+      el.addEventListener("pointercancel", off);
+      el.addEventListener("pointerleave", off);
+    }
+
+    touchbar.querySelectorAll(".touchbtn").forEach(btn=>{
+      const act = btn.getAttribute("data-act");
+      const fn = map[act];
+      if (fn) addPressHandlers(btn, fn);
+    });
+  }
+  bindTouchButtons();
+
+  // Menu buttons
+  btnStart.addEventListener("click", ()=>{
+    ensureAudio();
+    soundOn = !!soundToggle.checked;
+    if (!state.gameOver && !state.running){
+      startNewGame();
+      return;
+    }
+    // If win overlay: go next level
+    if (state.gameOver && state.win){
+      state.running = true;
+      state.gameOver = false;
+      state.paused = false;
+      btnStart.style.display = "flex";
+      btnResume.style.display = "none";
+      hideOverlay();
+      nextLevel();
+      return;
+    }
+    // Restart on game over
+    startNewGame();
+  });
+  btnHow.addEventListener("click", ()=>{
+    ensureAudio();
+    helpBox.style.display = (helpBox.style.display === "none") ? "block" : "none";
+  });
+  btnResetBest.addEventListener("click", ()=>{
+    ensureAudio();
+    best = 0;
+    localStorage.setItem(BEST_KEY, "0");
+    updateUI();
+    uiMsg.textContent = "Best reseteado.";
+  });
+  btnResume.addEventListener("click", ()=>{
+    ensureAudio();
+    soundOn = !!soundToggle.checked;
+    if (state.running && !state.gameOver){
+      state.paused = false;
+      uiMsg.textContent = "";
+      btnStart.style.display = "flex";
+      btnResume.style.display = "none";
+      hideOverlay();
+    }
+  });
+  soundToggle.addEventListener("change", ()=>{ soundOn = !!soundToggle.checked; ensureAudio(); });
+
+  // Click canvas to unlock audio + shoot on mobile (optional)
+  canvas.addEventListener("pointerdown", (e)=>{
+    ensureAudio();
+    // small convenience: tap upper half to shoot, lower half to move (nah). We'll just shoot on tap.
+    // (Avoid spamming: only shoot if running)
+    if (state.running && !state.paused && !state.gameOver) shootPlayer();
+  });
+
+  // ---------- Game Logic ----------
+  function addScore(n){
+    state.score += n;
+    if (state.score > best){
+      best = state.score;
+      localStorage.setItem(BEST_KEY, String(best));
+    }
+    updateUI();
+  }
+
+  function enemyAliveList(){ return enemies.filter(e=>e.alive); }
+
+  function enemyShoot(){
+    const alive = enemyAliveList();
+    if (!alive.length) return;
+
+    // bottom-most per column
+    const byCol = new Map();
+    for (const e of alive){
+      const col = Math.round((e.x - enemy.offsetX) / (enemy.w + enemy.padX));
+      const cur = byCol.get(col);
+      if (!cur || e.y > cur.y) byCol.set(col, e);
+    }
+    const candidates = Array.from(byCol.values());
+    if (!candidates.length) return;
+
+    const shooter = candidates[(Math.random()*candidates.length)|0];
+    bullets.push({
+      x: shooter.x + shooter.w/2 - 3,
+      y: shooter.y + shooter.h + 6,
+      w: 6, h: 12,
+      vy: 380 + (state.level-1)*22,
+      from: "enemy"
+    });
+    sfx.enemyShoot();
+  }
+
+  function loseLife(){
+    state.lives -= 1;
+    updateUI();
+    state.shake = 0.25;
+    player.invuln = 1.2;
+    if (state.lives <= 0){
+      endGame(false);
+    }
+  }
+
+  function update(dt){
+    // Stars
+    for (const s of state.stars){
+      s.y += s.v * dt;
+      if (s.y > canvas.height+10){ s.y = -10; s.x = Math.random()*canvas.width; s.v = rnd(12,40); s.r = rnd(0.4,2.2); }
+    }
+
+    if (!state.running || state.paused || state.gameOver) return;
+
+    // Player movement from keys + touch
+    const left = input.left || keys.has("ArrowLeft") || keys.has("KeyA");
+    const right= input.right|| keys.has("ArrowRight")|| keys.has("KeyD");
+    const dir = (right?1:0) - (left?1:0);
+
+    player.x += dir * player.speed * dt;
+    player.x = clamp(player.x, 10, canvas.width - player.w - 10);
+
+    player.cooldown = Math.max(0, player.cooldown - dt);
+    player.invuln = Math.max(0, player.invuln - dt);
+
+    // UFO spawn/move
+    if (!ufo.active){
+      ufo.timer -= dt;
+      if (ufo.timer <= 0){
+        ufo.active = true;
+        ufo.y = 56;
+        const fromLeft = Math.random() < 0.5;
+        ufo.x = fromLeft ? -ufo.w-10 : canvas.width + 10;
+        ufo.vx = (fromLeft ? 1 : -1) * (190 + (state.level-1)*20);
+      }
+    } else {
+      ufo.x += ufo.vx * dt;
+      if (ufo.x < -ufo.w-40 || ufo.x > canvas.width + 40){
+        resetUFOCountdown();
+      }
+    }
+
+    // Enemies move
+    const alive = enemyAliveList();
+    if (!alive.length){
+      // level cleared
+      state.running = false;
+      state.gameOver = true;
+      state.win = true;
+      endGame(true);
+      return;
+    }
+
+    // speed ramps up as they die + by level
+    const aliveRatio = alive.length / (enemy.cols * enemy.rows);
+    const ramp = (1 - aliveRatio) * (130 + (state.level-1)*30);
+    const vx = (enemy.baseSpeed + ramp) * enemy.dir;
+
+    let minX = Infinity, maxX = -Infinity, maxY = -Infinity;
+    for (const e of alive){
+      e.x += vx * dt;
+      minX = Math.min(minX, e.x);
+      maxX = Math.max(maxX, e.x + e.w);
+      maxY = Math.max(maxY, e.y + e.h);
+    }
+    const hitLeft = minX <= 14;
+    const hitRight= maxX >= canvas.width - 14;
+
+    if (hitLeft || hitRight){
+      enemy.dir *= -1;
+      for (const e of alive) e.y += enemy.drop;
+      state.shake = 0.08;
+      beep(160 + state.level*10, 0.03, "square", 0.03);
+    }
+
+    // enemies reach player line => lose
+    if (maxY >= player.y - 6){
+      endGame(false);
+      return;
+    }
+
+    // Enemy shooting timer
+    enemy.shootTimer -= dt;
+    if (enemy.shootTimer <= 0){
+      // faster shooting on higher levels
+      const base = clamp(0.8 - (state.level-1)*0.06, 0.35, 0.8);
+      enemy.shootTimer = rnd(Math.max(0.25, base-0.15), base+0.25);
+      enemyShoot();
+    }
+
+    // Bullets update & collisions
+    for (let i = bullets.length - 1; i >= 0; i--){
+      const b = bullets[i];
+      b.y += b.vy * dt;
+
+      if (b.y < -60 || b.y > canvas.height + 60){
+        bullets.splice(i,1);
+        continue;
+      }
+
+      // Shields
+      for (let s = shields.length - 1; s >= 0; s--){
+        const sh = shields[s];
+        if (rectsOverlap(b, sh)){
+          bullets.splice(i,1);
+          sh.hp -= 1;
+          if (sh.hp <= 0) shields.splice(s,1);
+          state.shake = 0.04;
+          beep(280, 0.03, "triangle", 0.03);
+          break;
+        }
+      }
+
+      // If bullet removed by shield, skip
+      if (!bullets[i]) continue;
+
+      if (b.from === "player"){
+        // Hit UFO
+        if (ufo.active && rectsOverlap(b, ufo)){
+          bullets.splice(i,1);
+          ufo.active = false;
+          resetUFOCountdown();
+          const bonus = (Math.random() < 0.5) ? 100 : 150;
+          addScore(bonus);
+          state.shake = 0.12;
+          sfx.ufo();
+          continue;
+        }
+
+        // Hit enemy
+        let hitEnemy = false;
+        for (const e of enemies){
+          if (!e.alive) continue;
+          if (rectsOverlap(b, e)){
+            e.alive = false;
+            hitEnemy = true;
+            break;
+          }
+        }
+        if (hitEnemy){
+          bullets.splice(i,1);
+          state.shake = 0.08;
+          sfx.hit();
+          // scoring: higher row = more points
+          // find dead enemy row by nearest (cheap): use last enemy killed? We'll approximate with +12
+          addScore(12 + state.level*2);
+          continue;
+        }
+      } else {
+        // Enemy bullet hits player
+        if (player.invuln <= 0 && rectsOverlap(b, player)){
+          bullets.splice(i,1);
+          sfx.hit();
+          loseLife();
+          continue;
+        }
+      }
+    }
+  }
+
+  // ---------- Drawing ----------
+  function draw(){
+    // small screen shake
+    let shakeX=0, shakeY=0;
+    if (state.shake > 0){
+      state.shake = Math.max(0, state.shake - 1/60);
+      shakeX = (Math.random()*2-1) * 6 * state.shake;
+      shakeY = (Math.random()*2-1) * 6 * state.shake;
+    }
+
+    ctx.save();
+    ctx.translate(shakeX, shakeY);
+
+    // Background
+    ctx.clearRect(-20, -20, canvas.width+40, canvas.height+40);
+
+    // Stars
+    ctx.globalAlpha = 0.7;
+    ctx.fillStyle = "#ffffff";
+    for (const s of state.stars){
+      ctx.globalAlpha = clamp((s.r/2.5), 0.2, 0.9);
+      ctx.fillRect(s.x, s.y, s.r, s.r);
+    }
+    ctx.globalAlpha = 1;
+
+    // Top soft gradient
+    const g = ctx.createLinearGradient(0,0,0,120);
+    g.addColorStop(0,"rgba(76,201,240,0.18)");
+    g.addColorStop(1,"rgba(76,201,240,0)");
+    ctx.fillStyle = g;
+    ctx.fillRect(0,0,canvas.width,140);
+
+    // UFO
+    if (ufo.active){
+      ctx.fillStyle = "rgba(255,255,255,0.9)";
+      ctx.fillRect(ufo.x, ufo.y, ufo.w, ufo.h);
+      ctx.fillStyle = "rgba(0,0,0,0.25)";
+      ctx.fillRect(ufo.x+8, ufo.y+6, ufo.w-16, ufo.h-12);
+      // little glow
+      ctx.globalAlpha = 0.35;
+      ctx.fillStyle = "#4cc9f0";
+      ctx.fillRect(ufo.x-6, ufo.y-4, ufo.w+12, ufo.h+8);
+      ctx.globalAlpha = 1;
+    }
+
+    // Shields
+    for (const sh of shields){
+      const hpRatio = sh.hp/14;
+      ctx.fillStyle = `rgba(6,214,160,${0.10 + 0.22*hpRatio})`;
+      ctx.fillRect(sh.x, sh.y, sh.w, sh.h);
+      ctx.strokeStyle = "rgba(43,53,102,0.9)";
+      ctx.strokeRect(sh.x, sh.y, sh.w, sh.h);
+
+      // hp bar
+      ctx.fillStyle = "rgba(255,255,255,0.65)";
+      ctx.fillRect(sh.x, sh.y+sh.h+6, sh.w*hpRatio, 4);
+    }
+
+    // Player
+    const blink = player.invuln>0 ? (Math.floor(performance.now()/80)%2===0) : true;
+    if (blink){
+      ctx.fillStyle = "#b7ffda";
+      ctx.fillRect(player.x, player.y, player.w, player.h);
+      ctx.fillRect(player.x + 10, player.y - 9, player.w - 20, 9);
+      ctx.fillStyle = "rgba(0,0,0,0.22)";
+      ctx.fillRect(player.x+8, player.y+4, player.w-16, player.h-8);
+    }
+
+    // Enemies
+    const shades = ["#ff6b6b","#ffd166","#06d6a0","#4cc9f0","#a78bfa"];
+    for (const e of enemies){
+      if (!e.alive) continue;
+      ctx.fillStyle = shades[e.row % shades.length];
+      ctx.fillRect(e.x, e.y, e.w, e.h);
+      ctx.fillStyle = "rgba(0,0,0,0.25)";
+      ctx.fillRect(e.x+6, e.y+6, e.w-12, e.h-12);
+    }
+
+    // Bullets
+    for (const b of bullets){
+      ctx.fillStyle = (b.from==="player") ? "#ffffff" : "#ff9bd2";
+      ctx.fillRect(b.x, b.y, b.w, b.h);
+    }
+
+    // Bottom vignette
+    const v = ctx.createLinearGradient(0, canvas.height-120, 0, canvas.height);
+    v.addColorStop(0,"rgba(0,0,0,0)");
+    v.addColorStop(1,"rgba(0,0,0,0.35)");
+    ctx.fillStyle = v;
+    ctx.fillRect(0, canvas.height-120, canvas.width, 120);
+
+    // in-canvas mini HUD
+    ctx.fillStyle = "rgba(255,255,255,0.88)";
+    ctx.font = "16px system-ui, Arial";
+    ctx.fillText(`Score ${state.score}  •  Lives ${state.lives}  •  Level ${state.level}`, 16, 26);
+
+    if (state.paused && state.running){
+      ctx.fillStyle = "rgba(255,255,255,0.92)";
+      ctx.font = "28px system-ui, Arial";
+      ctx.fillText("PAUSA", canvas.width/2 - 45, canvas.height/2);
+      ctx.font = "16px system-ui, Arial";
+      ctx.fillText("Presiona P o el botón PAUSA", canvas.width/2 - 128, canvas.height/2 + 26);
+    }
+
+    ctx.restore();
+  }
+
+  // ---------- Main Loop ----------
+  function loop(t){
+    const time = t/1000;
+    const dt = Math.min(0.033, time - (state.lastTime||time));
+    state.lastTime = time;
+
+    update(dt);
+    draw();
+
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+
+  // ---------- Start overlay defaults ----------
+  updateUI();
+  showOverlay();
+
+  // Make Start button visible (pause overlay hides it)
+  function normalizeMenuButtons(){
+    btnStart.style.display = "flex";
+    btnResume.style.display = "none";
+    btnStart.textContent = "▶️ Iniciar";
+    overlayTitle.textContent = "🚀 Space Invaders";
+    overlayText.textContent = "Derriba la flota, evita disparos, y caza el UFO para bonus. Cada ronda sube la velocidad.";
+  }
+  // If user clicks background overlay, keep it (no close)
+  overlay.addEventListener("click", (e)=>{
+    if (e.target === overlay) {
+      // subtle: toggle help maybe? nah.
+    }
+  });
+
+  // When opening overlay due to pause, we hide start; when fresh, normalize
+  // keep it simple: if not running and not gameover -> it's start screen
+  document.addEventListener("visibilitychange", ()=>{
+    // auto pause if tab hidden
+    if (document.hidden && state.running && !state.gameOver){
+      state.paused = true;
+      uiMsg.textContent = "⏸ Pausa (cambiaste de pestaña)";
+      overlayTitle.textContent = "⏸ Pausa";
+      overlayText.textContent = "Volviste. Toca Reanudar.";
+      btnStart.style.display = "none";
+      btnResume.style.display = "flex";
+      showOverlay();
+    }
+  });
+
+  // Ensure correct buttons when overlay shown initially
+  normalizeMenuButtons();
+
+  // Update sound switch on load
+  soundOn = !!soundToggle.checked;
+
+})();
+</script>
+</body>
+</html>
