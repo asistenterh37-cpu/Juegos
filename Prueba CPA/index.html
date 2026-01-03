@@ -12,7 +12,7 @@ body{
   color:#f2f4f8;
   margin:0;
 }
-.container{max-width:1100px;margin:auto;padding:20px}
+.container{max-width:1200px;margin:auto;padding:20px}
 h1,h2,h3{margin-top:0}
 .card{
   background:#161a2e;
@@ -20,36 +20,26 @@ h1,h2,h3{margin-top:0}
   padding:18px;
   margin:16px 0;
 }
+.muted{color:#cbd0ff;font-size:14px}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:10px;
+}
 label{font-size:13px;color:#cbd0ff}
-input{
+input[type="text"]{
   width:100%;
   padding:8px;
   border-radius:8px;
   border:none;
   margin-top:4px;
 }
-.grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-  gap:10px;
-}
-.item{
-  display:grid;
-  grid-template-columns:1fr auto;
-  gap:10px;
-  padding:10px;
-  background:#0f1220;
-  border-radius:10px;
-  margin-bottom:8px;
-}
-.scale label{
-  margin:0 4px;
-  cursor:pointer;
-}
+
 table{
   width:100%;
   border-collapse:collapse;
-  margin-top:10px;
+  margin-top:12px;
+  font-size:14px;
 }
 th,td{
   border:1px solid #2a2f55;
@@ -57,6 +47,9 @@ th,td{
   text-align:center;
 }
 th{background:#1f2450}
+th.item{text-align:left}
+td.item{text-align:left}
+
 .badge{
   padding:4px 8px;
   border-radius:999px;
@@ -65,6 +58,7 @@ th{background:#1f2450}
 .alto{background:#1f8f5f}
 .medio{background:#cfae2e}
 .bajo{background:#c44}
+
 .actions button{
   margin-top:10px;
   padding:10px 14px;
@@ -74,6 +68,7 @@ th{background:#1f2450}
   color:#fff;
   cursor:pointer;
 }
+
 footer{
   margin-top:20px;
   display:flex;
@@ -81,6 +76,7 @@ footer{
   font-size:13px;
   color:#cbd0ff;
 }
+
 @media print{
   .actions{display:none}
   body{background:#fff;color:#000}
@@ -93,49 +89,58 @@ footer{
 <div class="container">
 
 <h1>Prueba CPA</h1>
-<p>Competencias – Potencial – Actitud</p>
+<p class="muted">Competencias – Potencial – Actitud</p>
+
+<div class="card">
+<h2>Instrucciones</h2>
+<p>Responda según su experiencia en los últimos <strong>6 meses</strong>.</p>
+<p><strong>Escala Likert (1 a 5):</strong></p>
+<ul>
+  <li><strong>1</strong> = Totalmente en desacuerdo</li>
+  <li><strong>2</strong> = En desacuerdo</li>
+  <li><strong>3</strong> = Ni de acuerdo ni en desacuerdo</li>
+  <li><strong>4</strong> = De acuerdo</li>
+  <li><strong>5</strong> = Totalmente de acuerdo</li>
+</ul>
+</div>
 
 <div class="card">
 <h2>Datos del colaborador</h2>
 <div class="grid">
-  <div><label>Nombre<input id="nombre"></label></div>
-  <div><label>Puesto<input id="puesto"></label></div>
-  <div><label>Área<input id="area"></label></div>
-  <div><label>Evaluador<input id="evaluador"></label></div>
+  <div><label>Nombre<input type="text" id="nombre"></label></div>
+  <div><label>Puesto<input type="text" id="puesto"></label></div>
+  <div><label>Área<input type="text" id="area"></label></div>
+  <div><label>Evaluador<input type="text" id="evaluador"></label></div>
 </div>
 </div>
 
+<!-- COMPETENCIAS -->
 <div class="card">
 <h2>I. Competencias</h2>
-<div id="C"></div>
+<table id="tablaC"></table>
 </div>
 
+<!-- POTENCIAL -->
 <div class="card">
 <h2>II. Potencial</h2>
-<div id="P"></div>
+<table id="tablaP"></table>
 </div>
 
+<!-- ACTITUD -->
 <div class="card">
 <h2>III. Actitud</h2>
-<div id="A"></div>
+<table id="tablaA"></table>
 </div>
 
+<!-- RESULTADOS -->
 <div class="card">
 <h2>RESULTADOS</h2>
 
 <table>
-<thead>
-<tr>
-<th>Dimensión</th>
-<th>Puntaje</th>
-<th>Nivel</th>
-</tr>
-</thead>
-<tbody>
+<tr><th>Dimensión</th><th>Puntaje</th><th>Nivel</th></tr>
 <tr><td>Competencias</td><td id="pC">—</td><td id="nC">—</td></tr>
 <tr><td>Potencial</td><td id="pP">—</td><td id="nP">—</td></tr>
 <tr><td>Actitud</td><td id="pA">—</td><td id="nA">—</td></tr>
-</tbody>
 </table>
 
 <h3>📌 Interpretación de niveles</h3>
@@ -147,16 +152,8 @@ footer{
 
 <h3>🎯 CLASIFICACIÓN FINAL DEL TALENTO</h3>
 <table>
-<thead>
-<tr>
-<th>Perfil</th>
-<th>Interpretación</th>
-<th>Acción RRHH</th>
-</tr>
-</thead>
-<tbody id="clasificacionTabla">
-<tr><td colspan="3">Complete la evaluación</td></tr>
-</tbody>
+<tr><th>Perfil</th><th>Interpretación</th><th>Acción RRHH</th></tr>
+<tbody id="clasificacion"></tbody>
 </table>
 
 <h3>🧭 CONCLUSIONES</h3>
@@ -175,37 +172,57 @@ footer{
 </div>
 
 <script>
-const items={
+const data={
 C:[
-"Cumple objetivos del puesto","Aplica conocimientos técnicos","Resuelve problemas",
-"Organiza su trabajo","Cumple plazos","Calidad bajo presión","Comunicación","Trabajo en equipo"
+"Cumple consistentemente los objetivos del puesto",
+"Aplica correctamente los conocimientos técnicos",
+"Resuelve problemas de forma efectiva",
+"Organiza y prioriza adecuadamente su trabajo",
+"Cumple plazos sin supervisión constante",
+"Mantiene calidad bajo presión",
+"Se comunica de forma clara",
+"Trabaja colaborativamente"
 ],
 P:[
-"Aprende rápido","Se adapta","Asume retos","Iniciativa","Mayor responsabilidad",
-"Buen criterio","Acepta feedback","Pensamiento estratégico"
+"Aprende rápidamente",
+"Se adapta a los cambios",
+"Asume retos adicionales",
+"Muestra iniciativa de mejora",
+"Puede asumir mayores responsabilidades",
+"Toma decisiones con criterio",
+"Acepta retroalimentación",
+"Piensa estratégicamente"
 ],
 A:[
-"Compromiso","Actitud positiva","Respeto normas","Asume errores",
-"Relaciones sanas","Colabora","Apertura al cambio","Representa a la empresa"
+"Muestra compromiso",
+"Mantiene actitud positiva",
+"Respeta normas y valores",
+"Asume responsabilidad por errores",
+"Mantiene relaciones laborales sanas",
+"Colabora con el equipo",
+"Acepta cambios",
+"Representa bien a la organización"
 ]
 };
 
-function render(sec){
-  const d=document.getElementById(sec);
-  items[sec].forEach((t,i)=>{
-    const id=sec+(i+1);
-    d.innerHTML+=`
-    <div class="item">
-      <div>${t}</div>
-      <div class="scale">
-        ${[1,2,3,4,5].map(n=>`
-        <input type="radio" name="${id}" value="${n}" onchange="calc()"> ${n}
-        `).join("")}
-      </div>
-    </div>`;
+function tabla(sec,id){
+  let html=`<tr>
+  <th class="item">Ítem</th>
+  <th>1</th><th>2</th><th>3</th><th>4</th><th>5</th>
+  </tr>`;
+  data[sec].forEach((t,i)=>{
+    html+=`<tr>
+      <td class="item">${t}</td>
+      ${[1,2,3,4,5].map(n=>`
+      <td><input type="radio" name="${sec+(i+1)}" value="${n}" onchange="calc()"></td>`).join("")}
+    </tr>`;
   });
+  document.getElementById(id).innerHTML=html;
 }
-["C","P","A"].forEach(render);
+
+tabla("C","tablaC");
+tabla("P","tablaP");
+tabla("A","tablaA");
 
 function nivel(v){
   if(v>=32) return ["Alto","alto"];
@@ -216,16 +233,19 @@ function nivel(v){
 function calc(){
   let r={C:0,P:0,A:0};
   ["C","P","A"].forEach(s=>{
-    items[s].forEach((_,i)=>{
-      const v=document.querySelector(`input[name=${s+(i+1)}]:checked`);
+    data[s].forEach((_,i)=>{
+      let v=document.querySelector(`input[name=${s+(i+1)}]:checked`);
       if(v) r[s]+=+v.value;
     });
     document.getElementById("p"+s).innerText=r[s]+" / 40";
-    const [txt,cls]=nivel(r[s]);
+    let [txt,cls]=nivel(r[s]);
     document.getElementById("n"+s).innerHTML=`<span class="badge ${cls}">${txt}</span>`;
   });
 
-  let perfil="",accion="",interp="";
+  let perfil="Perfil intermedio";
+  let interp="Requiere análisis adicional";
+  let accion="Plan de desarrollo";
+
   if(r.C>=32 && r.P>=32 && r.A>=32){
     perfil="🌟 Alto C – Alto P – Alta A";
     interp="Talento clave";
@@ -248,13 +268,12 @@ function calc(){
     accion="Plan correctivo";
   }
 
-  document.getElementById("clasificacionTabla").innerHTML=
-    perfil?`<tr><td>${perfil}</td><td>${interp}</td><td>${accion}</td></tr>`:
-    `<tr><td colspan="3">Perfil intermedio – requiere análisis adicional</td></tr>`;
+  document.getElementById("clasificacion").innerHTML=
+  `<tr><td>${perfil}</td><td>${interp}</td><td>${accion}</td></tr>`;
 
   document.getElementById("conclusiones").innerText=
-    `El colaborador presenta Competencias: ${r.C}/40, Potencial: ${r.P}/40 y Actitud: ${r.A}/40.
-     La clasificación permite orientar decisiones objetivas de desarrollo, sucesión o mejora.`;
+  `La evaluación CPA evidencia un nivel de Competencias ${r.C}/40, Potencial ${r.P}/40 y Actitud ${r.A}/40,
+   permitiendo orientar decisiones objetivas de desarrollo, sucesión o mejora.`;
 }
 </script>
 
