@@ -1,0 +1,857 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Simulador de Punto de Equilibrio • Por Soamy Lanza</title>
+  <style>
+    :root{
+      --bg:#071018;
+      --card:rgba(16,24,40,.72);
+      --card2:rgba(12,18,32,.78);
+      --text:#e8eefc;
+      --muted:#a9b6d3;
+      --border:rgba(255,255,255,.12);
+      --accent:#18c07a;
+      --warn:#f7b731;
+      --danger:#ff5c7a;
+      --shadow: 0 24px 60px rgba(0,0,0,.45);
+      --r:18px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:var(--sans);
+      color:var(--text);
+      background:
+        radial-gradient(1000px 600px at 15% 0%, rgba(24,192,122,.18), transparent 60%),
+        radial-gradient(900px 500px at 90% 15%, rgba(111,66,193,.15), transparent 55%),
+        radial-gradient(900px 700px at 40% 110%, rgba(255,92,122,.10), transparent 55%),
+        var(--bg);
+      padding:22px;
+    }
+    .wrap{max-width:1100px;margin:0 auto}
+    .top{
+      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid var(--border);
+      border-radius:24px;
+      padding:18px 18px;
+      box-shadow: var(--shadow);
+      display:flex;
+      gap:14px;
+      align-items:center;
+      justify-content:space-between;
+      flex-wrap:wrap;
+    }
+    .title{
+      display:flex; gap:12px; align-items:flex-start;
+      min-width:280px;
+    }
+    .badge{
+      width:44px;height:44px;border-radius:14px;
+      display:grid;place-items:center;
+      background:rgba(24,192,122,.14);
+      border:1px solid rgba(24,192,122,.25);
+      font-size:20px;
+    }
+    h1{margin:0;font-size:20px;letter-spacing:.2px}
+    .sub{margin:4px 0 0;color:var(--muted);font-size:13px}
+    .by{margin-top:6px;font-size:13px;color:var(--muted)}
+    .by b{color:var(--text)}
+    .pills{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .pill{
+      border:1px solid var(--border);
+      background:rgba(0,0,0,.18);
+      border-radius:999px;
+      padding:10px 12px;
+      display:flex;gap:10px;align-items:center;
+      min-width:150px;
+    }
+    .pill .k{color:var(--muted);font-size:12px}
+    .pill .v{font-family:var(--mono);font-size:14px}
+    .main{
+      margin-top:14px;
+      display:grid;
+      grid-template-columns: 360px 1fr;
+      gap:14px;
+    }
+    @media (max-width: 980px){
+      .main{grid-template-columns: 1fr}
+    }
+    .card{
+      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid var(--border);
+      border-radius:24px;
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .card .hd{
+      padding:14px 16px;
+      border-bottom:1px solid rgba(255,255,255,.08);
+      display:flex;align-items:center;justify-content:space-between;gap:10px;
+    }
+    .card .hd h2{margin:0;font-size:14px;color:var(--muted);font-weight:650;letter-spacing:.3px}
+    .card .bd{padding:14px 16px}
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+    }
+    .grid.one{grid-template-columns:1fr}
+    label{display:block;font-size:12px;color:var(--muted);margin:0 0 6px}
+    .in{
+      width:100%;
+      padding:12px 12px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(0,0,0,.22);
+      color:var(--text);
+      outline:none;
+      font-size:14px;
+    }
+    .in:focus{border-color:rgba(24,192,122,.45); box-shadow:0 0 0 3px rgba(24,192,122,.16)}
+    .row{display:flex;gap:10px;flex-wrap:wrap}
+    .btn{
+      padding:12px 14px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(0,0,0,.25);
+      color:var(--text);
+      cursor:pointer;
+      font-weight:650;
+    }
+    .btn.primary{background:rgba(24,192,122,.18);border-color:rgba(24,192,122,.35)}
+    .btn.warn{background:rgba(247,183,49,.14);border-color:rgba(247,183,49,.28)}
+    .btn:active{transform:translateY(1px)}
+    .hint{
+      margin-top:10px;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.35;
+    }
+    .resultBox{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+    }
+    @media (max-width: 640px){ .resultBox{grid-template-columns:1fr} }
+    .metric{
+      background:rgba(0,0,0,.22);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:18px;
+      padding:12px 12px;
+    }
+    .metric .k{color:var(--muted);font-size:12px}
+    .metric .v{margin-top:6px;font-family:var(--mono);font-size:18px}
+    .metric .s{margin-top:6px;color:var(--muted);font-size:12px}
+    .banner{
+      margin-top:12px;
+      border-radius:18px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(0,0,0,.18);
+      padding:12px 12px;
+      display:flex;gap:10px;align-items:flex-start;justify-content:space-between;
+    }
+    .tag{
+      font-size:12px;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(0,0,0,.18);
+      color:var(--muted);
+      white-space:nowrap;
+    }
+    .tag.ok{border-color:rgba(24,192,122,.35); color:#bff7de; background:rgba(24,192,122,.14)}
+    .tag.warn{border-color:rgba(247,183,49,.35); color:#ffe4b3; background:rgba(247,183,49,.12)}
+    .tag.bad{border-color:rgba(255,92,122,.35); color:#ffd1db; background:rgba(255,92,122,.10)}
+    .banner p{margin:0;color:var(--muted);font-size:12px;line-height:1.4}
+    .chartWrap{padding:14px 16px}
+    canvas{
+      width:100%;
+      height:340px;
+      display:block;
+      background:rgba(0,0,0,.14);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:22px;
+    }
+    .footer{
+      margin-top:12px;
+      color:var(--muted);
+      font-size:12px;
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+    .toast{
+      position:fixed;
+      left:50%;
+      bottom:18px;
+      transform:translateX(-50%);
+      background:rgba(0,0,0,.75);
+      border:1px solid rgba(255,255,255,.14);
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:999px;
+      box-shadow: var(--shadow);
+      opacity:0;
+      pointer-events:none;
+      transition:.2s ease;
+      font-size:13px;
+    }
+    .toast.show{opacity:1;transform:translateX(-50%) translateY(-2px)}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <div class="title">
+        <div class="badge">📈</div>
+        <div>
+          <h1>Simulador de Punto de Equilibrio</h1>
+          <div class="sub">Calcula el punto de equilibrio en unidades y ventas, margen de contribución y utilidad.</div>
+          <div class="by">Por: <b>Soamy Lanza</b></div>
+        </div>
+      </div>
+
+      <div class="pills" aria-label="Indicadores rápidos">
+        <div class="pill"><div class="k">MC Unit</div><div class="v" id="mcUnitPill">—</div></div>
+        <div class="pill"><div class="k">PE Unid</div><div class="v" id="beUnitsPill">—</div></div>
+        <div class="pill"><div class="k">PE Ventas</div><div class="v" id="beSalesPill">—</div></div>
+      </div>
+    </div>
+
+    <div class="main">
+      <!-- Izquierda -->
+      <div class="card">
+        <div class="hd">
+          <h2>Entradas</h2>
+          <span class="tag" id="modeTag">Modo: Básico</span>
+        </div>
+        <div class="bd">
+          <div class="grid one">
+            <div>
+              <label for="mode">Modo de cálculo</label>
+              <select class="in" id="mode">
+                <option value="basic" selected>Básico (PV, CVu y CF)</option>
+                <option value="mix">Mix de productos (ponderado)</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="basicBox">
+            <div class="grid" style="margin-top:10px">
+              <div>
+                <label for="price">Precio de venta unitario (PV)</label>
+                <input class="in" id="price" type="number" inputmode="decimal" min="0" step="0.01" value="25">
+              </div>
+              <div>
+                <label for="varCost">Costo variable unitario (CVu)</label>
+                <input class="in" id="varCost" type="number" inputmode="decimal" min="0" step="0.01" value="10">
+              </div>
+              <div>
+                <label for="fixedCost">Costos fijos (CF) del periodo</label>
+                <input class="in" id="fixedCost" type="number" inputmode="decimal" min="0" step="0.01" value="2000">
+              </div>
+              <div>
+                <label for="targetProfit">Utilidad objetivo (opcional)</label>
+                <input class="in" id="targetProfit" type="number" inputmode="decimal" step="0.01" value="0">
+              </div>
+            </div>
+
+            <div class="grid" style="margin-top:10px">
+              <div>
+                <label for="unitsPlan">Unidades plan (para utilidad)</label>
+                <input class="in" id="unitsPlan" type="number" inputmode="numeric" min="0" step="1" value="250">
+              </div>
+              <div>
+                <label for="rangePct">Rango gráfico (±%)</label>
+                <input class="in" id="rangePct" type="number" inputmode="numeric" min="10" max="300" step="5" value="80">
+              </div>
+            </div>
+          </div>
+
+          <div id="mixBox" style="display:none">
+            <div class="hint" style="margin-top:10px">
+              Mix: define hasta 3 productos. El PE se calcula con margen de contribución ponderado.
+              <br><b>Tip:</b> % Mix debe sumar 100%.
+            </div>
+
+            <div class="grid" style="margin-top:10px">
+              <div>
+                <label for="fixedCostMix">Costos fijos (CF) del periodo</label>
+                <input class="in" id="fixedCostMix" type="number" inputmode="decimal" min="0" step="0.01" value="3000">
+              </div>
+              <div>
+                <label for="targetProfitMix">Utilidad objetivo (opcional)</label>
+                <input class="in" id="targetProfitMix" type="number" inputmode="decimal" step="0.01" value="0">
+              </div>
+            </div>
+
+            <div class="grid" style="margin-top:10px">
+              <div>
+                <label>Producto A: PV / CVu / % Mix</label>
+                <div class="row">
+                  <input class="in" style="flex:1" id="pA" type="number" step="0.01" value="30" title="PV A">
+                  <input class="in" style="flex:1" id="cA" type="number" step="0.01" value="12" title="CVu A">
+                  <input class="in" style="flex:1" id="mA" type="number" step="1" value="50" title="% Mix A">
+                </div>
+              </div>
+              <div>
+                <label>Producto B: PV / CVu / % Mix</label>
+                <div class="row">
+                  <input class="in" style="flex:1" id="pB" type="number" step="0.01" value="20" title="PV B">
+                  <input class="in" style="flex:1" id="cB" type="number" step="0.01" value="9" title="CVu B">
+                  <input class="in" style="flex:1" id="mB" type="number" step="1" value="30" title="% Mix B">
+                </div>
+              </div>
+              <div>
+                <label>Producto C: PV / CVu / % Mix</label>
+                <div class="row">
+                  <input class="in" style="flex:1" id="pC" type="number" step="0.01" value="15" title="PV C">
+                  <input class="in" style="flex:1" id="cC" type="number" step="0.01" value="7" title="CVu C">
+                  <input class="in" style="flex:1" id="mC" type="number" step="1" value="20" title="% Mix C">
+                </div>
+              </div>
+              <div>
+                <label for="rangePctMix">Rango gráfico (±%)</label>
+                <input class="in" id="rangePctMix" type="number" inputmode="numeric" min="10" max="300" step="5" value="80">
+              </div>
+            </div>
+          </div>
+
+          <div class="row" style="margin-top:12px">
+            <button class="btn primary" id="calcBtn">Calcular</button>
+            <button class="btn warn" id="resetBtn">Reiniciar</button>
+            <button class="btn" id="shareBtn">Compartir</button>
+            <button class="btn" id="copyBtn">Copiar resumen</button>
+          </div>
+
+          <div class="hint">
+            <b>Instrucciones:</b> ingresa valores y presiona <b>Calcular</b>.
+            El punto de equilibrio es donde <b>Ingresos = Costos Totales</b>.
+          </div>
+        </div>
+      </div>
+
+      <!-- Derecha -->
+      <div class="card">
+        <div class="hd">
+          <h2>Resultados + Gráfico</h2>
+          <span class="tag" id="statusTag">—</span>
+        </div>
+
+        <div class="bd">
+          <div class="resultBox">
+            <div class="metric">
+              <div class="k">Margen contribución unitario (MCu)</div>
+              <div class="v" id="mcUnit">—</div>
+              <div class="s">MCu = PV − CVu</div>
+            </div>
+            <div class="metric">
+              <div class="k">Margen contribución %</div>
+              <div class="v" id="mcPct">—</div>
+              <div class="s">MC% = MCu / PV</div>
+            </div>
+            <div class="metric">
+              <div class="k">Punto de equilibrio (unidades)</div>
+              <div class="v" id="beUnits">—</div>
+              <div class="s">PEu = CF / MCu</div>
+            </div>
+            <div class="metric">
+              <div class="k">Punto de equilibrio (ventas)</div>
+              <div class="v" id="beSales">—</div>
+              <div class="s">PE$ = CF / MC%</div>
+            </div>
+            <div class="metric">
+              <div class="k">Ventas para utilidad objetivo</div>
+              <div class="v" id="targetSales">—</div>
+              <div class="s">(CF + U) / MC%</div>
+            </div>
+            <div class="metric">
+              <div class="k">Utilidad con unidades plan</div>
+              <div class="v" id="profitAtPlan">—</div>
+              <div class="s">U = (MCu·Q) − CF</div>
+            </div>
+          </div>
+
+          <div class="banner">
+            <p id="explain">
+              Ingresa datos y calcula para ver interpretación automática.
+            </p>
+            <span class="tag" id="tipTag">Tip</span>
+          </div>
+        </div>
+
+        <div class="chartWrap">
+          <canvas id="chart" width="1000" height="420" aria-label="Gráfico Ingresos vs Costos" role="img"></canvas>
+          <div class="footer">
+            <div>📌 Gráfico: <span style="font-family:var(--mono)">Ingresos</span> vs <span style="font-family:var(--mono)">Costos Totales</span></div>
+            <div>Una sola pantalla • comparte el link por WhatsApp/redes</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">Copiado ✅</div>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+
+  const fmtMoney = (n) => {
+    if (!isFinite(n)) return "—";
+    return new Intl.NumberFormat("es-ES", { style:"currency", currency:"USD", maximumFractionDigits:2 }).format(n);
+  };
+  const fmtNum = (n, d=2) => {
+    if (!isFinite(n)) return "—";
+    return new Intl.NumberFormat("es-ES", { maximumFractionDigits:d }).format(n);
+  };
+
+  const toast = (msg="Listo ✅") => {
+    const t = $("toast");
+    t.textContent = msg;
+    t.classList.add("show");
+    setTimeout(() => t.classList.remove("show"), 1200);
+  };
+
+  // Chart (canvas simple, sin librerías)
+  const canvas = $("chart");
+  const ctx = canvas.getContext("2d");
+
+  function clearCanvas(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+  }
+
+  function drawAxes(pad=56){
+    const w = canvas.width, h = canvas.height;
+    ctx.save();
+    ctx.strokeStyle = "rgba(255,255,255,.16)";
+    ctx.lineWidth = 2;
+
+    // Ejes
+    ctx.beginPath();
+    ctx.moveTo(pad, h-pad);
+    ctx.lineTo(w-pad, h-pad);
+    ctx.lineTo(w-pad, pad);
+    ctx.stroke();
+
+    // Grid suave
+    ctx.strokeStyle = "rgba(255,255,255,.08)";
+    ctx.lineWidth = 1;
+    const steps = 6;
+    for (let i=1;i<steps;i++){
+      const x = pad + (w-2*pad)*i/steps;
+      const y = h-pad - (h-2*pad)*i/steps;
+      ctx.beginPath(); ctx.moveTo(x, h-pad); ctx.lineTo(x, pad); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(pad, y); ctx.lineTo(w-pad, y); ctx.stroke();
+    }
+
+    // Labels
+    ctx.fillStyle = "rgba(232,238,252,.85)";
+    ctx.font = "14px " + getComputedStyle(document.documentElement).getPropertyValue('--mono');
+    ctx.fillText("Unidades (Q)", w/2 - 60, h-18);
+    ctx.save();
+    ctx.translate(18, h/2 + 60);
+    ctx.rotate(-Math.PI/2);
+    ctx.fillText("USD", 0, 0);
+    ctx.restore();
+
+    ctx.restore();
+  }
+
+  function linePlot(points, color="rgba(24,192,122,.9)", width=3){
+    const w = canvas.width, h = canvas.height;
+    const pad = 56;
+    ctx.save();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = width;
+    ctx.lineJoin = "round";
+    ctx.lineCap = "round";
+
+    ctx.beginPath();
+    points.forEach((p, i) => {
+      const x = pad + p.x*(w-2*pad);
+      const y = (h-pad) - p.y*(h-2*pad);
+      if(i===0) ctx.moveTo(x,y);
+      else ctx.lineTo(x,y);
+    });
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function dot(xn, yn, label, color="rgba(247,183,49,.95)"){
+    const w = canvas.width, h = canvas.height;
+    const pad = 56;
+    const x = pad + xn*(w-2*pad);
+    const y = (h-pad) - yn*(h-2*pad);
+    ctx.save();
+    ctx.fillStyle = color;
+    ctx.beginPath(); ctx.arc(x,y,7,0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle = "rgba(0,0,0,.25)";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    ctx.fillStyle = "rgba(232,238,252,.9)";
+    ctx.font = "13px " + getComputedStyle(document.documentElement).getPropertyValue('--mono');
+    ctx.fillText(label, x+10, y-10);
+    ctx.restore();
+  }
+
+  function renderChart({maxQ, maxY, incomeFn, costFn, beQ, beY}){
+    clearCanvas();
+    drawAxes();
+
+    // Normalizamos
+    const N = 40;
+    const incomePts = [];
+    const costPts = [];
+    for(let i=0;i<=N;i++){
+      const q = maxQ*(i/N);
+      incomePts.push({ x: q/maxQ, y: (incomeFn(q)/maxY) });
+      costPts.push({ x: q/maxQ, y: (costFn(q)/maxY) });
+    }
+
+    // Ingresos (verde) y Costos (rosa)
+    linePlot(incomePts, "rgba(24,192,122,.95)", 3);
+    linePlot(costPts, "rgba(255,92,122,.75)", 3);
+
+    // Punto de equilibrio
+    if (isFinite(beQ) && beQ >= 0 && isFinite(beY) && beY >= 0) {
+      dot(Math.min(1, beQ/maxQ), Math.min(1, beY/maxY), "PE");
+    }
+
+    // Leyenda
+    ctx.save();
+    ctx.fillStyle = "rgba(232,238,252,.85)";
+    ctx.font = "14px " + getComputedStyle(document.documentElement).getPropertyValue('--sans');
+    const lx = 70, ly = 66;
+    ctx.fillText("● Ingresos", lx+18, ly);
+    ctx.fillText("● Costos Totales", lx+18, ly+22);
+    ctx.fillStyle = "rgba(24,192,122,.95)";
+    ctx.beginPath(); ctx.arc(lx, ly-4, 6, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = "rgba(255,92,122,.75)";
+    ctx.beginPath(); ctx.arc(lx, ly+18, 6, 0, Math.PI*2); ctx.fill();
+    ctx.restore();
+
+    // Escalas (texto)
+    ctx.save();
+    ctx.fillStyle = "rgba(169,182,211,.9)";
+    ctx.font = "12px " + getComputedStyle(document.documentElement).getPropertyValue('--mono');
+    ctx.fillText("0", 48, canvas.height-52);
+    ctx.fillText(fmtNum(maxQ,0), canvas.width-92, canvas.height-52);
+    ctx.fillText(fmtNum(maxY,0), 18, 64);
+    ctx.restore();
+  }
+
+  function safeNum(v){ return Number.isFinite(+v) ? +v : NaN; }
+  function clamp(n, a, b){ return Math.max(a, Math.min(b, n)); }
+
+  function setTag(el, kind, text){
+    el.classList.remove("ok","warn","bad");
+    if(kind) el.classList.add(kind);
+    el.textContent = text;
+  }
+
+  function calcBasic(){
+    const PV = safeNum($("price").value);
+    const CVu = safeNum($("varCost").value);
+    const CF = safeNum($("fixedCost").value);
+    const U  = safeNum($("targetProfit").value);
+    const Qplan = safeNum($("unitsPlan").value);
+    const rangePct = clamp(safeNum($("rangePct").value) || 80, 10, 300) / 100;
+
+    const MCu = PV - CVu;
+    const MCpct = MCu / PV;
+
+    if (!(PV>0) || !(CVu>=0) || !(CF>=0)) return { ok:false, msg:"Revisa PV, CVu y CF (PV debe ser > 0)." };
+    if (!(MCu>0)) return { ok:false, msg:"El margen de contribución debe ser positivo (PV > CVu)." };
+
+    const PEu = CF / MCu;
+    const PE$ = CF / MCpct;
+
+    const targetUnits = (CF + Math.max(0,U||0)) / MCu;
+    const targetSales = (CF + Math.max(0,U||0)) / MCpct;
+
+    const profitPlan = (MCu * (Qplan||0)) - CF;
+
+    // Chart domain
+    const maxQ = Math.max(10, PEu * (1 + rangePct));
+    const incomeFn = (q) => PV*q;
+    const costFn = (q) => CF + CVu*q;
+    const beY = incomeFn(PEu);
+    const maxY = Math.max(100, Math.max(incomeFn(maxQ), costFn(maxQ)) * 1.05);
+
+    return {
+      ok:true,
+      mode:"basic",
+      PV, CVu, CF, U:Math.max(0,U||0),
+      MCu, MCpct,
+      PEu, PE$:PE$,
+      targetUnits, targetSales,
+      Qplan:Qplan||0, profitPlan,
+      chart:{maxQ, maxY, incomeFn, costFn, beQ:PEu, beY}
+    };
+  }
+
+  function calcMix(){
+    const CF = safeNum($("fixedCostMix").value);
+    const U  = Math.max(0, safeNum($("targetProfitMix").value) || 0);
+    const rangePct = clamp(safeNum($("rangePctMix").value) || 80, 10, 300) / 100;
+
+    const prods = [
+      { name:"A", p:safeNum($("pA").value), c:safeNum($("cA").value), m:safeNum($("mA").value) },
+      { name:"B", p:safeNum($("pB").value), c:safeNum($("cB").value), m:safeNum($("mB").value) },
+      { name:"C", p:safeNum($("pC").value), c:safeNum($("cC").value), m:safeNum($("mC").value) },
+    ];
+
+    if (!(CF>=0)) return { ok:false, msg:"CF debe ser ≥ 0." };
+
+    // Validaciones
+    let sumMix = 0;
+    for(const pr of prods){
+      if (!(pr.p>0) || !(pr.c>=0) || !(pr.m>=0)) return { ok:false, msg:"Revisa PV/CVu/%Mix (PV>0, CVu≥0, %Mix≥0)." };
+      if (!(pr.p - pr.c > 0)) return { ok:false, msg:`Producto ${pr.name}: PV debe ser > CVu.` };
+      sumMix += pr.m;
+    }
+    if (Math.round(sumMix) !== 100) return { ok:false, msg:"En Mix, los % deben sumar 100." };
+
+    // Margen ponderado (por “canasta” de 1 unidad total, con fracciones)
+    const w = prods.map(pr => pr.m/100);
+    const PVw = prods.reduce((a,pr,i)=>a + pr.p*w[i], 0);
+    const CVw = prods.reduce((a,pr,i)=>a + pr.c*w[i], 0);
+    const MCu = PVw - CVw;
+    const MCpct = MCu / PVw;
+
+    if (!(MCu>0)) return { ok:false, msg:"El margen ponderado debe ser positivo." };
+
+    // Punto de equilibrio en “unidades canasta”
+    const PEu = CF / MCu;
+    const PE$ = CF / MCpct;
+
+    // Para mostrar reparto aproximado por producto en el PE
+    const peBreakdown = prods.map((pr,i)=>({
+      name: pr.name,
+      units: PEu * w[i]
+    }));
+
+    const targetUnits = (CF + U) / MCu;
+    const targetSales = (CF + U) / MCpct;
+
+    // Para el gráfico usamos unidades canasta en eje X
+    const maxQ = Math.max(10, PEu * (1 + rangePct));
+    const incomeFn = (q) => PVw*q;
+    const costFn = (q) => CF + CVw*q;
+    const beY = incomeFn(PEu);
+    const maxY = Math.max(100, Math.max(incomeFn(maxQ), costFn(maxQ)) * 1.05);
+
+    return {
+      ok:true,
+      mode:"mix",
+      CF, U,
+      PVw, CVw,
+      MCu, MCpct,
+      PEu, PE$,
+      targetUnits, targetSales,
+      peBreakdown,
+      chart:{maxQ, maxY, incomeFn, costFn, beQ:PEu, beY}
+    };
+  }
+
+  function render(res){
+    // Pills
+    $("mcUnitPill").textContent = res.ok ? fmtMoney(res.MCu) : "—";
+    $("beUnitsPill").textContent = res.ok ? fmtNum(res.PEu,0) : "—";
+    $("beSalesPill").textContent = res.ok ? fmtMoney(res.PE$) : "—";
+
+    if (!res.ok){
+      $("mcUnit").textContent = "—";
+      $("mcPct").textContent = "—";
+      $("beUnits").textContent = "—";
+      $("beSales").textContent = "—";
+      $("targetSales").textContent = "—";
+      $("profitAtPlan").textContent = "—";
+      $("explain").textContent = res.msg || "Revisa los datos.";
+      setTag($("statusTag"), "bad", "Error de datos");
+      setTag($("tipTag"), "bad", "Ajusta");
+      clearCanvas(); drawAxes();
+      return;
+    }
+
+    // Métricas
+    $("mcUnit").textContent = fmtMoney(res.MCu);
+    $("mcPct").textContent = (isFinite(res.MCpct) ? (fmtNum(res.MCpct*100,2) + "%") : "—");
+    $("beUnits").textContent = fmtNum(res.PEu, 0);
+    $("beSales").textContent = fmtMoney(res.PE$);
+    $("targetSales").textContent = fmtMoney(res.targetSales);
+
+    if (res.mode === "basic"){
+      $("profitAtPlan").textContent = fmtMoney(res.profitPlan);
+    } else {
+      $("profitAtPlan").textContent = "—";
+    }
+
+    // Interpretación
+    const beUnits = res.PEu;
+    let msg = "";
+    let tagKind = "ok";
+    let tipKind = "ok";
+    let tip = "Ok";
+
+    if (res.mode === "basic"){
+      const qplan = res.Qplan || 0;
+      if (qplan <= 0){
+        msg = `Tu punto de equilibrio es ${fmtNum(beUnits,0)} unidades (${fmtMoney(res.PE$)} en ventas).`;
+        tip = "Define Q plan";
+        tipKind = "warn";
+        tagKind = "warn";
+      } else if (qplan < beUnits){
+        msg = `Con tu plan de ${fmtNum(qplan,0)} unidades, no llegas al punto de equilibrio (${fmtNum(beUnits,0)}). Estás en pérdida: ${fmtMoney(res.profitPlan)}.`;
+        tip = "Sube Q o margen";
+        tipKind = "bad";
+        tagKind = "bad";
+      } else if (Math.abs(qplan - beUnits) / beUnits < 0.08){
+        msg = `Estás cerca del punto de equilibrio. Plan: ${fmtNum(qplan,0)} vs PE: ${fmtNum(beUnits,0)}. Utilidad estimada: ${fmtMoney(res.profitPlan)}.`;
+        tip = "Optimiza costos";
+        tipKind = "warn";
+        tagKind = "warn";
+      } else {
+        msg = `¡Bien! Superas el punto de equilibrio. PE: ${fmtNum(beUnits,0)} y tu plan: ${fmtNum(qplan,0)}. Utilidad estimada: ${fmtMoney(res.profitPlan)}.`;
+        tip = "Mantén el margen";
+        tipKind = "ok";
+        tagKind = "ok";
+      }
+    } else {
+      const bd = res.peBreakdown
+        .map(x => `${x.name}: ${fmtNum(x.units,0)} u`)
+        .join(" • ");
+      msg = `PE (canasta) ≈ ${fmtNum(res.PEu,0)} unidades. Reparto estimado: ${bd}. Ventas PE: ${fmtMoney(res.PE$)}.`;
+      tip = "Cuida el mix";
+      tipKind = "ok";
+      tagKind = "ok";
+    }
+
+    $("explain").textContent = msg;
+    setTag($("statusTag"), tagKind, tagKind === "ok" ? "Listo" : (tagKind==="warn"?"Alerta":"Riesgo"));
+    setTag($("tipTag"), tipKind, tip);
+
+    // Chart
+    renderChart(res.chart);
+  }
+
+  function runCalc(){
+    const mode = $("mode").value;
+    setTag($("modeTag"), null, `Modo: ${mode === "basic" ? "Básico" : "Mix"}`);
+
+    const res = mode === "basic" ? calcBasic() : calcMix();
+    render(res);
+    // Guardar último
+    window.__lastRes = res;
+  }
+
+  function resetAll(){
+    $("mode").value = "basic";
+    $("basicBox").style.display = "";
+    $("mixBox").style.display = "none";
+    $("modeTag").textContent = "Modo: Básico";
+    $("statusTag").textContent = "—";
+    $("tipTag").textContent = "Tip";
+
+    $("price").value = 25;
+    $("varCost").value = 10;
+    $("fixedCost").value = 2000;
+    $("targetProfit").value = 0;
+    $("unitsPlan").value = 250;
+    $("rangePct").value = 80;
+
+    $("fixedCostMix").value = 3000;
+    $("targetProfitMix").value = 0;
+    $("pA").value = 30; $("cA").value = 12; $("mA").value = 50;
+    $("pB").value = 20; $("cB").value = 9;  $("mB").value = 30;
+    $("pC").value = 15; $("cC").value = 7;  $("mC").value = 20;
+    $("rangePctMix").value = 80;
+
+    runCalc();
+    toast("Reiniciado ✅");
+  }
+
+  async function copySummary(){
+    const res = window.__lastRes;
+    if (!res || !res.ok){ toast("Nada para copiar"); return; }
+    let txt = `Simulador de Punto de Equilibrio (Por Soamy Lanza)\n`;
+    if (res.mode === "basic"){
+      txt += `Modo: Básico\nPV: ${res.PV} | CVu: ${res.CVu} | CF: ${res.CF}\n`;
+    } else {
+      txt += `Modo: Mix\nCF: ${res.CF}\nPV ponderado: ${fmtNum(res.PVw,2)} | CV ponderado: ${fmtNum(res.CVw,2)}\n`;
+    }
+    txt += `MCu: ${fmtNum(res.MCu,2)} | MC%: ${fmtNum(res.MCpct*100,2)}%\n`;
+    txt += `PE Unidades: ${fmtNum(res.PEu,0)} | PE Ventas: ${res.PE$}\n`;
+    txt += `Ventas para utilidad objetivo: ${res.targetSales}\n`;
+    txt += `\nLink: ${location.href}`;
+
+    try{
+      await navigator.clipboard.writeText(txt);
+      toast("Resumen copiado ✅");
+    }catch{
+      prompt("Copia este resumen:", txt);
+    }
+  }
+
+  async function share(){
+    const url = location.href;
+    const text = "Simulador de Punto de Equilibrio • Por Soamy Lanza";
+    try{
+      if (navigator.share){
+        await navigator.share({ title: "Punto de Equilibrio", text, url });
+      } else {
+        await navigator.clipboard.writeText(url);
+        toast("Link copiado ✅");
+      }
+    }catch{
+      prompt("Copia este link:", url);
+    }
+  }
+
+  // UI toggles
+  $("mode").addEventListener("change", () => {
+    const mode = $("mode").value;
+    $("basicBox").style.display = mode === "basic" ? "" : "none";
+    $("mixBox").style.display = mode === "mix" ? "" : "none";
+    runCalc();
+  });
+
+  $("calcBtn").addEventListener("click", runCalc);
+  $("resetBtn").addEventListener("click", resetAll);
+  $("shareBtn").addEventListener("click", share);
+  $("copyBtn").addEventListener("click", copySummary);
+
+  // Recalcular en vivo (input)
+  const liveIds = [
+    "price","varCost","fixedCost","targetProfit","unitsPlan","rangePct",
+    "fixedCostMix","targetProfitMix","pA","cA","mA","pB","cB","mB","pC","cC","mC","rangePctMix"
+  ];
+  liveIds.forEach(id => $(id).addEventListener("input", () => {
+    // no saturar: micro-debounce
+    clearTimeout(window.__t);
+    window.__t = setTimeout(runCalc, 80);
+  }));
+
+  window.addEventListener("resize", () => {
+    clearTimeout(window.__r);
+    window.__r = setTimeout(() => {
+      const res = window.__lastRes;
+      if (res && res.ok) renderChart(res.chart);
+      else { clearCanvas(); drawAxes(); }
+    }, 80);
+  });
+
+  // Init
+  runCalc();
+})();
+</script>
+</body>
+</html>
