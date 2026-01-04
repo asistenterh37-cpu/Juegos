@@ -169,14 +169,17 @@
       padding-bottom:12px;
       margin-bottom:12px;
     }
-    .reportHeader h2{margin:0;font-size:18px}
+
+    /* ✅ CAMBIO: título más grande en el PDF */
+    .reportHeader h2{margin:0;font-size:24px; letter-spacing:.2px}
+
     .reportHeader .meta{
       color:var(--muted);
       font-size:12.5px;
       text-align:right;
     }
 
-    /* ✅ CAMBIO: meta del reporte en 3 filas (2 columnas + 2 columnas + 3 columnas) */
+    /* ✅ CAMBIO: 3 filas exactas (2 columnas / 2 columnas / 3 columnas) */
     .reportMetaGrid{
       display:grid;
       grid-template-columns: 1fr 1fr;
@@ -256,11 +259,13 @@
       .kv{border-color:#ddd; background:#fff}
       .totalBox{border-color:#ddd; background:#f3f7ff}
       .sign{color:#555}
-      a{color:#000;text-decoration:none}
 
-      /* Ajustes impresión para ahorrar páginas */
+      /* Ahorro de páginas */
       tbody td{font-size:11.5px; padding:8px 10px}
       thead th{font-size:11px; padding:8px 10px}
+
+      /* ✅ Mantener el título grande en impresión */
+      .reportHeader h2{font-size:26px}
     }
 
     @media (max-width:860px){
@@ -366,13 +371,12 @@
         <div class="inner">
           <div class="reportHeader">
             <div>
-              <h2>Reporte de Autoevaluación del Desempeño</h2>
-              <div class="smallNote">Generado automáticamente desde el formulario.</div>
+              <h2>Autoevaluación del desempeño</h2>
+              <div class="smallNote">Reporte generado automáticamente desde el formulario.</div>
             </div>
             <div class="meta" id="reportStamp"></div>
           </div>
 
-          <!-- ✅ CAMBIO: 1) No de personal + Nombre (fila) 2) Posición + Departamento (fila) 3) Periodo + Versión + Fecha (fila) -->
           <div class="reportMetaGrid" id="reportMeta"></div>
 
           <table>
@@ -699,13 +703,11 @@
       return div;
     }
 
-    // ✅ NUEVO: render meta en 3 filas como pediste
     function renderReportMeta(meta){
       const box = $("#reportMeta");
-      box.className = "reportMetaGrid";
       box.innerHTML = "";
 
-      // fila 1: No personal + Nombre
+      // fila 1: No de Personal + Nombre
       box.appendChild(buildMetaKV("No. de personal", meta.noPersonal));
       box.appendChild(buildMetaKV("Nombre", meta.nombre));
 
@@ -713,7 +715,7 @@
       box.appendChild(buildMetaKV("Posición", meta.posicion));
       box.appendChild(buildMetaKV("Departamento", meta.departamento));
 
-      // fila 3: Periodo + Versión + Fecha (en 3 columnas)
+      // fila 3: Periodo + Versión + Fecha
       const row3 = document.createElement("div");
       row3.className = "reportRow3";
       row3.appendChild(buildMetaKV("Periodo", meta.periodo));
@@ -816,12 +818,12 @@
 
     function save(){
       const state = collectState();
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      localStorage.setItem("autoevaluacion_desempeno_v2", JSON.stringify(state));
       markSaved();
     }
 
     function load(){
-      const raw = localStorage.getItem(STORAGE_KEY);
+      const raw = localStorage.getItem("autoevaluacion_desempeno_v2") || localStorage.getItem("autoevaluacion_desempeno_v1");
       if (!raw) return;
       try{
         const state = JSON.parse(raw);
