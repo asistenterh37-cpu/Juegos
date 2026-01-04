@@ -1,0 +1,680 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Autoevaluación del Desempeño</title>
+  <style>
+    :root{
+      --bg:#0b1220;
+      --card:#121b2e;
+      --muted:#9fb0d0;
+      --text:#e8efff;
+      --line:#243252;
+      --btn:#2b66ff;
+      --btn2:#20304f;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: radial-gradient(1200px 600px at 30% 0%, #16234a 0%, var(--bg) 55%);
+      color:var(--text);
+    }
+    .topbar{
+      position:sticky; top:0; z-index:10;
+      display:flex; gap:16px; align-items:center; justify-content:space-between;
+      padding:14px 18px;
+      background: rgba(10,16,32,.72);
+      backdrop-filter: blur(10px);
+      border-bottom:1px solid rgba(255,255,255,.06);
+    }
+    .brand{display:flex; gap:12px; align-items:center}
+    .logo{
+      width:42px; height:42px; border-radius:12px;
+      display:grid; place-items:center;
+      background: linear-gradient(135deg, #2b66ff, #7c3aed);
+      font-weight:800;
+    }
+    h1{margin:0; font-size:18px}
+    .subtitle{margin:2px 0 0; font-size:12px; color:var(--muted)}
+    .actions{display:flex; gap:8px; flex-wrap:wrap}
+    .btn{
+      border:1px solid rgba(255,255,255,.10);
+      background: var(--btn);
+      color:white;
+      padding:10px 12px;
+      border-radius:12px;
+      cursor:pointer;
+      font-weight:650;
+    }
+    .btn.ghost{ background: var(--btn2); }
+    .btn:hover{filter:brightness(1.05)}
+    .btn:active{transform: translateY(1px)}
+    .container{
+      max-width:1100px;
+      margin:18px auto 44px;
+      padding:0 14px;
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+    }
+    .card{
+      background: rgba(18,27,46,.86);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:16px;
+      padding:16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.28);
+    }
+    .card h2{margin:0 0 12px; font-size:16px}
+    .hint{margin:0 0 12px; color:var(--muted); font-size:13px}
+    .grid2{
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap:10px;
+    }
+    label{display:flex; flex-direction:column; gap:6px; font-size:13px; color:var(--muted)}
+    input, textarea, select{
+      width:100%;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(12,18,34,.7);
+      color: var(--text);
+      outline:none;
+    }
+    textarea{resize:vertical}
+    .factor{
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:14px;
+      padding:12px;
+      margin:10px 0;
+    }
+    .factor-head{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:flex-start;
+      margin-bottom:10px;
+      flex-wrap:wrap;
+    }
+    .factor-title{ display:flex; flex-direction:column; gap:2px; }
+    .factor-title b{font-size:14px}
+    .factor-title span{font-size:12px; color:var(--muted)}
+    .items{ display:flex; flex-direction:column; gap:10px; }
+    .item{
+      display:grid;
+      grid-template-columns: 1.8fr .9fr .9fr;
+      gap:10px;
+      align-items:center;
+      padding:10px;
+      border-radius:12px;
+      border:1px dashed rgba(255,255,255,.12);
+    }
+    .item small{color:var(--muted)}
+    .pills{display:flex; gap:6px; flex-wrap:wrap;}
+    .pill{
+      font-size:12px;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(12,18,34,.45);
+      color: var(--muted);
+    }
+    .report-header{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+    .totals{display:flex; gap:10px; flex-wrap:wrap}
+    .chip{
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:14px;
+      padding:10px 12px;
+      background: rgba(12,18,34,.45);
+      min-width:180px;
+    }
+    .chip-label{font-size:12px; color:var(--muted)}
+    .chip-value{font-size:20px; font-weight:800; margin-top:2px}
+    .report-meta{
+      margin:10px 0 12px;
+      color:var(--muted);
+      font-size:13px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+    }
+    .table-wrap{overflow:auto; border-radius:14px; border:1px solid rgba(255,255,255,.08)}
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:980px;
+      background: rgba(12,18,34,.35);
+    }
+    thead th{
+      text-align:left;
+      font-size:12px;
+      color:var(--muted);
+      padding:10px;
+      border-bottom:1px solid rgba(255,255,255,.08);
+    }
+    tbody td{
+      padding:10px;
+      border-bottom:1px solid rgba(255,255,255,.06);
+      font-size:13px;
+    }
+    tbody tr:hover{background: rgba(255,255,255,.04)}
+    .comments-box{margin-top:14px}
+    .comments-text{
+      white-space:pre-wrap;
+      color:var(--text);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:14px;
+      padding:12px;
+      background: rgba(12,18,34,.35);
+    }
+    .signature{
+      margin-top:16px;
+      padding-top:12px;
+      border-top:1px solid rgba(255,255,255,.10);
+      color:var(--muted);
+      font-size:12px;
+      text-align:right;
+    }
+    .no-print{ }
+    @media print{
+      body{background:white; color:black}
+      .card{box-shadow:none; background:white; border:1px solid #ddd}
+      .no-print{display:none !important}
+      input, textarea, select{border:1px solid #ccc; color:black; background:white}
+      table{min-width:auto}
+      thead th{color:#333}
+      .signature{color:#333}
+      .pill{border:1px solid #ccc; color:#333; background:#f6f6f6}
+      .chip{border:1px solid #ccc; background:#f7f7f7}
+    }
+  </style>
+</head>
+
+<body>
+  <header class="topbar no-print">
+    <div class="brand">
+      <div class="logo">AD</div>
+      <div>
+        <h1>Formulario de autoevaluación del desempeño</h1>
+        <p class="subtitle">Escala 1–5 • Cálculo: (respuesta/5) × peso_del_ítem • Máximo total = 100</p>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button id="btnNew" class="btn ghost" type="button">Nuevo</button>
+      <button id="btnSave" class="btn" type="button">Guardar</button>
+      <button id="btnPrint" class="btn" type="button">Imprimir / Enviar a PDF</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="card">
+      <h2>Datos personales</h2>
+      <div class="grid2">
+        <label>Nombre
+          <input id="nombre" type="text" placeholder="Escribe tu nombre" />
+        </label>
+        <label>Departamento
+          <input id="departamento" type="text" placeholder="Ej. Producción" />
+        </label>
+        <label>Posición
+          <input id="posicion" type="text" placeholder="Ej. Analista" />
+        </label>
+        <label>Período
+          <input id="periodo" type="text" placeholder="Ej. 2025" />
+        </label>
+        <label>Versión
+          <input id="version" type="text" placeholder="Ej. v1" />
+        </label>
+        <label>Fecha
+          <input id="fecha" type="date" />
+        </label>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Autoevaluación (Factores 1–5)</h2>
+      <p class="hint">
+        Selecciona 1–5 por cada ítem. En <b>Liderazgo (si aplica)</b> puedes elegir <b>N/A</b> si no aplica (vale 0).
+      </p>
+      <div id="formArea"></div>
+    </section>
+
+    <section class="card">
+      <h2>Comentarios del colaborador</h2>
+      <textarea id="comentarios" rows="5" placeholder="Escribe tus comentarios aquí..."></textarea>
+    </section>
+
+    <section class="card" id="reportCard">
+      <div class="report-header">
+        <h2>Reporte</h2>
+        <div class="totals">
+          <div class="chip">
+            <div class="chip-label">Total</div>
+            <div class="chip-value" id="totalScore">0.00</div>
+          </div>
+          <div class="chip">
+            <div class="chip-label">Máximo</div>
+            <div class="chip-value" id="maxScore">100.00</div>
+          </div>
+          <div class="chip">
+            <div class="chip-label">% (aprox.)</div>
+            <div class="chip-value" id="pctScore">0%</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="reportMeta" class="report-meta"></div>
+
+      <div class="table-wrap">
+        <table id="reportTable">
+          <thead>
+            <tr>
+              <th>Factor</th>
+              <th>Ítem</th>
+              <th>Peso</th>
+              <th>Respuesta</th>
+              <th>Normalizado</th>
+              <th>Score Ítem</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <div class="table-wrap" style="margin-top:12px;">
+        <table id="factorTable">
+          <thead>
+            <tr>
+              <th>Subtotal por factor</th>
+              <th>Peso total del factor</th>
+              <th>Subtotal (score)</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <div class="comments-box">
+        <h3>Comentarios</h3>
+        <div id="reportComments" class="comments-text"></div>
+      </div>
+
+      <footer class="signature">Por Soamy Lanza</footer>
+    </section>
+  </main>
+
+  <script>
+    // ---------------- CONFIG (pesos según tu tabla; suma 100) ----------------
+    const CFG = {
+      scaleMax: 5,
+      factors: [
+        {
+          id: "f1",
+          title: "1. Metas, productividad y eficiencia",
+          items: [
+            { id:"f1a", label:"A. Cumplimiento de Metas. Grado de logro", weight: 15 },
+            { id:"f1b", label:"B. Eficiencia en el uso del tiempo, costos y recursos", weight: 10 },
+            { id:"f1c", label:"C. Cumplimiento de normas de seguridad", weight: 2.5 },
+            { id:"f1d", label:"D. Prioriza y organiza tareas adecuadamente", weight: 2.5 },
+          ]
+        },
+        {
+          id: "f2",
+          title: "2. Calidad del Trabajo",
+          items: [
+            { id:"f2a", label:"A. Exactitud y atención al detalle", weight: 2.5 },
+            { id:"f2b", label:"B. Cumple con estándares de calidad", weight: 5 },
+            { id:"f2c", label:"C. Entregas a Tiempo. Cumple con plazos establecidos", weight: 10 },
+            { id:"f2d", label:"D. Manejo de errores y mejoras", weight: 2.5 },
+          ]
+        },
+        {
+          id: "f3",
+          title: "3. Competencias y Habilidades",
+          items: [
+            { id:"f3a", label:"A. Conocimientos técnicos del puesto", weight: 10 },
+            { id:"f3b", label:"B. Convincente respuesta técnica a clientes", weight: 5 },
+            { id:"f3c", label:"C. Resolución de problemas", weight: 2.5 },
+            { id:"f3d", label:"D. Iniciativa y creatividad", weight: 2.5 },
+          ]
+        },
+        {
+          id: "f4",
+          title: "4. Actitud y Valores",
+          items: [
+            { id:"f4a", label:"A. Responsabilidad y compromiso", weight: 2.5 },
+            { id:"f4b", label:"B. Puntualidad y asistencia", weight: 2.5 },
+            { id:"f4c", label:"C. Trabajo en equipo y cooperación", weight: 5 },
+            { id:"f4d", label:"D. Comunicación efectiva", weight: 5 },
+          ]
+        },
+        {
+          id: "f5",
+          title: "5. Desarrollo y Potencial",
+          items: [
+            { id:"f5a", label:"A. Adaptación al cambio", weight: 2.5 },
+            { id:"f5b", label:"B. Disposición para aprender", weight: 2.5 },
+            { id:"f5c", label:"C. Liderazgo (si aplica)", weight: 10, allowNA: true },
+          ]
+        },
+      ]
+    };
+
+    // ---------------- STATE ----------------
+    const KEY = "autoeval_state_singlefile_v1";
+    const $ = (s) => document.querySelector(s);
+    const fmt = (n) => (Math.round((n + Number.EPSILON) * 100) / 100).toFixed(2);
+
+    function todayISO(){
+      const d = new Date();
+      const pad = (x) => String(x).padStart(2,"0");
+      return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+    }
+
+    function sumMaxWeights(){
+      let s=0;
+      for(const f of CFG.factors){
+        for(const it of f.items) s += Number(it.weight) || 0;
+      }
+      return s;
+    }
+
+    function defaultState(){
+      const responses = {};
+      for(const f of CFG.factors) for(const it of f.items) responses[it.id] = "";
+      return {
+        meta:{
+          nombre:"",
+          departamento:"",
+          posicion:"",
+          periodo:"",
+          version:"v1",
+          fecha: todayISO(),
+        },
+        responses,
+        comentarios:"",
+        lastSavedAt:null
+      };
+    }
+
+    let STATE = loadLocal() ?? defaultState();
+
+    function loadLocal(){
+      try{
+        const raw = localStorage.getItem(KEY);
+        return raw ? JSON.parse(raw) : null;
+      }catch{ return null; }
+    }
+    function saveLocal(){
+      localStorage.setItem(KEY, JSON.stringify(STATE));
+    }
+
+    // ---------------- RENDER ----------------
+    function esc(s){
+      return String(s ?? "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    function optionsForItem(it){
+      // 1..5 y opcional N/A
+      let out = `<option value="">—</option>`;
+      if(it.allowNA) out += `<option value="NA">N/A (no aplica)</option>`;
+      for(let i=1;i<=5;i++) out += `<option value="${i}">${i}</option>`;
+      return out;
+    }
+
+    function renderForm(){
+      const formArea = $("#formArea");
+      formArea.innerHTML = "";
+
+      for(const f of CFG.factors){
+        const factorBox = document.createElement("div");
+        factorBox.className = "factor";
+
+        const factorWeight = f.items.reduce((a,it)=>a+(Number(it.weight)||0),0);
+
+        factorBox.innerHTML = `
+          <div class="factor-head">
+            <div class="factor-title">
+              <b>${esc(f.title)}</b>
+              <span>Peso total del factor: ${fmt(factorWeight)}</span>
+            </div>
+            <div class="pills">
+              <span class="pill">Máximo factor: ${fmt(factorWeight)}</span>
+            </div>
+          </div>
+          <div class="items" id="items_${esc(f.id)}"></div>
+        `;
+
+        const itemsWrap = factorBox.querySelector(`#items_${CSS.escape(f.id)}`);
+
+        for(const it of f.items){
+          const row = document.createElement("div");
+          row.className = "item";
+          row.innerHTML = `
+            <div>
+              <div><b>${esc(it.label)}</b></div>
+              <div class="pills">
+                <span class="pill">Peso: ${fmt(it.weight)}</span>
+                ${it.allowNA ? `<span class="pill">Permite N/A</span>` : ``}
+              </div>
+            </div>
+
+            <label style="gap:6px">
+              Respuesta
+              <select data-response="${esc(it.id)}">
+                ${optionsForItem(it)}
+              </select>
+            </label>
+
+            <div class="pills">
+              <span class="pill">Score: <b id="score_${esc(it.id)}">0.00</b></span>
+            </div>
+          `;
+          itemsWrap.appendChild(row);
+        }
+
+        formArea.appendChild(factorBox);
+      }
+
+      // set values + listeners
+      formArea.querySelectorAll("select[data-response]").forEach(sel=>{
+        const id = sel.getAttribute("data-response");
+        sel.value = STATE.responses[id] ?? "";
+        sel.addEventListener("change", e=>{
+          STATE.responses[id] = e.target.value;
+          saveLocal();
+          computeAndRenderReport();
+        });
+      });
+    }
+
+    function renderMeta(){
+      $("#nombre").value = STATE.meta.nombre;
+      $("#departamento").value = STATE.meta.departamento;
+      $("#posicion").value = STATE.meta.posicion;
+      $("#periodo").value = STATE.meta.periodo;
+      $("#version").value = STATE.meta.version;
+      $("#fecha").value = STATE.meta.fecha || todayISO();
+      $("#comentarios").value = STATE.comentarios || "";
+
+      ["nombre","departamento","posicion","periodo","version","fecha"].forEach(id=>{
+        $("#" + id).addEventListener("input", e=>{
+          STATE.meta[id] = e.target.value;
+          saveLocal();
+          computeAndRenderReport();
+        });
+      });
+
+      $("#comentarios").addEventListener("input", e=>{
+        STATE.comentarios = e.target.value;
+        saveLocal();
+        computeAndRenderReport();
+      });
+    }
+
+    // ---------------- SCORING (tu fórmula con pesos) ----------------
+    // score_item = (respuesta/5) * peso_item
+    function parseResp(v){
+      if(v === "NA") return null; // N/A -> no score
+      const n = Number(v);
+      return Number.isFinite(n) ? n : null;
+    }
+
+    function computeScores(){
+      const rows = [];
+      const factorTotals = new Map(); // factorId -> {title, weightSum, scoreSum}
+      let total = 0;
+
+      for(const f of CFG.factors){
+        let fWeight = 0;
+        let fScore = 0;
+
+        for(const it of f.items){
+          const r = parseResp(STATE.responses[it.id]);
+          const w = Number(it.weight) || 0;
+          fWeight += w;
+
+          const normalized = (r === null) ? 0 : (r / CFG.scaleMax);
+          const score = normalized * w;
+
+          fScore += score;
+          total += score;
+
+          rows.push({
+            factor: f.title,
+            item: it.label,
+            weight: w,
+            response: (STATE.responses[it.id] === "" ? "" : STATE.responses[it.id]),
+            normalized,
+            score,
+            itemId: it.id
+          });
+        }
+
+        factorTotals.set(f.id, {
+          title: f.title,
+          weightSum: fWeight,
+          scoreSum: fScore
+        });
+      }
+
+      const max = sumMaxWeights(); // =100 por tu tabla
+      return { rows, factorTotals, total, max };
+    }
+
+    function computeAndRenderReport(){
+      const { rows, factorTotals, total, max } = computeScores();
+
+      $("#totalScore").textContent = fmt(total);
+      $("#maxScore").textContent = fmt(max);
+      const pct = max>0 ? Math.round((total/max)*100) : 0;
+      $("#pctScore").textContent = `${pct}%`;
+
+      // meta
+      const m = STATE.meta;
+      const parts = [
+        m.nombre && `Nombre: <b>${esc(m.nombre)}</b>`,
+        m.departamento && `Depto: <b>${esc(m.departamento)}</b>`,
+        m.posicion && `Posición: <b>${esc(m.posicion)}</b>`,
+        m.periodo && `Período: <b>${esc(m.periodo)}</b>`,
+        m.version && `Versión: <b>${esc(m.version)}</b>`,
+        m.fecha && `Fecha: <b>${esc(m.fecha)}</b>`,
+        STATE.lastSavedAt && `Guardado: <b>${esc(STATE.lastSavedAt)}</b>`
+      ].filter(Boolean);
+      $("#reportMeta").innerHTML = parts.join(" • ");
+
+      // per item score on form + report table
+      const tbody = $("#reportTable tbody");
+      tbody.innerHTML = "";
+
+      for(const r of rows){
+        const scoreEl = $("#score_" + r.itemId);
+        if(scoreEl) scoreEl.textContent = fmt(r.score);
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${esc(r.factor)}</td>
+          <td>${esc(r.item)}</td>
+          <td>${fmt(r.weight)}</td>
+          <td>${r.response === "" ? "—" : esc(r.response)}</td>
+          <td>${fmt(r.normalized)}</td>
+          <td><b>${fmt(r.score)}</b></td>
+        `;
+        tbody.appendChild(tr);
+      }
+
+      // factor subtotals
+      const ftBody = $("#factorTable tbody");
+      ftBody.innerHTML = "";
+      for(const [,ft] of factorTotals){
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td><b>${esc(ft.title)}</b></td>
+          <td>${fmt(ft.weightSum)}</td>
+          <td><b>${fmt(ft.scoreSum)}</b></td>
+        `;
+        ftBody.appendChild(tr);
+      }
+
+      // comments
+      $("#reportComments").textContent = STATE.comentarios || "—";
+    }
+
+    // ---------------- ACTIONS ----------------
+    function handleNew(){
+      STATE = defaultState();
+      saveLocal();
+      bootstrap();
+    }
+
+    function handleSave(){
+      STATE.lastSavedAt = new Date().toLocaleString();
+      saveLocal();
+
+      // descarga backup JSON
+      const blob = new Blob([JSON.stringify(STATE, null, 2)], { type:"application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `autoevaluacion_${(STATE.meta.nombre || "colaborador").replace(/\s+/g,"_")}.json`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+
+      computeAndRenderReport();
+    }
+
+    function handlePrint(){
+      window.print(); // el usuario elige "Guardar como PDF"
+    }
+
+    function bindButtons(){
+      $("#btnNew").addEventListener("click", handleNew);
+      $("#btnSave").addEventListener("click", handleSave);
+      $("#btnPrint").addEventListener("click", handlePrint);
+    }
+
+    function bootstrap(){
+      renderMeta();
+      renderForm();
+      computeAndRenderReport();
+    }
+
+    // init
+    bindButtons();
+    bootstrap();
+  </script>
+</body>
+</html>
