@@ -3,396 +3,850 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Autoevaluación del Desempeño</title>
+  <title>Autoevaluación del desempeño</title>
   <style>
     :root{
       --bg:#0b1220;
-      --card:#121b2e;
-      --muted:#9fb0d0;
-      --text:#e8efff;
-      --line:#243252;
-      --btn:#2b66ff;
-      --btn2:#20304f;
+      --panel:#0f1b33;
+      --panel2:#0d1730;
+      --text:#e7eefc;
+      --muted:#a8b3cc;
+      --line:rgba(255,255,255,.08);
+      --btn:#2f6bff;
+      --btn2:#1d2c53;
+      --danger:#ff4d6d;
+      --ok:#3ddc97;
+      --shadow: 0 20px 60px rgba(0,0,0,.35);
+      --radius:18px;
+      --radius2:14px;
+      font-synthesis-weight:none;
     }
     *{box-sizing:border-box}
     body{
       margin:0;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      background: radial-gradient(1200px 600px at 30% 0%, #16234a 0%, var(--bg) 55%);
+      background: radial-gradient(1000px 600px at 15% 10%, rgba(47,107,255,.25), transparent 60%),
+                  radial-gradient(900px 650px at 85% 20%, rgba(61,220,151,.14), transparent 55%),
+                  var(--bg);
       color:var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue", sans-serif;
+      line-height:1.35;
     }
-    .topbar{
-      position:sticky; top:0; z-index:10;
-      display:flex; gap:16px; align-items:center; justify-content:space-between;
-      padding:14px 18px;
-      background: rgba(10,16,32,.72);
+    header{
+      position:sticky; top:0; z-index:20;
       backdrop-filter: blur(10px);
-      border-bottom:1px solid rgba(255,255,255,.06);
+      background: linear-gradient(to bottom, rgba(11,18,32,.92), rgba(11,18,32,.65));
+      border-bottom: 1px solid var(--line);
     }
-    .brand{display:flex; gap:12px; align-items:center}
+    .wrap{max-width:1100px;margin:0 auto;padding:18px 18px;}
+    .topbar{
+      display:flex;align-items:center;justify-content:space-between;gap:14px;
+    }
+    .brand{
+      display:flex; align-items:center; gap:12px; min-width:240px;
+    }
     .logo{
-      width:42px; height:42px; border-radius:12px;
-      display:grid; place-items:center;
-      background: linear-gradient(135deg, #2b66ff, #7c3aed);
+      width:42px;height:42px;border-radius:14px;
+      background: linear-gradient(135deg, #2f6bff, #7c4dff);
+      display:grid;place-items:center;
+      box-shadow: 0 12px 35px rgba(47,107,255,.35);
       font-weight:800;
     }
-    h1{margin:0; font-size:18px}
-    .subtitle{margin:2px 0 0; font-size:12px; color:var(--muted)}
-    .actions{display:flex; gap:8px; flex-wrap:wrap}
-    .btn{
-      border:1px solid rgba(255,255,255,.10);
-      background: var(--btn);
-      color:white;
-      padding:10px 12px;
+    .titles h1{margin:0;font-size:18px;letter-spacing:.2px}
+    .titles p{margin:2px 0 0;color:var(--muted);font-size:12.5px}
+    .actions{display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end}
+    button{
+      border:1px solid var(--line);
+      background: var(--btn2);
+      color:var(--text);
+      padding:10px 14px;
       border-radius:12px;
       cursor:pointer;
       font-weight:650;
+      transition: transform .06s ease, background .15s ease, border-color .15s ease;
+      user-select:none;
     }
-    .btn.ghost{ background: var(--btn2); }
-    .btn:hover{filter:brightness(1.05)}
-    .btn:active{transform: translateY(1px)}
-    .container{
-      max-width:1100px;
-      margin:18px auto 44px;
-      padding:0 14px;
-      display:flex;
-      flex-direction:column;
+    button:hover{border-color:rgba(255,255,255,.18); background:#223462}
+    button:active{transform: translateY(1px)}
+    .primary{
+      background: var(--btn);
+      border-color: rgba(47,107,255,.55);
+    }
+    .primary:hover{background:#255df0}
+    .ghost{
+      background: transparent;
+    }
+    .danger{
+      background: rgba(255,77,109,.14);
+      border-color: rgba(255,77,109,.28);
+    }
+    .danger:hover{background: rgba(255,77,109,.20)}
+    main .wrap{padding-top:18px; padding-bottom:42px;}
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
       gap:14px;
     }
     .card{
-      background: rgba(18,27,46,.86);
-      border:1px solid rgba(255,255,255,.08);
-      border-radius:16px;
-      padding:16px;
-      box-shadow: 0 10px 30px rgba(0,0,0,.28);
+      background: linear-gradient(180deg, rgba(15,27,51,.85), rgba(13,23,48,.85));
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
     }
-    .card h2{margin:0 0 12px; font-size:16px}
-    .hint{margin:0 0 12px; color:var(--muted); font-size:13px}
-    .grid2{
+    .card .inner{padding:18px}
+    .sectionTitle{
+      display:flex; align-items:baseline; justify-content:space-between; gap:12px;
+      margin:0 0 10px 0;
+    }
+    .sectionTitle h2{margin:0;font-size:16px}
+    .sectionTitle span{color:var(--muted); font-size:12px}
+    .fields{
       display:grid;
-      grid-template-columns: repeat(2, minmax(0,1fr));
+      grid-template-columns: repeat(6, 1fr);
       gap:10px;
     }
-    label{display:flex; flex-direction:column; gap:6px; font-size:13px; color:var(--muted)}
+    .field{
+      grid-column: span 2;
+      display:flex; flex-direction:column; gap:6px;
+    }
+    .field label{font-size:12px;color:var(--muted)}
     input, textarea, select{
       width:100%;
-      padding:10px 12px;
       border-radius:12px;
-      border:1px solid rgba(255,255,255,.10);
-      background: rgba(12,18,34,.7);
-      color: var(--text);
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.12);
+      color:var(--text);
+      padding:10px 12px;
       outline:none;
     }
-    textarea{resize:vertical}
-
-    .factor{
-      border:1px solid rgba(255,255,255,.10);
-      border-radius:14px;
-      padding:12px;
-      margin:10px 0;
+    input:focus, textarea:focus, select:focus{
+      border-color: rgba(47,107,255,.55);
+      box-shadow: 0 0 0 3px rgba(47,107,255,.18);
     }
-    .factor-head{
+    textarea{min-height:96px; resize:vertical}
+    .items{
+      display:flex; flex-direction:column; gap:10px;
+    }
+    .itemRow{
+      display:grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap:10px;
+      padding:12px;
+      border-radius: var(--radius2);
+      border:1px dashed rgba(255,255,255,.10);
+      background: rgba(255,255,255,.02);
+    }
+    .itemRow .left{
+      display:flex; flex-direction:column; gap:6px;
+    }
+    .itemRow .itemName{
+      font-weight:760;
+      letter-spacing:.1px;
+    }
+    .itemRow .hint{
+      color:var(--muted);
+      font-size:12.5px;
+    }
+    .itemRow .right{
+      display:flex; flex-direction:column; gap:6px;
+      align-items:stretch; justify-content:center;
+    }
+    .smallNote{color:var(--muted); font-size:12px}
+    .footerNote{
+      margin-top:12px;
       display:flex;
       justify-content:space-between;
       gap:10px;
-      align-items:flex-start;
-      margin-bottom:10px;
       flex-wrap:wrap;
-    }
-    .factor-title{ display:flex; flex-direction:column; gap:2px; }
-    .factor-title b{font-size:14px}
-    .factor-title span{font-size:12px; color:var(--muted)}
-    .items{ display:flex; flex-direction:column; gap:10px; }
-
-    /* Item layout: label + combobox only */
-    .item{
-      display:grid;
-      grid-template-columns: 1.8fr 1.2fr;
-      gap:12px;
-      align-items:center;
-      padding:12px;
-      border-radius:12px;
-      border:1px dashed rgba(255,255,255,.12);
-    }
-    .item-title b{display:block; font-size:14px}
-    .item-title small{color:var(--muted)}
-
-    .report-meta{
-      margin:10px 0 12px;
       color:var(--muted);
-      font-size:13px;
-      display:flex;
-      flex-wrap:wrap;
+      font-size:12px;
+    }
+    .badge{
+      display:inline-flex; gap:8px; align-items:center;
+      padding:7px 10px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.10);
+    }
+    .dot{
+      width:8px;height:8px;border-radius:50%;
+      background: var(--ok);
+      box-shadow: 0 0 0 3px rgba(61,220,151,.18);
+    }
+
+    /* Reporte */
+    #reportCard{display:none}
+    #reportCard .inner{padding:20px}
+    .reportHeader{
+      display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap;
+      border-bottom:1px solid var(--line);
+      padding-bottom:12px;
+      margin-bottom:12px;
+    }
+    .reportHeader h2{margin:0;font-size:18px}
+    .reportHeader .meta{
+      color:var(--muted);
+      font-size:12.5px;
+      text-align:right;
+    }
+    .reportGrid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
       gap:10px;
+      margin-bottom:12px;
     }
-
-    .chip-row{display:flex; gap:10px; flex-wrap:wrap; margin-top:8px}
-    .chip{
-      border:1px solid rgba(255,255,255,.10);
-      border-radius:14px;
+    .kv{
       padding:10px 12px;
-      background: rgba(12,18,34,.45);
-      min-width:200px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.10);
     }
-    .chip-label{font-size:12px; color:var(--muted)}
-    .chip-value{font-size:20px; font-weight:800; margin-top:2px}
-
-    .table-wrap{overflow:auto; border-radius:14px; border:1px solid rgba(255,255,255,.08)}
+    .kv .k{color:var(--muted); font-size:12px}
+    .kv .v{font-weight:750; margin-top:4px}
     table{
       width:100%;
-      border-collapse:collapse;
-      min-width:860px;
-      background: rgba(12,18,34,.35);
+      border-collapse:separate;
+      border-spacing:0;
+      overflow:hidden;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.08);
     }
     thead th{
       text-align:left;
       font-size:12px;
       color:var(--muted);
-      padding:10px;
-      border-bottom:1px solid rgba(255,255,255,.08);
+      padding:10px 12px;
+      border-bottom:1px solid var(--line);
+      background: rgba(255,255,255,.03);
     }
     tbody td{
-      padding:10px;
+      padding:10px 12px;
       border-bottom:1px solid rgba(255,255,255,.06);
+      vertical-align:top;
       font-size:13px;
     }
-    tbody tr:hover{background: rgba(255,255,255,.04)}
-
-    .comments-box{margin-top:14px}
-    .comments-text{
-      white-space:pre-wrap;
-      color:var(--text);
-      border:1px solid rgba(255,255,255,.08);
+    tbody tr:last-child td{border-bottom:none}
+    .totalBox{
+      margin-top:12px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:12px 14px;
       border-radius:14px;
-      padding:12px;
-      background: rgba(12,18,34,.35);
+      border:1px solid var(--line);
+      background: rgba(47,107,255,.10);
     }
-    .signature{
-      margin-top:16px;
-      padding-top:12px;
-      border-top:1px solid rgba(255,255,255,.10);
+    .totalBox .tLabel{color:var(--muted); font-size:12px}
+    .totalBox .tVal{font-size:18px; font-weight:900}
+    .sign{
+      margin-top:14px;
       color:var(--muted);
       font-size:12px;
-      text-align:right;
+      display:flex;
+      justify-content:flex-end;
     }
-    .no-print{ }
 
+    /* Print */
     @media print{
-      body{background:white; color:black}
-      .card{box-shadow:none; background:white; border:1px solid #ddd}
-      .no-print{display:none !important}
-      input, textarea, select{border:1px solid #ccc; color:black; background:white}
-      table{min-width:auto}
-      thead th{color:#333}
-      .signature{color:#333}
-      .chip{border:1px solid #ccc; background:#f7f7f7}
-      .chip-label{color:#333}
-      .report-meta{color:#333}
-      .comments-text{border:1px solid #ccc; background:#fff; color:#000}
+      header{display:none !important}
+      body{background:#fff; color:#000}
+      .card{box-shadow:none; border:1px solid #ddd; background:#fff}
+      #appCard{display:none !important}
+      #reportCard{display:block !important}
+      table{border-color:#ddd}
+      thead th{background:#f6f6f6; color:#333}
+      .kv{border-color:#ddd; background:#fff}
+      .totalBox{border-color:#ddd; background:#f3f7ff}
+      .sign{color:#555}
+      a{color:#000;text-decoration:none}
+    }
+
+    @media (max-width:860px){
+      .fields{grid-template-columns: 1fr 1fr}
+      .field{grid-column: span 1}
+      .itemRow{grid-template-columns: 1fr}
+      .reportGrid{grid-template-columns: 1fr}
+      .reportHeader .meta{text-align:left}
     }
   </style>
 </head>
-
 <body>
-  <header class="topbar no-print">
-    <div class="brand">
-      <div class="logo">AD</div>
-      <div>
-        <h1>Formulario de autoevaluación del desempeño</h1>
-        <p class="subtitle">Escala 1–5 • Cálculo interno por pesos • Reporte listo para PDF</p>
+  <header>
+    <div class="wrap">
+      <div class="topbar">
+        <div class="brand">
+          <div class="logo">AD</div>
+          <div class="titles">
+            <h1>Formulario de autoevaluación del desempeño</h1>
+            <p>Escala 1–5 • Cálculo interno por pesos • Reporte listo para PDF</p>
+          </div>
+        </div>
+        <div class="actions">
+          <button class="danger" id="btnNew" title="Limpiar todo">Nuevo</button>
+          <button class="primary" id="btnSave" title="Guardar en este navegador">Guardar</button>
+          <button class="ghost" id="btnPrint" title="Imprimir o guardar como PDF">Imprimir / Enviar a PDF</button>
+        </div>
       </div>
-    </div>
-
-    <div class="actions">
-      <button id="btnNew" class="btn ghost" type="button">Nuevo</button>
-      <button id="btnSave" class="btn" type="button">Guardar</button>
-      <button id="btnPrint" class="btn" type="button">Imprimir / Enviar a PDF</button>
     </div>
   </header>
 
-  <main class="container">
-    <section class="card">
-      <h2>Datos personales</h2>
-      <div class="grid2">
-        <label>No. de personal
-          <input id="noPersonal" type="text" placeholder="Ej. 001234" />
-        </label>
-        <label>Nombre
-          <input id="nombre" type="text" placeholder="Escribe tu nombre" />
-        </label>
-        <label>Posición
-          <input id="posicion" type="text" placeholder="Ej. Analista" />
-        </label>
-        <label>Departamento
-          <input id="departamento" type="text" placeholder="Ej. Producción" />
-        </label>
-        <label>Período
-          <input id="periodo" type="text" placeholder="Ej. 2025" />
-        </label>
-        <label>Versión
-          <input id="version" type="text" placeholder="Ej. v1" />
-        </label>
-        <label>Fecha
-          <input id="fecha" type="date" />
-        </label>
-      </div>
-    </section>
+  <main>
+    <div class="wrap grid">
 
-    <section class="card">
-      <h2>Autoevaluación (Factores 1–5)</h2>
-      <p class="hint">
-        Selecciona la opción de respuesta para cada ítem. En <b>Liderazgo (si aplica)</b> puedes elegir <b>N/A</b>.
-      </p>
-      <div id="formArea"></div>
-    </section>
+      <!-- FORM -->
+      <section class="card" id="appCard">
+        <div class="inner">
+          <div class="sectionTitle">
+            <h2>Datos del colaborador</h2>
+            <span class="badge"><span class="dot"></span><span id="saveState">Listo</span></span>
+          </div>
 
-    <section class="card">
-      <h2>Comentarios del colaborador</h2>
-      <textarea id="comentarios" rows="5" placeholder="Escribe tus comentarios aquí..."></textarea>
-    </section>
+          <div class="fields" id="metaFields">
+            <div class="field">
+              <label for="noPersonal">No. de personal</label>
+              <input id="noPersonal" type="text" placeholder="Ej. 000123" />
+            </div>
+            <div class="field">
+              <label for="nombre">Nombre</label>
+              <input id="nombre" type="text" placeholder="Ej. Soamy Lanza" />
+            </div>
+            <div class="field">
+              <label for="posicion">Posición</label>
+              <input id="posicion" type="text" placeholder="Ej. Analista" />
+            </div>
+            <div class="field">
+              <label for="departamento">Departamento</label>
+              <input id="departamento" type="text" placeholder="Ej. RRHH" />
+            </div>
+            <div class="field">
+              <label for="periodo">Periodo</label>
+              <input id="periodo" type="text" placeholder="Ej. Q1-2026" />
+            </div>
+            <div class="field">
+              <label for="version">Versión</label>
+              <input id="version" type="text" placeholder="Ej. v1.0" />
+            </div>
+            <div class="field">
+              <label for="fecha">Fecha</label>
+              <input id="fecha" type="date" />
+            </div>
+          </div>
 
-    <section class="card" id="reportCard">
-      <h2>Reporte</h2>
+          <div style="height:12px"></div>
 
-      <div id="reportMeta" class="report-meta"></div>
+          <div class="sectionTitle">
+            <h2>Autoevaluación (Factores 1–5)</h2>
+            <span>Selecciona una opción por cada ítem.</span>
+          </div>
 
-      <div class="chip-row">
-        <div class="chip">
-          <div class="chip-label">Total de puntos</div>
-          <div class="chip-value" id="totalScore">0.00</div>
+          <div class="items" id="formContainer"></div>
+
+          <div style="height:12px"></div>
+
+          <div class="sectionTitle">
+            <h2>Comentarios del colaborador</h2>
+            <span class="smallNote">Incluye observaciones, ejemplos, mejoras o apoyo requerido.</span>
+          </div>
+          <textarea id="comentarios" placeholder="Escribe aquí tus comentarios..."></textarea>
+
+          <div class="footerNote">
+            <div class="badge" title="El total máximo es 100 por la tabla de pesos">
+              Total (máx. 100): <b id="totalLive">0.00</b>
+            </div>
+            <div class="smallNote">Tip: “Guardar” almacena en este navegador (localStorage).</div>
+          </div>
         </div>
-      </div>
+      </section>
 
-      <div class="table-wrap" style="margin-top:12px;">
-        <table id="reportTable">
-          <thead>
-            <tr>
-              <th>Factor</th>
-              <th>Ítem</th>
-              <th>Respuesta elegida</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
+      <!-- REPORT (solo para imprimir/PDF) -->
+      <section class="card" id="reportCard">
+        <div class="inner">
+          <div class="reportHeader">
+            <div>
+              <h2>Reporte de Autoevaluación del Desempeño</h2>
+              <div class="smallNote">Generado automáticamente desde el formulario.</div>
+            </div>
+            <div class="meta" id="reportStamp"></div>
+          </div>
 
-      <div class="comments-box">
-        <h3>Comentarios</h3>
-        <div id="reportComments" class="comments-text"></div>
-      </div>
+          <div class="reportGrid" id="reportMeta"></div>
 
-      <footer class="signature">Por Soamy Lanza</footer>
-    </section>
+          <table>
+            <thead>
+              <tr>
+                <th style="width:45%">Ítem</th>
+                <th>Respuesta elegida</th>
+              </tr>
+            </thead>
+            <tbody id="reportRows"></tbody>
+          </table>
+
+          <div class="totalBox">
+            <div>
+              <div class="tLabel">Total de puntos</div>
+              <div class="smallNote">Cálculo: (respuesta/5) × peso_del_ítem</div>
+            </div>
+            <div class="tVal" id="reportTotal">0.00</div>
+          </div>
+
+          <div style="height:10px"></div>
+          <div class="kv">
+            <div class="k">Comentarios del colaborador</div>
+            <div class="v" id="reportComments" style="font-weight:600; white-space:pre-wrap"></div>
+          </div>
+
+          <div class="sign">Por Soamy Lanza</div>
+        </div>
+      </section>
+
+    </div>
   </main>
 
   <script>
-    // ---------------- CONFIG: pesos (suman 100) ----------------
-    const CFG = {
-      scaleMax: 5,
-      scaleOptions: [
-        { value: 1, label: "1 - No cumple / Muy por debajo" },
-        { value: 2, label: "2 - Cumple parcialmente / Bajo" },
-        { value: 3, label: "3 - Cumple" },
-        { value: 4, label: "4 - Supera lo esperado" },
-        { value: 5, label: "5 - Sobresaliente" },
-      ],
-      factors: [
-        {
-          id: "f1",
-          title: "1. Metas, productividad y eficiencia",
-          items: [
-            { id:"f1a", label:"A. Cumplimiento de Metas. Grado de logro", weight: 15 },
-            { id:"f1b", label:"B. Eficiencia en el uso del tiempo, costos y recursos", weight: 10 },
-            { id:"f1c", label:"C. Cumplimiento de normas de seguridad", weight: 2.5 },
-            { id:"f1d", label:"D. Prioriza y organiza tareas adecuadamente", weight: 2.5 },
-          ]
-        },
-        {
-          id: "f2",
-          title: "2. Calidad del Trabajo",
-          items: [
-            { id:"f2a", label:"A. Exactitud y atención al detalle", weight: 2.5 },
-            { id:"f2b", label:"B. Cumple con estándares de calidad", weight: 5 },
-            { id:"f2c", label:"C. Entregas a Tiempo. Cumple con plazos establecidos", weight: 10 },
-            { id:"f2d", label:"D. Manejo de errores y mejoras", weight: 2.5 },
-          ]
-        },
-        {
-          id: "f3",
-          title: "3. Competencias y Habilidades",
-          items: [
-            { id:"f3a", label:"A. Conocimientos técnicos del puesto", weight: 10 },
-            { id:"f3b", label:"B. Convincente respuesta técnica a clientes", weight: 5 },
-            { id:"f3c", label:"C. Resolución de problemas", weight: 2.5 },
-            { id:"f3d", label:"D. Iniciativa y creatividad", weight: 2.5 },
-          ]
-        },
-        {
-          id: "f4",
-          title: "4. Actitud y Valores",
-          items: [
-            { id:"f4a", label:"A. Responsabilidad y compromiso", weight: 2.5 },
-            { id:"f4b", label:"B. Puntualidad y asistencia", weight: 2.5 },
-            { id:"f4c", label:"C. Trabajo en equipo y cooperación", weight: 5 },
-            { id:"f4d", label:"D. Comunicación efectiva", weight: 5 },
-          ]
-        },
-        {
-          id: "f5",
-          title: "5. Desarrollo y Potencial",
-          items: [
-            { id:"f5a", label:"A. Adaptación al cambio", weight: 2.5 },
-            { id:"f5b", label:"B. Disposición para aprender", weight: 2.5 },
-            { id:"f5c", label:"C. Liderazgo (si aplica)", weight: 10, allowNA: true },
-          ]
-        },
-      ]
-    };
+    // =========================
+    // Datos (pesos + opciones)
+    // =========================
+    const SECTIONS = [
+      {
+        title: "1. Metas, productividad y eficiencia",
+        items: [
+          {
+            id: "1A",
+            name: "A. Cumplimiento de Metas. Grado de logro",
+            weight: 15,
+            options: {
+              1: "No alcanza la mayoría de las metas; cumple menos del 70 % de lo establecido. La falta de avance afecta los resultados esperados.",
+              2: "Logra entre 70–89 % de las metas; presenta avances parciales o inconsistentes y requiere correcciones.",
+              3: "Alcanza el 100 % de las metas planificadas con calidad y dentro del tiempo establecido.",
+              4: "Supera el 100 % y llega hasta un 110 % de las metas; entrega resultados adicionales o mejores de lo esperado.",
+              5: "Supera más del 110 % de las metas de forma sostenida, con impacto significativo y calidad superior."
+            }
+          },
+          {
+            id: "1B",
+            name: "B. Eficiencia en el uso del tiempo, costos y recursos",
+            weight: 10,
+            options: {
+              1: "Usa el tiempo y los recursos con errores graves que afectan la eficiencia.",
+              2: "Muestra uso inestable del tiempo y los recursos; requiere evaluaciones y correcciones frecuentes.",
+              3: "Utiliza de manera adecuada el tiempo y los recursos, cumpliendo sin desperdicios significativos.",
+              4: "Optimiza tiempo y recursos, generando mejoras o ahorros sin afectar la calidad del trabajo.",
+              5: "Maximiza la eficiencia de forma sostenida, mejora procesos y logra resultados superiores sin comprometer la calidad."
+            }
+          },
+          {
+            id: "1C",
+            name: "C. Cumplimiento de normas de seguridad",
+            weight: 2.5,
+            options: {
+              1: "Incumple normas de seguridad y genera riesgos constantes para sí y el equipo.",
+              2: "Cumple parcialmente las normas; requiere supervisión continua para evitar incidentes.",
+              3: "Cumple todas las normas de seguridad y actúa de manera segura en su trabajo diario.",
+              4: "Se anticipa a riesgos, propone acciones preventivas y actúa con autonomía segura.",
+              5: "Promueve una cultura de seguridad; motiva a otros y contribuye a mantener ambientes sin incidentes."
+            }
+          },
+          {
+            id: "1D",
+            name: "D. Prioriza y organiza tareas adecuadamente",
+            weight: 2.5,
+            options: {
+              1: "Desorganiza las tareas; incumple plazos y afecta resultados importantes.",
+              2: "Organiza parcialmente; presenta inconsistencias en prioridades y manejo del tiempo.",
+              3: "Gestiona las tareas de forma adecuada, cumple tiempos y mantiene orden en su trabajo.",
+              4: "Organiza y prioriza con eficiencia, anticipa necesidades y mejora sus tiempos de entrega.",
+              5: "Es referente en organización; redistribuye recursos, optimiza procesos y eleva la productividad del equipo."
+            }
+          }
+        ]
+      },
+      {
+        title: "2. Calidad del Trabajo",
+        items: [
+          {
+            id: "2A",
+            name: "A. Exactitud y atención al detalle",
+            weight: 2.5,
+            options: {
+              1: "Comete errores frecuentes y no identifica fallos evidentes; requiere supervisión constante para evitar errores mayores.",
+              2: "Presenta errores recurrentes por falta de revisión; la exactitud es inconsistente y requiere correcciones frecuentes.",
+              3: "Realiza su trabajo con un nivel adecuado de precisión; puede cometer errores menores que no afectan los resultados.",
+              4: "Mantiene una atención al detalle constante; comete pocos errores y revisa su trabajo de forma proactiva.",
+              5: "Su trabajo es impecable; detecta errores propios y ajenos, propone mejoras y es referente en precisión."
+            }
+          },
+          {
+            id: "2B",
+            name: "B. Cumple con estándares de calidad",
+            weight: 5,
+            options: {
+              1: "Menos del 70 % de los entregables cumplen los estándares; los resultados son inaceptables.",
+              2: "Entre 70–89 % de los entregables cumplen los estándares; requiere ajustes frecuentes.",
+              3: "El 100 % de los entregables cumplen los estándares establecidos.",
+              4: "Cumplimiento entre 101–110 %; entrega con calidad superior y consistente.",
+              5: "Más del 110 % de cumplimiento; supera ampliamente los estándares y produce resultados sobresalientes."
+            }
+          },
+          {
+            id: "2C",
+            name: "C. Entregas a Tiempo. cumple con plazos establecidos",
+            weight: 10,
+            options: {
+              1: "Menos del 70 % de las entregas se cumplen a tiempo; los retrasos afectan el área.",
+              2: "Entre 70–89 % de las entregas se realizan a tiempo; desempeño irregular.",
+              3: "El 100 % de las entregas se cumplen en los plazos pactados.",
+              4: "Cumple entre 101–110 % de los tiempos; se anticipa en algunas entregas y mantiene calidad.",
+              5: "Entrega más del 110 % a tiempo; supera plazos, mantiene calidad y mejora la eficiencia general."
+            }
+          },
+          {
+            id: "2D",
+            name: "D. Manejo de errores y mejoras",
+            weight: 2.5,
+            options: {
+              1: "No reconoce ni corrige errores; genera reincidencias graves.",
+              2: "Corrige parcialmente, con retrasos o bajo nivel de supervisión; la mejora no es constante.",
+              3: "Detecta y corrige errores básicos cuando se le solicita; cumple lo necesario.",
+              4: "Se anticipa a errores y propone soluciones preventivas que mejoran el proceso.",
+              5: "Asegura procesos libres de errores, implementa mejoras continuas y es referente en calidad."
+            }
+          }
+        ]
+      },
+      {
+        title: "3. Competencias y Habilidades",
+        items: [
+          {
+            id: "3A",
+            name: "A. Conocimientos técnicos del puesto",
+            weight: 10,
+            options: {
+              1: "Conocimientos muy por debajo de lo esperado; no domina funciones básicas del puesto.",
+              2: "Gestiona parcialmente los conocimientos requeridos y necesita apoyo frecuente.",
+              3: "Posee el conocimiento necesario y funcional para el puesto; desempeño adecuado.",
+              4: "Aplica los conocimientos de manera confiable y constante.",
+              5: "Domina los conocimientos, aplica técnicas avanzadas y es referente técnico en el área."
+            }
+          },
+          {
+            id: "3B",
+            name: "B. Convincente respuesta técnica a clientes",
+            weight: 5,
+            options: {
+              1: "Respuestas incorrectas o inconsistentes que generan desconfianza.",
+              2: "Respuestas incompletas o poco claras que afectan la calidad del servicio.",
+              3: "Responde de forma adecuada y funcional, brindando confianza.",
+              4: "Respuestas claras, específicas y confiables de manera constante.",
+              5: "Respuestas sobresalientes y precisas, reconocidas como referentes por clientes y equipo."
+            }
+          },
+          {
+            id: "3C",
+            name: "C. Resolución de problemas",
+            weight: 2.5,
+            options: {
+              1: "No logra resolver problemas; afecta procesos y resultados.",
+              2: "Resuelve parcialmente los problemas, requiriendo supervisión frecuente.",
+              3: "Resuelve problemas básicos de manera satisfactoria y funcional.",
+              4: "Resuelve problemas complejos con autonomía y confiabilidad.",
+              5: "Anticipa problemas y desarrolla soluciones preventivas y estratégicas."
+            }
+          },
+          {
+            id: "3D",
+            name: "D. Iniciativa y creatividad",
+            weight: 2.5,
+            options: {
+              1: "No genera ideas ni propone mejoras.",
+              2: "Propone ideas poco útiles o de aplicación limitada.",
+              3: "Propone ideas funcionales y aplicables cuando es necesario.",
+              4: "Genera ideas prácticas que optimizan procesos y agregan valor.",
+              5: "Propone soluciones innovadoras con impacto positivo y sostenible en el área."
+            }
+          }
+        ]
+      },
+      {
+        title: "4. Actitud y Valores",
+        items: [
+          {
+            id: "4A",
+            name: "A. Responsabilidad y compromiso",
+            weight: 2.5,
+            options: {
+              1: "Incumple compromisos y entrega resultados muy por debajo de lo esperado.",
+              2: "Cumple compromisos de forma irregular y requiere seguimiento constante.",
+              3: "Cumple con sus responsabilidades de manera adecuada y confiable.",
+              4: "Cumple de forma consistente, genera seguridad y aporta valor.",
+              5: "Inspira por su compromiso; es modelo de conducta para el equipo."
+            }
+          },
+          {
+            id: "4B",
+            name: "B. Puntualidad y asistencia",
+            weight: 2.5,
+            options: {
+              1: "Ausencias frecuentes e injustificadas; llegadas tardías recurrentes sin aviso y sin intención de mejora.",
+              2: "Se presenta con frecuencia tarde o sin justificación clara, afectando la operación.",
+              3: "Asiste regularmente y cumple horarios; puede presentar llegadas tarde o ausencias justificadas sin reincidencia.",
+              4: "Es puntual y mantiene asistencia confiable; respeta horarios y comunica eventualidades oportunamente.",
+              5: "Puntualidad y asistencia impecables; es referente para el equipo y se adapta a horarios especiales sin afectar el desempeño."
+            }
+          },
+          {
+            id: "4C",
+            name: "C. Trabajo en equipo y cooperación",
+            weight: 5,
+            options: {
+              1: "No coopera; genera conflictos y dificulta el trabajo del equipo.",
+              2: "Coopera parcialmente y de manera inestable.",
+              3: "Coopera cuando se le solicita, con resultados aceptables.",
+              4: "Colabora activamente con el equipo y aporta de forma confiable.",
+              5: "Es referente en trabajo en equipo; promueve colaboración, sinergia y apoya a otros."
+            }
+          },
+          {
+            id: "4D",
+            name: "D. Comunicación efectiva",
+            weight: 5,
+            options: {
+              1: "Comunicación confusa; genera malentendidos graves.",
+              2: "Comunicación incompleta o poco clara; requiere supervisión para asegurar entendimiento.",
+              3: "Comunica lo necesario de forma clara y suficiente.",
+              4: "Comunicación clara, precisa y constructiva; escucha activamente.",
+              5: "Comunicación influyente y estratégica; facilita acuerdos y motiva a otros."
+            }
+          }
+        ]
+      },
+      {
+        title: "5. Desarrollo y Potencial",
+        items: [
+          {
+            id: "5A",
+            name: "A. Adaptación al cambio",
+            weight: 2.5,
+            options: {
+              1: "Se resiste activamente al cambio; afecta procesos y equipos.",
+              2: "Se adapta parcialmente, con dificultad y resultados limitados.",
+              3: "Se adapta lo necesario para mantener un desempeño adecuado.",
+              4: "Se adapta de forma autónoma y confiable a nuevas situaciones.",
+              5: "Es referente en adaptación; motiva y guía a otros en procesos de cambio."
+            }
+          },
+          {
+            id: "5B",
+            name: "B. Disposición para aprender",
+            weight: 2.5,
+            options: {
+              1: "No busca aprender; rechaza retroalimentación y capacitación.",
+              2: "Aprende solo lo obligatorio y con mínima aplicación práctica.",
+              3: "Aprende lo necesario para mantener un desempeño satisfactorio.",
+              4: "Busca aprender constantemente y aplica lo aprendido en el trabajo.",
+              5: "Se mantiene en aprendizaje continuo, comparte conocimientos y forma a otros."
+            }
+          },
+          {
+            id: "5C",
+            name: "C. Liderazgo",
+            weight: 10,
+            options: {
+              1: "No logra coordinar ni dirigir; genera desorden y afecta resultados.",
+              2: "Lidera de forma débil, con bajo impacto en el equipo.",
+              3: "Lidera tareas básicas con resultados adecuados y funcionales.",
+              4: "Lidera con confianza, logrando resultados consistentes y estables.",
+              5: "Inspira con visión clara; desarrolla a otros, fortalece la cohesión del equipo y se convierte en referente."
+            }
+          }
+        ]
+      }
+    ];
 
-    // ---------------- STATE ----------------
-    const KEY = "autoeval_state_singlefile_v2";
-    const $ = (s) => document.querySelector(s);
-    const fmt = (n) => (Math.round((n + Number.EPSILON) * 100) / 100).toFixed(2);
+    const STORAGE_KEY = "autoevaluacion_desempeno_v1";
 
-    function todayISO(){
+    // =========================
+    // Helpers
+    // =========================
+    const $ = (sel) => document.querySelector(sel);
+    const fmt2 = (n) => (Math.round(n*100)/100).toFixed(2);
+
+    function nowStamp(){
       const d = new Date();
-      const pad = (x) => String(x).padStart(2,"0");
-      return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+      return d.toLocaleString("es-HN", { year:"numeric", month:"2-digit", day:"2-digit", hour:"2-digit", minute:"2-digit" });
     }
 
-    function defaultState(){
-      const responses = {};
-      for(const f of CFG.factors) for(const it of f.items) responses[it.id] = "";
-      return {
-        meta:{
-          noPersonal:"",
-          nombre:"",
-          posicion:"",
-          departamento:"",
-          periodo:"",
-          version:"v1",
-          fecha: todayISO(),
-        },
-        responses,
-        comentarios:"",
-        lastSavedAt:null
+    // =========================
+    // Render Form
+    // =========================
+    function optionLabel(score, text){
+      // En el combo: "1 - <texto>"
+      return `${score} - ${text}`;
+    }
+
+    function buildSelect(item){
+      const sel = document.createElement("select");
+      sel.setAttribute("data-item-id", item.id);
+
+      const ph = document.createElement("option");
+      ph.value = "";
+      ph.textContent = "— Seleccionar —";
+      sel.appendChild(ph);
+
+      for (let v=1; v<=5; v++){
+        const opt = document.createElement("option");
+        opt.value = String(v);
+        opt.textContent = optionLabel(v, item.options[v]);
+        sel.appendChild(opt);
+      }
+
+      sel.addEventListener("change", () => {
+        computeTotals();
+        markDirty();
+      });
+
+      return sel;
+    }
+
+    function renderForm(){
+      const container = $("#formContainer");
+      container.innerHTML = "";
+
+      SECTIONS.forEach(section => {
+        const block = document.createElement("div");
+        block.className = "card";
+        block.style.boxShadow = "none";
+        block.style.border = "1px solid rgba(255,255,255,.06)";
+        block.style.background = "rgba(255,255,255,.02)";
+
+        const inner = document.createElement("div");
+        inner.className = "inner";
+
+        const title = document.createElement("div");
+        title.className = "sectionTitle";
+        title.innerHTML = `<h2>${section.title}</h2><span></span>`;
+        inner.appendChild(title);
+
+        const itemsWrap = document.createElement("div");
+        itemsWrap.className = "items";
+
+        section.items.forEach(item => {
+          const row = document.createElement("div");
+          row.className = "itemRow";
+
+          const left = document.createElement("div");
+          left.className = "left";
+          left.innerHTML = `
+            <div class="itemName">${item.name}</div>
+            <div class="hint">Elige la descripción que mejor refleje tu desempeño.</div>
+          `;
+
+          const right = document.createElement("div");
+          right.className = "right";
+
+          const label = document.createElement("label");
+          label.style.color = "var(--muted)";
+          label.style.fontSize = "12px";
+          label.textContent = "Respuesta";
+
+          const sel = buildSelect(item);
+          right.appendChild(label);
+          right.appendChild(sel);
+
+          row.appendChild(left);
+          row.appendChild(right);
+          itemsWrap.appendChild(row);
+        });
+
+        inner.appendChild(itemsWrap);
+        block.appendChild(inner);
+        container.appendChild(block);
+      });
+    }
+
+    // =========================
+    // Cálculo
+    // =========================
+    function getSelectedValue(itemId){
+      const el = document.querySelector(`select[data-item-id="${itemId}"]`);
+      if (!el) return null;
+      const v = el.value;
+      if (!v) return null;
+      const num = Number(v);
+      return Number.isFinite(num) ? num : null;
+    }
+
+    function computeItemPoints(item){
+      const v = getSelectedValue(item.id);
+      if (!v) return 0;
+      // (respuesta/5) * peso
+      return (v/5) * item.weight;
+    }
+
+    function computeTotals(){
+      let total = 0;
+      SECTIONS.forEach(s => s.items.forEach(it => total += computeItemPoints(it)));
+      $("#totalLive").textContent = fmt2(total);
+      return total;
+    }
+
+    // =========================
+    // Reporte
+    // =========================
+    function buildMetaKV(key, value){
+      const div = document.createElement("div");
+      div.className = "kv";
+      div.innerHTML = `<div class="k">${key}</div><div class="v">${value || "—"}</div>`;
+      return div;
+    }
+
+    function selectedText(item){
+      const v = getSelectedValue(item.id);
+      if (!v) return "—";
+      return optionLabel(v, item.options[v]);
+    }
+
+    function renderReport(){
+      // header stamp
+      $("#reportStamp").textContent = `Generado: ${nowStamp()}`;
+
+      // meta
+      const meta = {
+        "No. de personal": $("#noPersonal").value.trim(),
+        "Nombre": $("#nombre").value.trim(),
+        "Posición": $("#posicion").value.trim(),
+        "Departamento": $("#departamento").value.trim(),
+        "Periodo": $("#periodo").value.trim(),
+        "Versión": $("#version").value.trim(),
+        "Fecha": $("#fecha").value ? $("#fecha").value : ""
       };
+      const reportMeta = $("#reportMeta");
+      reportMeta.innerHTML = "";
+      Object.entries(meta).forEach(([k,v]) => reportMeta.appendChild(buildMetaKV(k, v)));
+
+      // rows
+      const tbody = $("#reportRows");
+      tbody.innerHTML = "";
+      SECTIONS.forEach(section => {
+        section.items.forEach(item => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td><b>${item.name}</b></td>
+            <td>${escapeHtml(selectedText(item))}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+      });
+
+      // total & comments
+      const total = computeTotals();
+      $("#reportTotal").textContent = fmt2(total);
+      $("#reportComments").textContent = $("#comentarios").value.trim() || "—";
     }
 
-    let STATE = loadLocal() ?? defaultState();
-
-    function loadLocal(){
-      try{
-        const raw = localStorage.getItem(KEY);
-        return raw ? JSON.parse(raw) : null;
-      }catch{ return null; }
-    }
-    function saveLocal(){
-      localStorage.setItem(KEY, JSON.stringify(STATE));
-    }
-
-    function esc(s){
-      return String(s ?? "")
+    // escape to prevent injecting HTML via input (simple)
+    function escapeHtml(str){
+      return String(str)
         .replaceAll("&","&amp;")
         .replaceAll("<","&lt;")
         .replaceAll(">","&gt;")
@@ -400,203 +854,145 @@
         .replaceAll("'","&#039;");
     }
 
-    // ---------------- FORM RENDER (sin peso ni score) ----------------
-    function renderOptionsForItem(it){
-      let out = `<option value="">— Seleccionar —</option>`;
-      if(it.allowNA) out += `<option value="NA">N/A (no aplica)</option>`;
-      for(const opt of CFG.scaleOptions){
-        out += `<option value="${opt.value}">${esc(opt.label)}</option>`;
-      }
-      return out;
+    // =========================
+    // Guardar / Cargar
+    // =========================
+    let dirty = false;
+    function markDirty(){
+      dirty = true;
+      $("#saveState").textContent = "Cambios sin guardar";
+      $(".dot").style.background = "var(--danger)";
+      $(".dot").style.boxShadow = "0 0 0 3px rgba(255,77,109,.18)";
+    }
+    function markSaved(){
+      dirty = false;
+      $("#saveState").textContent = "Guardado";
+      $(".dot").style.background = "var(--ok)";
+      $(".dot").style.boxShadow = "0 0 0 3px rgba(61,220,151,.18)";
+      // vuelve a “Listo” a los segundos (porque sí, dramatismo mínimo)
+      setTimeout(() => {
+        if (!dirty) $("#saveState").textContent = "Listo";
+      }, 1200);
     }
 
-    function renderForm(){
-      const formArea = $("#formArea");
-      formArea.innerHTML = "";
+    function collectState(){
+      const meta = {
+        noPersonal: $("#noPersonal").value,
+        nombre: $("#nombre").value,
+        posicion: $("#posicion").value,
+        departamento: $("#departamento").value,
+        periodo: $("#periodo").value,
+        version: $("#version").value,
+        fecha: $("#fecha").value,
+        comentarios: $("#comentarios").value
+      };
 
-      for(const f of CFG.factors){
-        const factorBox = document.createElement("div");
-        factorBox.className = "factor";
+      const answers = {};
+      SECTIONS.forEach(s => s.items.forEach(it => {
+        answers[it.id] = getSelectedValue(it.id) ?? "";
+      }));
 
-        factorBox.innerHTML = `
-          <div class="factor-head">
-            <div class="factor-title">
-              <b>${esc(f.title)}</b>
-              <span>Selecciona la opción de respuesta para cada ítem</span>
-            </div>
-          </div>
-          <div class="items" id="items_${esc(f.id)}"></div>
-        `;
+      return { meta, answers, savedAt: Date.now() };
+    }
 
-        const itemsWrap = factorBox.querySelector(`#items_${CSS.escape(f.id)}`);
+    function applyState(state){
+      if (!state) return;
+      const m = state.meta || {};
+      $("#noPersonal").value = m.noPersonal || "";
+      $("#nombre").value = m.nombre || "";
+      $("#posicion").value = m.posicion || "";
+      $("#departamento").value = m.departamento || "";
+      $("#periodo").value = m.periodo || "";
+      $("#version").value = m.version || "";
+      $("#fecha").value = m.fecha || "";
+      $("#comentarios").value = m.comentarios || "";
 
-        for(const it of f.items){
-          const row = document.createElement("div");
-          row.className = "item";
-          row.innerHTML = `
-            <div class="item-title">
-              <b>${esc(it.label)}</b>
-              ${it.allowNA ? `<small>Este ítem permite N/A</small>` : `<small>&nbsp;</small>`}
-            </div>
-
-            <label>
-              Respuesta
-              <select data-response="${esc(it.id)}">
-                ${renderOptionsForItem(it)}
-              </select>
-            </label>
-          `;
-          itemsWrap.appendChild(row);
+      const answers = state.answers || {};
+      SECTIONS.forEach(s => s.items.forEach(it => {
+        const sel = document.querySelector(`select[data-item-id="${it.id}"]`);
+        if (sel){
+          const v = answers[it.id];
+          sel.value = (v === null || v === undefined) ? "" : String(v);
         }
+      }));
 
-        formArea.appendChild(factorBox);
+      computeTotals();
+    }
+
+    function save(){
+      const state = collectState();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      markSaved();
+    }
+
+    function load(){
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      try{
+        const state = JSON.parse(raw);
+        applyState(state);
+      }catch(e){
+        console.warn("No se pudo cargar el estado:", e);
       }
-
-      // set values + listeners
-      formArea.querySelectorAll("select[data-response]").forEach(sel=>{
-        const id = sel.getAttribute("data-response");
-        sel.value = STATE.responses[id] ?? "";
-        sel.addEventListener("change", e=>{
-          STATE.responses[id] = e.target.value;
-          saveLocal();
-          computeAndRenderReport();
-        });
-      });
     }
 
-    // ---------------- META ----------------
-    function renderMeta(){
-      $("#noPersonal").value = STATE.meta.noPersonal;
-      $("#nombre").value = STATE.meta.nombre;
-      $("#posicion").value = STATE.meta.posicion;
-      $("#departamento").value = STATE.meta.departamento;
-      $("#periodo").value = STATE.meta.periodo;
-      $("#version").value = STATE.meta.version;
-      $("#fecha").value = STATE.meta.fecha || todayISO();
-      $("#comentarios").value = STATE.comentarios || "";
+    function clearAll(){
+      // reset meta
+      $("#noPersonal").value = "";
+      $("#nombre").value = "";
+      $("#posicion").value = "";
+      $("#departamento").value = "";
+      $("#periodo").value = "";
+      $("#version").value = "";
+      $("#fecha").value = "";
+      $("#comentarios").value = "";
 
-      ["noPersonal","nombre","posicion","departamento","periodo","version","fecha"].forEach(id=>{
-        $("#" + id).addEventListener("input", e=>{
-          STATE.meta[id] = e.target.value;
-          saveLocal();
-          computeAndRenderReport();
-        });
-      });
+      // reset selects
+      document.querySelectorAll("select[data-item-id]").forEach(sel => sel.value = "");
 
-      $("#comentarios").addEventListener("input", e=>{
-        STATE.comentarios = e.target.value;
-        saveLocal();
-        computeAndRenderReport();
-      });
+      computeTotals();
+      markDirty();
     }
 
-    // ---------------- SCORING (interno, pero NO se muestra en formulario) ----------------
-    // score_item = (respuesta/5) * peso_item
-    function parseResp(v){
-      if(v === "NA") return null;
-      const n = Number(v);
-      return Number.isFinite(n) ? n : null;
-    }
-
-    function getLabelForValue(v){
-      if(v === "" || v == null) return "—";
-      if(v === "NA") return "N/A (no aplica)";
-      const n = Number(v);
-      const found = CFG.scaleOptions.find(o => o.value === n);
-      return found ? found.label : String(v);
-    }
-
-    function computeTotal(){
-      let total = 0;
-      for(const f of CFG.factors){
-        for(const it of f.items){
-          const r = parseResp(STATE.responses[it.id]);
-          const w = Number(it.weight) || 0;
-          const normalized = (r === null) ? 0 : (r / CFG.scaleMax);
-          total += normalized * w;
-        }
-      }
-      return total;
-    }
-
-    // ---------------- REPORT (solo campos pedidos) ----------------
-    function computeAndRenderReport(){
-      const total = computeTotal();
-      $("#totalScore").textContent = fmt(total);
-
-      // Meta exacta solicitada
-      const m = STATE.meta;
-      const parts = [
-        `No. de personal: <b>${esc(m.noPersonal || "—")}</b>`,
-        `Nombre: <b>${esc(m.nombre || "—")}</b>`,
-        `Posición: <b>${esc(m.posicion || "—")}</b>`,
-        `Departamento: <b>${esc(m.departamento || "—")}</b>`,
-        `Período: <b>${esc(m.periodo || "—")}</b>`,
-        `Versión: <b>${esc(m.version || "—")}</b>`,
-        `Fecha: <b>${esc(m.fecha || "—")}</b>`,
-      ];
-      $("#reportMeta").innerHTML = parts.join(" • ");
-
-      // Tabla: Factor / Ítem / Respuesta elegida
-      const tbody = $("#reportTable tbody");
-      tbody.innerHTML = "";
-
-      for(const f of CFG.factors){
-        for(const it of f.items){
-          const chosen = STATE.responses[it.id] ?? "";
-          const tr = document.createElement("tr");
-          tr.innerHTML = `
-            <td>${esc(f.title)}</td>
-            <td>${esc(it.label)}</td>
-            <td>${esc(getLabelForValue(chosen))}</td>
-          `;
-          tbody.appendChild(tr);
-        }
-      }
-
-      $("#reportComments").textContent = STATE.comentarios || "—";
-    }
-
-    // ---------------- ACTIONS ----------------
-    function handleNew(){
-      STATE = defaultState();
-      saveLocal();
-      bootstrap();
-    }
-
-    function handleSave(){
-      STATE.lastSavedAt = new Date().toLocaleString();
-      saveLocal();
-
-      // Descarga backup JSON (opcional, útil)
-      const blob = new Blob([JSON.stringify(STATE, null, 2)], { type:"application/json" });
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = `autoevaluacion_${(STATE.meta.nombre || "colaborador").replace(/\s+/g,"_")}.json`;
-      a.click();
-      URL.revokeObjectURL(a.href);
-
-      computeAndRenderReport();
-    }
-
+    // =========================
+    // Imprimir
+    // =========================
     function handlePrint(){
-      window.print(); // Guardar como PDF
+      // prepara reporte y lo muestra solo para impresión
+      renderReport();
+      $("#reportCard").style.display = "block";
+      // imprime (CSS @media print se encarga de mostrar solo reporte)
+      window.print();
+      // vuelve a ocultar el reporte en pantalla
+      $("#reportCard").style.display = "none";
     }
 
-    function bindButtons(){
-      $("#btnNew").addEventListener("click", handleNew);
-      $("#btnSave").addEventListener("click", handleSave);
+    // =========================
+    // Eventos
+    // =========================
+    function bindMetaListeners(){
+      ["#noPersonal","#nombre","#posicion","#departamento","#periodo","#version","#fecha","#comentarios"].forEach(id=>{
+        const el = $(id);
+        el.addEventListener("input", () => { computeTotals(); markDirty(); });
+        el.addEventListener("change", () => { computeTotals(); markDirty(); });
+      });
+    }
+
+    function init(){
+      renderForm();
+      bindMetaListeners();
+      load();
+      computeTotals();
+
+      $("#btnNew").addEventListener("click", () => {
+        // sin confirmaciones dramáticas: solo limpiar
+        clearAll();
+      });
+      $("#btnSave").addEventListener("click", save);
       $("#btnPrint").addEventListener("click", handlePrint);
     }
 
-    function bootstrap(){
-      renderMeta();
-      renderForm();
-      computeAndRenderReport();
-    }
-
-    bindButtons();
-    bootstrap();
+    init();
   </script>
 </body>
 </html>
