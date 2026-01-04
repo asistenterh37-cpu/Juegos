@@ -72,9 +72,7 @@
       border-color: rgba(47,107,255,.55);
     }
     .primary:hover{background:#255df0}
-    .ghost{
-      background: transparent;
-    }
+    .ghost{background: transparent;}
     .danger{
       background: rgba(255,77,109,.14);
       border-color: rgba(255,77,109,.28);
@@ -99,6 +97,7 @@
     }
     .sectionTitle h2{margin:0;font-size:16px}
     .sectionTitle span{color:var(--muted); font-size:12px}
+
     .fields{
       display:grid;
       grid-template-columns: repeat(6, 1fr);
@@ -123,9 +122,8 @@
       box-shadow: 0 0 0 3px rgba(47,107,255,.18);
     }
     textarea{min-height:96px; resize:vertical}
-    .items{
-      display:flex; flex-direction:column; gap:10px;
-    }
+
+    .items{display:flex; flex-direction:column; gap:10px;}
     .itemRow{
       display:grid;
       grid-template-columns: 1.4fr 1fr;
@@ -135,21 +133,10 @@
       border:1px dashed rgba(255,255,255,.10);
       background: rgba(255,255,255,.02);
     }
-    .itemRow .left{
-      display:flex; flex-direction:column; gap:6px;
-    }
-    .itemRow .itemName{
-      font-weight:760;
-      letter-spacing:.1px;
-    }
-    .itemRow .hint{
-      color:var(--muted);
-      font-size:12.5px;
-    }
-    .itemRow .right{
-      display:flex; flex-direction:column; gap:6px;
-      align-items:stretch; justify-content:center;
-    }
+    .itemRow .left{display:flex; flex-direction:column; gap:6px;}
+    .itemRow .itemName{font-weight:760; letter-spacing:.1px;}
+    .itemRow .hint{color:var(--muted); font-size:12.5px;}
+    .itemRow .right{display:flex; flex-direction:column; gap:6px; align-items:stretch; justify-content:center;}
     .smallNote{color:var(--muted); font-size:12px}
     .footerNote{
       margin-top:12px;
@@ -188,20 +175,31 @@
       font-size:12.5px;
       text-align:right;
     }
-    .reportGrid{
+
+    /* ✅ CAMBIO: meta del reporte en 3 filas (2 columnas + 2 columnas + 3 columnas) */
+    .reportMetaGrid{
       display:grid;
       grid-template-columns: 1fr 1fr;
       gap:10px;
       margin-bottom:12px;
     }
+    .reportRow3{
+      grid-column: 1 / -1;
+      display:grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap:10px;
+    }
+
     .kv{
       padding:10px 12px;
       border-radius:14px;
       border:1px solid var(--line);
       background: rgba(0,0,0,.10);
+      min-height:52px;
     }
     .kv .k{color:var(--muted); font-size:12px}
     .kv .v{font-weight:750; margin-top:4px}
+
     table{
       width:100%;
       border-collapse:separate;
@@ -247,7 +245,6 @@
       justify-content:flex-end;
     }
 
-    /* Print */
     @media print{
       header{display:none !important}
       body{background:#fff; color:#000}
@@ -260,13 +257,18 @@
       .totalBox{border-color:#ddd; background:#f3f7ff}
       .sign{color:#555}
       a{color:#000;text-decoration:none}
+
+      /* Ajustes impresión para ahorrar páginas */
+      tbody td{font-size:11.5px; padding:8px 10px}
+      thead th{font-size:11px; padding:8px 10px}
     }
 
     @media (max-width:860px){
       .fields{grid-template-columns: 1fr 1fr}
       .field{grid-column: span 1}
       .itemRow{grid-template-columns: 1fr}
-      .reportGrid{grid-template-columns: 1fr}
+      .reportMetaGrid{grid-template-columns: 1fr}
+      .reportRow3{grid-template-columns: 1fr}
       .reportHeader .meta{text-align:left}
     }
   </style>
@@ -370,7 +372,8 @@
             <div class="meta" id="reportStamp"></div>
           </div>
 
-          <div class="reportGrid" id="reportMeta"></div>
+          <!-- ✅ CAMBIO: 1) No de personal + Nombre (fila) 2) Posición + Departamento (fila) 3) Periodo + Versión + Fecha (fila) -->
+          <div class="reportMetaGrid" id="reportMeta"></div>
 
           <table>
             <thead>
@@ -404,270 +407,168 @@
   </main>
 
   <script>
-    // =========================
-    // Datos (pesos + opciones)
-    // =========================
     const SECTIONS = [
       {
         title: "1. Metas, productividad y eficiencia",
         items: [
-          {
-            id: "1A",
-            name: "A. Cumplimiento de Metas. Grado de logro",
-            weight: 15,
-            options: {
-              1: "No alcanza la mayoría de las metas; cumple menos del 70 % de lo establecido. La falta de avance afecta los resultados esperados.",
-              2: "Logra entre 70–89 % de las metas; presenta avances parciales o inconsistentes y requiere correcciones.",
-              3: "Alcanza el 100 % de las metas planificadas con calidad y dentro del tiempo establecido.",
-              4: "Supera el 100 % y llega hasta un 110 % de las metas; entrega resultados adicionales o mejores de lo esperado.",
-              5: "Supera más del 110 % de las metas de forma sostenida, con impacto significativo y calidad superior."
-            }
-          },
-          {
-            id: "1B",
-            name: "B. Eficiencia en el uso del tiempo, costos y recursos",
-            weight: 10,
-            options: {
-              1: "Usa el tiempo y los recursos con errores graves que afectan la eficiencia.",
-              2: "Muestra uso inestable del tiempo y los recursos; requiere evaluaciones y correcciones frecuentes.",
-              3: "Utiliza de manera adecuada el tiempo y los recursos, cumpliendo sin desperdicios significativos.",
-              4: "Optimiza tiempo y recursos, generando mejoras o ahorros sin afectar la calidad del trabajo.",
-              5: "Maximiza la eficiencia de forma sostenida, mejora procesos y logra resultados superiores sin comprometer la calidad."
-            }
-          },
-          {
-            id: "1C",
-            name: "C. Cumplimiento de normas de seguridad",
-            weight: 2.5,
-            options: {
-              1: "Incumple normas de seguridad y genera riesgos constantes para sí y el equipo.",
-              2: "Cumple parcialmente las normas; requiere supervisión continua para evitar incidentes.",
-              3: "Cumple todas las normas de seguridad y actúa de manera segura en su trabajo diario.",
-              4: "Se anticipa a riesgos, propone acciones preventivas y actúa con autonomía segura.",
-              5: "Promueve una cultura de seguridad; motiva a otros y contribuye a mantener ambientes sin incidentes."
-            }
-          },
-          {
-            id: "1D",
-            name: "D. Prioriza y organiza tareas adecuadamente",
-            weight: 2.5,
-            options: {
-              1: "Desorganiza las tareas; incumple plazos y afecta resultados importantes.",
-              2: "Organiza parcialmente; presenta inconsistencias en prioridades y manejo del tiempo.",
-              3: "Gestiona las tareas de forma adecuada, cumple tiempos y mantiene orden en su trabajo.",
-              4: "Organiza y prioriza con eficiencia, anticipa necesidades y mejora sus tiempos de entrega.",
-              5: "Es referente en organización; redistribuye recursos, optimiza procesos y eleva la productividad del equipo."
-            }
-          }
+          { id: "1A", name: "A. Cumplimiento de Metas. Grado de logro", weight: 15, options: {
+            1: "No alcanza la mayoría de las metas; cumple menos del 70 % de lo establecido. La falta de avance afecta los resultados esperados.",
+            2: "Logra entre 70–89 % de las metas; presenta avances parciales o inconsistentes y requiere correcciones.",
+            3: "Alcanza el 100 % de las metas planificadas con calidad y dentro del tiempo establecido.",
+            4: "Supera el 100 % y llega hasta un 110 % de las metas; entrega resultados adicionales o mejores de lo esperado.",
+            5: "Supera más del 110 % de las metas de forma sostenida, con impacto significativo y calidad superior."
+          }},
+          { id: "1B", name: "B. Eficiencia en el uso del tiempo, costos y recursos", weight: 10, options: {
+            1: "Usa el tiempo y los recursos con errores graves que afectan la eficiencia.",
+            2: "Muestra uso inestable del tiempo y los recursos; requiere evaluaciones y correcciones frecuentes.",
+            3: "Utiliza de manera adecuada el tiempo y los recursos, cumpliendo sin desperdicios significativos.",
+            4: "Optimiza tiempo y recursos, generando mejoras o ahorros sin afectar la calidad del trabajo.",
+            5: "Maximiza la eficiencia de forma sostenida, mejora procesos y logra resultados superiores sin comprometer la calidad."
+          }},
+          { id: "1C", name: "C. Cumplimiento de normas de seguridad", weight: 2.5, options: {
+            1: "Incumple normas de seguridad y genera riesgos constantes para sí y el equipo.",
+            2: "Cumple parcialmente las normas; requiere supervisión continua para evitar incidentes.",
+            3: "Cumple todas las normas de seguridad y actúa de manera segura en su trabajo diario.",
+            4: "Se anticipa a riesgos, propone acciones preventivas y actúa con autonomía segura.",
+            5: "Promueve una cultura de seguridad; motiva a otros y contribuye a mantener ambientes sin incidentes."
+          }},
+          { id: "1D", name: "D. Prioriza y organiza tareas adecuadamente", weight: 2.5, options: {
+            1: "Desorganiza las tareas; incumple plazos y afecta resultados importantes.",
+            2: "Organiza parcialmente; presenta inconsistencias en prioridades y manejo del tiempo.",
+            3: "Gestiona las tareas de forma adecuada, cumple tiempos y mantiene orden en su trabajo.",
+            4: "Organiza y prioriza con eficiencia, anticipa necesidades y mejora sus tiempos de entrega.",
+            5: "Es referente en organización; redistribuye recursos, optimiza procesos y eleva la productividad del equipo."
+          }}
         ]
       },
       {
         title: "2. Calidad del Trabajo",
         items: [
-          {
-            id: "2A",
-            name: "A. Exactitud y atención al detalle",
-            weight: 2.5,
-            options: {
-              1: "Comete errores frecuentes y no identifica fallos evidentes; requiere supervisión constante para evitar errores mayores.",
-              2: "Presenta errores recurrentes por falta de revisión; la exactitud es inconsistente y requiere correcciones frecuentes.",
-              3: "Realiza su trabajo con un nivel adecuado de precisión; puede cometer errores menores que no afectan los resultados.",
-              4: "Mantiene una atención al detalle constante; comete pocos errores y revisa su trabajo de forma proactiva.",
-              5: "Su trabajo es impecable; detecta errores propios y ajenos, propone mejoras y es referente en precisión."
-            }
-          },
-          {
-            id: "2B",
-            name: "B. Cumple con estándares de calidad",
-            weight: 5,
-            options: {
-              1: "Menos del 70 % de los entregables cumplen los estándares; los resultados son inaceptables.",
-              2: "Entre 70–89 % de los entregables cumplen los estándares; requiere ajustes frecuentes.",
-              3: "El 100 % de los entregables cumplen los estándares establecidos.",
-              4: "Cumplimiento entre 101–110 %; entrega con calidad superior y consistente.",
-              5: "Más del 110 % de cumplimiento; supera ampliamente los estándares y produce resultados sobresalientes."
-            }
-          },
-          {
-            id: "2C",
-            name: "C. Entregas a Tiempo. cumple con plazos establecidos",
-            weight: 10,
-            options: {
-              1: "Menos del 70 % de las entregas se cumplen a tiempo; los retrasos afectan el área.",
-              2: "Entre 70–89 % de las entregas se realizan a tiempo; desempeño irregular.",
-              3: "El 100 % de las entregas se cumplen en los plazos pactados.",
-              4: "Cumple entre 101–110 % de los tiempos; se anticipa en algunas entregas y mantiene calidad.",
-              5: "Entrega más del 110 % a tiempo; supera plazos, mantiene calidad y mejora la eficiencia general."
-            }
-          },
-          {
-            id: "2D",
-            name: "D. Manejo de errores y mejoras",
-            weight: 2.5,
-            options: {
-              1: "No reconoce ni corrige errores; genera reincidencias graves.",
-              2: "Corrige parcialmente, con retrasos o bajo nivel de supervisión; la mejora no es constante.",
-              3: "Detecta y corrige errores básicos cuando se le solicita; cumple lo necesario.",
-              4: "Se anticipa a errores y propone soluciones preventivas que mejoran el proceso.",
-              5: "Asegura procesos libres de errores, implementa mejoras continuas y es referente en calidad."
-            }
-          }
+          { id: "2A", name: "A. Exactitud y atención al detalle", weight: 2.5, options: {
+            1: "Comete errores frecuentes y no identifica fallos evidentes; requiere supervisión constante para evitar errores mayores.",
+            2: "Presenta errores recurrentes por falta de revisión; la exactitud es inconsistente y requiere correcciones frecuentes.",
+            3: "Realiza su trabajo con un nivel adecuado de precisión; puede cometer errores menores que no afectan los resultados.",
+            4: "Mantiene una atención al detalle constante; comete pocos errores y revisa su trabajo de forma proactiva.",
+            5: "Su trabajo es impecable; detecta errores propios y ajenos, propone mejoras y es referente en precisión."
+          }},
+          { id: "2B", name: "B. Cumple con estándares de calidad", weight: 5, options: {
+            1: "Menos del 70 % de los entregables cumplen los estándares; los resultados son inaceptables.",
+            2: "Entre 70–89 % de los entregables cumplen los estándares; requiere ajustes frecuentes.",
+            3: "El 100 % de los entregables cumplen los estándares establecidos.",
+            4: "Cumplimiento entre 101–110 %; entrega con calidad superior y consistente.",
+            5: "Más del 110 % de cumplimiento; supera ampliamente los estándares y produce resultados sobresalientes."
+          }},
+          { id: "2C", name: "C. Entregas a Tiempo. cumple con plazos establecidos", weight: 10, options: {
+            1: "Menos del 70 % de las entregas se cumplen a tiempo; los retrasos afectan el área.",
+            2: "Entre 70–89 % de las entregas se realizan a tiempo; desempeño irregular.",
+            3: "El 100 % de las entregas se cumplen en los plazos pactados.",
+            4: "Cumple entre 101–110 % de los tiempos; se anticipa en algunas entregas y mantiene calidad.",
+            5: "Entrega más del 110 % a tiempo; supera plazos, mantiene calidad y mejora la eficiencia general."
+          }},
+          { id: "2D", name: "D. Manejo de errores y mejoras", weight: 2.5, options: {
+            1: "No reconoce ni corrige errores; genera reincidencias graves.",
+            2: "Corrige parcialmente, con retrasos o bajo nivel de supervisión; la mejora no es constante.",
+            3: "Detecta y corrige errores básicos cuando se le solicita; cumple lo necesario.",
+            4: "Se anticipa a errores y propone soluciones preventivas que mejoran el proceso.",
+            5: "Asegura procesos libres de errores, implementa mejoras continuas y es referente en calidad."
+          }}
         ]
       },
       {
         title: "3. Competencias y Habilidades",
         items: [
-          {
-            id: "3A",
-            name: "A. Conocimientos técnicos del puesto",
-            weight: 10,
-            options: {
-              1: "Conocimientos muy por debajo de lo esperado; no domina funciones básicas del puesto.",
-              2: "Gestiona parcialmente los conocimientos requeridos y necesita apoyo frecuente.",
-              3: "Posee el conocimiento necesario y funcional para el puesto; desempeño adecuado.",
-              4: "Aplica los conocimientos de manera confiable y constante.",
-              5: "Domina los conocimientos, aplica técnicas avanzadas y es referente técnico en el área."
-            }
-          },
-          {
-            id: "3B",
-            name: "B. Convincente respuesta técnica a clientes",
-            weight: 5,
-            options: {
-              1: "Respuestas incorrectas o inconsistentes que generan desconfianza.",
-              2: "Respuestas incompletas o poco claras que afectan la calidad del servicio.",
-              3: "Responde de forma adecuada y funcional, brindando confianza.",
-              4: "Respuestas claras, específicas y confiables de manera constante.",
-              5: "Respuestas sobresalientes y precisas, reconocidas como referentes por clientes y equipo."
-            }
-          },
-          {
-            id: "3C",
-            name: "C. Resolución de problemas",
-            weight: 2.5,
-            options: {
-              1: "No logra resolver problemas; afecta procesos y resultados.",
-              2: "Resuelve parcialmente los problemas, requiriendo supervisión frecuente.",
-              3: "Resuelve problemas básicos de manera satisfactoria y funcional.",
-              4: "Resuelve problemas complejos con autonomía y confiabilidad.",
-              5: "Anticipa problemas y desarrolla soluciones preventivas y estratégicas."
-            }
-          },
-          {
-            id: "3D",
-            name: "D. Iniciativa y creatividad",
-            weight: 2.5,
-            options: {
-              1: "No genera ideas ni propone mejoras.",
-              2: "Propone ideas poco útiles o de aplicación limitada.",
-              3: "Propone ideas funcionales y aplicables cuando es necesario.",
-              4: "Genera ideas prácticas que optimizan procesos y agregan valor.",
-              5: "Propone soluciones innovadoras con impacto positivo y sostenible en el área."
-            }
-          }
+          { id: "3A", name: "A. Conocimientos técnicos del puesto", weight: 10, options: {
+            1: "Conocimientos muy por debajo de lo esperado; no domina funciones básicas del puesto.",
+            2: "Gestiona parcialmente los conocimientos requeridos y necesita apoyo frecuente.",
+            3: "Posee el conocimiento necesario y funcional para el puesto; desempeño adecuado.",
+            4: "Aplica los conocimientos de manera confiable y constante.",
+            5: "Domina los conocimientos, aplica técnicas avanzadas y es referente técnico en el área."
+          }},
+          { id: "3B", name: "B. Convincente respuesta técnica a clientes", weight: 5, options: {
+            1: "Respuestas incorrectas o inconsistentes que generan desconfianza.",
+            2: "Respuestas incompletas o poco claras que afectan la calidad del servicio.",
+            3: "Responde de forma adecuada y funcional, brindando confianza.",
+            4: "Respuestas claras, específicas y confiables de manera constante.",
+            5: "Respuestas sobresalientes y precisas, reconocidas como referentes por clientes y equipo."
+          }},
+          { id: "3C", name: "C. Resolución de problemas", weight: 2.5, options: {
+            1: "No logra resolver problemas; afecta procesos y resultados.",
+            2: "Resuelve parcialmente los problemas, requiriendo supervisión frecuente.",
+            3: "Resuelve problemas básicos de manera satisfactoria y funcional.",
+            4: "Resuelve problemas complejos con autonomía y confiabilidad.",
+            5: "Anticipa problemas y desarrolla soluciones preventivas y estratégicas."
+          }},
+          { id: "3D", name: "D. Iniciativa y creatividad", weight: 2.5, options: {
+            1: "No genera ideas ni propone mejoras.",
+            2: "Propone ideas poco útiles o de aplicación limitada.",
+            3: "Propone ideas funcionales y aplicables cuando es necesario.",
+            4: "Genera ideas prácticas que optimizan procesos y agregan valor.",
+            5: "Propone soluciones innovadoras con impacto positivo y sostenible en el área."
+          }}
         ]
       },
       {
         title: "4. Actitud y Valores",
         items: [
-          {
-            id: "4A",
-            name: "A. Responsabilidad y compromiso",
-            weight: 2.5,
-            options: {
-              1: "Incumple compromisos y entrega resultados muy por debajo de lo esperado.",
-              2: "Cumple compromisos de forma irregular y requiere seguimiento constante.",
-              3: "Cumple con sus responsabilidades de manera adecuada y confiable.",
-              4: "Cumple de forma consistente, genera seguridad y aporta valor.",
-              5: "Inspira por su compromiso; es modelo de conducta para el equipo."
-            }
-          },
-          {
-            id: "4B",
-            name: "B. Puntualidad y asistencia",
-            weight: 2.5,
-            options: {
-              1: "Ausencias frecuentes e injustificadas; llegadas tardías recurrentes sin aviso y sin intención de mejora.",
-              2: "Se presenta con frecuencia tarde o sin justificación clara, afectando la operación.",
-              3: "Asiste regularmente y cumple horarios; puede presentar llegadas tarde o ausencias justificadas sin reincidencia.",
-              4: "Es puntual y mantiene asistencia confiable; respeta horarios y comunica eventualidades oportunamente.",
-              5: "Puntualidad y asistencia impecables; es referente para el equipo y se adapta a horarios especiales sin afectar el desempeño."
-            }
-          },
-          {
-            id: "4C",
-            name: "C. Trabajo en equipo y cooperación",
-            weight: 5,
-            options: {
-              1: "No coopera; genera conflictos y dificulta el trabajo del equipo.",
-              2: "Coopera parcialmente y de manera inestable.",
-              3: "Coopera cuando se le solicita, con resultados aceptables.",
-              4: "Colabora activamente con el equipo y aporta de forma confiable.",
-              5: "Es referente en trabajo en equipo; promueve colaboración, sinergia y apoya a otros."
-            }
-          },
-          {
-            id: "4D",
-            name: "D. Comunicación efectiva",
-            weight: 5,
-            options: {
-              1: "Comunicación confusa; genera malentendidos graves.",
-              2: "Comunicación incompleta o poco clara; requiere supervisión para asegurar entendimiento.",
-              3: "Comunica lo necesario de forma clara y suficiente.",
-              4: "Comunicación clara, precisa y constructiva; escucha activamente.",
-              5: "Comunicación influyente y estratégica; facilita acuerdos y motiva a otros."
-            }
-          }
+          { id: "4A", name: "A. Responsabilidad y compromiso", weight: 2.5, options: {
+            1: "Incumple compromisos y entrega resultados muy por debajo de lo esperado.",
+            2: "Cumple compromisos de forma irregular y requiere seguimiento constante.",
+            3: "Cumple con sus responsabilidades de manera adecuada y confiable.",
+            4: "Cumple de forma consistente, genera seguridad y aporta valor.",
+            5: "Inspira por su compromiso; es modelo de conducta para el equipo."
+          }},
+          { id: "4B", name: "B. Puntualidad y asistencia", weight: 2.5, options: {
+            1: "Ausencias frecuentes e injustificadas; llegadas tardías recurrentes sin aviso y sin intención de mejora.",
+            2: "Se presenta con frecuencia tarde o sin justificación clara, afectando la operación.",
+            3: "Asiste regularmente y cumple horarios; puede presentar llegadas tarde o ausencias justificadas sin reincidencia.",
+            4: "Es puntual y mantiene asistencia confiable; respeta horarios y comunica eventualidades oportunamente.",
+            5: "Puntualidad y asistencia impecables; es referente para el equipo y se adapta a horarios especiales sin afectar el desempeño."
+          }},
+          { id: "4C", name: "C. Trabajo en equipo y cooperación", weight: 5, options: {
+            1: "No coopera; genera conflictos y dificulta el trabajo del equipo.",
+            2: "Coopera parcialmente y de manera inestable.",
+            3: "Coopera cuando se le solicita, con resultados aceptables.",
+            4: "Colabora activamente con el equipo y aporta de forma confiable.",
+            5: "Es referente en trabajo en equipo; promueve colaboración, sinergia y apoya a otros."
+          }},
+          { id: "4D", name: "D. Comunicación efectiva", weight: 5, options: {
+            1: "Comunicación confusa; genera malentendidos graves.",
+            2: "Comunicación incompleta o poco clara; requiere supervisión para asegurar entendimiento.",
+            3: "Comunica lo necesario de forma clara y suficiente.",
+            4: "Comunicación clara, precisa y constructiva; escucha activamente.",
+            5: "Comunicación influyente y estratégica; facilita acuerdos y motiva a otros."
+          }}
         ]
       },
       {
         title: "5. Desarrollo y Potencial",
         items: [
-          {
-            id: "5A",
-            name: "A. Adaptación al cambio",
-            weight: 2.5,
-            options: {
-              1: "Se resiste activamente al cambio; afecta procesos y equipos.",
-              2: "Se adapta parcialmente, con dificultad y resultados limitados.",
-              3: "Se adapta lo necesario para mantener un desempeño adecuado.",
-              4: "Se adapta de forma autónoma y confiable a nuevas situaciones.",
-              5: "Es referente en adaptación; motiva y guía a otros en procesos de cambio."
-            }
-          },
-          {
-            id: "5B",
-            name: "B. Disposición para aprender",
-            weight: 2.5,
-            options: {
-              1: "No busca aprender; rechaza retroalimentación y capacitación.",
-              2: "Aprende solo lo obligatorio y con mínima aplicación práctica.",
-              3: "Aprende lo necesario para mantener un desempeño satisfactorio.",
-              4: "Busca aprender constantemente y aplica lo aprendido en el trabajo.",
-              5: "Se mantiene en aprendizaje continuo, comparte conocimientos y forma a otros."
-            }
-          },
-          {
-            id: "5C",
-            name: "C. Liderazgo",
-            weight: 10,
-            options: {
-              1: "No logra coordinar ni dirigir; genera desorden y afecta resultados.",
-              2: "Lidera de forma débil, con bajo impacto en el equipo.",
-              3: "Lidera tareas básicas con resultados adecuados y funcionales.",
-              4: "Lidera con confianza, logrando resultados consistentes y estables.",
-              5: "Inspira con visión clara; desarrolla a otros, fortalece la cohesión del equipo y se convierte en referente."
-            }
-          }
+          { id: "5A", name: "A. Adaptación al cambio", weight: 2.5, options: {
+            1: "Se resiste activamente al cambio; afecta procesos y equipos.",
+            2: "Se adapta parcialmente, con dificultad y resultados limitados.",
+            3: "Se adapta lo necesario para mantener un desempeño adecuado.",
+            4: "Se adapta de forma autónoma y confiable a nuevas situaciones.",
+            5: "Es referente en adaptación; motiva y guía a otros en procesos de cambio."
+          }},
+          { id: "5B", name: "B. Disposición para aprender", weight: 2.5, options: {
+            1: "No busca aprender; rechaza retroalimentación y capacitación.",
+            2: "Aprende solo lo obligatorio y con mínima aplicación práctica.",
+            3: "Aprende lo necesario para mantener un desempeño satisfactorio.",
+            4: "Busca aprender constantemente y aplica lo aprendido en el trabajo.",
+            5: "Se mantiene en aprendizaje continuo, comparte conocimientos y forma a otros."
+          }},
+          { id: "5C", name: "C. Liderazgo", weight: 10, options: {
+            1: "No logra coordinar ni dirigir; genera desorden y afecta resultados.",
+            2: "Lidera de forma débil, con bajo impacto en el equipo.",
+            3: "Lidera tareas básicas con resultados adecuados y funcionales.",
+            4: "Lidera con confianza, logrando resultados consistentes y estables.",
+            5: "Inspira con visión clara; desarrolla a otros, fortalece la cohesión del equipo y se convierte en referente."
+          }}
         ]
       }
     ];
 
     const STORAGE_KEY = "autoevaluacion_desempeno_v1";
-
-    // =========================
-    // Helpers
-    // =========================
     const $ = (sel) => document.querySelector(sel);
     const fmt2 = (n) => (Math.round(n*100)/100).toFixed(2);
 
@@ -676,13 +577,7 @@
       return d.toLocaleString("es-HN", { year:"numeric", month:"2-digit", day:"2-digit", hour:"2-digit", minute:"2-digit" });
     }
 
-    // =========================
-    // Render Form
-    // =========================
-    function optionLabel(score, text){
-      // En el combo: "1 - <texto>"
-      return `${score} - ${text}`;
-    }
+    function optionLabel(score, text){ return `${score} - ${text}`; }
 
     function buildSelect(item){
       const sel = document.createElement("select");
@@ -700,11 +595,7 @@
         sel.appendChild(opt);
       }
 
-      sel.addEventListener("change", () => {
-        computeTotals();
-        markDirty();
-      });
-
+      sel.addEventListener("change", () => { computeTotals(); markDirty(); });
       return sel;
     }
 
@@ -764,9 +655,6 @@
       });
     }
 
-    // =========================
-    // Cálculo
-    // =========================
     function getSelectedValue(itemId){
       const el = document.querySelector(`select[data-item-id="${itemId}"]`);
       if (!el) return null;
@@ -779,7 +667,6 @@
     function computeItemPoints(item){
       const v = getSelectedValue(item.id);
       if (!v) return 0;
-      // (respuesta/5) * peso
       return (v/5) * item.weight;
     }
 
@@ -790,61 +677,6 @@
       return total;
     }
 
-    // =========================
-    // Reporte
-    // =========================
-    function buildMetaKV(key, value){
-      const div = document.createElement("div");
-      div.className = "kv";
-      div.innerHTML = `<div class="k">${key}</div><div class="v">${value || "—"}</div>`;
-      return div;
-    }
-
-    function selectedText(item){
-      const v = getSelectedValue(item.id);
-      if (!v) return "—";
-      return optionLabel(v, item.options[v]);
-    }
-
-    function renderReport(){
-      // header stamp
-      $("#reportStamp").textContent = `Generado: ${nowStamp()}`;
-
-      // meta
-      const meta = {
-        "No. de personal": $("#noPersonal").value.trim(),
-        "Nombre": $("#nombre").value.trim(),
-        "Posición": $("#posicion").value.trim(),
-        "Departamento": $("#departamento").value.trim(),
-        "Periodo": $("#periodo").value.trim(),
-        "Versión": $("#version").value.trim(),
-        "Fecha": $("#fecha").value ? $("#fecha").value : ""
-      };
-      const reportMeta = $("#reportMeta");
-      reportMeta.innerHTML = "";
-      Object.entries(meta).forEach(([k,v]) => reportMeta.appendChild(buildMetaKV(k, v)));
-
-      // rows
-      const tbody = $("#reportRows");
-      tbody.innerHTML = "";
-      SECTIONS.forEach(section => {
-        section.items.forEach(item => {
-          const tr = document.createElement("tr");
-          tr.innerHTML = `
-            <td><b>${item.name}</b></td>
-            <td>${escapeHtml(selectedText(item))}</td>
-          `;
-          tbody.appendChild(tr);
-        });
-      });
-
-      // total & comments
-      const total = computeTotals();
-      $("#reportTotal").textContent = fmt2(total);
-      $("#reportComments").textContent = $("#comentarios").value.trim() || "—";
-    }
-
-    // escape to prevent injecting HTML via input (simple)
     function escapeHtml(str){
       return String(str)
         .replaceAll("&","&amp;")
@@ -854,25 +686,88 @@
         .replaceAll("'","&#039;");
     }
 
-    // =========================
-    // Guardar / Cargar
-    // =========================
+    function selectedText(item){
+      const v = getSelectedValue(item.id);
+      if (!v) return "—";
+      return optionLabel(v, item.options[v]);
+    }
+
+    function buildMetaKV(key, value){
+      const div = document.createElement("div");
+      div.className = "kv";
+      div.innerHTML = `<div class="k">${key}</div><div class="v">${escapeHtml(value || "—")}</div>`;
+      return div;
+    }
+
+    // ✅ NUEVO: render meta en 3 filas como pediste
+    function renderReportMeta(meta){
+      const box = $("#reportMeta");
+      box.className = "reportMetaGrid";
+      box.innerHTML = "";
+
+      // fila 1: No personal + Nombre
+      box.appendChild(buildMetaKV("No. de personal", meta.noPersonal));
+      box.appendChild(buildMetaKV("Nombre", meta.nombre));
+
+      // fila 2: Posición + Departamento
+      box.appendChild(buildMetaKV("Posición", meta.posicion));
+      box.appendChild(buildMetaKV("Departamento", meta.departamento));
+
+      // fila 3: Periodo + Versión + Fecha (en 3 columnas)
+      const row3 = document.createElement("div");
+      row3.className = "reportRow3";
+      row3.appendChild(buildMetaKV("Periodo", meta.periodo));
+      row3.appendChild(buildMetaKV("Versión", meta.version));
+      row3.appendChild(buildMetaKV("Fecha", meta.fecha));
+      box.appendChild(row3);
+    }
+
+    function renderReport(){
+      $("#reportStamp").textContent = `Generado: ${nowStamp()}`;
+
+      const meta = {
+        noPersonal: $("#noPersonal").value.trim(),
+        nombre: $("#nombre").value.trim(),
+        posicion: $("#posicion").value.trim(),
+        departamento: $("#departamento").value.trim(),
+        periodo: $("#periodo").value.trim(),
+        version: $("#version").value.trim(),
+        fecha: $("#fecha").value ? $("#fecha").value : ""
+      };
+
+      renderReportMeta(meta);
+
+      const tbody = $("#reportRows");
+      tbody.innerHTML = "";
+      SECTIONS.forEach(section => {
+        section.items.forEach(item => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td><b>${escapeHtml(item.name)}</b></td>
+            <td>${escapeHtml(selectedText(item))}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+      });
+
+      const total = computeTotals();
+      $("#reportTotal").textContent = fmt2(total);
+      $("#reportComments").textContent = $("#comentarios").value.trim() || "—";
+    }
+
     let dirty = false;
     function markDirty(){
       dirty = true;
       $("#saveState").textContent = "Cambios sin guardar";
-      $(".dot").style.background = "var(--danger)";
-      $(".dot").style.boxShadow = "0 0 0 3px rgba(255,77,109,.18)";
+      document.querySelector(".dot").style.background = "var(--danger)";
+      document.querySelector(".dot").style.boxShadow = "0 0 0 3px rgba(255,77,109,.18)";
     }
     function markSaved(){
       dirty = false;
       $("#saveState").textContent = "Guardado";
-      $(".dot").style.background = "var(--ok)";
-      $(".dot").style.boxShadow = "0 0 0 3px rgba(61,220,151,.18)";
-      // vuelve a “Listo” a los segundos (porque sí, dramatismo mínimo)
-      setTimeout(() => {
-        if (!dirty) $("#saveState").textContent = "Listo";
-      }, 1200);
+      document.querySelector(".dot").style.background = "var(--ok)";
+      document.querySelector(".dot").style.boxShadow = "0 0 0 3px rgba(61,220,151,.18)";
+      setTimeout(() => { if (!dirty) $("#saveState").textContent = "Listo"; }, 1200);
     }
 
     function collectState(){
@@ -937,7 +832,6 @@
     }
 
     function clearAll(){
-      // reset meta
       $("#noPersonal").value = "";
       $("#nombre").value = "";
       $("#posicion").value = "";
@@ -946,30 +840,18 @@
       $("#version").value = "";
       $("#fecha").value = "";
       $("#comentarios").value = "";
-
-      // reset selects
       document.querySelectorAll("select[data-item-id]").forEach(sel => sel.value = "");
-
       computeTotals();
       markDirty();
     }
 
-    // =========================
-    // Imprimir
-    // =========================
     function handlePrint(){
-      // prepara reporte y lo muestra solo para impresión
       renderReport();
       $("#reportCard").style.display = "block";
-      // imprime (CSS @media print se encarga de mostrar solo reporte)
       window.print();
-      // vuelve a ocultar el reporte en pantalla
       $("#reportCard").style.display = "none";
     }
 
-    // =========================
-    // Eventos
-    // =========================
     function bindMetaListeners(){
       ["#noPersonal","#nombre","#posicion","#departamento","#periodo","#version","#fecha","#comentarios"].forEach(id=>{
         const el = $(id);
@@ -984,10 +866,7 @@
       load();
       computeTotals();
 
-      $("#btnNew").addEventListener("click", () => {
-        // sin confirmaciones dramáticas: solo limpiar
-        clearAll();
-      });
+      $("#btnNew").addEventListener("click", clearAll);
       $("#btnSave").addEventListener("click", save);
       $("#btnPrint").addEventListener("click", handlePrint);
     }
