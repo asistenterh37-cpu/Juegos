@@ -18,6 +18,13 @@
       --warn:#f59e0b;
       --bad:#ef4444;
       --radius:18px;
+
+      /* Print colors */
+      --p-border:#e6e6e6;
+      --p-gray:#f7f7f7;
+      --p-ink:#111;
+      --p-sub:#444;
+      --p-hi:#dbeafe; /* highlight selected */
     }
     *{box-sizing:border-box}
     body{
@@ -37,6 +44,7 @@
       box-shadow: 0 12px 40px rgba(0,0,0,.35);
       position:sticky; top:12px; z-index:20;
       backdrop-filter: blur(10px);
+      gap:14px;
     }
     .brand{display:flex; gap:12px; align-items:center;}
     .logo{
@@ -45,10 +53,11 @@
       background: linear-gradient(135deg, rgba(47,123,255,.95), rgba(74,163,255,.85));
       font-weight:800;
       letter-spacing:.5px;
+      flex:0 0 auto;
     }
     .titles h1{margin:0; font-size:20px}
     .titles p{margin:2px 0 0; font-size:13px; color:var(--muted)}
-    .actions{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+    .actions{display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:flex-end}
     .pill{
       padding:8px 12px; border-radius:999px;
       border:1px solid var(--stroke);
@@ -68,6 +77,7 @@
       cursor:pointer;
       transition:.15s transform, .15s background;
       user-select:none;
+      white-space:nowrap;
     }
     .btn:hover{transform: translateY(-1px); background:rgba(255,255,255,.09)}
     .btn.primary{
@@ -100,6 +110,7 @@
     @media (max-width: 980px){
       .form-grid{grid-template-columns: 1fr}
       .actions{justify-content:flex-end}
+      .topbar{flex-wrap:wrap}
     }
     label{display:block; font-size:12px; color:var(--muted); margin:0 0 6px}
     input, select, textarea{
@@ -112,19 +123,20 @@
       background: rgba(0,0,0,.25);
     }
     textarea{min-height:90px; resize:vertical}
-    .section-title{
-      display:flex; align-items:center; justify-content:space-between;
-      margin:14px 0 8px;
-    }
+    .section-title{display:flex; align-items:center; justify-content:space-between; margin:14px 0 8px;}
     .section-title h3{margin:0; font-size:16px}
     .muted{color:var(--muted)}
     .divider{height:1px; background:rgba(255,255,255,.10); margin:16px 0;}
+    .hint{font-size:12px; color:var(--muted); margin-top:8px}
+    .warn{color:#ffd28b}
+    .ok{color:#9dffb6}
+    .err{color:#ffb4b4}
 
     /* ===== Reporte (para impresión) ===== */
     .print-area{margin-top:20px; display:none;}
     .report{
       background:#fff;
-      color:#111;
+      color:var(--p-ink);
       border-radius:18px;
       padding:20px;
       border:1px solid #e8e8e8;
@@ -133,9 +145,9 @@
       display:flex; justify-content:space-between; align-items:flex-start; gap:12px;
       margin-bottom:10px;
     }
-    .report-head h1{margin:0; font-size:34px; letter-spacing:.2px;}
-    .report-head .small{font-size:12px; color:#444; text-align:right;}
-    .report-sub{margin:0 0 14px; color:#444}
+    .report-head h1{margin:0; font-size:32px; letter-spacing:.2px;}
+    .report-head .small{font-size:12px; color:var(--p-sub); text-align:right;}
+    .report-sub{margin:0 0 14px; color:var(--p-sub)}
     .report-kv{
       display:grid;
       grid-template-columns: 1fr 1fr;
@@ -144,50 +156,62 @@
     }
     .kv-row{display:grid; grid-template-columns: 1fr 1fr; gap:10px;}
     .kv{
-      border:1px solid #e6e6e6;
+      border:1px solid var(--p-border);
       padding:10px 12px;
       border-radius:12px;
     }
     .kv .k{font-size:11px; color:#666; margin-bottom:3px}
     .kv .v{font-size:13px; font-weight:650}
 
-    .rubric{
+    /* Tabla “rubrica” como Excel (1–5) */
+    .rubric-wrap{margin-top:14px;}
+    .rubric-title{
+      margin:0 0 6px;
+      font-size:15px;
+      color:var(--p-ink);
+      font-weight:800;
+    }
+    .rubric-table{
       width:100%;
       border-collapse:collapse;
-      margin:12px 0 18px;
       table-layout:fixed;
+      border:1px solid var(--p-border);
     }
-    .rubric th, .rubric td{
-      border:1px solid #e6e6e6;
+    .rubric-table th, .rubric-table td{
+      border:1px solid var(--p-border);
       padding:8px 8px;
       vertical-align:top;
       font-size:11px;
       word-wrap:break-word;
-      white-space:pre-wrap;
     }
-    .rubric th{background:#f7f7f7; text-align:left}
-    .rubric .col-item{width:22%;}
-    .rubric .col-score{width:12%;}
-    .rubric .picked{
-      outline:2px solid #2f7bff;
-      outline-offset:-2px;
-      background:#eef5ff;
-      font-weight:700;
-    }
-    .rubric .selBadge{
-      display:inline-block;
-      padding:2px 8px;
-      border-radius:999px;
-      background:#111;
-      color:#fff;
+    .rubric-table th{
+      background:var(--p-gray);
+      text-align:center;
+      font-weight:800;
       font-size:11px;
+    }
+    .rubric-table .item-col{
+      width:22%;
       font-weight:700;
+      text-align:left;
+      background:#fff;
+    }
+    .rubric-table .score-col{width:15.6%; text-align:left;}
+    .rubric-table .selected{
+      background: var(--p-hi);
+      outline: 2px solid #93c5fd;
+      outline-offset: -2px;
+    }
+    .rubric-note{
+      margin-top:6px;
+      font-size:11px;
+      color:#555;
     }
 
     .block{margin-top:14px;}
     .block h2{margin:0 0 6px; font-size:15px;}
     .block .box{
-      border:1px solid #e6e6e6;
+      border:1px solid var(--p-border);
       border-radius:12px;
       padding:10px 12px;
       min-height:48px;
@@ -202,25 +226,6 @@
       .print-area{display:block !important}
       .report{border:none; border-radius:0; padding:0}
     }
-
-    .hint{font-size:12px; color:var(--muted); margin-top:8px}
-    .warn{color:#ffd28b}
-    .ok{color:#9dffb6}
-    .err{color:#ffb4b4}
-
-    /* Fecha con botón de calendario */
-    .date-wrap{display:flex; gap:10px; align-items:center;}
-    .date-wrap input{flex:1}
-    .date-btn{
-      padding:10px 12px;
-      border-radius:12px;
-      border:1px solid rgba(255,255,255,.10);
-      background: rgba(0,0,0,.25);
-      color: var(--text);
-      cursor:pointer;
-      font-weight:650;
-      white-space:nowrap;
-    }
   </style>
 </head>
 
@@ -232,7 +237,7 @@
         <div class="logo">ED</div>
         <div class="titles">
           <h1 id="appTitle">Formulario de evaluación del desempeño</h1>
-          <p>Escala 1–5 • Cálculo interno • Guardado en Google Sheets • Reporte listo para PDF</p>
+          <p>Escala 1–5 • Guardado en Google Sheets • Reporte PDF con rúbrica completa</p>
         </div>
       </div>
       <div class="actions">
@@ -261,7 +266,7 @@
               <option value="desempeno" selected>Formulario de evaluación del desempeño</option>
               <option value="clientes">Evaluación de clientes</option>
             </select>
-            <div class="hint">Tip: esto solo cambia qué campos aparecen. El guardado siempre va a Google Sheets.</div>
+            <div class="hint">El guardado siempre va a Google Sheets (Web App de Apps Script).</div>
           </div>
         </div>
       </div>
@@ -296,26 +301,22 @@
             <label>Versión</label>
             <input id="version" placeholder="Ej. 1" />
           </div>
-
-          <!-- FECHA: calendario real -->
           <div>
             <label>Fecha</label>
-            <div class="date-wrap">
-              <input id="fecha" type="date" />
-              <button class="date-btn" id="btnPickDate" type="button">📅</button>
-            </div>
+            <!-- Calendario -->
+            <input id="fecha" type="date" />
           </div>
         </div>
 
         <div class="hint">
-          Estado API: <span id="apiHint" class="warn">No configurada (pega la URL del Apps Script en el código)</span>
+          Estado API: <span id="apiHint" class="warn">Listo para enviar</span>
         </div>
       </div>
 
       <!-- Evaluación -->
       <div class="card">
         <div class="section-title">
-          <h3>Evaluación (Factores 1–5)</h3>
+          <h3>Evaluación (1–5)</h3>
           <span class="muted">Selecciona una opción por ítem</span>
         </div>
 
@@ -369,7 +370,7 @@
       <!-- Clientes (placeholder) -->
       <div class="card" id="clientesBox" style="display:none;">
         <h2>Evaluación de clientes</h2>
-        <p>Este modo puede reutilizar el mismo motor de ítems o tener su propia lista.</p>
+        <p>Este modo puede reutilizar el mismo set de ítems o tener su propia lista.</p>
         <div class="hint">Si quieres, luego lo dejamos con su propio set de preguntas.</div>
       </div>
 
@@ -388,7 +389,7 @@
           </div>
         </div>
 
-        <!-- Layout solicitado -->
+        <!-- Layout solicitado: 2 columnas por fila y una fila de 3 -->
         <div class="report-kv">
           <div class="kv-row">
             <div class="kv"><div class="k">No. de personal</div><div class="v" id="rNoPersonal">—</div></div>
@@ -405,8 +406,8 @@
           </div>
         </div>
 
-        <!-- Aquí va la tabla tipo rúbrica (como tus fotos) -->
-        <div id="rRubrics"></div>
+        <!-- Rúbrica completa por factor -->
+        <div id="rRubricas"></div>
 
         <div class="block">
           <h2>Puntaje total</h2>
@@ -449,96 +450,272 @@
 
 <script>
   /************************************************************
-   * 1) PEGA AQUÍ TU URL COMPLETA DEL APPS SCRIPT (/exec)
-   *    Ejemplo:
-   *    https://script.google.com/macros/s/AKfycb.../exec
+   * 1) URL COMPLETA DEL APPS SCRIPT (/exec)
    ************************************************************/
-  const API_URL = "https://script.google.com/macros/s/PEGA_AQUI_TU_ID/exec";
+  const API_URL = "https://script.google.com/macros/s/AKfycbyg4Ajs3N-Rq59DftYFh5gpcLjkLL4eZ1s-rznjDabwVRib6SJUqRsnVfG-WNCbz1HiDg/exec";
 
   /************************************************************
-   * 2) Catálogo de ítems + rúbrica 1–5 (estructura tipo Excel)
-   *    IMPORTANTE: aquí dejé textos cortos para cada nivel.
-   *    Si quieres, luego te los lleno EXACTO con tus descripciones completas.
+   * 2) Ítems + rúbrica 1–5 (según tus fotos 5–9)
    ************************************************************/
-  const RUBRIC_DEFAULT = {
-    1: "No cumple / Muy por debajo",
-    2: "Bajo / Requiere mejora",
-    3: "Aceptable / Cumple lo básico",
-    4: "Bueno / Supera expectativas",
-    5: "Excelente / Referente"
-  };
-
   const ITEMS = [
     {
       group: "1. Metas, productividad y eficiencia",
       items: [
-        { key: "A_metas", label: "A. Cumplimiento de Metas. Grado de logro", rubric: {...RUBRIC_DEFAULT} },
-        { key: "B_eficiencia", label: "B. Eficiencia en el uso del tiempo, costos y recursos", rubric: {...RUBRIC_DEFAULT} },
-        { key: "C_seguridad", label: "C. Cumplimiento de normas de seguridad", rubric: {...RUBRIC_DEFAULT} },
-        { key: "D_prioriza", label: "D. Prioriza y organiza tareas adecuadamente", rubric: {...RUBRIC_DEFAULT} },
-        { key: "E_exactitud", label: "E. Exactitud y atención al detalle", rubric: {...RUBRIC_DEFAULT} }
+        {
+          key: "A_metas",
+          label: "A. Cumplimiento de Metas. Grado de logro",
+          rubric: [
+            "No alcanza la mayoría de las metas; cumple menos del 70 % de lo establecido. La falta de avance afecta los resultados esperados.",
+            "Logra entre 70–89 % de las metas; presenta avances parciales o inconsistentes y requiere correcciones.",
+            "Alcanza el 100 % de las metas planificadas con calidad y dentro del tiempo establecido.",
+            "Supera el 100 % y llega hasta un 110 % de las metas; entrega resultados adicionales o mejores de lo esperado.",
+            "Supera más del 110 % de las metas de forma sostenida, con impacto significativo y calidad superior."
+          ]
+        },
+        {
+          key: "B_eficiencia",
+          label: "B. Eficiencia en el uso del tiempo, costos y recursos",
+          rubric: [
+            "Usa el tiempo y los recursos con errores graves que afectan la eficiencia.",
+            "Muestra uso inestable del tiempo y los recursos; requiere evaluaciones y correcciones frecuentes.",
+            "Utiliza de manera adecuada el tiempo y los recursos, cumpliendo sin desperdicios significativos.",
+            "Optimiza tiempo y recursos, generando mejoras o ahorros sin afectar la calidad del trabajo.",
+            "Maximiza la eficiencia de forma sostenida, mejora procesos y logra resultados superiores sin comprometer la calidad."
+          ]
+        },
+        {
+          key: "C_seguridad",
+          label: "C. Cumplimiento de normas de seguridad",
+          rubric: [
+            "Incumple normas de seguridad y genera riesgos constantes para sí y el equipo.",
+            "Cumple parcialmente las normas; requiere supervisión continua para evitar incidentes.",
+            "Cumple todas las normas de seguridad y actúa de manera segura en su trabajo diario.",
+            "Se anticipa a riesgos, propone acciones preventivas y actúa con autonomía segura.",
+            "Promueve una cultura de seguridad; motiva a otros y contribuye a mantener ambientes sin incidentes."
+          ]
+        },
+        {
+          key: "D_prioriza",
+          label: "D. Prioriza y organiza tareas adecuadamente",
+          rubric: [
+            "Desorganiza las tareas; incumple plazos y afecta resultados importantes.",
+            "Organiza parcialmente; presenta inconsistencias en prioridades y manejo del tiempo.",
+            "Gestiona las tareas de forma adecuada, cumple tiempos y mantiene orden en su trabajo.",
+            "Organiza y prioriza con eficiencia, anticipa necesidades y mejora sus tiempos de entrega.",
+            "Es referente en organización; redistribuye recursos, optimiza procesos y eleva la productividad del equipo."
+          ]
+        }
       ]
     },
     {
-      group: "2. Calidad y mejora continua",
+      group: "2. Calidad del Trabajo",
       items: [
-        { key: "A_calidad", label: "A. Cumple con estándares de calidad", rubric: {...RUBRIC_DEFAULT} },
-        { key: "B_entregas", label: "B. Entregas a tiempo; cumple plazos establecidos", rubric: {...RUBRIC_DEFAULT} },
-        { key: "C_mejora", label: "C. Manejo de errores y mejoras", rubric: {...RUBRIC_DEFAULT} }
+        {
+          key: "A_exactitud",
+          label: "A. Exactitud y atención al detalle",
+          rubric: [
+            "Comete errores frecuentes y no identifica fallos evidentes; requiere supervisión constante para evitar errores mayores.",
+            "Presenta errores recurrentes por falta de revisión; la exactitud es inconsistente y requiere correcciones frecuentes.",
+            "Realiza su trabajo con un nivel adecuado de precisión; puede cometer errores menores que no afectan los resultados.",
+            "Mantiene una atención al detalle constante; comete pocos errores y revisa su trabajo de forma proactiva.",
+            "Su trabajo es impecable; detecta errores propios y ajenos, propone mejoras y es referente en precisión."
+          ]
+        },
+        {
+          key: "B_estandares",
+          label: "B. Cumple con estándares de calidad",
+          rubric: [
+            "Menos del 70 % de los entregables cumplen los estándares; los resultados son inaceptables.",
+            "Entre 70–89 % de los entregables cumplen los estándares; requiere ajustes frecuentes.",
+            "El 100 % de los entregables cumplen los estándares establecidos.",
+            "Cumplimiento entre 101–110 %; entrega con calidad superior y consistente.",
+            "Más del 110 % de cumplimiento; supera ampliamente los estándares y produce resultados sobresalientes."
+          ]
+        },
+        {
+          key: "C_entregas",
+          label: "C. Entregas a tiempo, cumple con plazos establecidos",
+          rubric: [
+            "Menos del 70 % de las entregas se cumplen a tiempo; los retrasos afectan el área.",
+            "Entre 70–89 % de las entregas se realizan a tiempo; desempeño irregular.",
+            "El 100 % de las entregas se cumplen en los plazos pactados.",
+            "Cumple entre 101–110 % de los tiempos; se anticipa en algunas entregas y mantiene calidad.",
+            "Entrega más del 110 % a tiempo; supera plazos, mantiene calidad y mejora la eficiencia general."
+          ]
+        },
+        {
+          key: "D_errores",
+          label: "D. Manejo de errores y mejoras",
+          rubric: [
+            "No reconoce ni corrige errores; genera reincidencias graves.",
+            "Corrige parcialmente, con retrasos o bajo nivel de supervisión; la mejora no es constante.",
+            "Detecta y corrige errores básicos cuando se le solicita; cumple lo necesario.",
+            "Se anticipa a errores y propone soluciones preventivas que mejoran el proceso.",
+            "Asegura procesos libres de errores, implementa mejoras continuas y es referente en calidad."
+          ]
+        }
       ]
     },
     {
-      group: "3. Competencias y habilidades",
+      group: "3. Competencias y Habilidades",
       items: [
-        { key: "A_conocimientos", label: "A. Conocimientos técnicos del puesto", rubric: {...RUBRIC_DEFAULT} },
-        { key: "B_clientes", label: "B. Convincente respuesta técnica a clientes", rubric: {...RUBRIC_DEFAULT} },
-        { key: "C_problemas", label: "C. Resolución de problemas", rubric: {...RUBRIC_DEFAULT} },
-        { key: "D_iniciativa", label: "D. Iniciativa y creatividad", rubric: {...RUBRIC_DEFAULT} }
+        {
+          key: "A_conocimientos",
+          label: "A. Conocimientos técnicos del puesto",
+          rubric: [
+            "Conocimientos muy por debajo de lo esperado; no domina funciones básicas del puesto.",
+            "Gestiona parcialmente los conocimientos requeridos y necesita apoyo frecuente.",
+            "Posee el conocimiento necesario y funcional para el puesto; desempeño adecuado.",
+            "Aplica los conocimientos de manera confiable y constante.",
+            "Domina los conocimientos, aplica técnicas avanzadas y es referente técnico en el área."
+          ]
+        },
+        {
+          key: "B_clientes",
+          label: "B. Convincente respuesta técnica a clientes",
+          rubric: [
+            "Respuestas incorrectas o inconsistentes que generan desconfianza.",
+            "Respuestas incompletas o poco claras que afectan la calidad del servicio.",
+            "Responde de forma adecuada y funcional, brindando confianza.",
+            "Respuestas claras, específicas y confiables de manera constante.",
+            "Respuestas sobresalientes y precisas, reconocidas como referente por clientes."
+          ]
+        },
+        {
+          key: "C_problemas",
+          label: "C. Resolución de problemas",
+          rubric: [
+            "No logra resolver problemas; afecta procesos y resultados.",
+            "Resuelve parcialmente los problemas, requiriendo supervisión frecuente.",
+            "Resuelve problemas básicos de manera satisfactoria y funcional.",
+            "Resuelve problemas complejos con autonomía y confiabilidad.",
+            "Anticipa problemas y desarrolla soluciones preventivas y estratégicas."
+          ]
+        },
+        {
+          key: "D_iniciativa",
+          label: "D. Iniciativa y creatividad",
+          rubric: [
+            "No genera ideas ni propone mejoras.",
+            "Propone ideas poco útiles o de aplicación limitada.",
+            "Propone ideas funcionales y aplicables cuando es necesario.",
+            "Genera ideas prácticas que optimizan procesos y agregan valor.",
+            "Propone soluciones innovadoras con impacto positivo y sostenible en el área."
+          ]
+        }
       ]
     },
     {
-      group: "4. Actitud y valores",
+      group: "4. Actitud y Valores",
       items: [
-        { key: "A_responsabilidad", label: "A. Responsabilidad y compromiso", rubric: {...RUBRIC_DEFAULT} },
-        { key: "B_puntualidad", label: "B. Puntualidad y asistencia", rubric: {...RUBRIC_DEFAULT} },
-        { key: "C_trabajo", label: "C. Trabajo en equipo y cooperación", rubric: {...RUBRIC_DEFAULT} },
-        { key: "D_comunicacion", label: "D. Comunicación efectiva", rubric: {...RUBRIC_DEFAULT} }
+        {
+          key: "A_responsabilidad",
+          label: "A. Responsabilidad y compromiso",
+          rubric: [
+            "Incumple compromisos y entrega resultados muy por debajo de lo esperado.",
+            "Cumple compromisos de forma irregular y requiere seguimiento constante.",
+            "Cumple con sus responsabilidades de manera adecuada y confiable.",
+            "Cumple de forma consistente, genera seguridad y aporta valor.",
+            "Inspira por su compromiso; es modelo de conducta para el equipo."
+          ]
+        },
+        {
+          key: "B_puntualidad",
+          label: "B. Puntualidad y asistencia",
+          rubric: [
+            "Ausencias frecuentes e injustificadas; llegadas tardías recurrentes sin aviso y sin intención de mejora.",
+            "Se presenta con frecuencia tarde o sin justificación clara, afectando la operación.",
+            "Asiste regularmente y cumple horarios; puede presentar llegadas tarde o ausencias justificadas sin reincidencia.",
+            "Es puntual y mantiene asistencia confiable; respeta horarios y comunica eventualidades oportunamente.",
+            "Puntualidad y asistencia impecables; es referente para el equipo y se adapta a horarios especiales sin afectar el desempeño."
+          ]
+        },
+        {
+          key: "C_equipo",
+          label: "C. Trabajo en equipo y cooperación",
+          rubric: [
+            "No coopera; genera conflictos y dificulta el trabajo del equipo.",
+            "Coopera parcialmente y de manera inestable, con resultados aceptables.",
+            "Coopera cuando se le solicita, con resultados aceptables.",
+            "Colabora activamente con el equipo y aporta de forma confiable.",
+            "Es referente en trabajo en equipo; promueve colaboración, comunicación e influye positivamente en otros."
+          ]
+        },
+        {
+          key: "D_comunicacion",
+          label: "D. Comunicación efectiva",
+          rubric: [
+            "Comunicación confusa; genera malentendidos graves.",
+            "Comunicación incompleta o poco clara; requiere supervisión para asegurar claridad.",
+            "Comunica lo necesario de forma clara y suficiente.",
+            "Comunicación clara, precisa y constructiva; escucha activamente.",
+            "Comunicación influyente y estratégica; facilita acuerdos y motiva a otros."
+          ]
+        }
       ]
     },
     {
-      group: "5. Desarrollo y potencial",
+      group: "5. Desarrollo y Potencial",
       items: [
-        { key: "A_adaptacion", label: "A. Adaptación al cambio", rubric: {...RUBRIC_DEFAULT} },
-        { key: "B_aprender", label: "B. Disposición para aprender", rubric: {...RUBRIC_DEFAULT} },
-        { key: "C_liderazgo", label: "C. Liderazgo", rubric: {...RUBRIC_DEFAULT} }
+        {
+          key: "A_adaptacion",
+          label: "A. Adaptación al cambio",
+          rubric: [
+            "Se resiste activamente al cambio; afecta procesos y equipos.",
+            "Se adapta parcialmente, con dificultad y resultados limitados.",
+            "Se adapta lo necesario para mantener un desempeño adecuado.",
+            "Se adapta de forma autónoma y confiable a nuevas situaciones.",
+            "Es referente en adaptación; motiva y guía a otros en procesos de cambio."
+          ]
+        },
+        {
+          key: "B_aprender",
+          label: "B. Disposición para aprender",
+          rubric: [
+            "No busca aprender; rechaza retroalimentación y capacitación.",
+            "Aprende solo lo obligatorio y con mínima aplicación práctica.",
+            "Aprende lo necesario para mantener un desempeño satisfactorio.",
+            "Busca aprender constantemente y aplica lo aprendido en el trabajo.",
+            "Se mantiene en aprendizaje continuo, comparte conocimientos y forma a otros."
+          ]
+        },
+        {
+          key: "C_liderazgo",
+          label: "C. Liderazgo",
+          rubric: [
+            "No logra coordinar ni dirigir; genera desorden y afecta resultados.",
+            "Lidera de forma débil, con bajo impacto en el equipo.",
+            "Lidera tareas básicas con resultados adecuados y funcionales.",
+            "Lidera con confianza, logrando resultados consistentes y estables.",
+            "Inspira con visión clara; desarrolla a otros, fortalece la cohesión del equipo y se convierte en referente."
+          ]
+        }
       ]
     }
-  ];
-
-  const SCALE = [
-    { v: 1, t: "1 - No cumple / Muy por debajo" },
-    { v: 2, t: "2 - Bajo / Requiere mejora" },
-    { v: 3, t: "3 - Aceptable / Cumple lo básico" },
-    { v: 4, t: "4 - Bueno / Supera expectativas" },
-    { v: 5, t: "5 - Excelente / Referente" }
   ];
 
   /************************************************************
    * 3) Estado UI
    ************************************************************/
-  const state = { dirty:false, generated:false, answers:{} };
+  const state = {
+    dirty: false,
+    generated: false,
+    answers: {},
+  };
+
   const $ = (id) => document.getElementById(id);
 
   function setDirty(v){
     state.dirty = v;
     const dot = $("stateDot");
     const text = $("stateText");
-    if(v){ dot.style.background = "var(--warn)"; text.textContent = "Cambios sin guardar"; }
-    else{ dot.style.background = "var(--ok)"; text.textContent = "Sin cambios"; }
-  }
-
-  function apiConfigured(){
-    return API_URL && API_URL.startsWith("https://script.google.com/macros/s/") && API_URL.endsWith("/exec");
+    if(v){
+      dot.style.background = "var(--warn)";
+      text.textContent = "Cambios sin guardar";
+    }else{
+      dot.style.background = "var(--ok)";
+      text.textContent = "Sin cambios";
+    }
   }
 
   function renderItems(){
@@ -567,18 +744,19 @@
 
         const left = document.createElement("div");
         const title = document.createElement("div");
-        title.style.fontWeight = "700";
+        title.style.fontWeight = "800";
         title.textContent = it.label;
         const sub = document.createElement("div");
         sub.className = "muted";
         sub.style.fontSize = "12px";
-        sub.textContent = "Elige la descripción que mejor refleje el desempeño.";
+        sub.textContent = "Selecciona 1–5 según la rúbrica del PDF.";
         left.appendChild(title);
         left.appendChild(sub);
 
         const right = document.createElement("div");
         const lab = document.createElement("label");
-        lab.textContent = "Respuesta";
+        lab.textContent = "Puntaje (1–5)";
+
         const sel = document.createElement("select");
         sel.id = "ans_" + it.key;
 
@@ -587,12 +765,14 @@
         opt0.textContent = "Seleccionar...";
         sel.appendChild(opt0);
 
-        SCALE.forEach(s => {
+        for(let v=1; v<=5; v++){
           const o = document.createElement("option");
-          o.value = String(s.v);
-          o.textContent = s.t;
+          o.value = String(v);
+          // mostramos un “preview” cortito
+          const preview = (it.rubric && it.rubric[v-1]) ? it.rubric[v-1].split(".")[0] : "";
+          o.textContent = `${v} — ${preview}`;
           sel.appendChild(o);
-        });
+        }
 
         sel.addEventListener("change", () => {
           state.answers[it.key] = sel.value ? Number(sel.value) : null;
@@ -628,7 +808,9 @@
     const tipo = $("tipoFormulario").value;
 
     if(tipo === "autoevaluacion"){
-      return { comentarios_colaborador: $("comentariosColaborador").value.trim() };
+      return {
+        comentarios_colaborador: $("comentariosColaborador").value.trim()
+      };
     }
 
     if(tipo === "desempeno"){
@@ -642,10 +824,12 @@
       };
     }
 
+    // clientes
     return {};
   }
 
   function computeTotal(){
+    // promedio * 20 => 100
     const vals = Object.values(state.answers).filter(v => typeof v === "number");
     if(!vals.length) return 0;
     const avg = vals.reduce((a,b)=>a+b,0) / vals.length;
@@ -654,88 +838,104 @@
 
   function buildResumen(){
     const counts = {1:0,2:0,3:0,4:0,5:0};
-    Object.values(state.answers).forEach(v=>{ if(typeof v === "number") counts[v]++; });
+    Object.values(state.answers).forEach(v=>{
+      if(typeof v === "number") counts[v]++;
+    });
     const total = Object.values(counts).reduce((a,b)=>a+b,0);
     if(!total) return "—";
     return `Distribución de puntajes: 1=${counts[1]}, 2=${counts[2]}, 3=${counts[3]}, 4=${counts[4]}, 5=${counts[5]}.`;
   }
 
   function autoConclusionsAndPlans(total){
-    let conclusiones="", capacitacion="", carrera="";
+    let conclusiones = "";
+    let capacitacion = "";
+    let carrera = "";
+
     if(total >= 85){
-      conclusiones="Desempeño sobresaliente. Mantener prácticas actuales y asignar retos estratégicos.";
-      capacitacion="Capacitación avanzada y certificaciones (especialidad del puesto). Mentoring a otros.";
-      carrera="Plan de carrera acelerado: proyectos líderes, rol senior o líder de célula según vacantes.";
-    } else if(total >= 70){
-      conclusiones="Desempeño sólido. Se observan oportunidades puntuales de mejora.";
-      capacitacion="Capacitación focalizada en brechas detectadas + seguimiento mensual.";
-      carrera="Plan de carrera: objetivos por trimestre y rotación en tareas clave.";
-    } else if(total >= 55){
-      conclusiones="Desempeño aceptable con brechas relevantes. Requiere plan de mejora estructurado.";
-      capacitacion="Capacitación básica/intermedia + coaching del jefe + metas quincenales.";
-      carrera="Plan de carrera conservador: consolidar base del puesto antes de crecer.";
-    } else {
-      conclusiones="Desempeño bajo. Se recomienda plan correctivo y acompañamiento cercano.";
-      capacitacion="Entrenamiento esencial del puesto + refuerzo de hábitos (tiempo, calidad, comunicación).";
-      carrera="Plan de carrera en pausa hasta evidenciar mejora sostenida (60–90 días).";
+      conclusiones = "Desempeño sobresaliente. Mantener prácticas actuales y asignar retos estratégicos.";
+      capacitacion = "Capacitación avanzada y certificaciones (especialidad del puesto). Mentoring a otros.";
+      carrera = "Plan de carrera acelerado: proyectos líderes, rol senior o líder de célula según vacantes.";
+    }else if(total >= 70){
+      conclusiones = "Desempeño sólido. Se observan oportunidades puntuales de mejora.";
+      capacitacion = "Capacitación focalizada en brechas detectadas + seguimiento mensual.";
+      carrera = "Plan de carrera: objetivos por trimestre y rotación en tareas clave.";
+    }else if(total >= 55){
+      conclusiones = "Desempeño aceptable con brechas relevantes. Requiere plan de mejora estructurado.";
+      capacitacion = "Capacitación básica/intermedia + coaching del jefe + metas quincenales.";
+      carrera = "Plan de carrera conservador: consolidar base del puesto antes de crecer.";
+    }else{
+      conclusiones = "Desempeño bajo. Se recomienda plan correctivo y acompañamiento cercano.";
+      capacitacion = "Entrenamiento esencial del puesto + refuerzo de hábitos (tiempo, calidad, comunicación).";
+      carrera = "Plan de carrera en pausa hasta evidenciar mejora sostenida (60–90 días).";
     }
+
     return { conclusiones, capacitacion, carrera };
   }
 
-  function renderRubricsToReport(){
-    const host = $("rRubrics");
+  function renderRubricasEnReporte(){
+    const host = $("rRubricas");
     host.innerHTML = "";
 
     ITEMS.forEach(sec => {
-      const h = document.createElement("h2");
-      h.style.margin = "18px 0 8px";
-      h.style.fontSize = "15px";
-      h.textContent = sec.group;
-      host.appendChild(h);
+      const wrap = document.createElement("div");
+      wrap.className = "rubric-wrap";
+
+      const title = document.createElement("div");
+      title.className = "rubric-title";
+      title.textContent = sec.group;
+      wrap.appendChild(title);
 
       const table = document.createElement("table");
-      table.className = "rubric";
+      table.className = "rubric-table";
 
       const thead = document.createElement("thead");
       const trh = document.createElement("tr");
-      const thItem = document.createElement("th"); thItem.className="col-item"; thItem.textContent="Ítem";
-      trh.appendChild(thItem);
-      [1,2,3,4,5].forEach(n=>{
-        const th=document.createElement("th"); th.className="col-score"; th.textContent=String(n);
+      const th0 = document.createElement("th");
+      th0.className = "item-col";
+      th0.textContent = "Ítem";
+      trh.appendChild(th0);
+
+      for(let s=1; s<=5; s++){
+        const th = document.createElement("th");
+        th.textContent = s;
         trh.appendChild(th);
-      });
-      const thSel=document.createElement("th"); thSel.style.width="10%"; thSel.textContent="Selección";
-      trh.appendChild(thSel);
+      }
       thead.appendChild(trh);
       table.appendChild(thead);
 
       const tbody = document.createElement("tbody");
-      sec.items.forEach(it=>{
-        const v = state.answers[it.key];
+
+      sec.items.forEach(it => {
+        const v = state.answers[it.key]; // 1..5
         const tr = document.createElement("tr");
 
         const tdItem = document.createElement("td");
+        tdItem.className = "item-col";
         tdItem.textContent = it.label;
         tr.appendChild(tdItem);
 
-        [1,2,3,4,5].forEach(n=>{
-          const td=document.createElement("td");
-          td.textContent = (it.rubric && it.rubric[n]) ? it.rubric[n] : "";
-          if(typeof v === "number" && v === n) td.classList.add("picked");
+        for(let s=1; s<=5; s++){
+          const td = document.createElement("td");
+          td.className = "score-col";
+          td.textContent = (it.rubric && it.rubric[s-1]) ? it.rubric[s-1] : "";
+          if(typeof v === "number" && v === s){
+            td.classList.add("selected");
+          }
           tr.appendChild(td);
-        });
-
-        const tdSel=document.createElement("td");
-        tdSel.innerHTML = (typeof v === "number")
-          ? `<span class="selBadge">${v}</span>`
-          : "—";
-        tr.appendChild(tdSel);
+        }
 
         tbody.appendChild(tr);
       });
 
       table.appendChild(tbody);
-      host.appendChild(table);
+      wrap.appendChild(table);
+
+      const note = document.createElement("div");
+      note.className = "rubric-note";
+      note.textContent = "La celda resaltada corresponde al puntaje seleccionado.";
+      wrap.appendChild(note);
+
+      host.appendChild(wrap);
     });
   }
 
@@ -746,10 +946,11 @@
     const resumen = buildResumen();
     const plans = autoConclusionsAndPlans(total);
 
-    $("rTitle").textContent =
-      header.tipo === "autoevaluacion" ? "Autoevaluación del desempeño" :
-      header.tipo === "clientes" ? "Evaluación de clientes" :
-      "Evaluación del desempeño";
+    $("rTitle").textContent = (header.tipo === "autoevaluacion")
+      ? "Autoevaluación del desempeño"
+      : (header.tipo === "clientes")
+        ? "Evaluación de clientes"
+        : "Evaluación del desempeño";
 
     $("rGenerated").textContent = new Date().toLocaleString();
 
@@ -761,8 +962,8 @@
     $("rVersion").textContent = header.version || "—";
     $("rFecha").textContent = header.fecha || "—";
 
-    // Tabla tipo rúbrica (como tus fotos)
-    renderRubricsToReport();
+    // Rúbricas como en Excel (1–5)
+    renderRubricasEnReporte();
 
     $("rTotal").textContent = String(total);
     $("rResumen").textContent = resumen;
@@ -771,10 +972,15 @@
     $("rCapacitacion").textContent = plans.capacitacion;
     $("rCarrera").textContent = plans.carrera;
 
-    // ✅ Comentarios del colaborador SIEMPRE según el tipo
-    let comentarioColab = "";
-    if(header.tipo === "autoevaluacion") comentarioColab = (extra.comentarios_colaborador || "").trim();
-    if(header.tipo === "desempeno") comentarioColab = (extra.comentarios_colaborador || "").trim();
+    // Comentarios colaborador:
+    // - autoevaluación: extra.comentarios_colaborador
+    // - desempeño: extra.comentarios_colaborador (viene del textarea 2)
+    const comentarioColab =
+      (header.tipo === "autoevaluacion")
+        ? (extra.comentarios_colaborador || "")
+        : (header.tipo === "desempeno")
+          ? (extra.comentarios_colaborador || "")
+          : "";
 
     if(comentarioColab){
       $("rComentariosBlock").style.display = "block";
@@ -854,11 +1060,6 @@
   }
 
   async function saveToSheet(){
-    if(!apiConfigured()){
-      alert("Falta configurar la API_URL. Pega la URL completa del Apps Script (/exec) en el código.");
-      return;
-    }
-
     const header = getHeaderData();
     if(!header.no_personal || !header.nombre){
       alert("Completa al menos No. de personal y Nombre.");
@@ -873,50 +1074,50 @@
       creado_en: new Date().toISOString()
     };
 
+    // Tip: Apps Script suele dar CORS; hacemos “2 intentos”:
+    // 1) cors normal (si responde)
+    // 2) si falla por CORS, reintentamos no-cors (no da error y sí escribe)
     try{
-      $("apiHint").className = "ok";
+      $("apiHint").className = "warn";
       $("apiHint").textContent = "Enviando a Google Sheets...";
 
-      const res = await fetch(API_URL, {
-        method: "POST",
-        mode: "cors",
-        headers: { "Content-Type": "application/json; charset=utf-8" },
-        body: JSON.stringify(payload)
-      });
+      try{
+        const res = await fetch(API_URL, {
+          method: "POST",
+          mode: "cors",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify(payload)
+        });
 
-      const data = await res.json().catch(()=> ({}));
-      if(!res.ok){
-        throw new Error((data && data.error) ? data.error : ("HTTP " + res.status));
+        // Si el navegador deja leer status:
+        if(!res.ok){
+          const t = await res.text().catch(()=> "");
+          throw new Error(t || ("HTTP " + res.status));
+        }
+
+      }catch(eCors){
+        // Reintento no-cors (evita “Failed to fetch” cuando es CORS)
+        await fetch(API_URL, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify(payload)
+        });
       }
 
       $("apiHint").className = "ok";
       $("apiHint").textContent = "Enviado a Google Sheets ✅ (si no ves fila, revisa permisos del Web App)";
       setDirty(false);
-      return data;
+
     }catch(err){
       console.error(err);
       $("apiHint").className = "err";
-      $("apiHint").textContent = "Error al guardar: " + err.message;
-      alert("Error al guardar en Google Sheets: " + err.message);
+      $("apiHint").textContent = "Error al guardar: " + (err.message || err);
+      alert("Error al guardar en Google Sheets: " + (err.message || err));
     }
   }
 
   function bind(){
-    // API hint
-    if(apiConfigured()){
-      $("apiHint").className = "ok";
-      $("apiHint").textContent = "API configurada ✅";
-    }
-
-    // Fecha: abrir calendario
-    $("btnPickDate").addEventListener("click", ()=>{
-      const el = $("fecha");
-      if (el.showPicker) el.showPicker();  // Chrome/Edge
-      else el.focus();                     // fallback
-      setDirty(true);
-    });
-
-    // inputs dirty
     [
       "noPersonal","nombre","posicion","departamento","periodo","version","fecha",
       "comentariosColaborador","justificacion","comentariosEvaluador","fortalezas",
@@ -939,6 +1140,7 @@
     $("btnSave").addEventListener("click", saveToSheet);
 
     $("btnGenerate").addEventListener("click", ()=>{
+      // En autoevaluación, aseguramos que el reporte incluya “Comentarios del colaborador”
       buildReport();
       state.generated = true;
       setDirty(true);
