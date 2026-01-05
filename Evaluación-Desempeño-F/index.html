@@ -118,10 +118,7 @@
     }
     .section-title h3{margin:0; font-size:16px}
     .muted{color:var(--muted)}
-    .divider{
-      height:1px; background:rgba(255,255,255,.10);
-      margin:16px 0;
-    }
+    .divider{height:1px; background:rgba(255,255,255,.10); margin:16px 0;}
 
     /* ===== Reporte (para impresión) ===== */
     .print-area{margin-top:20px; display:none;}
@@ -145,11 +142,7 @@
       gap:10px;
       margin-bottom:10px;
     }
-    .kv-row{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:10px;
-    }
+    .kv-row{display:grid; grid-template-columns: 1fr 1fr; gap:10px;}
     .kv{
       border:1px solid #e6e6e6;
       padding:10px 12px;
@@ -168,11 +161,7 @@
       vertical-align:top;
       font-size:12px;
     }
-    .report-table th{
-      background:#f7f7f7;
-      text-align:left;
-      font-size:12px;
-    }
+    .report-table th{background:#f7f7f7; text-align:left; font-size:12px;}
     .block{margin-top:14px;}
     .block h2{margin:0 0 6px; font-size:15px;}
     .block .box{
@@ -183,6 +172,7 @@
       font-size:12px;
       white-space:pre-wrap;
     }
+
     @media print{
       body{background:#fff}
       .wrap{max-width:none; margin:0; padding:0}
@@ -190,6 +180,7 @@
       .print-area{display:block !important}
       .report{border:none; border-radius:0; padding:0}
     }
+
     .hint{font-size:12px; color:var(--muted); margin-top:8px}
     .warn{color:#ffd28b}
     .ok{color:#9dffb6}
@@ -204,7 +195,7 @@
       <div class="brand">
         <div class="logo">ED</div>
         <div class="titles">
-          <h1 id="appTitle">Formulario de autoevaluación del desempeño</h1>
+          <h1 id="appTitle">Formulario de evaluación del desempeño</h1>
           <p>Escala 1–5 • Cálculo interno • Guardado en Google Sheets • Reporte listo para PDF</p>
         </div>
       </div>
@@ -229,8 +220,8 @@
           <div>
             <label>Tipo</label>
             <select id="tipoFormulario">
-              <option value="autoevaluacion" selected>Formulario de autoevaluación</option>
-              <option value="desempeno">Formulario de evaluación del desempeño</option>
+              <option value="autoevaluacion">Formulario de autoevaluación</option>
+              <option value="desempeno" selected>Formulario de evaluación del desempeño</option>
               <option value="clientes">Evaluación de clientes</option>
             </select>
             <div class="hint">Tip: esto solo cambia qué campos aparecen. El guardado siempre va a Google Sheets.</div>
@@ -274,7 +265,7 @@
         </div>
 
         <div class="hint">
-          Estado API: <span id="apiHint" class="warn">No configurada (pega la URL del Apps Script en el código)</span>
+          Estado API: <span id="apiHint" class="warn">No configurada</span>
         </div>
       </div>
 
@@ -417,9 +408,9 @@
 
 <script>
   /************************************************************
-   * ✅ CAMBIO #1: URL REAL COMPLETA DEL APPS SCRIPT (/exec)
+   * 1) URL COMPLETA del APPS SCRIPT (/exec) ✅ (ya puesta)
    ************************************************************/
-  const API_URL = "https://script.google.com/macros/s/AKfycbyg4Ajs3N-Rq59DtfYh5gpcLjKLL4eZ1s-rznjDabwVRib6SJUqRsnVfG-WNCbz1/exec";
+  const API_URL = "https://script.google.com/macros/s/AKfycbgy4Ajs3N-Rq59DftYFh5gpcLjkLL4eZ1s-rznjDabwVRib6SJUqRsnVfG-WNCbz1/exec";
 
   /************************************************************
    * 2) Catálogo de ítems
@@ -474,15 +465,23 @@
     { v: 5, t: "5 - Excelente / Referente" }
   ];
 
-  const state = { dirty:false, generated:false, answers:{} };
+  /************************************************************
+   * 3) Estado UI
+   ************************************************************/
+  const state = { dirty: false, generated: false, answers: {} };
   const $ = (id) => document.getElementById(id);
 
   function setDirty(v){
     state.dirty = v;
     const dot = $("stateDot");
     const text = $("stateText");
-    if(v){ dot.style.background = "var(--warn)"; text.textContent = "Cambios sin guardar"; }
-    else { dot.style.background = "var(--ok)"; text.textContent = "Sin cambios"; }
+    if(v){
+      dot.style.background = "var(--warn)";
+      text.textContent = "Cambios sin guardar";
+    }else{
+      dot.style.background = "var(--ok)";
+      text.textContent = "Sin cambios";
+    }
   }
 
   function apiConfigured(){
@@ -574,9 +573,11 @@
 
   function getExtraFields(){
     const tipo = $("tipoFormulario").value;
+
     if(tipo === "autoevaluacion"){
       return { comentarios_colaborador: $("comentariosColaborador").value.trim() };
     }
+
     if(tipo === "desempeno"){
       return {
         justificacion: $("justificacion").value.trim(),
@@ -587,6 +588,7 @@
         comentarios_colaborador: $("comentariosColaborador2").value.trim()
       };
     }
+
     return {};
   }
 
@@ -599,7 +601,7 @@
 
   function buildResumen(){
     const counts = {1:0,2:0,3:0,4:0,5:0};
-    Object.values(state.answers).forEach(v => { if(typeof v === "number") counts[v]++; });
+    Object.values(state.answers).forEach(v=>{ if(typeof v === "number") counts[v]++; });
     const total = Object.values(counts).reduce((a,b)=>a+b,0);
     if(!total) return "—";
     return `Distribución de puntajes: 1=${counts[1]}, 2=${counts[2]}, 3=${counts[3]}, 4=${counts[4]}, 5=${counts[5]}.`;
@@ -634,10 +636,11 @@
     const resumen = buildResumen();
     const plans = autoConclusionsAndPlans(total);
 
-    $("rTitle").textContent =
-      (header.tipo === "autoevaluacion") ? "Autoevaluación del desempeño" :
-      (header.tipo === "clientes") ? "Evaluación de clientes" :
-      "Evaluación del desempeño";
+    $("rTitle").textContent = (header.tipo === "autoevaluacion")
+      ? "Autoevaluación del desempeño"
+      : (header.tipo === "clientes")
+        ? "Evaluación de clientes"
+        : "Evaluación del desempeño";
 
     $("rGenerated").textContent = new Date().toLocaleString();
 
@@ -656,17 +659,12 @@
         const v = state.answers[it.key];
         const tr = document.createElement("tr");
 
-        const td1 = document.createElement("td");
-        td1.textContent = it.label;
-
-        const td2 = document.createElement("td");
-        td2.textContent = (typeof v === "number") ? v : "—";
-
+        const td1 = document.createElement("td"); td1.textContent = it.label;
+        const td2 = document.createElement("td"); td2.textContent = (typeof v === "number") ? v : "—";
         const td3 = document.createElement("td");
-        const label = (typeof v === "number")
+        td3.textContent = (typeof v === "number")
           ? (SCALE.find(s=>s.v===v)?.t || String(v))
           : "No seleccionado";
-        td3.textContent = label;
 
         tr.appendChild(td1); tr.appendChild(td2); tr.appendChild(td3);
         tbody.appendChild(tr);
@@ -675,7 +673,6 @@
 
     $("rTotal").textContent = String(total);
     $("rResumen").textContent = resumen;
-
     $("rConclusiones").textContent = plans.conclusiones;
     $("rCapacitacion").textContent = plans.capacitacion;
     $("rCarrera").textContent = plans.carrera;
@@ -755,11 +752,13 @@
   }
 
   /************************************************************
-   * ✅ CAMBIO #2: Guardado robusto (mejor error y verificación)
+   * ✅ GUARDADO CORREGIDO PARA GITHUB PAGES (CORS)
+   * - usamos mode: "no-cors" para que el navegador NO bloquee
+   * - no intentamos leer res.ok ni res.text (no se puede en no-cors)
    ************************************************************/
   async function saveToSheet(){
     if(!apiConfigured()){
-      alert("Falta configurar la API_URL. Debe terminar en /exec.");
+      alert("API_URL inválida. Revisa que termine en /exec.");
       return;
     }
 
@@ -781,26 +780,21 @@
       $("apiHint").className = "ok";
       $("apiHint").textContent = "Enviando a Google Sheets...";
 
-      const res = await fetch(API_URL, {
+      await fetch(API_URL, {
         method: "POST",
+        mode: "no-cors",
         headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: JSON.stringify(payload)
       });
 
-      const text = await res.text();
-
-      if(!res.ok){
-        throw new Error(text || ("HTTP " + res.status));
-      }
-
+      // Si fetch no lanzó error, asumimos enviado ✅
       $("apiHint").className = "ok";
-      $("apiHint").textContent = "Guardado en Google Sheets ✅";
+      $("apiHint").textContent = "Enviado a Google Sheets ✅ (si no ves fila, revisa permisos del Web App)";
       setDirty(false);
-      return text;
     }catch(err){
       console.error(err);
       $("apiHint").className = "err";
-      $("apiHint").textContent = "Error al guardar: " + err.message;
+      $("apiHint").textContent = "Error al enviar: " + err.message;
       alert("Error al guardar en Google Sheets: " + err.message);
     }
   }
@@ -811,7 +805,7 @@
       $("apiHint").textContent = "API configurada ✅";
     }else{
       $("apiHint").className = "warn";
-      $("apiHint").textContent = "No configurada (pega la URL del Apps Script en el código)";
+      $("apiHint").textContent = "No configurada";
     }
 
     [
