@@ -76,7 +76,12 @@
       box-shadow: 0 12px 26px rgba(47,123,255,.25);
     }
     .btn.ghost{background:transparent}
-    .grid{display:grid; grid-template-columns: 1fr; gap:16px; margin-top:16px;}
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:16px;
+      margin-top:16px;
+    }
     .card{
       border:1px solid var(--stroke);
       background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
@@ -107,7 +112,10 @@
       background: rgba(0,0,0,.25);
     }
     textarea{min-height:90px; resize:vertical}
-    .section-title{display:flex; align-items:center; justify-content:space-between; margin:14px 0 8px;}
+    .section-title{
+      display:flex; align-items:center; justify-content:space-between;
+      margin:14px 0 8px;
+    }
     .section-title h3{margin:0; font-size:16px}
     .muted{color:var(--muted)}
     .divider{height:1px; background:rgba(255,255,255,.10); margin:16px 0;}
@@ -134,11 +142,7 @@
       gap:10px;
       margin-bottom:10px;
     }
-    .kv-row{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:10px;
-    }
+    .kv-row{display:grid; grid-template-columns: 1fr 1fr; gap:10px;}
     .kv{
       border:1px solid #e6e6e6;
       padding:10px 12px;
@@ -146,22 +150,40 @@
     }
     .kv .k{font-size:11px; color:#666; margin-bottom:3px}
     .kv .v{font-size:13px; font-weight:650}
-    .report-table{
+
+    .rubric{
       width:100%;
       border-collapse:collapse;
-      margin-top:8px;
+      margin:12px 0 18px;
+      table-layout:fixed;
     }
-    .report-table th, .report-table td{
+    .rubric th, .rubric td{
       border:1px solid #e6e6e6;
-      padding:8px 10px;
+      padding:8px 8px;
       vertical-align:top;
-      font-size:12px;
+      font-size:11px;
+      word-wrap:break-word;
+      white-space:pre-wrap;
     }
-    .report-table th{
-      background:#f7f7f7;
-      text-align:left;
-      font-size:12px;
+    .rubric th{background:#f7f7f7; text-align:left}
+    .rubric .col-item{width:22%;}
+    .rubric .col-score{width:12%;}
+    .rubric .picked{
+      outline:2px solid #2f7bff;
+      outline-offset:-2px;
+      background:#eef5ff;
+      font-weight:700;
     }
+    .rubric .selBadge{
+      display:inline-block;
+      padding:2px 8px;
+      border-radius:999px;
+      background:#111;
+      color:#fff;
+      font-size:11px;
+      font-weight:700;
+    }
+
     .block{margin-top:14px;}
     .block h2{margin:0 0 6px; font-size:15px;}
     .block .box{
@@ -172,6 +194,7 @@
       font-size:12px;
       white-space:pre-wrap;
     }
+
     @media print{
       body{background:#fff}
       .wrap{max-width:none; margin:0; padding:0}
@@ -184,6 +207,20 @@
     .warn{color:#ffd28b}
     .ok{color:#9dffb6}
     .err{color:#ffb4b4}
+
+    /* Fecha con botón de calendario */
+    .date-wrap{display:flex; gap:10px; align-items:center;}
+    .date-wrap input{flex:1}
+    .date-btn{
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.25);
+      color: var(--text);
+      cursor:pointer;
+      font-weight:650;
+      white-space:nowrap;
+    }
   </style>
 </head>
 
@@ -212,6 +249,7 @@
 
     <div class="grid no-print">
 
+      <!-- Tipo de formulario -->
       <div class="card">
         <h2>Tipo de formulario</h2>
         <p>Selecciona el tipo para mostrar/ocultar campos automáticamente.</p>
@@ -228,6 +266,7 @@
         </div>
       </div>
 
+      <!-- Datos del colaborador -->
       <div class="card">
         <h2>Datos del colaborador</h2>
         <p>Completa la información y selecciona una opción (1–5) para cada ítem.</p>
@@ -257,9 +296,14 @@
             <label>Versión</label>
             <input id="version" placeholder="Ej. 1" />
           </div>
+
+          <!-- FECHA: calendario real -->
           <div>
             <label>Fecha</label>
-            <input id="fecha" type="date" />
+            <div class="date-wrap">
+              <input id="fecha" type="date" />
+              <button class="date-btn" id="btnPickDate" type="button">📅</button>
+            </div>
           </div>
         </div>
 
@@ -268,6 +312,7 @@
         </div>
       </div>
 
+      <!-- Evaluación -->
       <div class="card">
         <div class="section-title">
           <h3>Evaluación (Factores 1–5)</h3>
@@ -276,6 +321,7 @@
 
         <div id="itemsContainer"></div>
 
+        <!-- Campo SOLO para autoevaluación -->
         <div id="autoComentariosBox" style="display:none; margin-top:14px;">
           <div class="divider"></div>
           <h3 style="margin:0 0 6px;">Comentarios del colaborador</h3>
@@ -284,6 +330,7 @@
         </div>
       </div>
 
+      <!-- Justificación y comentarios (SOLO evaluación del desempeño) -->
       <div class="card" id="desempenoCamposBox" style="display:none;">
         <h2>Justificación y comentarios</h2>
         <p>Completa los campos siguientes (según formato).</p>
@@ -319,6 +366,7 @@
         </div>
       </div>
 
+      <!-- Clientes (placeholder) -->
       <div class="card" id="clientesBox" style="display:none;">
         <h2>Evaluación de clientes</h2>
         <p>Este modo puede reutilizar el mismo motor de ítems o tener su propia lista.</p>
@@ -327,6 +375,7 @@
 
     </div>
 
+    <!-- Reporte (solo aparece al imprimir) -->
     <div class="print-area" id="printArea">
       <div class="report" id="report">
         <div class="report-head">
@@ -339,6 +388,7 @@
           </div>
         </div>
 
+        <!-- Layout solicitado -->
         <div class="report-kv">
           <div class="kv-row">
             <div class="kv"><div class="k">No. de personal</div><div class="v" id="rNoPersonal">—</div></div>
@@ -355,16 +405,8 @@
           </div>
         </div>
 
-        <table class="report-table" id="rTable">
-          <thead>
-            <tr>
-              <th style="width:38%;">Ítem</th>
-              <th style="width:10%;">Puntaje</th>
-              <th>Respuesta elegida</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
+        <!-- Aquí va la tabla tipo rúbrica (como tus fotos) -->
+        <div id="rRubrics"></div>
 
         <div class="block">
           <h2>Puntaje total</h2>
@@ -408,51 +450,67 @@
 <script>
   /************************************************************
    * 1) PEGA AQUÍ TU URL COMPLETA DEL APPS SCRIPT (/exec)
-   *    Ejemplo: https://script.google.com/macros/s/AKfy.../exec
+   *    Ejemplo:
+   *    https://script.google.com/macros/s/AKfycb.../exec
    ************************************************************/
-  const API_URL = "https://script.google.com/macros/s/PEGA_AQUI_TU_ID_COMPLETO/exec";
+  const API_URL = "https://script.google.com/macros/s/PEGA_AQUI_TU_ID/exec";
 
   /************************************************************
-   * 2) Catálogo de ítems
+   * 2) Catálogo de ítems + rúbrica 1–5 (estructura tipo Excel)
+   *    IMPORTANTE: aquí dejé textos cortos para cada nivel.
+   *    Si quieres, luego te los lleno EXACTO con tus descripciones completas.
    ************************************************************/
+  const RUBRIC_DEFAULT = {
+    1: "No cumple / Muy por debajo",
+    2: "Bajo / Requiere mejora",
+    3: "Aceptable / Cumple lo básico",
+    4: "Bueno / Supera expectativas",
+    5: "Excelente / Referente"
+  };
+
   const ITEMS = [
     {
       group: "1. Metas, productividad y eficiencia",
       items: [
-        { key: "A_metas", label: "A. Cumplimiento de Metas. Grado de logro" },
-        { key: "B_eficiencia", label: "B. Eficiencia en el uso del tiempo, costos y recursos" },
-        { key: "C_seguridad", label: "C. Cumplimiento de normas de seguridad" },
-        { key: "D_prioriza", label: "D. Prioriza y organiza tareas adecuadamente" },
-        { key: "E_exactitud", label: "E. Exactitud y atención al detalle" }
+        { key: "A_metas", label: "A. Cumplimiento de Metas. Grado de logro", rubric: {...RUBRIC_DEFAULT} },
+        { key: "B_eficiencia", label: "B. Eficiencia en el uso del tiempo, costos y recursos", rubric: {...RUBRIC_DEFAULT} },
+        { key: "C_seguridad", label: "C. Cumplimiento de normas de seguridad", rubric: {...RUBRIC_DEFAULT} },
+        { key: "D_prioriza", label: "D. Prioriza y organiza tareas adecuadamente", rubric: {...RUBRIC_DEFAULT} },
+        { key: "E_exactitud", label: "E. Exactitud y atención al detalle", rubric: {...RUBRIC_DEFAULT} }
       ]
     },
     {
       group: "2. Calidad y mejora continua",
       items: [
-        { key: "A_calidad", label: "A. Cumple con estándares de calidad" },
-        { key: "B_entregas", label: "B. Entregas a tiempo; cumple plazos establecidos" },
-        { key: "C_mejora", label: "C. Manejo de errores y mejoras" }
+        { key: "A_calidad", label: "A. Cumple con estándares de calidad", rubric: {...RUBRIC_DEFAULT} },
+        { key: "B_entregas", label: "B. Entregas a tiempo; cumple plazos establecidos", rubric: {...RUBRIC_DEFAULT} },
+        { key: "C_mejora", label: "C. Manejo de errores y mejoras", rubric: {...RUBRIC_DEFAULT} }
       ]
     },
     {
-      group: "3. Competencias",
+      group: "3. Competencias y habilidades",
       items: [
-        { key: "A_conocimientos", label: "A. Conocimientos técnicos del puesto" },
-        { key: "B_clientes", label: "B. Convincente respuesta técnica a clientes" },
-        { key: "C_problemas", label: "C. Resolución de problemas" },
-        { key: "D_iniciativa", label: "D. Iniciativa y creatividad" }
+        { key: "A_conocimientos", label: "A. Conocimientos técnicos del puesto", rubric: {...RUBRIC_DEFAULT} },
+        { key: "B_clientes", label: "B. Convincente respuesta técnica a clientes", rubric: {...RUBRIC_DEFAULT} },
+        { key: "C_problemas", label: "C. Resolución de problemas", rubric: {...RUBRIC_DEFAULT} },
+        { key: "D_iniciativa", label: "D. Iniciativa y creatividad", rubric: {...RUBRIC_DEFAULT} }
       ]
     },
     {
-      group: "4. Valores / liderazgo",
+      group: "4. Actitud y valores",
       items: [
-        { key: "A_responsabilidad", label: "A. Responsabilidad" },
-        { key: "B_puntualidad", label: "B. Puntualidad" },
-        { key: "C_trabajo", label: "C. Trabajo en equipo" },
-        { key: "D_comunicacion", label: "D. Comunicación" },
-        { key: "A_adaptacion", label: "A. Adaptación" },
-        { key: "B_aprender", label: "B. Disposición para aprender" },
-        { key: "C_liderazgo", label: "C. Liderazgo" }
+        { key: "A_responsabilidad", label: "A. Responsabilidad y compromiso", rubric: {...RUBRIC_DEFAULT} },
+        { key: "B_puntualidad", label: "B. Puntualidad y asistencia", rubric: {...RUBRIC_DEFAULT} },
+        { key: "C_trabajo", label: "C. Trabajo en equipo y cooperación", rubric: {...RUBRIC_DEFAULT} },
+        { key: "D_comunicacion", label: "D. Comunicación efectiva", rubric: {...RUBRIC_DEFAULT} }
+      ]
+    },
+    {
+      group: "5. Desarrollo y potencial",
+      items: [
+        { key: "A_adaptacion", label: "A. Adaptación al cambio", rubric: {...RUBRIC_DEFAULT} },
+        { key: "B_aprender", label: "B. Disposición para aprender", rubric: {...RUBRIC_DEFAULT} },
+        { key: "C_liderazgo", label: "C. Liderazgo", rubric: {...RUBRIC_DEFAULT} }
       ]
     }
   ];
@@ -468,20 +526,15 @@
   /************************************************************
    * 3) Estado UI
    ************************************************************/
-  const state = { dirty: false, generated: false, answers: {} };
+  const state = { dirty:false, generated:false, answers:{} };
   const $ = (id) => document.getElementById(id);
 
   function setDirty(v){
     state.dirty = v;
     const dot = $("stateDot");
     const text = $("stateText");
-    if(v){
-      dot.style.background = "var(--warn)";
-      text.textContent = "Cambios sin guardar";
-    }else{
-      dot.style.background = "var(--ok)";
-      text.textContent = "Sin cambios";
-    }
+    if(v){ dot.style.background = "var(--warn)"; text.textContent = "Cambios sin guardar"; }
+    else{ dot.style.background = "var(--ok)"; text.textContent = "Sin cambios"; }
   }
 
   function apiConfigured(){
@@ -577,6 +630,7 @@
     if(tipo === "autoevaluacion"){
       return { comentarios_colaborador: $("comentariosColaborador").value.trim() };
     }
+
     if(tipo === "desempeno"){
       return {
         justificacion: $("justificacion").value.trim(),
@@ -587,6 +641,7 @@
         comentarios_colaborador: $("comentariosColaborador2").value.trim()
       };
     }
+
     return {};
   }
 
@@ -608,23 +663,80 @@
   function autoConclusionsAndPlans(total){
     let conclusiones="", capacitacion="", carrera="";
     if(total >= 85){
-      conclusiones = "Desempeño sobresaliente. Mantener prácticas actuales y asignar retos estratégicos.";
-      capacitacion = "Capacitación avanzada y certificaciones. Mentoring a otros.";
-      carrera = "Plan de carrera acelerado: proyectos líderes, rol senior o líder de célula según vacantes.";
-    }else if(total >= 70){
-      conclusiones = "Desempeño sólido. Se observan oportunidades puntuales de mejora.";
-      capacitacion = "Capacitación focalizada en brechas detectadas + seguimiento mensual.";
-      carrera = "Plan de carrera: objetivos por trimestre y rotación en tareas clave.";
-    }else if(total >= 55){
-      conclusiones = "Desempeño aceptable con brechas relevantes. Requiere plan de mejora estructurado.";
-      capacitacion = "Capacitación básica/intermedia + coaching del jefe + metas quincenales.";
-      carrera = "Plan de carrera conservador: consolidar base del puesto antes de crecer.";
-    }else{
-      conclusiones = "Desempeño bajo. Se recomienda plan correctivo y acompañamiento cercano.";
-      capacitacion = "Entrenamiento esencial del puesto + refuerzo de hábitos (tiempo, calidad, comunicación).";
-      carrera = "Plan de carrera en pausa hasta evidenciar mejora sostenida (60–90 días).";
+      conclusiones="Desempeño sobresaliente. Mantener prácticas actuales y asignar retos estratégicos.";
+      capacitacion="Capacitación avanzada y certificaciones (especialidad del puesto). Mentoring a otros.";
+      carrera="Plan de carrera acelerado: proyectos líderes, rol senior o líder de célula según vacantes.";
+    } else if(total >= 70){
+      conclusiones="Desempeño sólido. Se observan oportunidades puntuales de mejora.";
+      capacitacion="Capacitación focalizada en brechas detectadas + seguimiento mensual.";
+      carrera="Plan de carrera: objetivos por trimestre y rotación en tareas clave.";
+    } else if(total >= 55){
+      conclusiones="Desempeño aceptable con brechas relevantes. Requiere plan de mejora estructurado.";
+      capacitacion="Capacitación básica/intermedia + coaching del jefe + metas quincenales.";
+      carrera="Plan de carrera conservador: consolidar base del puesto antes de crecer.";
+    } else {
+      conclusiones="Desempeño bajo. Se recomienda plan correctivo y acompañamiento cercano.";
+      capacitacion="Entrenamiento esencial del puesto + refuerzo de hábitos (tiempo, calidad, comunicación).";
+      carrera="Plan de carrera en pausa hasta evidenciar mejora sostenida (60–90 días).";
     }
     return { conclusiones, capacitacion, carrera };
+  }
+
+  function renderRubricsToReport(){
+    const host = $("rRubrics");
+    host.innerHTML = "";
+
+    ITEMS.forEach(sec => {
+      const h = document.createElement("h2");
+      h.style.margin = "18px 0 8px";
+      h.style.fontSize = "15px";
+      h.textContent = sec.group;
+      host.appendChild(h);
+
+      const table = document.createElement("table");
+      table.className = "rubric";
+
+      const thead = document.createElement("thead");
+      const trh = document.createElement("tr");
+      const thItem = document.createElement("th"); thItem.className="col-item"; thItem.textContent="Ítem";
+      trh.appendChild(thItem);
+      [1,2,3,4,5].forEach(n=>{
+        const th=document.createElement("th"); th.className="col-score"; th.textContent=String(n);
+        trh.appendChild(th);
+      });
+      const thSel=document.createElement("th"); thSel.style.width="10%"; thSel.textContent="Selección";
+      trh.appendChild(thSel);
+      thead.appendChild(trh);
+      table.appendChild(thead);
+
+      const tbody = document.createElement("tbody");
+      sec.items.forEach(it=>{
+        const v = state.answers[it.key];
+        const tr = document.createElement("tr");
+
+        const tdItem = document.createElement("td");
+        tdItem.textContent = it.label;
+        tr.appendChild(tdItem);
+
+        [1,2,3,4,5].forEach(n=>{
+          const td=document.createElement("td");
+          td.textContent = (it.rubric && it.rubric[n]) ? it.rubric[n] : "";
+          if(typeof v === "number" && v === n) td.classList.add("picked");
+          tr.appendChild(td);
+        });
+
+        const tdSel=document.createElement("td");
+        tdSel.innerHTML = (typeof v === "number")
+          ? `<span class="selBadge">${v}</span>`
+          : "—";
+        tr.appendChild(tdSel);
+
+        tbody.appendChild(tr);
+      });
+
+      table.appendChild(tbody);
+      host.appendChild(table);
+    });
   }
 
   function buildReport(){
@@ -634,9 +746,10 @@
     const resumen = buildResumen();
     const plans = autoConclusionsAndPlans(total);
 
-    $("rTitle").textContent = (header.tipo === "autoevaluacion")
-      ? "Autoevaluación del desempeño"
-      : (header.tipo === "clientes") ? "Evaluación de clientes" : "Evaluación del desempeño";
+    $("rTitle").textContent =
+      header.tipo === "autoevaluacion" ? "Autoevaluación del desempeño" :
+      header.tipo === "clientes" ? "Evaluación de clientes" :
+      "Evaluación del desempeño";
 
     $("rGenerated").textContent = new Date().toLocaleString();
 
@@ -648,42 +761,30 @@
     $("rVersion").textContent = header.version || "—";
     $("rFecha").textContent = header.fecha || "—";
 
-    const tbody = $("rTable").querySelector("tbody");
-    tbody.innerHTML = "";
-    ITEMS.forEach(sec=>{
-      sec.items.forEach(it=>{
-        const v = state.answers[it.key];
-        const tr = document.createElement("tr");
-
-        const td1 = document.createElement("td");
-        td1.textContent = it.label;
-
-        const td2 = document.createElement("td");
-        td2.textContent = (typeof v === "number") ? v : "—";
-
-        const td3 = document.createElement("td");
-        const label = (typeof v === "number") ? (SCALE.find(s=>s.v===v)?.t || String(v)) : "No seleccionado";
-        td3.textContent = label;
-
-        tr.appendChild(td1); tr.appendChild(td2); tr.appendChild(td3);
-        tbody.appendChild(tr);
-      });
-    });
+    // Tabla tipo rúbrica (como tus fotos)
+    renderRubricsToReport();
 
     $("rTotal").textContent = String(total);
     $("rResumen").textContent = resumen;
+
     $("rConclusiones").textContent = plans.conclusiones;
     $("rCapacitacion").textContent = plans.capacitacion;
     $("rCarrera").textContent = plans.carrera;
 
-    const comentarioColab = extra.comentarios_colaborador || "";
+    // ✅ Comentarios del colaborador SIEMPRE según el tipo
+    let comentarioColab = "";
+    if(header.tipo === "autoevaluacion") comentarioColab = (extra.comentarios_colaborador || "").trim();
+    if(header.tipo === "desempeno") comentarioColab = (extra.comentarios_colaborador || "").trim();
+
     if(comentarioColab){
       $("rComentariosBlock").style.display = "block";
       $("rComentarios").textContent = comentarioColab;
     }else{
       $("rComentariosBlock").style.display = "none";
+      $("rComentarios").textContent = "—";
     }
 
+    // Bloque justificación (solo desempeño)
     if(header.tipo === "desempeno"){
       $("rJustifBlock").style.display = "block";
       const txt = [
@@ -697,6 +798,7 @@
       $("rJustifAll").textContent = txt;
     }else{
       $("rJustifBlock").style.display = "none";
+      $("rJustifAll").textContent = "—";
     }
 
     $("printArea").style.display = "block";
@@ -775,20 +877,22 @@
       $("apiHint").className = "ok";
       $("apiHint").textContent = "Enviando a Google Sheets...";
 
-      // Nota: text/plain evita preflight CORS en la mayoría de casos
       const res = await fetch(API_URL, {
         method: "POST",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        mode: "cors",
+        headers: { "Content-Type": "application/json; charset=utf-8" },
         body: JSON.stringify(payload)
       });
 
-      const text = await res.text();
-      if(!res.ok) throw new Error(text || ("HTTP " + res.status));
+      const data = await res.json().catch(()=> ({}));
+      if(!res.ok){
+        throw new Error((data && data.error) ? data.error : ("HTTP " + res.status));
+      }
 
       $("apiHint").className = "ok";
       $("apiHint").textContent = "Enviado a Google Sheets ✅ (si no ves fila, revisa permisos del Web App)";
       setDirty(false);
-      return text;
+      return data;
     }catch(err){
       console.error(err);
       $("apiHint").className = "err";
@@ -798,11 +902,21 @@
   }
 
   function bind(){
+    // API hint
     if(apiConfigured()){
       $("apiHint").className = "ok";
       $("apiHint").textContent = "API configurada ✅";
     }
 
+    // Fecha: abrir calendario
+    $("btnPickDate").addEventListener("click", ()=>{
+      const el = $("fecha");
+      if (el.showPicker) el.showPicker();  // Chrome/Edge
+      else el.focus();                     // fallback
+      setDirty(true);
+    });
+
+    // inputs dirty
     [
       "noPersonal","nombre","posicion","departamento","periodo","version","fecha",
       "comentariosColaborador","justificacion","comentariosEvaluador","fortalezas",
@@ -839,6 +953,7 @@
     });
   }
 
+  // Init
   renderItems();
   applyTipoUI();
   bind();
