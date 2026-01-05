@@ -38,9 +38,7 @@
       position:sticky; top:12px; z-index:20;
       backdrop-filter: blur(10px);
     }
-    .brand{
-      display:flex; gap:12px; align-items:center;
-    }
+    .brand{display:flex; gap:12px; align-items:center;}
     .logo{
       width:46px; height:46px; border-radius:14px;
       display:grid; place-items:center;
@@ -91,9 +89,7 @@
       box-shadow: 0 12px 40px rgba(0,0,0,.35);
       padding:18px;
     }
-    .card h2{
-      margin:0 0 6px; font-size:18px;
-    }
+    .card h2{margin:0 0 6px; font-size:18px;}
     .card p{margin:0; color:var(--muted); font-size:13px}
     .form-grid{
       display:grid;
@@ -128,10 +124,7 @@
     }
 
     /* ===== Reporte (para impresión) ===== */
-    .print-area{
-      margin-top:20px;
-      display:none;
-    }
+    .print-area{margin-top:20px; display:none;}
     .report{
       background:#fff;
       color:#111;
@@ -143,14 +136,8 @@
       display:flex; justify-content:space-between; align-items:flex-start; gap:12px;
       margin-bottom:10px;
     }
-    .report-head h1{
-      margin:0;
-      font-size:34px; /* título grande */
-      letter-spacing:.2px;
-    }
-    .report-head .small{
-      font-size:12px; color:#444; text-align:right;
-    }
+    .report-head h1{margin:0; font-size:34px; letter-spacing:.2px;}
+    .report-head .small{font-size:12px; color:#444; text-align:right;}
     .report-sub{margin:0 0 14px; color:#444}
     .report-kv{
       display:grid;
@@ -186,13 +173,8 @@
       text-align:left;
       font-size:12px;
     }
-    .block{
-      margin-top:14px;
-    }
-    .block h2{
-      margin:0 0 6px;
-      font-size:15px;
-    }
+    .block{margin-top:14px;}
+    .block h2{margin:0 0 6px; font-size:15px;}
     .block .box{
       border:1px solid #e6e6e6;
       border-radius:12px;
@@ -201,7 +183,6 @@
       font-size:12px;
       white-space:pre-wrap;
     }
-
     @media print{
       body{background:#fff}
       .wrap{max-width:none; margin:0; padding:0}
@@ -209,7 +190,6 @@
       .print-area{display:block !important}
       .report{border:none; border-radius:0; padding:0}
     }
-
     .hint{font-size:12px; color:var(--muted); margin-top:8px}
     .warn{color:#ffd28b}
     .ok{color:#9dffb6}
@@ -224,7 +204,7 @@
       <div class="brand">
         <div class="logo">ED</div>
         <div class="titles">
-          <h1 id="appTitle">Formulario de evaluación del desempeño</h1>
+          <h1 id="appTitle">Formulario de autoevaluación del desempeño</h1>
           <p>Escala 1–5 • Cálculo interno • Guardado en Google Sheets • Reporte listo para PDF</p>
         </div>
       </div>
@@ -242,7 +222,6 @@
 
     <div class="grid no-print">
 
-      <!-- Tipo de formulario -->
       <div class="card">
         <h2>Tipo de formulario</h2>
         <p>Selecciona el tipo para mostrar/ocultar campos automáticamente.</p>
@@ -250,8 +229,8 @@
           <div>
             <label>Tipo</label>
             <select id="tipoFormulario">
-              <option value="autoevaluacion">Formulario de autoevaluación</option>
-              <option value="desempeno" selected>Formulario de evaluación del desempeño</option>
+              <option value="autoevaluacion" selected>Formulario de autoevaluación</option>
+              <option value="desempeno">Formulario de evaluación del desempeño</option>
               <option value="clientes">Evaluación de clientes</option>
             </select>
             <div class="hint">Tip: esto solo cambia qué campos aparecen. El guardado siempre va a Google Sheets.</div>
@@ -259,7 +238,6 @@
         </div>
       </div>
 
-      <!-- Datos del colaborador -->
       <div class="card">
         <h2>Datos del colaborador</h2>
         <p>Completa la información y selecciona una opción (1–5) para cada ítem.</p>
@@ -300,7 +278,6 @@
         </div>
       </div>
 
-      <!-- Evaluación -->
       <div class="card">
         <div class="section-title">
           <h3>Evaluación (Factores 1–5)</h3>
@@ -309,7 +286,6 @@
 
         <div id="itemsContainer"></div>
 
-        <!-- Campo SOLO para autoevaluación -->
         <div id="autoComentariosBox" style="display:none; margin-top:14px;">
           <div class="divider"></div>
           <h3 style="margin:0 0 6px;">Comentarios del colaborador</h3>
@@ -318,7 +294,6 @@
         </div>
       </div>
 
-      <!-- Justificación y comentarios (SOLO evaluación del desempeño) -->
       <div class="card" id="desempenoCamposBox" style="display:none;">
         <h2>Justificación y comentarios</h2>
         <p>Completa los campos siguientes (según formato).</p>
@@ -354,7 +329,6 @@
         </div>
       </div>
 
-      <!-- Clientes (placeholder) -->
       <div class="card" id="clientesBox" style="display:none;">
         <h2>Evaluación de clientes</h2>
         <p>Este modo puede reutilizar el mismo motor de ítems o tener su propia lista.</p>
@@ -363,7 +337,6 @@
 
     </div>
 
-    <!-- Reporte (solo aparece al imprimir) -->
     <div class="print-area" id="printArea">
       <div class="report" id="report">
         <div class="report-head">
@@ -376,7 +349,6 @@
           </div>
         </div>
 
-        <!-- Layout solicitado: 2 columnas por fila y una fila de 3 -->
         <div class="report-kv">
           <div class="kv-row">
             <div class="kv"><div class="k">No. de personal</div><div class="v" id="rNoPersonal">—</div></div>
@@ -445,12 +417,12 @@
 
 <script>
   /************************************************************
-   * 1) TU URL REAL DEL APPS SCRIPT (/exec) - YA INCLUIDA ✅
+   * ✅ CAMBIO #1: URL REAL COMPLETA DEL APPS SCRIPT (/exec)
    ************************************************************/
-  const API_URL = "https://script.google.com/macros/s/AKfycbwFcXJspmH3WFyE-hIGNinxV1b8qzwwmpMtGK_QxWoDAP9CWPq041RwMyXkg5_Xjw1VHA/exec";
+  const API_URL = "https://script.google.com/macros/s/AKfycbyg4Ajs3N-Rq59DtfYh5gpcLjKLL4eZ1s-rznjDabwVRib6SJUqRsnVfG-WNCbz1/exec";
 
   /************************************************************
-   * 2) Catálogo de ítems (puedes ampliar con tus factores reales)
+   * 2) Catálogo de ítems
    ************************************************************/
   const ITEMS = [
     {
@@ -502,28 +474,15 @@
     { v: 5, t: "5 - Excelente / Referente" }
   ];
 
-  /************************************************************
-   * 3) Estado UI
-   ************************************************************/
-  const state = {
-    dirty: false,
-    generated: false,
-    answers: {},
-  };
-
+  const state = { dirty:false, generated:false, answers:{} };
   const $ = (id) => document.getElementById(id);
 
   function setDirty(v){
     state.dirty = v;
     const dot = $("stateDot");
     const text = $("stateText");
-    if(v){
-      dot.style.background = "var(--warn)";
-      text.textContent = "Cambios sin guardar";
-    }else{
-      dot.style.background = "var(--ok)";
-      text.textContent = "Sin cambios";
-    }
+    if(v){ dot.style.background = "var(--warn)"; text.textContent = "Cambios sin guardar"; }
+    else { dot.style.background = "var(--ok)"; text.textContent = "Sin cambios"; }
   }
 
   function apiConfigured(){
@@ -570,10 +529,12 @@
         lab.textContent = "Respuesta";
         const sel = document.createElement("select");
         sel.id = "ans_" + it.key;
+
         const opt0 = document.createElement("option");
         opt0.value = "";
         opt0.textContent = "Seleccionar...";
         sel.appendChild(opt0);
+
         SCALE.forEach(s => {
           const o = document.createElement("option");
           o.value = String(s.v);
@@ -613,13 +574,9 @@
 
   function getExtraFields(){
     const tipo = $("tipoFormulario").value;
-
     if(tipo === "autoevaluacion"){
-      return {
-        comentarios_colaborador: $("comentariosColaborador").value.trim()
-      };
+      return { comentarios_colaborador: $("comentariosColaborador").value.trim() };
     }
-
     if(tipo === "desempeno"){
       return {
         justificacion: $("justificacion").value.trim(),
@@ -630,13 +587,10 @@
         comentarios_colaborador: $("comentariosColaborador2").value.trim()
       };
     }
-
-    // clientes
     return {};
   }
 
   function computeTotal(){
-    // total simple promedio*20 => 100
     const vals = Object.values(state.answers).filter(v => typeof v === "number");
     if(!vals.length) return 0;
     const avg = vals.reduce((a,b)=>a+b,0) / vals.length;
@@ -644,22 +598,15 @@
   }
 
   function buildResumen(){
-    // Resumen de opciones: cuenta por puntaje
     const counts = {1:0,2:0,3:0,4:0,5:0};
-    Object.values(state.answers).forEach(v=>{
-      if(typeof v === "number") counts[v]++;
-    });
+    Object.values(state.answers).forEach(v => { if(typeof v === "number") counts[v]++; });
     const total = Object.values(counts).reduce((a,b)=>a+b,0);
     if(!total) return "—";
     return `Distribución de puntajes: 1=${counts[1]}, 2=${counts[2]}, 3=${counts[3]}, 4=${counts[4]}, 5=${counts[5]}.`;
   }
 
   function autoConclusionsAndPlans(total){
-    // Reglas simples (puedes ajustar)
-    let conclusiones = "";
-    let capacitacion = "";
-    let carrera = "";
-
+    let conclusiones = "", capacitacion = "", carrera = "";
     if(total >= 85){
       conclusiones = "Desempeño sobresaliente. Mantener prácticas actuales y asignar retos estratégicos.";
       capacitacion = "Capacitación avanzada y certificaciones (especialidad del puesto). Mentoring a otros.";
@@ -677,7 +624,6 @@
       capacitacion = "Entrenamiento esencial del puesto + refuerzo de hábitos (tiempo, calidad, comunicación).";
       carrera = "Plan de carrera en pausa hasta evidenciar mejora sostenida (60–90 días).";
     }
-
     return { conclusiones, capacitacion, carrera };
   }
 
@@ -688,12 +634,10 @@
     const resumen = buildResumen();
     const plans = autoConclusionsAndPlans(total);
 
-    // Encabezado
-    $("rTitle").textContent = (header.tipo === "autoevaluacion")
-      ? "Autoevaluación del desempeño"
-      : (header.tipo === "clientes")
-        ? "Evaluación de clientes"
-        : "Evaluación del desempeño";
+    $("rTitle").textContent =
+      (header.tipo === "autoevaluacion") ? "Autoevaluación del desempeño" :
+      (header.tipo === "clientes") ? "Evaluación de clientes" :
+      "Evaluación del desempeño";
 
     $("rGenerated").textContent = new Date().toLocaleString();
 
@@ -705,7 +649,6 @@
     $("rVersion").textContent = header.version || "—";
     $("rFecha").textContent = header.fecha || "—";
 
-    // Tabla ítems
     const tbody = $("rTable").querySelector("tbody");
     tbody.innerHTML = "";
     ITEMS.forEach(sec=>{
@@ -720,12 +663,12 @@
         td2.textContent = (typeof v === "number") ? v : "—";
 
         const td3 = document.createElement("td");
-        const label = (typeof v === "number") ? (SCALE.find(s=>s.v===v)?.t || String(v)) : "No seleccionado";
+        const label = (typeof v === "number")
+          ? (SCALE.find(s=>s.v===v)?.t || String(v))
+          : "No seleccionado";
         td3.textContent = label;
 
-        tr.appendChild(td1);
-        tr.appendChild(td2);
-        tr.appendChild(td3);
+        tr.appendChild(td1); tr.appendChild(td2); tr.appendChild(td3);
         tbody.appendChild(tr);
       });
     });
@@ -733,12 +676,10 @@
     $("rTotal").textContent = String(total);
     $("rResumen").textContent = resumen;
 
-    // Conclusiones / Planes (auto generados)
     $("rConclusiones").textContent = plans.conclusiones;
     $("rCapacitacion").textContent = plans.capacitacion;
     $("rCarrera").textContent = plans.carrera;
 
-    // Comentarios colaborador (según tipo)
     const comentarioColab = extra.comentarios_colaborador || "";
     if(comentarioColab){
       $("rComentariosBlock").style.display = "block";
@@ -747,7 +688,6 @@
       $("rComentariosBlock").style.display = "none";
     }
 
-    // Bloque justificación (solo desempeño)
     if(header.tipo === "desempeno"){
       $("rJustifBlock").style.display = "block";
       const txt = [
@@ -763,20 +703,16 @@
       $("rJustifBlock").style.display = "none";
     }
 
-    // Mostrar sección imprimible
     $("printArea").style.display = "block";
   }
 
   function applyTipoUI(){
     const tipo = $("tipoFormulario").value;
-
-    // Título arriba
     $("appTitle").textContent =
       tipo === "autoevaluacion" ? "Formulario de autoevaluación del desempeño" :
       tipo === "clientes" ? "Formulario de evaluación de clientes" :
       "Formulario de evaluación del desempeño";
 
-    // Condicionales
     $("autoComentariosBox").style.display = (tipo === "autoevaluacion") ? "block" : "none";
     $("desempenoCamposBox").style.display = (tipo === "desempeno") ? "block" : "none";
     $("clientesBox").style.display = (tipo === "clientes") ? "block" : "none";
@@ -791,7 +727,6 @@
     $("version").value = "";
     $("fecha").value = "";
 
-    // extras
     $("comentariosColaborador").value = "";
     $("justificacion").value = "";
     $("comentariosEvaluador").value = "";
@@ -800,7 +735,6 @@
     $("proyeccion").value = "";
     $("comentariosColaborador2").value = "";
 
-    // answers
     state.answers = {};
     ITEMS.forEach(sec=>sec.items.forEach(it=>{
       const el = $("ans_"+it.key);
@@ -812,9 +746,20 @@
     setDirty(false);
   }
 
+  function flattenAnswers(){
+    const out = {};
+    ITEMS.forEach(sec=>sec.items.forEach(it=>{
+      out[it.key] = (typeof state.answers[it.key] === "number") ? state.answers[it.key] : "";
+    }));
+    return out;
+  }
+
+  /************************************************************
+   * ✅ CAMBIO #2: Guardado robusto (mejor error y verificación)
+   ************************************************************/
   async function saveToSheet(){
     if(!apiConfigured()){
-      alert("Falta configurar la API_URL. Pega la URL completa del Apps Script (/exec) en el código.");
+      alert("Falta configurar la API_URL. Debe terminar en /exec.");
       return;
     }
 
@@ -824,7 +769,6 @@
       return;
     }
 
-    // payload plano: una fila
     const payload = {
       ...header,
       ...flattenAnswers(),
@@ -844,6 +788,7 @@
       });
 
       const text = await res.text();
+
       if(!res.ok){
         throw new Error(text || ("HTTP " + res.status));
       }
@@ -860,25 +805,19 @@
     }
   }
 
-  function flattenAnswers(){
-    const out = {};
-    ITEMS.forEach(sec=>sec.items.forEach(it=>{
-      out[it.key] = (typeof state.answers[it.key] === "number") ? state.answers[it.key] : "";
-    }));
-    return out;
-  }
-
   function bind(){
-    // API hint
     if(apiConfigured()){
       $("apiHint").className = "ok";
       $("apiHint").textContent = "API configurada ✅";
+    }else{
+      $("apiHint").className = "warn";
+      $("apiHint").textContent = "No configurada (pega la URL del Apps Script en el código)";
     }
 
-    // inputs dirty
-    ["noPersonal","nombre","posicion","departamento","periodo","version","fecha",
-     "comentariosColaborador","justificacion","comentariosEvaluador","fortalezas",
-     "oportunidades","proyeccion","comentariosColaborador2"
+    [
+      "noPersonal","nombre","posicion","departamento","periodo","version","fecha",
+      "comentariosColaborador","justificacion","comentariosEvaluador","fortalezas",
+      "oportunidades","proyeccion","comentariosColaborador2"
     ].forEach(id=>{
       $(id).addEventListener("input", ()=> setDirty(true));
       $(id).addEventListener("change", ()=> setDirty(true));
@@ -911,7 +850,6 @@
     });
   }
 
-  // Init
   renderItems();
   applyTipoUI();
   bind();
