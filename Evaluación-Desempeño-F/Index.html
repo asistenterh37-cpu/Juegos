@@ -1,0 +1,1017 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Evaluación del desempeño</title>
+  <style>
+    :root{
+      --bg:#050a14;
+      --panel:rgba(255,255,255,.06);
+      --panel2:rgba(255,255,255,.08);
+      --stroke:rgba(255,255,255,.10);
+      --text:#eaf0ff;
+      --muted:rgba(234,240,255,.72);
+      --accent:#3b82f6;
+      --accent2:#1d4ed8;
+      --ok:#22c55e;
+      --warn:#f59e0b;
+      --danger:#ef4444;
+      --shadow:0 20px 70px rgba(0,0,0,.55);
+      --radius:18px;
+      --radius2:26px;
+      --font: system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue", sans-serif;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:var(--font);
+      color:var(--text);
+      background:
+        radial-gradient(900px 500px at 15% 15%, rgba(59,130,246,.28), transparent 55%),
+        radial-gradient(700px 400px at 85% 20%, rgba(29,78,216,.22), transparent 55%),
+        radial-gradient(900px 700px at 60% 90%, rgba(99,102,241,.18), transparent 60%),
+        linear-gradient(180deg, #030817, #050a14 50%, #040818);
+      min-height:100vh;
+    }
+    a{color:inherit}
+    .wrap{max-width:1200px;margin:0 auto;padding:26px 18px 60px}
+    .topbar{
+      display:flex;align-items:center;gap:14px;justify-content:space-between;
+      padding:18px 18px;border:1px solid var(--stroke);border-radius:var(--radius2);
+      background:linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.04));
+      box-shadow:var(--shadow);
+      backdrop-filter: blur(10px);
+      position:sticky;top:12px;z-index:10;
+    }
+    .brand{display:flex;align-items:center;gap:12px;min-width:260px}
+    .logo{
+      width:44px;height:44px;border-radius:14px;
+      background:linear-gradient(135deg, rgba(59,130,246,.95), rgba(99,102,241,.9));
+      display:grid;place-items:center;font-weight:800;letter-spacing:.5px;
+      box-shadow:0 18px 40px rgba(59,130,246,.28);
+    }
+    .titleBlock h1{margin:0;font-size:18px;line-height:1.2}
+    .titleBlock .sub{margin-top:3px;color:var(--muted);font-size:12.5px}
+    .actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+    .btn{
+      border:1px solid var(--stroke);
+      background:rgba(255,255,255,.05);
+      color:var(--text);
+      padding:10px 14px;border-radius:14px;
+      cursor:pointer;
+      font-weight:650;
+      display:inline-flex;gap:8px;align-items:center;
+      transition:.15s transform,.15s background,.15s border-color;
+      user-select:none;
+    }
+    .btn:hover{transform:translateY(-1px);border-color:rgba(255,255,255,.18);background:rgba(255,255,255,.07)}
+    .btn.primary{background:linear-gradient(135deg, var(--accent), var(--accent2));border-color:rgba(255,255,255,.12)}
+    .btn.primary:hover{background:linear-gradient(135deg, #4b8cff, #1d4ed8)}
+    .pill{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:8px 12px;border-radius:999px;
+      border:1px solid var(--stroke);
+      background:rgba(255,255,255,.04);
+      color:var(--muted);
+      font-size:12.5px;
+    }
+    .dot{width:8px;height:8px;border-radius:50%}
+    .dot.red{background:var(--danger)}
+    .dot.green{background:var(--ok)}
+    .grid{
+      margin-top:18px;
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:16px;
+    }
+    .card{
+      border:1px solid var(--stroke);
+      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.035));
+      border-radius:var(--radius2);
+      box-shadow:var(--shadow);
+      backdrop-filter: blur(10px);
+      padding:18px;
+    }
+    .card h2{
+      margin:0 0 10px 0;
+      font-size:18px;
+    }
+    .muted{color:var(--muted)}
+    .fields{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap:12px;
+      margin-top:10px;
+    }
+    .field{
+      display:flex;flex-direction:column;gap:7px;
+    }
+    label{
+      font-size:12px;color:var(--muted);
+      letter-spacing:.2px;
+    }
+    input, select, textarea{
+      width:100%;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(0,0,0,.18);
+      color:var(--text);
+      padding:12px 12px;
+      border-radius:14px;
+      outline:none;
+      font-size:14px;
+    }
+    input::placeholder, textarea::placeholder{color:rgba(234,240,255,.35)}
+    textarea{min-height:64px;resize:vertical}
+    input:focus, select:focus, textarea:focus{border-color:rgba(59,130,246,.55);box-shadow:0 0 0 4px rgba(59,130,246,.14)}
+    .span2{grid-column:span 2}
+    .span3{grid-column:span 3}
+    .sectionTitle{
+      display:flex;align-items:flex-end;justify-content:space-between;gap:10px;
+      margin:14px 0 6px 0;
+    }
+    .sectionTitle h3{margin:0;font-size:18px}
+    .sectionTitle .hint{color:var(--muted);font-size:12.5px}
+
+    .factor{
+      margin-top:12px;
+      padding:14px;
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:18px;
+      background:rgba(255,255,255,.03);
+    }
+    .factorHeader{
+      display:flex;align-items:center;justify-content:space-between;gap:10px;
+      margin-bottom:10px;
+    }
+    .factorHeader .name{font-weight:800;font-size:16px}
+    .items{
+      display:grid;gap:10px;
+    }
+    .itemRow{
+      border:1px dashed rgba(255,255,255,.12);
+      background:rgba(0,0,0,.14);
+      border-radius:16px;
+      padding:12px;
+      display:grid;
+      grid-template-columns: 1.2fr .9fr;
+      gap:12px;
+      align-items:center;
+    }
+    .itemRow .itemName{
+      font-weight:750;
+      line-height:1.25;
+    }
+    .itemRow .itemHelp{margin-top:6px;color:var(--muted);font-size:12.5px}
+
+    /* Report (visible on screen + print) */
+    .reportWrap{margin-top:16px}
+    .reportCard{
+      border:1px solid rgba(0,0,0,.12);
+      background:#fff;
+      color:#0b1220;
+      border-radius:18px;
+      padding:18px;
+      box-shadow:0 12px 38px rgba(0,0,0,.15);
+    }
+    .reportTop{
+      display:flex;justify-content:space-between;gap:10px;align-items:flex-start;
+      margin-bottom:10px;
+    }
+    .reportTitle{
+      margin:0;
+      font-size:26px; /* MÁS GRANDE */
+      line-height:1.15;
+      font-weight:900;
+    }
+    .reportSub{margin-top:4px;color:#4b5563;font-size:12.5px}
+    .reportMetaRight{font-size:12px;color:#4b5563;text-align:right}
+    .metaGrid{
+      display:grid;gap:10px;margin-top:12px;
+      grid-template-columns: 1fr 1fr;
+    }
+    .metaRow3{grid-template-columns: 1fr 1fr 1fr}
+    .metaBox{
+      border:1px solid #e5e7eb;border-radius:14px;padding:10px 12px;background:#fafafa;
+    }
+    .metaBox .k{font-size:11px;color:#6b7280}
+    .metaBox .v{margin-top:4px;font-size:13.5px;font-weight:700;color:#111827}
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      margin-top:12px;
+      font-size:12.5px;
+    }
+    th, td{
+      border-bottom:1px solid #e5e7eb;
+      padding:9px 8px;
+      vertical-align:top;
+    }
+    th{color:#374151;text-align:left;font-size:12px}
+    .totalLine{
+      margin-top:12px;
+      display:flex;justify-content:space-between;gap:10px;align-items:center;
+      padding:12px;border:1px solid #e5e7eb;border-radius:14px;background:#fafafa;
+    }
+    .totalLine .k{color:#6b7280;font-size:12px}
+    .totalLine .v{font-weight:900;font-size:16px}
+
+    .reportNotes{
+      margin-top:12px;
+      display:grid;gap:10px;
+      grid-template-columns: 1fr;
+    }
+    .noteBox{
+      border:1px solid #e5e7eb;border-radius:14px;padding:10px 12px;background:#fff;
+    }
+    .noteBox .k{font-size:11px;color:#6b7280}
+    .noteBox .v{margin-top:6px;font-size:12.5px;color:#111827;white-space:pre-wrap}
+
+    .reportFooter{
+      margin-top:12px;
+      display:flex;justify-content:space-between;gap:10px;align-items:center;
+      color:#6b7280;font-size:11.5px;
+    }
+
+    /* Print */
+    @media print{
+      body{background:#fff}
+      .topbar, .card:not(.reportCard), .pill, .actions, .brand, .titleBlock, .wrap > .grid > .card{display:none !important}
+      .wrap{max-width:none;padding:0}
+      .reportWrap{margin:0}
+      .reportCard{box-shadow:none;border:0;border-radius:0;padding:0}
+      .reportFooter{position:fixed;bottom:8px;left:0;right:0;padding:0 10mm}
+      @page{margin:10mm}
+    }
+
+    @media (max-width: 980px){
+      .fields{grid-template-columns:1fr}
+      .itemRow{grid-template-columns:1fr}
+      .metaGrid{grid-template-columns:1fr}
+      .metaRow3{grid-template-columns:1fr}
+      .brand{min-width:auto}
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo">ED</div>
+        <div class="titleBlock">
+          <h1>Formulario de evaluación del desempeño</h1>
+          <div class="sub">Escala 1–5 • Cálculo interno por pesos • Reporte listo para PDF</div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <span id="dirtyPill" class="pill" title="Estado">
+          <span id="dirtyDot" class="dot green"></span>
+          <span id="dirtyText">Sin cambios</span>
+        </span>
+        <button class="btn" id="btnNew">Nuevo</button>
+        <button class="btn primary" id="btnSave">Guardar</button>
+        <button class="btn" id="btnPrint">Imprimir / Enviar a PDF</button>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h2>Datos del colaborador</h2>
+        <div class="fields">
+          <div class="field">
+            <label for="noPersonal">No. de personal</label>
+            <input id="noPersonal" placeholder="Ej. 1600" />
+          </div>
+          <div class="field">
+            <label for="nombre">Nombre</label>
+            <input id="nombre" placeholder="Ej. Carlos Paz" />
+          </div>
+          <div class="field">
+            <label for="posicion">Posición</label>
+            <input id="posicion" placeholder="Ej. Analista" />
+          </div>
+
+          <div class="field">
+            <label for="departamento">Departamento</label>
+            <input id="departamento" placeholder="Ej. Contabilidad" />
+          </div>
+          <div class="field">
+            <label for="periodo">Periodo</label>
+            <input id="periodo" placeholder="Ej. 2025" />
+          </div>
+          <div class="field">
+            <label for="version">Versión</label>
+            <input id="version" placeholder="Ej. 1" />
+          </div>
+
+          <div class="field span2">
+            <label for="fecha">Fecha</label>
+            <input id="fecha" type="date" />
+          </div>
+        </div>
+
+        <div class="sectionTitle" style="margin-top:18px">
+          <h3>Evaluación (Factores 1–5)</h3>
+          <div class="hint">Selecciona una opción por cada ítem.</div>
+        </div>
+
+        <div id="formArea"></div>
+
+        <div class="sectionTitle" style="margin-top:18px">
+          <h3>Justificación calificaciones ( 1 - 6 )</h3>
+          <div class="hint">Completa los campos según corresponda.</div>
+        </div>
+
+        <div class="fields">
+          <div class="field span3">
+            <label for="comentariosEvaluador">Comentarios del evaluador</label>
+            <textarea id="comentariosEvaluador" placeholder=""></textarea>
+          </div>
+          <div class="field span3">
+            <label for="fortalezas">Fortalezas</label>
+            <textarea id="fortalezas" placeholder=""></textarea>
+          </div>
+          <div class="field span3">
+            <label for="oportunidadesMejora">Oportunidades de mejora</label>
+            <textarea id="oportunidadesMejora" placeholder=""></textarea>
+          </div>
+          <div class="field span3">
+            <label for="proyeccionPotencial">Proyección y potencial de desarrollo</label>
+            <textarea id="proyeccionPotencial" placeholder=""></textarea>
+          </div>
+          <div class="field span3">
+            <label for="comentariosColaborador">Comentarios del colaborador</label>
+            <textarea id="comentariosColaborador" placeholder=""></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="reportWrap" id="reportWrap">
+        <div class="reportCard" id="reportCard">
+          <div class="reportTop">
+            <div>
+              <div class="reportTitle">Evaluación del desempeño</div>
+              <div class="reportSub">Generado automáticamente desde el formulario.</div>
+            </div>
+            <div class="reportMetaRight">
+              <div><b>Generado:</b> <span id="generatedAt">—</span></div>
+            </div>
+          </div>
+
+          <!-- Meta en filas como pediste -->
+          <div class="metaGrid">
+            <div class="metaBox">
+              <div class="k">No. de personal</div>
+              <div class="v" id="rNoPersonal">—</div>
+            </div>
+            <div class="metaBox">
+              <div class="k">Nombre</div>
+              <div class="v" id="rNombre">—</div>
+            </div>
+          </div>
+
+          <div class="metaGrid" style="margin-top:10px">
+            <div class="metaBox">
+              <div class="k">Posición</div>
+              <div class="v" id="rPosicion">—</div>
+            </div>
+            <div class="metaBox">
+              <div class="k">Departamento</div>
+              <div class="v" id="rDepartamento">—</div>
+            </div>
+          </div>
+
+          <div class="metaGrid metaRow3" style="margin-top:10px">
+            <div class="metaBox">
+              <div class="k">Periodo</div>
+              <div class="v" id="rPeriodo">—</div>
+            </div>
+            <div class="metaBox">
+              <div class="k">Versión</div>
+              <div class="v" id="rVersion">—</div>
+            </div>
+            <div class="metaBox">
+              <div class="k">Fecha</div>
+              <div class="v" id="rFecha">—</div>
+            </div>
+          </div>
+
+          <div class="totalLine">
+            <div class="k">Total de puntos (máx. 100)</div>
+            <div class="v" id="rTotal">0.00</div>
+          </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th style="width:38%">Ítem</th>
+                <th>Respuesta elegida</th>
+              </tr>
+            </thead>
+            <tbody id="reportRows"></tbody>
+          </table>
+
+          <div class="reportNotes">
+            <div class="noteBox">
+              <div class="k">Comentarios del evaluador</div>
+              <div class="v" id="rComentariosEvaluador">—</div>
+            </div>
+            <div class="noteBox">
+              <div class="k">Fortalezas</div>
+              <div class="v" id="rFortalezas">—</div>
+            </div>
+            <div class="noteBox">
+              <div class="k">Oportunidades de mejora</div>
+              <div class="v" id="rOportunidadesMejora">—</div>
+            </div>
+            <div class="noteBox">
+              <div class="k">Proyección y potencial de desarrollo</div>
+              <div class="v" id="rProyeccionPotencial">—</div>
+            </div>
+            <div class="noteBox">
+              <div class="k">Comentarios del colaborador</div>
+              <div class="v" id="rComentariosColaborador">—</div>
+            </div>
+          </div>
+
+          <div class="reportFooter">
+            <div>Por Soamy Lanza</div>
+            <div id="reportUrl">—</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+/** =========================
+ *  Config (pesos + opciones)
+ *  ========================= */
+const FACTORS = [
+  {
+    id: "F1",
+    name: "1. Metas, productividad y eficiencia",
+    items: [
+      {
+        id:"F1A",
+        name:"A. Cumplimiento de Metas. Grado de logro",
+        weight:15,
+        options:[
+          {v:1, t:"1 - No alcanza la mayoría de las metas, cumple menos del 70 % de lo establecido. La falta de avance afecta los resultados esperados."},
+          {v:2, t:"2 - Logra entre 70–89 % de las metas; presenta avances parciales o inconsistentes y requiere correcciones."},
+          {v:3, t:"3 - Alcanza el 100 % de las metas planificadas con calidad y dentro del tiempo establecido."},
+          {v:4, t:"4 - Supera el 100 % y llega hasta un 110 % de las metas; entrega resultados adicionales o mejores de lo esperado."},
+          {v:5, t:"5 - Supera más del 110 % de las metas de forma sostenida, con impacto significativo y calidad superior."},
+        ]
+      },
+      {
+        id:"F1B",
+        name:"B. Eficiencia en el uso del tiempo, costos y recursos",
+        weight:10,
+        options:[
+          {v:1, t:"1 - Usa el tiempo y los recursos con errores graves que afectan la eficiencia."},
+          {v:2, t:"2 - Muestra uso inestable del tiempo y los recursos; requiere evaluaciones y correcciones frecuentes."},
+          {v:3, t:"3 - Utiliza de manera adecuada el tiempo y los recursos, cumpliendo sin desperdicios significativos."},
+          {v:4, t:"4 - Optimiza tiempo y recursos, generando mejoras o ahorros sin afectar la calidad del trabajo."},
+          {v:5, t:"5 - Maximiza la eficiencia de forma sostenida, mejora procesos y logra resultados superiores sin comprometer la calidad."},
+        ]
+      },
+      {
+        id:"F1C",
+        name:"C. Cumplimiento de normas de seguridad",
+        weight:2.5,
+        options:[
+          {v:1, t:"1 - Incumple normas de seguridad y genera riesgos constantes para sí y el equipo."},
+          {v:2, t:"2 - Cumple parcialmente las normas; requiere supervisión continua para evitar incidentes."},
+          {v:3, t:"3 - Cumple todas las normas de seguridad y actúa de manera segura en su trabajo diario."},
+          {v:4, t:"4 - Se anticipa a riesgos, propone acciones preventivas y actúa con autonomía segura."},
+          {v:5, t:"5 - Promueve una cultura de seguridad; motiva a otros y contribuye a mantener ambientes sin incidentes."},
+        ]
+      },
+      {
+        id:"F1D",
+        name:"D. Prioriza y organiza tareas adecuadamente",
+        weight:2.5,
+        options:[
+          {v:1, t:"1 - Desorganiza las tareas; incumple plazos y afecta resultados importantes."},
+          {v:2, t:"2 - Organiza parcialmente; presenta inconsistencias en prioridades y manejo del tiempo."},
+          {v:3, t:"3 - Gestiona las tareas de forma adecuada, cumple tiempos y mantiene orden en su trabajo."},
+          {v:4, t:"4 - Organiza y prioriza con eficiencia, anticipa necesidades y mejora sus tiempos de entrega."},
+          {v:5, t:"5 - Es referente en organización; redistribuye recursos, optimiza procesos y eleva la productividad del equipo."},
+        ]
+      },
+    ]
+  },
+
+  {
+    id:"F2",
+    name:"2. Calidad del Trabajo",
+    items:[
+      {
+        id:"F2A",
+        name:"A. Exactitud y atención al detalle",
+        weight:2.5,
+        options:[
+          {v:1, t:"1 - Comete errores frecuentes y no identifica fallos evidentes; requiere supervisión constante para evitar errores mayores."},
+          {v:2, t:"2 - Presenta errores recurrentes por falta de revisión; la exactitud es inconsistente y requiere correcciones frecuentes."},
+          {v:3, t:"3 - Realiza su trabajo con un nivel adecuado de precisión; puede cometer errores menores que no afectan los resultados."},
+          {v:4, t:"4 - Mantiene una atención al detalle constante; comete pocos errores y revisa su trabajo de forma proactiva."},
+          {v:5, t:"5 - Su trabajo es impecable; detecta errores propios y ajenos, propone mejoras y es referente en precisión."},
+        ]
+      },
+      {
+        id:"F2B",
+        name:"B. Cumple con estándares de calidad",
+        weight:5,
+        options:[
+          {v:1, t:"1 - Menos del 70 % de los entregables cumplen los estándares; los resultados son inaceptables."},
+          {v:2, t:"2 - Entre 70–89 % de los entregables cumplen los estándares; requiere ajustes frecuentes."},
+          {v:3, t:"3 - El 100 % de los entregables cumplen los estándares establecidos."},
+          {v:4, t:"4 - Cumplimiento entre 101–110 %; entrega con calidad superior y consistente."},
+          {v:5, t:"5 - Más del 110 % de cumplimiento; supera ampliamente los estándares y produce resultados sobresalientes."},
+        ]
+      },
+      {
+        id:"F2C",
+        name:"C. Entregas a Tiempo. cumple con plazos establecidos",
+        weight:10,
+        options:[
+          {v:1, t:"1 - Menos del 70 % de las entregas se cumplen a tiempo; los retrasos afectan el área."},
+          {v:2, t:"2 - Entre 70–89 % de las entregas se realizan a tiempo; desempeño irregular."},
+          {v:3, t:"3 - El 100 % de las entregas se cumplen en los plazos pactados."},
+          {v:4, t:"4 - Cumple entre 101–110 % de los tiempos; se anticipa en algunas entregas y mantiene calidad."},
+          {v:5, t:"5 - Entrega más del 110 % a tiempo; supera plazos, mantiene calidad y mejora la eficiencia general."},
+        ]
+      },
+      {
+        id:"F2D",
+        name:"D. Manejo de errores y mejoras",
+        weight:2.5,
+        options:[
+          {v:1, t:"1 - No reconoce ni corrige errores; genera reincidencias graves."},
+          {v:2, t:"2 - Corrige parcialmente, con retrasos o bajo nivel de supervisión; la mejora no es constante."},
+          {v:3, t:"3 - Detecta y corrige errores básicos cuando se le solicita; cumple lo necesario."},
+          {v:4, t:"4 - Se anticipa a errores y propone soluciones preventivas que mejoran el proceso."},
+          {v:5, t:"5 - Asegura procesos libres de errores, implementa mejoras continuas y es referente en calidad."},
+        ]
+      },
+    ]
+  },
+
+  {
+    id:"F3",
+    name:"3. Competencias y Habilidades",
+    items:[
+      {
+        id:"F3A",
+        name:"A. Conocimientos técnicos del puesto",
+        weight:10,
+        options:[
+          {v:1, t:"1 - Conocimientos muy por debajo de lo esperado; no domina funciones básicas del puesto."},
+          {v:2, t:"2 - Gestiona parcialmente los conocimientos requeridos y necesita apoyo frecuente."},
+          {v:3, t:"3 - Posee el conocimiento necesario y funcional para el puesto; desempeño adecuado."},
+          {v:4, t:"4 - Aplica los conocimientos de manera confiable y constante."},
+          {v:5, t:"5 - Domina los conocimientos, aplica técnicas avanzadas y es referente técnico en el área."},
+        ]
+      },
+      {
+        id:"F3B",
+        name:"B. Convincente respuesta técnica a clientes",
+        weight:5,
+        options:[
+          {v:1, t:"1 - Respuestas incorrectas o inconsistentes que generan desconfianza."},
+          {v:2, t:"2 - Respuestas incompletas o poco claras que afectan la calidad del servicio."},
+          {v:3, t:"3 - Responde de forma adecuada y funcional, brindando confianza."},
+          {v:4, t:"4 - Respuestas claras, específicas y confiables de manera constante."},
+          {v:5, t:"5 - Respuestas sobresalientes y precisas, reconocidas como referentes por clientes y equipo."},
+        ]
+      },
+      {
+        id:"F3C",
+        name:"C. Resolución de problemas",
+        weight:2.5,
+        options:[
+          {v:1, t:"1 - No logra resolver problemas; afecta procesos y resultados."},
+          {v:2, t:"2 - Resuelve parcialmente los problemas, requiriendo supervisión frecuente."},
+          {v:3, t:"3 - Resuelve problemas básicos de manera satisfactoria y funcional."},
+          {v:4, t:"4 - Resuelve problemas complejos con autonomía y confiabilidad."},
+          {v:5, t:"5 - Anticipa problemas y desarrolla soluciones preventivas y estratégicas."},
+        ]
+      },
+      {
+        id:"F3D",
+        name:"D. Iniciativa y creatividad",
+        weight:2.5,
+        options:[
+          {v:1, t:"1 - No genera ideas ni propone mejoras."},
+          {v:2, t:"2 - Propone ideas poco útiles o de aplicación limitada."},
+          {v:3, t:"3 - Propone ideas funcionales y aplicables cuando es necesario."},
+          {v:4, t:"4 - Genera ideas prácticas que optimizan procesos y agregan valor."},
+          {v:5, t:"5 - Propone soluciones innovadoras con impacto positivo y sostenible en el área."},
+        ]
+      },
+    ]
+  },
+
+  {
+    id:"F4",
+    name:"4. Actitud y Valores",
+    items:[
+      {
+        id:"F4A",
+        name:"A. Responsabilidad y compromiso",
+        weight:2.5,
+        options:[
+          {v:1, t:"1 - Incumple compromisos y entrega resultados muy por debajo de lo esperado."},
+          {v:2, t:"2 - Cumple compromisos de forma irregular y requiere seguimiento constante."},
+          {v:3, t:"3 - Cumple con sus responsabilidades de manera adecuada y confiable."},
+          {v:4, t:"4 - Cumple de forma consistente, genera seguridad y aporta valor."},
+          {v:5, t:"5 - Inspira por su compromiso; es modelo de conducta para el equipo."},
+        ]
+      },
+      {
+        id:"F4B",
+        name:"B. Puntualidad y asistencia",
+        weight:2.5,
+        options:[
+          {v:1, t:"1 - Ausencias frecuentes e injustificadas; llegadas tardías recurrentes sin aviso y sin intención de mejora."},
+          {v:2, t:"2 - Se presenta con frecuencia tarde o sin justificación clara, afectando la operación."},
+          {v:3, t:"3 - Asiste regularmente y cumple horarios; puede presentar llegadas tarde o ausencias justificadas sin reincidencia."},
+          {v:4, t:"4 - Es puntual y mantiene asistencia confiable; respeta horarios y comunica eventualidades oportunamente."},
+          {v:5, t:"5 - Puntualidad y asistencia impecables; es referente para el equipo y se adapta a horarios especiales sin afectar el desempeño."},
+        ]
+      },
+      {
+        id:"F4C",
+        name:"C. Trabajo en equipo y cooperación",
+        weight:5,
+        options:[
+          {v:1, t:"1 - No coopera; genera conflictos y dificulta el trabajo del equipo."},
+          {v:2, t:"2 - Coopera parcialmente y de manera inestable."},
+          {v:3, t:"3 - Coopera cuando se le solicita, con resultados aceptables."},
+          {v:4, t:"4 - Colabora activamente con el equipo y aporta de forma confiable."},
+          {v:5, t:"5 - Es referente en trabajo en equipo; promueve colaboración, sinergia y apoya a otros."},
+        ]
+      },
+      {
+        id:"F4D",
+        name:"D. Comunicación efectiva",
+        weight:5,
+        options:[
+          {v:1, t:"1 - Comunicación confusa; genera malentendidos graves."},
+          {v:2, t:"2 - Comunicación incompleta o poco clara; requiere supervisión para asegurar entendimiento."},
+          {v:3, t:"3 - Comunica lo necesario de forma clara y suficiente."},
+          {v:4, t:"4 - Comunicación clara, precisa y constructiva; escucha activamente."},
+          {v:5, t:"5 - Comunicación influyente y estratégica; facilita acuerdos y motiva a otros."},
+        ]
+      },
+    ]
+  },
+
+  {
+    id:"F5",
+    name:"5. Desarrollo y Potencial",
+    items:[
+      {
+        id:"F5A",
+        name:"A. Adaptación al cambio",
+        weight:2.5,
+        options:[
+          {v:1, t:"1 - Se resiste activamente al cambio; afecta procesos y equipos."},
+          {v:2, t:"2 - Se adapta parcialmente, con dificultad y resultados limitados."},
+          {v:3, t:"3 - Se adapta lo necesario para mantener un desempeño adecuado."},
+          {v:4, t:"4 - Se adapta de forma autónoma y confiable a nuevas situaciones."},
+          {v:5, t:"5 - Es referente en adaptación; motiva y guía a otros en procesos de cambio."},
+        ]
+      },
+      {
+        id:"F5B",
+        name:"B. Disposición para aprender",
+        weight:2.5,
+        options:[
+          {v:1, t:"1 - No busca aprender; rechaza retroalimentación y capacitación."},
+          {v:2, t:"2 - Aprende solo lo obligatorio y con mínima aplicación práctica."},
+          {v:3, t:"3 - Aprende lo necesario para mantener un desempeño satisfactorio."},
+          {v:4, t:"4 - Busca aprender constantemente y aplica lo aprendido en el trabajo."},
+          {v:5, t:"5 - Se mantiene en aprendizaje continuo, comparte conocimientos y forma a otros."},
+        ]
+      },
+      {
+        id:"F5C",
+        name:"C. Liderazgo",
+        weight:10,
+        options:[
+          {v:1, t:"1 - No logra coordinar ni dirigir; genera desorden y afecta resultados."},
+          {v:2, t:"2 - Lidera de forma débil, con bajo impacto en el equipo."},
+          {v:3, t:"3 - Lidera tareas básicas con resultados adecuados y funcionales."},
+          {v:4, t:"4 - Lidera con confianza, logrando resultados consistentes y estables."},
+          {v:5, t:"5 - Inspira con visión clara; desarrolla a otros, fortalece la cohesión del equipo y se convierte en referente."},
+        ]
+      },
+    ]
+  }
+];
+
+const STORAGE_KEY = "evaluacion_desempeno_v1";
+
+/** =========================
+ *  Helpers
+ *  ========================= */
+const $ = (sel) => document.querySelector(sel);
+const $$ = (sel) => Array.from(document.querySelectorAll(sel));
+
+function nowHuman(){
+  const d = new Date();
+  const pad = (n)=> String(n).padStart(2,"0");
+  return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()}, ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+function formatDateYYYYMMDDToDDMMYYYY(s){
+  if(!s) return "—";
+  const [y,m,d] = s.split("-");
+  if(!y||!m||!d) return s;
+  return `${d}/${m}/${y}`;
+}
+function safeText(v){
+  const t = (v ?? "").toString().trim();
+  return t.length ? t : "—";
+}
+
+function buildEmptyState(){
+  const meta = {
+    noPersonal:"",
+    nombre:"",
+    posicion:"",
+    departamento:"",
+    periodo:"",
+    version:"",
+    fecha:"",
+    comentariosEvaluador:"",
+    fortalezas:"",
+    oportunidadesMejora:"",
+    proyeccionPotencial:"",
+    comentariosColaborador:""
+  };
+  const answers = {};
+  FACTORS.forEach(f=>f.items.forEach(it=>answers[it.id]=""));
+  return {meta, answers};
+}
+
+/** =========================
+ *  State
+ *  ========================= */
+let state = buildEmptyState();
+let dirty = false;
+
+/** =========================
+ *  UI rendering
+ *  ========================= */
+function setDirty(val){
+  dirty = val;
+  const dot = $("#dirtyDot");
+  const txt = $("#dirtyText");
+  if(dirty){
+    dot.classList.remove("green"); dot.classList.add("red");
+    txt.textContent = "Cambios sin guardar";
+  }else{
+    dot.classList.remove("red"); dot.classList.add("green");
+    txt.textContent = "Sin cambios";
+  }
+}
+
+function renderForm(){
+  const host = $("#formArea");
+  host.innerHTML = "";
+
+  FACTORS.forEach(f=>{
+    const factor = document.createElement("div");
+    factor.className = "factor";
+
+    const head = document.createElement("div");
+    head.className = "factorHeader";
+    head.innerHTML = `<div class="name">${f.name}</div>`;
+    factor.appendChild(head);
+
+    const items = document.createElement("div");
+    items.className = "items";
+
+    f.items.forEach(it=>{
+      const row = document.createElement("div");
+      row.className = "itemRow";
+
+      const left = document.createElement("div");
+      left.innerHTML = `<div class="itemName">${it.name}</div><div class="itemHelp">Elige la descripción que mejor refleje el desempeño.</div>`;
+
+      const right = document.createElement("div");
+      const select = document.createElement("select");
+      select.id = `ans_${it.id}`;
+
+      const opt0 = document.createElement("option");
+      opt0.value = "";
+      opt0.textContent = "— Seleccionar —";
+      select.appendChild(opt0);
+
+      it.options.forEach(o=>{
+        const opt = document.createElement("option");
+        opt.value = String(o.v);
+        opt.textContent = o.t; // ya incluye "1 - ..." etc.
+        select.appendChild(opt);
+      });
+
+      select.value = state.answers[it.id] ?? "";
+
+      select.addEventListener("change", ()=>{
+        state.answers[it.id] = select.value;
+        setDirty(true);
+        computeAndRenderReport();
+      });
+
+      const lbl = document.createElement("label");
+      lbl.textContent = "Respuesta";
+      lbl.style.marginBottom = "6px";
+
+      const wrap = document.createElement("div");
+      wrap.appendChild(lbl);
+      wrap.appendChild(select);
+
+      right.appendChild(wrap);
+
+      row.appendChild(left);
+      row.appendChild(right);
+      items.appendChild(row);
+    });
+
+    factor.appendChild(items);
+    host.appendChild(factor);
+  });
+}
+
+function bindMetaInputs(){
+  const map = [
+    ["#noPersonal","noPersonal"],
+    ["#nombre","nombre"],
+    ["#posicion","posicion"],
+    ["#departamento","departamento"],
+    ["#periodo","periodo"],
+    ["#version","version"],
+    ["#fecha","fecha"],
+    ["#comentariosEvaluador","comentariosEvaluador"],
+    ["#fortalezas","fortalezas"],
+    ["#oportunidadesMejora","oportunidadesMejora"],
+    ["#proyeccionPotencial","proyeccionPotencial"],
+    ["#comentariosColaborador","comentariosColaborador"],
+  ];
+
+  map.forEach(([sel,key])=>{
+    const el = $(sel);
+    el.value = state.meta[key] ?? "";
+    el.addEventListener("input", ()=>{
+      state.meta[key] = el.value;
+      setDirty(true);
+      computeAndRenderReport();
+    });
+  });
+}
+
+function getItemById(id){
+  for(const f of FACTORS){
+    for(const it of f.items){
+      if(it.id===id) return it;
+    }
+  }
+  return null;
+}
+
+function selectedLabel(it, vStr){
+  if(!vStr) return "—";
+  const v = Number(vStr);
+  const o = it.options.find(x=>x.v===v);
+  return o ? o.t : "—";
+}
+
+function computeTotal(){
+  // total = sum (respuesta/5)*peso
+  let total = 0;
+  FACTORS.forEach(f=>{
+    f.items.forEach(it=>{
+      const vStr = state.answers[it.id];
+      const v = Number(vStr);
+      if(!vStr || Number.isNaN(v)) return;
+      total += (v/5) * it.weight;
+    });
+  });
+  return total;
+}
+
+function computeAndRenderReport(){
+  $("#generatedAt").textContent = nowHuman();
+  $("#reportUrl").textContent = window.location.href;
+
+  // meta
+  $("#rNoPersonal").textContent = safeText(state.meta.noPersonal);
+  $("#rNombre").textContent = safeText(state.meta.nombre);
+  $("#rPosicion").textContent = safeText(state.meta.posicion);
+  $("#rDepartamento").textContent = safeText(state.meta.departamento);
+  $("#rPeriodo").textContent = safeText(state.meta.periodo);
+  $("#rVersion").textContent = safeText(state.meta.version);
+  $("#rFecha").textContent = state.meta.fecha ? formatDateYYYYMMDDToDDMMYYYY(state.meta.fecha) : "—";
+
+  // total
+  const total = computeTotal();
+  $("#rTotal").textContent = total.toFixed(2);
+
+  // rows
+  const tbody = $("#reportRows");
+  tbody.innerHTML = "";
+  FACTORS.forEach(f=>{
+    f.items.forEach(it=>{
+      const tr = document.createElement("tr");
+      const tdItem = document.createElement("td");
+      tdItem.textContent = it.name;
+      const tdAns = document.createElement("td");
+      tdAns.textContent = selectedLabel(it, state.answers[it.id]);
+      tr.appendChild(tdItem);
+      tr.appendChild(tdAns);
+      tbody.appendChild(tr);
+    });
+  });
+
+  // notes
+  $("#rComentariosEvaluador").textContent = safeText(state.meta.comentariosEvaluador);
+  $("#rFortalezas").textContent = safeText(state.meta.fortalezas);
+  $("#rOportunidadesMejora").textContent = safeText(state.meta.oportunidadesMejora);
+  $("#rProyeccionPotencial").textContent = safeText(state.meta.proyeccionPotencial);
+  $("#rComentariosColaborador").textContent = safeText(state.meta.comentariosColaborador);
+}
+
+function applyStateToUI(){
+  // meta inputs
+  bindMetaInputs();
+  // selects
+  FACTORS.forEach(f=>f.items.forEach(it=>{
+    const el = document.getElementById(`ans_${it.id}`);
+    if(el) el.value = state.answers[it.id] ?? "";
+  }));
+  computeAndRenderReport();
+}
+
+function handleNew(){
+  state = buildEmptyState();
+  setDirty(false);
+  renderForm();
+  applyStateToUI();
+}
+
+function handleSave(){
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    setDirty(false);
+  }catch(e){
+    alert("No se pudo guardar en este navegador. Revisa permisos/espacio.");
+  }
+}
+
+function handlePrint(){
+  // El usuario elige "Guardar como PDF" en el diálogo del navegador
+  window.print();
+}
+
+function loadSaved(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return false;
+    const parsed = JSON.parse(raw);
+
+    // merge seguro
+    const fresh = buildEmptyState();
+    if(parsed?.meta) fresh.meta = {...fresh.meta, ...parsed.meta};
+    if(parsed?.answers) fresh.answers = {...fresh.answers, ...parsed.answers};
+
+    state = fresh;
+    return true;
+  }catch(e){
+    return false;
+  }
+}
+
+function bindButtons(){
+  $("#btnNew").addEventListener("click", handleNew);
+  $("#btnSave").addEventListener("click", handleSave);
+  $("#btnPrint").addEventListener("click", handlePrint);
+}
+
+/** =========================
+ *  Init
+ *  ========================= */
+(function bootstrap(){
+  renderForm();
+  loadSaved();
+  applyStateToUI();
+  bindButtons();
+  setDirty(false);
+})();
+</script>
+</body>
+</html>
