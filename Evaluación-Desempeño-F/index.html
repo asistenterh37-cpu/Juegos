@@ -445,9 +445,9 @@
 
 <script>
   /************************************************************
-   * 1) PEGA AQUÍ TU URL COMPLETA DEL APPS SCRIPT (/exec)
+   * 1) TU URL REAL DEL APPS SCRIPT (/exec) - YA INCLUIDA ✅
    ************************************************************/
-  const API_URL = "PEGA_AQUI_TU_URL_COMPLETA/exec"; // <- pega tu URL real aquí
+  const API_URL = "https://script.google.com/macros/s/AKfycbwFcXJspmH3WFyE-hIGNinxV1b8qzwwmpMtGK_QxWoDAP9CWPq041RwMyXkg5_Xjw1VHA/exec";
 
   /************************************************************
    * 2) Catálogo de ítems (puedes ampliar con tus factores reales)
@@ -900,12 +900,9 @@
       buildReport();
       state.generated = true;
       setDirty(true);
-      // opcional: auto imprimir si quieres
-      // window.print();
     });
 
     $("btnPrint").addEventListener("click", ()=>{
-      // si no se generó, lo generamos primero
       if(!state.generated){
         buildReport();
         state.generated = true;
