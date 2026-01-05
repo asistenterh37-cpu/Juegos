@@ -24,6 +24,7 @@
       --p-gray:#f7f7f7;
       --p-ink:#111;
       --p-sub:#444;
+      --p-hi:#dbeafe;
     }
     *{box-sizing:border-box}
     body{
@@ -162,26 +163,37 @@
     .kv .k{font-size:11px; color:#666; margin-bottom:3px}
     .kv .v{font-size:13px; font-weight:650}
 
-    /* Tabla simple: solo opción elegida */
-    .simple-table{
+    /* Tabla SOLO opción seleccionada */
+    .rubric-wrap{margin-top:14px;}
+    .rubric-title{
+      margin:0 0 6px;
+      font-size:15px;
+      color:var(--p-ink);
+      font-weight:800;
+    }
+    .sel-table{
       width:100%;
       border-collapse:collapse;
-      border:1px solid var(--p-border);
-      margin-top:10px;
       table-layout:fixed;
-    }
-    .simple-table th, .simple-table td{
       border:1px solid var(--p-border);
-      padding:8px;
-      font-size:11px;
+    }
+    .sel-table th, .sel-table td{
+      border:1px solid var(--p-border);
+      padding:8px 8px;
       vertical-align:top;
+      font-size:11px;
       word-wrap:break-word;
     }
-    .simple-table th{
+    .sel-table th{
       background:var(--p-gray);
-      font-weight:800;
       text-align:left;
+      font-weight:800;
+      font-size:11px;
     }
+    .col-item{width:32%; font-weight:700;}
+    .col-score{width:10%; text-align:center; font-weight:800;}
+    .col-desc{width:auto;}
+    .muted-print{color:#555}
 
     .block{margin-top:14px;}
     .block h2{margin:0 0 6px; font-size:15px;}
@@ -221,7 +233,6 @@
           <span id="stateText">Sin cambios</span>
         </div>
         <button class="btn ghost" id="btnNew" type="button">Nuevo</button>
-        <button class="btn" id="btnLoad" type="button">Cargar</button>
         <button class="btn primary" id="btnSave" type="button">Guardar</button>
         <button class="btn primary" id="btnGenerate" type="button">Generar</button>
         <button class="btn" id="btnPrint" type="button">Imprimir / Enviar a PDF</button>
@@ -238,8 +249,8 @@
           <div>
             <label>Tipo</label>
             <select id="tipoFormulario">
-              <option value="autoevaluacion" selected>Formulario de autoevaluación</option>
-              <option value="desempeno">Formulario de evaluación del desempeño</option>
+              <option value="autoevaluacion">Formulario de autoevaluación</option>
+              <option value="desempeno" selected>Formulario de evaluación del desempeño</option>
               <option value="clientes">Evaluación de clientes</option>
             </select>
             <div class="hint">El guardado siempre va a Google Sheets (Web App de Apps Script).</div>
@@ -279,6 +290,7 @@
           </div>
           <div>
             <label>Fecha</label>
+            <!-- Calendario -->
             <input id="fecha" type="date" />
           </div>
         </div>
@@ -297,7 +309,7 @@
 
         <div id="itemsContainer"></div>
 
-        <!-- SOLO autoevaluación -->
+        <!-- Campo SOLO para autoevaluación -->
         <div id="autoComentariosBox" style="display:none; margin-top:14px;">
           <div class="divider"></div>
           <h3 style="margin:0 0 6px;">Comentarios del colaborador</h3>
@@ -306,34 +318,39 @@
         </div>
       </div>
 
-      <!-- Campos SOLO desempeño (se guardan, pero NO se imprimen en PDF) -->
+      <!-- Justificación y comentarios (SOLO evaluación del desempeño) -->
       <div class="card" id="desempenoCamposBox" style="display:none;">
         <h2>Justificación y comentarios</h2>
-        <p>Estos campos se guardan en Sheet para consulta interna, pero NO se muestran en el PDF.</p>
+        <p>Completa los campos siguientes (según formato).</p>
 
         <div style="margin-top:14px;">
           <label>Justificación calificaciones (1 - 6)</label>
-          <textarea id="justificacion"></textarea>
+          <textarea id="justificacion" placeholder="Describe la justificación de las calificaciones..."></textarea>
         </div>
+
         <div style="margin-top:12px;">
           <label>Comentarios del evaluador</label>
-          <textarea id="comentariosEvaluador"></textarea>
+          <textarea id="comentariosEvaluador" placeholder="Comentarios del evaluador..."></textarea>
         </div>
+
         <div style="margin-top:12px;">
           <label>Fortalezas</label>
-          <textarea id="fortalezas"></textarea>
+          <textarea id="fortalezas" placeholder="Fortalezas..."></textarea>
         </div>
+
         <div style="margin-top:12px;">
           <label>Oportunidades de mejora</label>
-          <textarea id="oportunidades"></textarea>
+          <textarea id="oportunidades" placeholder="Oportunidades de mejora..."></textarea>
         </div>
+
         <div style="margin-top:12px;">
           <label>Proyección y potencial de desarrollo</label>
-          <textarea id="proyeccion"></textarea>
+          <textarea id="proyeccion" placeholder="Proyección y potencial..."></textarea>
         </div>
+
         <div style="margin-top:12px;">
           <label>Comentarios del colaborador</label>
-          <textarea id="comentariosColaborador2"></textarea>
+          <textarea id="comentariosColaborador2" placeholder="Comentarios del colaborador..."></textarea>
         </div>
       </div>
 
@@ -346,7 +363,7 @@
 
     </div>
 
-    <!-- Reporte (solo aparece al imprimir) -->
+    <!-- Reporte (solo aparece al imprimir / generar) -->
     <div class="print-area" id="printArea">
       <div class="report" id="report">
         <div class="report-head">
@@ -359,6 +376,7 @@
           </div>
         </div>
 
+        <!-- Layout solicitado: 2 columnas por fila y una fila de 3 -->
         <div class="report-kv">
           <div class="kv-row">
             <div class="kv"><div class="k">No. de personal</div><div class="v" id="rNoPersonal">—</div></div>
@@ -376,12 +394,23 @@
         </div>
 
         <!-- SOLO opción seleccionada por ítem -->
-        <div id="rSoloSeleccion"></div>
+        <div id="rRubricas"></div>
 
-        <!-- SOLO comentarios colaborador (autoevaluación) -->
+        <div class="block">
+          <h2>Puntaje total</h2>
+          <div class="box" id="rTotal">0.00</div>
+        </div>
+
+        <!-- SOLO Comentarios del colaborador -->
         <div class="block" id="rComentariosBlock" style="display:none;">
           <h2>Comentarios del colaborador</h2>
           <div class="box" id="rComentarios">—</div>
+        </div>
+
+        <!-- Justificación (solo desempeño). Si NO lo quieres en PDF también, lo quitamos. -->
+        <div class="block" id="rJustifBlock" style="display:none;">
+          <h2>Justificación y comentarios (evaluación del desempeño)</h2>
+          <div class="box" id="rJustifAll">—</div>
         </div>
       </div>
     </div>
@@ -390,170 +419,246 @@
 
 <script>
   /************************************************************
-   * 0) TU WEB APP (YA PEGADA AQUÍ) ✅
+   * 1) URL COMPLETA DEL APPS SCRIPT (/exec)
    ************************************************************/
-  const API_URL = "https://script.google.com/macros/s/AKfycbzHrGuLsTnLSe3WbhbbmbHPW1RDs9vBcPWM6w9nm6DLPJmegr7Q_ZFZtl-rHn93wFz0/exec";
+  const API_URL = "https://script.google.com/macros/s/AKfycbyg4Ajs3N-Rq59DftYFh5gpcLjkLL4eZ1s-rznjDabwVRib6SJUqRsnVfG-WNCbz1HiDg/exec";
 
   /************************************************************
-   * 1) Ítems + rúbrica 1–5
+   * 2) Ítems + rúbrica 1–5
    ************************************************************/
   const ITEMS = [
     {
       group: "1. Metas, productividad y eficiencia",
       items: [
-        { key:"A_metas", label:"A. Cumplimiento de Metas. Grado de logro", rubric:[
-          "No alcanza la mayoría de las metas; cumple menos del 70 % de lo establecido. La falta de avance afecta los resultados esperados.",
-          "Logra entre 70–89 % de las metas; presenta avances parciales o inconsistentes y requiere correcciones.",
-          "Alcanza el 100 % de las metas planificadas con calidad y dentro del tiempo establecido.",
-          "Supera el 100 % y llega hasta un 110 % de las metas; entrega resultados adicionales o mejores de lo esperado.",
-          "Supera más del 110 % de las metas de forma sostenida, con impacto significativo y calidad superior."
-        ]},
-        { key:"B_eficiencia", label:"B. Eficiencia en el uso del tiempo, costos y recursos", rubric:[
-          "Usa el tiempo y los recursos con errores graves que afectan la eficiencia.",
-          "Muestra uso inestable del tiempo y los recursos; requiere evaluaciones y correcciones frecuentes.",
-          "Utiliza de manera adecuada el tiempo y los recursos, cumpliendo sin desperdicios significativos.",
-          "Optimiza tiempo y recursos, generando mejoras o ahorros sin afectar la calidad del trabajo.",
-          "Maximiza la eficiencia de forma sostenida, mejora procesos y logra resultados superiores sin comprometer la calidad."
-        ]},
-        { key:"C_seguridad", label:"C. Cumplimiento de normas de seguridad", rubric:[
-          "Incumple normas de seguridad y genera riesgos constantes para sí y el equipo.",
-          "Cumple parcialmente las normas; requiere supervisión continua para evitar incidentes.",
-          "Cumple todas las normas de seguridad y actúa de manera segura en su trabajo diario.",
-          "Se anticipa a riesgos, propone acciones preventivas y actúa con autonomía segura.",
-          "Promueve una cultura de seguridad; motiva a otros y contribuye a mantener ambientes sin incidentes."
-        ]},
-        { key:"D_prioriza", label:"D. Prioriza y organiza tareas adecuadamente", rubric:[
-          "Desorganiza las tareas; incumple plazos y afecta resultados importantes.",
-          "Organiza parcialmente; presenta inconsistencias en prioridades y manejo del tiempo.",
-          "Gestiona las tareas de forma adecuada, cumple tiempos y mantiene orden en su trabajo.",
-          "Organiza y prioriza con eficiencia, anticipa necesidades y mejora sus tiempos de entrega.",
-          "Es referente en organización; redistribuye recursos, optimiza procesos y eleva la productividad del equipo."
-        ]}
+        {
+          key: "A_metas",
+          label: "A. Cumplimiento de Metas. Grado de logro",
+          rubric: [
+            "No alcanza la mayoría de las metas; cumple menos del 70 % de lo establecido. La falta de avance afecta los resultados esperados.",
+            "Logra entre 70–89 % de las metas; presenta avances parciales o inconsistentes y requiere correcciones.",
+            "Alcanza el 100 % de las metas planificadas con calidad y dentro del tiempo establecido.",
+            "Supera el 100 % y llega hasta un 110 % de las metas; entrega resultados adicionales o mejores de lo esperado.",
+            "Supera más del 110 % de las metas de forma sostenida, con impacto significativo y calidad superior."
+          ]
+        },
+        {
+          key: "B_eficiencia",
+          label: "B. Eficiencia en el uso del tiempo, costos y recursos",
+          rubric: [
+            "Usa el tiempo y los recursos con errores graves que afectan la eficiencia.",
+            "Muestra uso inestable del tiempo y los recursos; requiere evaluaciones y correcciones frecuentes.",
+            "Utiliza de manera adecuada el tiempo y los recursos, cumpliendo sin desperdicios significativos.",
+            "Optimiza tiempo y recursos, generando mejoras o ahorros sin afectar la calidad del trabajo.",
+            "Maximiza la eficiencia de forma sostenida, mejora procesos y logra resultados superiores sin comprometer la calidad."
+          ]
+        },
+        {
+          key: "C_seguridad",
+          label: "C. Cumplimiento de normas de seguridad",
+          rubric: [
+            "Incumple normas de seguridad y genera riesgos constantes para sí y el equipo.",
+            "Cumple parcialmente las normas; requiere supervisión continua para evitar incidentes.",
+            "Cumple todas las normas de seguridad y actúa de manera segura en su trabajo diario.",
+            "Se anticipa a riesgos, propone acciones preventivas y actúa con autonomía segura.",
+            "Promueve una cultura de seguridad; motiva a otros y contribuye a mantener ambientes sin incidentes."
+          ]
+        },
+        {
+          key: "D_prioriza",
+          label: "D. Prioriza y organiza tareas adecuadamente",
+          rubric: [
+            "Desorganiza las tareas; incumple plazos y afecta resultados importantes.",
+            "Organiza parcialmente; presenta inconsistencias en prioridades y manejo del tiempo.",
+            "Gestiona las tareas de forma adecuada, cumple tiempos y mantiene orden en su trabajo.",
+            "Organiza y prioriza con eficiencia, anticipa necesidades y mejora sus tiempos de entrega.",
+            "Es referente en organización; redistribuye recursos, optimiza procesos y eleva la productividad del equipo."
+          ]
+        }
       ]
     },
     {
       group: "2. Calidad del Trabajo",
       items: [
-        { key:"A_exactitud", label:"A. Exactitud y atención al detalle", rubric:[
-          "Comete errores frecuentes y no identifica fallos evidentes; requiere supervisión constante para evitar errores mayores.",
-          "Presenta errores recurrentes por falta de revisión; la exactitud es inconsistente y requiere correcciones frecuentes.",
-          "Realiza su trabajo con un nivel adecuado de precisión; puede cometer errores menores que no afectan los resultados.",
-          "Mantiene una atención al detalle constante; comete pocos errores y revisa su trabajo de forma proactiva.",
-          "Su trabajo es impecable; detecta errores propios y ajenos, propone mejoras y es referente en precisión."
-        ]},
-        { key:"B_estandares", label:"B. Cumple con estándares de calidad", rubric:[
-          "Menos del 70 % de los entregables cumplen los estándares; los resultados son inaceptables.",
-          "Entre 70–89 % de los entregables cumplen los estándares; requiere ajustes frecuentes.",
-          "El 100 % de los entregables cumplen los estándares establecidos.",
-          "Cumplimiento entre 101–110 %; entrega con calidad superior y consistente.",
-          "Más del 110 % de cumplimiento; supera ampliamente los estándares y produce resultados sobresalientes."
-        ]},
-        { key:"C_entregas", label:"C. Entregas a tiempo, cumple con plazos establecidos", rubric:[
-          "Menos del 70 % de las entregas se cumplen a tiempo; los retrasos afectan el área.",
-          "Entre 70–89 % de las entregas se realizan a tiempo; desempeño irregular.",
-          "El 100 % de las entregas se cumplen en los plazos pactados.",
-          "Cumple entre 101–110 % de los tiempos; se anticipa en algunas entregas y mantiene calidad.",
-          "Entrega más del 110 % a tiempo; supera plazos, mantiene calidad y mejora la eficiencia general."
-        ]},
-        { key:"D_errores", label:"D. Manejo de errores y mejoras", rubric:[
-          "No reconoce ni corrige errores; genera reincidencias graves.",
-          "Corrige parcialmente, con retrasos o bajo nivel de supervisión; la mejora no es constante.",
-          "Detecta y corrige errores básicos cuando se le solicita; cumple lo necesario.",
-          "Se anticipa a errores y propone soluciones preventivas que mejoran el proceso.",
-          "Asegura procesos libres de errores, implementa mejoras continuas y es referente en calidad."
-        ]}
+        {
+          key: "A_exactitud",
+          label: "A. Exactitud y atención al detalle",
+          rubric: [
+            "Comete errores frecuentes y no identifica fallos evidentes; requiere supervisión constante para evitar errores mayores.",
+            "Presenta errores recurrentes por falta de revisión; la exactitud es inconsistente y requiere correcciones frecuentes.",
+            "Realiza su trabajo con un nivel adecuado de precisión; puede cometer errores menores que no afectan los resultados.",
+            "Mantiene una atención al detalle constante; comete pocos errores y revisa su trabajo de forma proactiva.",
+            "Su trabajo es impecable; detecta errores propios y ajenos, propone mejoras y es referente en precisión."
+          ]
+        },
+        {
+          key: "B_estandares",
+          label: "B. Cumple con estándares de calidad",
+          rubric: [
+            "Menos del 70 % de los entregables cumplen los estándares; los resultados son inaceptables.",
+            "Entre 70–89 % de los entregables cumplen los estándares; requiere ajustes frecuentes.",
+            "El 100 % de los entregables cumplen los estándares establecidos.",
+            "Cumplimiento entre 101–110 %; entrega con calidad superior y consistente.",
+            "Más del 110 % de cumplimiento; supera ampliamente los estándares y produce resultados sobresalientes."
+          ]
+        },
+        {
+          key: "C_entregas",
+          label: "C. Entregas a tiempo, cumple con plazos establecidos",
+          rubric: [
+            "Menos del 70 % de las entregas se cumplen a tiempo; los retrasos afectan el área.",
+            "Entre 70–89 % de las entregas se realizan a tiempo; desempeño irregular.",
+            "El 100 % de las entregas se cumplen en los plazos pactados.",
+            "Cumple entre 101–110 % de los tiempos; se anticipa en algunas entregas y mantiene calidad.",
+            "Entrega más del 110 % a tiempo; supera plazos, mantiene calidad y mejora la eficiencia general."
+          ]
+        },
+        {
+          key: "D_errores",
+          label: "D. Manejo de errores y mejoras",
+          rubric: [
+            "No reconoce ni corrige errores; genera reincidencias graves.",
+            "Corrige parcialmente, con retrasos o bajo nivel de supervisión; la mejora no es constante.",
+            "Detecta y corrige errores básicos cuando se le solicita; cumple lo necesario.",
+            "Se anticipa a errores y propone soluciones preventivas que mejoran el proceso.",
+            "Asegura procesos libres de errores, implementa mejoras continuas y es referente en calidad."
+          ]
+        }
       ]
     },
     {
       group: "3. Competencias y Habilidades",
       items: [
-        { key:"A_conocimientos", label:"A. Conocimientos técnicos del puesto", rubric:[
-          "Conocimientos muy por debajo de lo esperado; no domina funciones básicas del puesto.",
-          "Gestiona parcialmente los conocimientos requeridos y necesita apoyo frecuente.",
-          "Posee el conocimiento necesario y funcional para el puesto; desempeño adecuado.",
-          "Aplica los conocimientos de manera confiable y constante.",
-          "Domina los conocimientos, aplica técnicas avanzadas y es referente técnico en el área."
-        ]},
-        { key:"B_clientes", label:"B. Convincente respuesta técnica a clientes", rubric:[
-          "Respuestas incorrectas o inconsistentes que generan desconfianza.",
-          "Respuestas incompletas o poco claras que afectan la calidad del servicio.",
-          "Responde de forma adecuada y funcional, brindando confianza.",
-          "Respuestas claras, específicas y confiables de manera constante.",
-          "Respuestas sobresalientes y precisas, reconocidas como referente por clientes."
-        ]},
-        { key:"C_problemas", label:"C. Resolución de problemas", rubric:[
-          "No logra resolver problemas; afecta procesos y resultados.",
-          "Resuelve parcialmente los problemas, requiriendo supervisión frecuente.",
-          "Resuelve problemas básicos de manera satisfactoria y funcional.",
-          "Resuelve problemas complejos con autonomía y confiabilidad.",
-          "Anticipa problemas y desarrolla soluciones preventivas y estratégicas."
-        ]},
-        { key:"D_iniciativa", label:"D. Iniciativa y creatividad", rubric:[
-          "No genera ideas ni propone mejoras.",
-          "Propone ideas poco útiles o de aplicación limitada.",
-          "Propone ideas funcionales y aplicables cuando es necesario.",
-          "Genera ideas prácticas que optimizan procesos y agregan valor.",
-          "Propone soluciones innovadoras con impacto positivo y sostenible en el área."
-        ]}
+        {
+          key: "A_conocimientos",
+          label: "A. Conocimientos técnicos del puesto",
+          rubric: [
+            "Conocimientos muy por debajo de lo esperado; no domina funciones básicas del puesto.",
+            "Gestiona parcialmente los conocimientos requeridos y necesita apoyo frecuente.",
+            "Posee el conocimiento necesario y funcional para el puesto; desempeño adecuado.",
+            "Aplica los conocimientos de manera confiable y constante.",
+            "Domina los conocimientos, aplica técnicas avanzadas y es referente técnico en el área."
+          ]
+        },
+        {
+          key: "B_clientes",
+          label: "B. Convincente respuesta técnica a clientes",
+          rubric: [
+            "Respuestas incorrectas o inconsistentes que generan desconfianza.",
+            "Respuestas incompletas o poco claras que afectan la calidad del servicio.",
+            "Responde de forma adecuada y funcional, brindando confianza.",
+            "Respuestas claras, específicas y confiables de manera constante.",
+            "Respuestas sobresalientes y precisas, reconocidas como referente por clientes."
+          ]
+        },
+        {
+          key: "C_problemas",
+          label: "C. Resolución de problemas",
+          rubric: [
+            "No logra resolver problemas; afecta procesos y resultados.",
+            "Resuelve parcialmente los problemas, requiriendo supervisión frecuente.",
+            "Resuelve problemas básicos de manera satisfactoria y funcional.",
+            "Resuelve problemas complejos con autonomía y confiabilidad.",
+            "Anticipa problemas y desarrolla soluciones preventivas y estratégicas."
+          ]
+        },
+        {
+          key: "D_iniciativa",
+          label: "D. Iniciativa y creatividad",
+          rubric: [
+            "No genera ideas ni propone mejoras.",
+            "Propone ideas poco útiles o de aplicación limitada.",
+            "Propone ideas funcionales y aplicables cuando es necesario.",
+            "Genera ideas prácticas que optimizan procesos y agregan valor.",
+            "Propone soluciones innovadoras con impacto positivo y sostenible en el área."
+          ]
+        }
       ]
     },
     {
       group: "4. Actitud y Valores",
       items: [
-        { key:"A_responsabilidad", label:"A. Responsabilidad y compromiso", rubric:[
-          "Incumple compromisos y entrega resultados muy por debajo de lo esperado.",
-          "Cumple compromisos de forma irregular y requiere seguimiento constante.",
-          "Cumple con sus responsabilidades de manera adecuada y confiable.",
-          "Cumple de forma consistente, genera seguridad y aporta valor.",
-          "Inspira por su compromiso; es modelo de conducta para el equipo."
-        ]},
-        { key:"B_puntualidad", label:"B. Puntualidad y asistencia", rubric:[
-          "Ausencias frecuentes e injustificadas; llegadas tardías recurrentes sin aviso y sin intención de mejora.",
-          "Se presenta con frecuencia tarde o sin justificación clara, afectando la operación.",
-          "Asiste regularmente y cumple horarios; puede presentar llegadas tarde o ausencias justificadas sin reincidencia.",
-          "Es puntual y mantiene asistencia confiable; respeta horarios y comunica eventualidades oportunamente.",
-          "Puntualidad y asistencia impecables; es referente para el equipo y se adapta a horarios especiales sin afectar el desempeño."
-        ]},
-        { key:"C_equipo", label:"C. Trabajo en equipo y cooperación", rubric:[
-          "No coopera; genera conflictos y dificulta el trabajo del equipo.",
-          "Coopera parcialmente y de manera inestable, con resultados aceptables.",
-          "Coopera cuando se le solicita, con resultados aceptables.",
-          "Colabora activamente con el equipo y aporta de forma confiable.",
-          "Es referente en trabajo en equipo; promueve colaboración, comunicación e influye positivamente en otros."
-        ]},
-        { key:"D_comunicacion", label:"D. Comunicación efectiva", rubric:[
-          "Comunicación confusa; genera malentendidos graves.",
-          "Comunicación incompleta o poco clara; requiere supervisión para asegurar claridad.",
-          "Comunica lo necesario de forma clara y suficiente.",
-          "Comunicación clara, precisa y constructiva; escucha activamente.",
-          "Comunicación influyente y estratégica; facilita acuerdos y motiva a otros."
-        ]}
+        {
+          key: "A_responsabilidad",
+          label: "A. Responsabilidad y compromiso",
+          rubric: [
+            "Incumple compromisos y entrega resultados muy por debajo de lo esperado.",
+            "Cumple compromisos de forma irregular y requiere seguimiento constante.",
+            "Cumple con sus responsabilidades de manera adecuada y confiable.",
+            "Cumple de forma consistente, genera seguridad y aporta valor.",
+            "Inspira por su compromiso; es modelo de conducta para el equipo."
+          ]
+        },
+        {
+          key: "B_puntualidad",
+          label: "B. Puntualidad y asistencia",
+          rubric: [
+            "Ausencias frecuentes e injustificadas; llegadas tardías recurrentes sin aviso y sin intención de mejora.",
+            "Se presenta con frecuencia tarde o sin justificación clara, afectando la operación.",
+            "Asiste regularmente y cumple horarios; puede presentar llegadas tarde o ausencias justificadas sin reincidencia.",
+            "Es puntual y mantiene asistencia confiable; respeta horarios y comunica eventualidades oportunamente.",
+            "Puntualidad y asistencia impecables; es referente para el equipo y se adapta a horarios especiales sin afectar el desempeño."
+          ]
+        },
+        {
+          key: "C_equipo",
+          label: "C. Trabajo en equipo y cooperación",
+          rubric: [
+            "No coopera; genera conflictos y dificulta el trabajo del equipo.",
+            "Coopera parcialmente y de manera inestable, con resultados aceptables.",
+            "Coopera cuando se le solicita, con resultados aceptables.",
+            "Colabora activamente con el equipo y aporta de forma confiable.",
+            "Es referente en trabajo en equipo; promueve colaboración, comunicación e influye positivamente en otros."
+          ]
+        },
+        {
+          key: "D_comunicacion",
+          label: "D. Comunicación efectiva",
+          rubric: [
+            "Comunicación confusa; genera malentendidos graves.",
+            "Comunicación incompleta o poco clara; requiere supervisión para asegurar claridad.",
+            "Comunica lo necesario de forma clara y suficiente.",
+            "Comunicación clara, precisa y constructiva; escucha activamente.",
+            "Comunicación influyente y estratégica; facilita acuerdos y motiva a otros."
+          ]
+        }
       ]
     },
     {
       group: "5. Desarrollo y Potencial",
       items: [
-        { key:"A_adaptacion", label:"A. Adaptación al cambio", rubric:[
-          "Se resiste activamente al cambio; afecta procesos y equipos.",
-          "Se adapta parcialmente, con dificultad y resultados limitados.",
-          "Se adapta lo necesario para mantener un desempeño adecuado.",
-          "Se adapta de forma autónoma y confiable a nuevas situaciones.",
-          "Es referente en adaptación; motiva y guía a otros en procesos de cambio."
-        ]},
-        { key:"B_aprender", label:"B. Disposición para aprender", rubric:[
-          "No busca aprender; rechaza retroalimentación y capacitación.",
-          "Aprende solo lo obligatorio y con mínima aplicación práctica.",
-          "Aprende lo necesario para mantener un desempeño satisfactorio.",
-          "Busca aprender constantemente y aplica lo aprendido en el trabajo.",
-          "Se mantiene en aprendizaje continuo, comparte conocimientos y forma a otros."
-        ]},
-        { key:"C_liderazgo", label:"C. Liderazgo", rubric:[
-          "No logra coordinar ni dirigir; genera desorden y afecta resultados.",
-          "Lidera de forma débil, con bajo impacto en el equipo.",
-          "Lidera tareas básicas con resultados adecuados y funcionales.",
-          "Lidera con confianza, logrando resultados consistentes y estables.",
-          "Inspira con visión clara; desarrolla a otros, fortalece la cohesión del equipo y se convierte en referente."
-        ]}
+        {
+          key: "A_adaptacion",
+          label: "A. Adaptación al cambio",
+          rubric: [
+            "Se resiste activamente al cambio; afecta procesos y equipos.",
+            "Se adapta parcialmente, con dificultad y resultados limitados.",
+            "Se adapta lo necesario para mantener un desempeño adecuado.",
+            "Se adapta de forma autónoma y confiable a nuevas situaciones.",
+            "Es referente en adaptación; motiva y guía a otros en procesos de cambio."
+          ]
+        },
+        {
+          key: "B_aprender",
+          label: "B. Disposición para aprender",
+          rubric: [
+            "No busca aprender; rechaza retroalimentación y capacitación.",
+            "Aprende solo lo obligatorio y con mínima aplicación práctica.",
+            "Aprende lo necesario para mantener un desempeño satisfactorio.",
+            "Busca aprender constantemente y aplica lo aprendido en el trabajo.",
+            "Se mantiene en aprendizaje continuo, comparte conocimientos y forma a otros."
+          ]
+        },
+        {
+          key: "C_liderazgo",
+          label: "C. Liderazgo",
+          rubric: [
+            "No logra coordinar ni dirigir; genera desorden y afecta resultados.",
+            "Lidera de forma débil, con bajo impacto en el equipo.",
+            "Lidera tareas básicas con resultados adecuados y funcionales.",
+            "Lidera con confianza, logrando resultados consistentes y estables.",
+            "Inspira con visión clara; desarrolla a otros, fortalece la cohesión del equipo y se convierte en referente."
+          ]
+        }
       ]
     }
   ];
@@ -568,20 +673,13 @@
     state.dirty = v;
     const dot = $("stateDot");
     const text = $("stateText");
-    if(v){ dot.style.background="var(--warn)"; text.textContent="Cambios sin guardar"; }
-    else { dot.style.background="var(--ok)"; text.textContent="Sin cambios"; }
-  }
-
-  function applyTipoUI(){
-    const tipo = $("tipoFormulario").value;
-    $("appTitle").textContent =
-      tipo === "autoevaluacion" ? "Formulario de autoevaluación del desempeño" :
-      tipo === "clientes" ? "Formulario de evaluación de clientes" :
-      "Formulario de evaluación del desempeño";
-
-    $("autoComentariosBox").style.display = (tipo === "autoevaluacion") ? "block" : "none";
-    $("desempenoCamposBox").style.display = (tipo === "desempeno") ? "block" : "none";
-    $("clientesBox").style.display = (tipo === "clientes") ? "block" : "none";
+    if(v){
+      dot.style.background = "var(--warn)";
+      text.textContent = "Cambios sin guardar";
+    }else{
+      dot.style.background = "var(--ok)";
+      text.textContent = "Sin cambios";
+    }
   }
 
   function renderItems(){
@@ -671,6 +769,7 @@
 
   function getExtraFields(){
     const tipo = $("tipoFormulario").value;
+
     if(tipo === "autoevaluacion"){
       return { comentarios_colaborador: $("comentariosColaborador").value.trim() };
     }
@@ -687,78 +786,129 @@
     return {};
   }
 
-  function flattenAnswers(){
-    const out = {};
-    ITEMS.forEach(sec=>sec.items.forEach(it=>{
-      out[it.key] = (typeof state.answers[it.key] === "number") ? state.answers[it.key] : "";
-    }));
-    return out;
+  function computeTotal(){
+    const vals = Object.values(state.answers).filter(v => typeof v === "number");
+    if(!vals.length) return 0;
+    const avg = vals.reduce((a,b)=>a+b,0) / vals.length;
+    return +(avg * 20).toFixed(2);
   }
 
-  function buildSelectedOnlyTable(){
-    const host = $("rSoloSeleccion");
+  function formatDateES(yyyy_mm_dd){
+    if(!yyyy_mm_dd) return "—";
+    // yyyy-mm-dd -> Date en local
+    const [y,m,d] = yyyy_mm_dd.split("-").map(n=>parseInt(n,10));
+    if(!y || !m || !d) return yyyy_mm_dd;
+    const dt = new Date(y, m-1, d);
+    return dt.toLocaleDateString("es-HN");
+  }
+
+  // SOLO opción seleccionada por ítem (no tabla 1-5 completa)
+  function renderSeleccionEnReporte(){
+    const host = $("rRubricas");
     host.innerHTML = "";
 
-    ITEMS.forEach(sec=>{
+    ITEMS.forEach(sec => {
+      const wrap = document.createElement("div");
+      wrap.className = "rubric-wrap";
+
       const title = document.createElement("div");
-      title.style.marginTop = "14px";
-      title.style.fontWeight = "900";
+      title.className = "rubric-title";
       title.textContent = sec.group;
-      host.appendChild(title);
+      wrap.appendChild(title);
 
       const table = document.createElement("table");
-      table.className = "simple-table";
+      table.className = "sel-table";
 
       const thead = document.createElement("thead");
-      thead.innerHTML = "<tr><th style='width:40%'>Ítem</th><th style='width:10%'>Puntaje</th><th>Descripción (solo opción seleccionada)</th></tr>";
+      const trh = document.createElement("tr");
+
+      const thItem = document.createElement("th");
+      thItem.className = "col-item";
+      thItem.textContent = "Ítem";
+      trh.appendChild(thItem);
+
+      const thScore = document.createElement("th");
+      thScore.className = "col-score";
+      thScore.textContent = "Puntaje";
+      trh.appendChild(thScore);
+
+      const thDesc = document.createElement("th");
+      thDesc.className = "col-desc";
+      thDesc.textContent = "Opción seleccionada";
+      trh.appendChild(thDesc);
+
+      thead.appendChild(trh);
       table.appendChild(thead);
 
       const tbody = document.createElement("tbody");
 
-      sec.items.forEach(it=>{
-        const v = state.answers[it.key]; // 1..5
-        const desc = (typeof v === "number" && it.rubric && it.rubric[v-1]) ? it.rubric[v-1] : "—";
+      sec.items.forEach(it => {
+        const v = state.answers[it.key]; // 1..5 o null
         const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${it.label}</td>
-          <td>${typeof v === "number" ? v : "—"}</td>
-          <td>${desc}</td>
-        `;
+
+        const tdItem = document.createElement("td");
+        tdItem.className = "col-item";
+        tdItem.textContent = it.label;
+        tr.appendChild(tdItem);
+
+        const tdScore = document.createElement("td");
+        tdScore.className = "col-score";
+        tdScore.textContent = (typeof v === "number") ? String(v) : "—";
+        tr.appendChild(tdScore);
+
+        const tdDesc = document.createElement("td");
+        tdDesc.className = "col-desc";
+        if(typeof v === "number" && it.rubric && it.rubric[v-1]){
+          tdDesc.textContent = it.rubric[v-1];
+        }else{
+          tdDesc.innerHTML = `<span class="muted-print">Sin selección</span>`;
+        }
+        tr.appendChild(tdDesc);
+
         tbody.appendChild(tr);
       });
 
       table.appendChild(tbody);
-      host.appendChild(table);
+      wrap.appendChild(table);
+
+      host.appendChild(wrap);
     });
   }
 
   function buildReport(){
     const header = getHeaderData();
     const extra = getExtraFields();
+    const total = computeTotal();
 
-    $("rTitle").textContent = (header.tipo === "autoevaluacion")
-      ? "Autoevaluación del desempeño"
-      : (header.tipo === "clientes")
-        ? "Evaluación de clientes"
-        : "Evaluación del desempeño";
+    $("rTitle").textContent =
+      (header.tipo === "autoevaluacion")
+        ? "Autoevaluación del desempeño"
+        : (header.tipo === "clientes")
+          ? "Evaluación de clientes"
+          : "Evaluación del desempeño";
 
     $("rGenerated").textContent = new Date().toLocaleString();
+
     $("rNoPersonal").textContent = header.no_personal || "—";
     $("rNombre").textContent = header.nombre || "—";
     $("rPosicion").textContent = header.posicion || "—";
     $("rDepartamento").textContent = header.departamento || "—";
     $("rPeriodo").textContent = header.periodo || "—";
     $("rVersion").textContent = header.version || "—";
-    $("rFecha").textContent = header.fecha || "—";
+    $("rFecha").textContent = formatDateES(header.fecha);
 
-    // Tabla solo con selección por ítem
-    buildSelectedOnlyTable();
+    // SOLO selección por ítem
+    renderSeleccionEnReporte();
 
-    // SOLO comentarios colaborador (autoevaluación)
+    $("rTotal").textContent = String(total);
+
+    // SOLO Comentarios del colaborador (según tipo)
     const comentarioColab =
       (header.tipo === "autoevaluacion")
         ? (extra.comentarios_colaborador || "")
-        : "";
+        : (header.tipo === "desempeno")
+          ? (extra.comentarios_colaborador || "")
+          : "";
 
     if(comentarioColab){
       $("rComentariosBlock").style.display = "block";
@@ -768,7 +918,36 @@
       $("rComentarios").textContent = "—";
     }
 
+    // Justificación (solo desempeño) -> si NO lo quieres en PDF, dímelo y lo eliminamos completo.
+    if(header.tipo === "desempeno"){
+      $("rJustifBlock").style.display = "block";
+      const txt = [
+        `Justificación calificaciones (1-6): ${extra.justificacion || "—"}`,
+        `Comentarios del evaluador: ${extra.comentarios_evaluador || "—"}`,
+        `Fortalezas: ${extra.fortalezas || "—"}`,
+        `Oportunidades de mejora: ${extra.oportunidades_mejora || "—"}`,
+        `Proyección y potencial: ${extra.proyeccion_potencial || "—"}`
+      ].join("\n\n");
+      $("rJustifAll").textContent = txt;
+    }else{
+      $("rJustifBlock").style.display = "none";
+      $("rJustifAll").textContent = "—";
+    }
+
     $("printArea").style.display = "block";
+  }
+
+  function applyTipoUI(){
+    const tipo = $("tipoFormulario").value;
+
+    $("appTitle").textContent =
+      tipo === "autoevaluacion" ? "Formulario de autoevaluación del desempeño" :
+      tipo === "clientes" ? "Formulario de evaluación de clientes" :
+      "Formulario de evaluación del desempeño";
+
+    $("autoComentariosBox").style.display = (tipo === "autoevaluacion") ? "block" : "none";
+    $("desempenoCamposBox").style.display = (tipo === "desempeno") ? "block" : "none";
+    $("clientesBox").style.display = (tipo === "clientes") ? "block" : "none";
   }
 
   function clearForm(){
@@ -799,6 +978,14 @@
     setDirty(false);
   }
 
+  function flattenAnswers(){
+    const out = {};
+    ITEMS.forEach(sec=>sec.items.forEach(it=>{
+      out[it.key] = (typeof state.answers[it.key] === "number") ? state.answers[it.key] : "";
+    }));
+    return out;
+  }
+
   async function saveToSheet(){
     const header = getHeaderData();
     if(!header.no_personal || !header.nombre){
@@ -810,6 +997,7 @@
       ...header,
       ...flattenAnswers(),
       ...getExtraFields(),
+      puntaje_total: computeTotal(),
       creado_en: new Date().toISOString()
     };
 
@@ -817,7 +1005,6 @@
       $("apiHint").className = "warn";
       $("apiHint").textContent = "Enviando a Google Sheets...";
 
-      // Intento CORS normal; si el navegador bloquea, reintento no-cors
       try{
         const res = await fetch(API_URL, {
           method: "POST",
@@ -825,11 +1012,12 @@
           headers: { "Content-Type": "text/plain;charset=utf-8" },
           body: JSON.stringify(payload)
         });
-        // Si deja leer status
+
         if(!res.ok){
           const t = await res.text().catch(()=> "");
           throw new Error(t || ("HTTP " + res.status));
         }
+
       }catch(eCors){
         await fetch(API_URL, {
           method: "POST",
@@ -840,7 +1028,7 @@
       }
 
       $("apiHint").className = "ok";
-      $("apiHint").textContent = "Enviado a Google Sheets ✅";
+      $("apiHint").textContent = "Enviado a Google Sheets ✅ (si no ves fila, revisa permisos del Web App)";
       setDirty(false);
 
     }catch(err){
@@ -848,70 +1036,6 @@
       $("apiHint").className = "err";
       $("apiHint").textContent = "Error al guardar: " + (err.message || err);
       alert("Error al guardar en Google Sheets: " + (err.message || err));
-    }
-  }
-
-  async function cargarDesdeSheet(){
-    const tipo = $("tipoFormulario").value;
-    const no_personal = $("noPersonal").value.trim();
-    const periodo = $("periodo").value.trim();
-    const version = $("version").value.trim();
-
-    if(!no_personal || !periodo || !version){
-      alert("Para cargar, llena: No. de personal, Periodo y Versión.");
-      return;
-    }
-
-    const url = `${API_URL}?action=get&tipo=${encodeURIComponent(tipo)}&no_personal=${encodeURIComponent(no_personal)}&periodo=${encodeURIComponent(periodo)}&version=${encodeURIComponent(version)}`;
-
-    try{
-      const res = await fetch(url, { method:"GET" });
-      const js = await res.json();
-
-      if(!js.ok){
-        alert("Error al recuperar: " + (js.error || "desconocido"));
-        return;
-      }
-      if(!js.found){
-        alert("No encontré registro con esos datos.");
-        return;
-      }
-
-      const data = js.data || {};
-
-      // Encabezado
-      $("nombre").value = data.nombre || "";
-      $("posicion").value = data.posicion || "";
-      $("departamento").value = data.departamento || "";
-      $("fecha").value = data.fecha || "";
-
-      // Respuestas
-      ITEMS.forEach(sec=>sec.items.forEach(it=>{
-        const val = data[it.key];
-        const sel = $("ans_" + it.key);
-        if(sel) sel.value = (val !== undefined && val !== null) ? String(val) : "";
-        state.answers[it.key] = sel.value ? Number(sel.value) : null;
-      }));
-
-      // Comentarios
-      if(tipo === "autoevaluacion"){
-        $("comentariosColaborador").value = data.comentarios_colaborador || "";
-      }else if(tipo === "desempeno"){
-        $("justificacion").value = data.justificacion || "";
-        $("comentariosEvaluador").value = data.comentarios_evaluador || "";
-        $("fortalezas").value = data.fortalezas || "";
-        $("oportunidades").value = data.oportunidades_mejora || "";
-        $("proyeccion").value = data.proyeccion_potencial || "";
-        $("comentariosColaborador2").value = data.comentarios_colaborador || "";
-      }
-
-      $("apiHint").className = "ok";
-      $("apiHint").textContent = "Registro cargado ✅";
-      setDirty(false);
-
-    }catch(err){
-      console.error(err);
-      alert("No se pudo cargar. Revisa tu WebApp / permisos.");
     }
   }
 
@@ -936,9 +1060,9 @@
     });
 
     $("btnSave").addEventListener("click", saveToSheet);
-    $("btnLoad").addEventListener("click", cargarDesdeSheet);
 
     $("btnGenerate").addEventListener("click", ()=>{
+      // Generar = mismo contenido que el PDF (solo selección + comentarios)
       buildReport();
       state.generated = true;
       setDirty(true);
