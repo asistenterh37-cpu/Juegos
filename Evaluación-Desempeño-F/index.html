@@ -76,12 +76,7 @@
       box-shadow: 0 12px 26px rgba(47,123,255,.25);
     }
     .btn.ghost{background:transparent}
-    .grid{
-      display:grid;
-      grid-template-columns: 1fr;
-      gap:16px;
-      margin-top:16px;
-    }
+    .grid{display:grid; grid-template-columns: 1fr; gap:16px; margin-top:16px;}
     .card{
       border:1px solid var(--stroke);
       background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
@@ -112,10 +107,7 @@
       background: rgba(0,0,0,.25);
     }
     textarea{min-height:90px; resize:vertical}
-    .section-title{
-      display:flex; align-items:center; justify-content:space-between;
-      margin:14px 0 8px;
-    }
+    .section-title{display:flex; align-items:center; justify-content:space-between; margin:14px 0 8px;}
     .section-title h3{margin:0; font-size:16px}
     .muted{color:var(--muted)}
     .divider{height:1px; background:rgba(255,255,255,.10); margin:16px 0;}
@@ -142,7 +134,11 @@
       gap:10px;
       margin-bottom:10px;
     }
-    .kv-row{display:grid; grid-template-columns: 1fr 1fr; gap:10px;}
+    .kv-row{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+    }
     .kv{
       border:1px solid #e6e6e6;
       padding:10px 12px;
@@ -161,7 +157,11 @@
       vertical-align:top;
       font-size:12px;
     }
-    .report-table th{background:#f7f7f7; text-align:left; font-size:12px;}
+    .report-table th{
+      background:#f7f7f7;
+      text-align:left;
+      font-size:12px;
+    }
     .block{margin-top:14px;}
     .block h2{margin:0 0 6px; font-size:15px;}
     .block .box{
@@ -172,7 +172,6 @@
       font-size:12px;
       white-space:pre-wrap;
     }
-
     @media print{
       body{background:#fff}
       .wrap{max-width:none; margin:0; padding:0}
@@ -265,7 +264,7 @@
         </div>
 
         <div class="hint">
-          Estado API: <span id="apiHint" class="warn">No configurada</span>
+          Estado API: <span id="apiHint" class="warn">No configurada (pega la URL del Apps Script en el código)</span>
         </div>
       </div>
 
@@ -408,9 +407,10 @@
 
 <script>
   /************************************************************
-   * 1) URL COMPLETA del APPS SCRIPT (/exec) ✅ (ya puesta)
+   * 1) PEGA AQUÍ TU URL COMPLETA DEL APPS SCRIPT (/exec)
+   *    Ejemplo: https://script.google.com/macros/s/AKfy.../exec
    ************************************************************/
-  const API_URL = "https://script.google.com/macros/s/AKfycbgy4Ajs3N-Rq59DftYFh5gpcLjkLL4eZ1s-rznjDabwVRib6SJUqRsnVfG-WNCbz1/exec";
+  const API_URL = "https://script.google.com/macros/s/PEGA_AQUI_TU_ID_COMPLETO/exec";
 
   /************************************************************
    * 2) Catálogo de ítems
@@ -577,7 +577,6 @@
     if(tipo === "autoevaluacion"){
       return { comentarios_colaborador: $("comentariosColaborador").value.trim() };
     }
-
     if(tipo === "desempeno"){
       return {
         justificacion: $("justificacion").value.trim(),
@@ -588,7 +587,6 @@
         comentarios_colaborador: $("comentariosColaborador2").value.trim()
       };
     }
-
     return {};
   }
 
@@ -608,10 +606,10 @@
   }
 
   function autoConclusionsAndPlans(total){
-    let conclusiones = "", capacitacion = "", carrera = "";
+    let conclusiones="", capacitacion="", carrera="";
     if(total >= 85){
       conclusiones = "Desempeño sobresaliente. Mantener prácticas actuales y asignar retos estratégicos.";
-      capacitacion = "Capacitación avanzada y certificaciones (especialidad del puesto). Mentoring a otros.";
+      capacitacion = "Capacitación avanzada y certificaciones. Mentoring a otros.";
       carrera = "Plan de carrera acelerado: proyectos líderes, rol senior o líder de célula según vacantes.";
     }else if(total >= 70){
       conclusiones = "Desempeño sólido. Se observan oportunidades puntuales de mejora.";
@@ -638,9 +636,7 @@
 
     $("rTitle").textContent = (header.tipo === "autoevaluacion")
       ? "Autoevaluación del desempeño"
-      : (header.tipo === "clientes")
-        ? "Evaluación de clientes"
-        : "Evaluación del desempeño";
+      : (header.tipo === "clientes") ? "Evaluación de clientes" : "Evaluación del desempeño";
 
     $("rGenerated").textContent = new Date().toLocaleString();
 
@@ -659,12 +655,15 @@
         const v = state.answers[it.key];
         const tr = document.createElement("tr");
 
-        const td1 = document.createElement("td"); td1.textContent = it.label;
-        const td2 = document.createElement("td"); td2.textContent = (typeof v === "number") ? v : "—";
+        const td1 = document.createElement("td");
+        td1.textContent = it.label;
+
+        const td2 = document.createElement("td");
+        td2.textContent = (typeof v === "number") ? v : "—";
+
         const td3 = document.createElement("td");
-        td3.textContent = (typeof v === "number")
-          ? (SCALE.find(s=>s.v===v)?.t || String(v))
-          : "No seleccionado";
+        const label = (typeof v === "number") ? (SCALE.find(s=>s.v===v)?.t || String(v)) : "No seleccionado";
+        td3.textContent = label;
 
         tr.appendChild(td1); tr.appendChild(td2); tr.appendChild(td3);
         tbody.appendChild(tr);
@@ -705,6 +704,7 @@
 
   function applyTipoUI(){
     const tipo = $("tipoFormulario").value;
+
     $("appTitle").textContent =
       tipo === "autoevaluacion" ? "Formulario de autoevaluación del desempeño" :
       tipo === "clientes" ? "Formulario de evaluación de clientes" :
@@ -751,14 +751,9 @@
     return out;
   }
 
-  /************************************************************
-   * ✅ GUARDADO CORREGIDO PARA GITHUB PAGES (CORS)
-   * - usamos mode: "no-cors" para que el navegador NO bloquee
-   * - no intentamos leer res.ok ni res.text (no se puede en no-cors)
-   ************************************************************/
   async function saveToSheet(){
     if(!apiConfigured()){
-      alert("API_URL inválida. Revisa que termine en /exec.");
+      alert("Falta configurar la API_URL. Pega la URL completa del Apps Script (/exec) en el código.");
       return;
     }
 
@@ -780,21 +775,24 @@
       $("apiHint").className = "ok";
       $("apiHint").textContent = "Enviando a Google Sheets...";
 
-      await fetch(API_URL, {
+      // Nota: text/plain evita preflight CORS en la mayoría de casos
+      const res = await fetch(API_URL, {
         method: "POST",
-        mode: "no-cors",
         headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: JSON.stringify(payload)
       });
 
-      // Si fetch no lanzó error, asumimos enviado ✅
+      const text = await res.text();
+      if(!res.ok) throw new Error(text || ("HTTP " + res.status));
+
       $("apiHint").className = "ok";
       $("apiHint").textContent = "Enviado a Google Sheets ✅ (si no ves fila, revisa permisos del Web App)";
       setDirty(false);
+      return text;
     }catch(err){
       console.error(err);
       $("apiHint").className = "err";
-      $("apiHint").textContent = "Error al enviar: " + err.message;
+      $("apiHint").textContent = "Error al guardar: " + err.message;
       alert("Error al guardar en Google Sheets: " + err.message);
     }
   }
@@ -803,9 +801,6 @@
     if(apiConfigured()){
       $("apiHint").className = "ok";
       $("apiHint").textContent = "API configurada ✅";
-    }else{
-      $("apiHint").className = "warn";
-      $("apiHint").textContent = "No configurada";
     }
 
     [
