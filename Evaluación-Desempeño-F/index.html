@@ -24,7 +24,7 @@
       --p-gray:#f7f7f7;
       --p-ink:#111;
       --p-sub:#444;
-      --p-hi:#dbeafe; /* highlight selected */
+      --p-hi:#dbeafe;
     }
     *{box-sizing:border-box}
     body{
@@ -163,7 +163,7 @@
     .kv .k{font-size:11px; color:#666; margin-bottom:3px}
     .kv .v{font-size:13px; font-weight:650}
 
-    /* Tabla “rubrica” como Excel (1–5) */
+    /* Tabla SOLO opción seleccionada */
     .rubric-wrap{margin-top:14px;}
     .rubric-title{
       margin:0 0 6px;
@@ -171,42 +171,29 @@
       color:var(--p-ink);
       font-weight:800;
     }
-    .rubric-table{
+    .sel-table{
       width:100%;
       border-collapse:collapse;
       table-layout:fixed;
       border:1px solid var(--p-border);
     }
-    .rubric-table th, .rubric-table td{
+    .sel-table th, .sel-table td{
       border:1px solid var(--p-border);
       padding:8px 8px;
       vertical-align:top;
       font-size:11px;
       word-wrap:break-word;
     }
-    .rubric-table th{
+    .sel-table th{
       background:var(--p-gray);
-      text-align:center;
+      text-align:left;
       font-weight:800;
       font-size:11px;
     }
-    .rubric-table .item-col{
-      width:22%;
-      font-weight:700;
-      text-align:left;
-      background:#fff;
-    }
-    .rubric-table .score-col{width:15.6%; text-align:left;}
-    .rubric-table .selected{
-      background: var(--p-hi);
-      outline: 2px solid #93c5fd;
-      outline-offset: -2px;
-    }
-    .rubric-note{
-      margin-top:6px;
-      font-size:11px;
-      color:#555;
-    }
+    .col-item{width:32%; font-weight:700;}
+    .col-score{width:10%; text-align:center; font-weight:800;}
+    .col-desc{width:auto;}
+    .muted-print{color:#555}
 
     .block{margin-top:14px;}
     .block h2{margin:0 0 6px; font-size:15px;}
@@ -237,7 +224,7 @@
         <div class="logo">ED</div>
         <div class="titles">
           <h1 id="appTitle">Formulario de evaluación del desempeño</h1>
-          <p>Escala 1–5 • Guardado en Google Sheets • Reporte PDF con rúbrica completa</p>
+          <p>Escala 1–5 • Guardado en Google Sheets • Reporte PDF (solo opción seleccionada)</p>
         </div>
       </div>
       <div class="actions">
@@ -376,7 +363,7 @@
 
     </div>
 
-    <!-- Reporte (solo aparece al imprimir) -->
+    <!-- Reporte (solo aparece al imprimir / generar) -->
     <div class="print-area" id="printArea">
       <div class="report" id="report">
         <div class="report-head">
@@ -406,7 +393,7 @@
           </div>
         </div>
 
-        <!-- Rúbrica completa por factor -->
+        <!-- SOLO opción seleccionada por ítem -->
         <div id="rRubricas"></div>
 
         <div class="block">
@@ -414,31 +401,13 @@
           <div class="box" id="rTotal">0.00</div>
         </div>
 
-        <div class="block">
-          <h2>Resumen de opciones elegidas</h2>
-          <div class="box" id="rResumen">—</div>
-        </div>
-
-        <div class="block">
-          <h2>Conclusiones</h2>
-          <div class="box" id="rConclusiones">—</div>
-        </div>
-
-        <div class="block">
-          <h2>Plan de capacitación</h2>
-          <div class="box" id="rCapacitacion">—</div>
-        </div>
-
-        <div class="block">
-          <h2>Plan de carrera</h2>
-          <div class="box" id="rCarrera">—</div>
-        </div>
-
+        <!-- SOLO Comentarios del colaborador -->
         <div class="block" id="rComentariosBlock" style="display:none;">
           <h2>Comentarios del colaborador</h2>
           <div class="box" id="rComentarios">—</div>
         </div>
 
+        <!-- Justificación (solo desempeño). Si NO lo quieres en PDF también, lo quitamos. -->
         <div class="block" id="rJustifBlock" style="display:none;">
           <h2>Justificación y comentarios (evaluación del desempeño)</h2>
           <div class="box" id="rJustifAll">—</div>
@@ -455,7 +424,7 @@
   const API_URL = "https://script.google.com/macros/s/AKfycbyg4Ajs3N-Rq59DftYFh5gpcLjkLL4eZ1s-rznjDabwVRib6SJUqRsnVfG-WNCbz1HiDg/exec";
 
   /************************************************************
-   * 2) Ítems + rúbrica 1–5 (según tus fotos 5–9)
+   * 2) Ítems + rúbrica 1–5
    ************************************************************/
   const ITEMS = [
     {
@@ -695,14 +664,9 @@
   ];
 
   /************************************************************
-   * 3) Estado UI
+   * Estado UI
    ************************************************************/
-  const state = {
-    dirty: false,
-    generated: false,
-    answers: {},
-  };
-
+  const state = { dirty:false, generated:false, answers:{} };
   const $ = (id) => document.getElementById(id);
 
   function setDirty(v){
@@ -749,7 +713,7 @@
         const sub = document.createElement("div");
         sub.className = "muted";
         sub.style.fontSize = "12px";
-        sub.textContent = "Selecciona 1–5 según la rúbrica del PDF.";
+        sub.textContent = "Selecciona 1–5 según la rúbrica.";
         left.appendChild(title);
         left.appendChild(sub);
 
@@ -768,7 +732,6 @@
         for(let v=1; v<=5; v++){
           const o = document.createElement("option");
           o.value = String(v);
-          // mostramos un “preview” cortito
           const preview = (it.rubric && it.rubric[v-1]) ? it.rubric[v-1].split(".")[0] : "";
           o.textContent = `${v} — ${preview}`;
           sel.appendChild(o);
@@ -808,11 +771,8 @@
     const tipo = $("tipoFormulario").value;
 
     if(tipo === "autoevaluacion"){
-      return {
-        comentarios_colaborador: $("comentariosColaborador").value.trim()
-      };
+      return { comentarios_colaborador: $("comentariosColaborador").value.trim() };
     }
-
     if(tipo === "desempeno"){
       return {
         justificacion: $("justificacion").value.trim(),
@@ -823,56 +783,27 @@
         comentarios_colaborador: $("comentariosColaborador2").value.trim()
       };
     }
-
-    // clientes
     return {};
   }
 
   function computeTotal(){
-    // promedio * 20 => 100
     const vals = Object.values(state.answers).filter(v => typeof v === "number");
     if(!vals.length) return 0;
     const avg = vals.reduce((a,b)=>a+b,0) / vals.length;
     return +(avg * 20).toFixed(2);
   }
 
-  function buildResumen(){
-    const counts = {1:0,2:0,3:0,4:0,5:0};
-    Object.values(state.answers).forEach(v=>{
-      if(typeof v === "number") counts[v]++;
-    });
-    const total = Object.values(counts).reduce((a,b)=>a+b,0);
-    if(!total) return "—";
-    return `Distribución de puntajes: 1=${counts[1]}, 2=${counts[2]}, 3=${counts[3]}, 4=${counts[4]}, 5=${counts[5]}.`;
+  function formatDateES(yyyy_mm_dd){
+    if(!yyyy_mm_dd) return "—";
+    // yyyy-mm-dd -> Date en local
+    const [y,m,d] = yyyy_mm_dd.split("-").map(n=>parseInt(n,10));
+    if(!y || !m || !d) return yyyy_mm_dd;
+    const dt = new Date(y, m-1, d);
+    return dt.toLocaleDateString("es-HN");
   }
 
-  function autoConclusionsAndPlans(total){
-    let conclusiones = "";
-    let capacitacion = "";
-    let carrera = "";
-
-    if(total >= 85){
-      conclusiones = "Desempeño sobresaliente. Mantener prácticas actuales y asignar retos estratégicos.";
-      capacitacion = "Capacitación avanzada y certificaciones (especialidad del puesto). Mentoring a otros.";
-      carrera = "Plan de carrera acelerado: proyectos líderes, rol senior o líder de célula según vacantes.";
-    }else if(total >= 70){
-      conclusiones = "Desempeño sólido. Se observan oportunidades puntuales de mejora.";
-      capacitacion = "Capacitación focalizada en brechas detectadas + seguimiento mensual.";
-      carrera = "Plan de carrera: objetivos por trimestre y rotación en tareas clave.";
-    }else if(total >= 55){
-      conclusiones = "Desempeño aceptable con brechas relevantes. Requiere plan de mejora estructurado.";
-      capacitacion = "Capacitación básica/intermedia + coaching del jefe + metas quincenales.";
-      carrera = "Plan de carrera conservador: consolidar base del puesto antes de crecer.";
-    }else{
-      conclusiones = "Desempeño bajo. Se recomienda plan correctivo y acompañamiento cercano.";
-      capacitacion = "Entrenamiento esencial del puesto + refuerzo de hábitos (tiempo, calidad, comunicación).";
-      carrera = "Plan de carrera en pausa hasta evidenciar mejora sostenida (60–90 días).";
-    }
-
-    return { conclusiones, capacitacion, carrera };
-  }
-
-  function renderRubricasEnReporte(){
+  // SOLO opción seleccionada por ítem (no tabla 1-5 completa)
+  function renderSeleccionEnReporte(){
     const host = $("rRubricas");
     host.innerHTML = "";
 
@@ -886,54 +817,59 @@
       wrap.appendChild(title);
 
       const table = document.createElement("table");
-      table.className = "rubric-table";
+      table.className = "sel-table";
 
       const thead = document.createElement("thead");
       const trh = document.createElement("tr");
-      const th0 = document.createElement("th");
-      th0.className = "item-col";
-      th0.textContent = "Ítem";
-      trh.appendChild(th0);
 
-      for(let s=1; s<=5; s++){
-        const th = document.createElement("th");
-        th.textContent = s;
-        trh.appendChild(th);
-      }
+      const thItem = document.createElement("th");
+      thItem.className = "col-item";
+      thItem.textContent = "Ítem";
+      trh.appendChild(thItem);
+
+      const thScore = document.createElement("th");
+      thScore.className = "col-score";
+      thScore.textContent = "Puntaje";
+      trh.appendChild(thScore);
+
+      const thDesc = document.createElement("th");
+      thDesc.className = "col-desc";
+      thDesc.textContent = "Opción seleccionada";
+      trh.appendChild(thDesc);
+
       thead.appendChild(trh);
       table.appendChild(thead);
 
       const tbody = document.createElement("tbody");
 
       sec.items.forEach(it => {
-        const v = state.answers[it.key]; // 1..5
+        const v = state.answers[it.key]; // 1..5 o null
         const tr = document.createElement("tr");
 
         const tdItem = document.createElement("td");
-        tdItem.className = "item-col";
+        tdItem.className = "col-item";
         tdItem.textContent = it.label;
         tr.appendChild(tdItem);
 
-        for(let s=1; s<=5; s++){
-          const td = document.createElement("td");
-          td.className = "score-col";
-          td.textContent = (it.rubric && it.rubric[s-1]) ? it.rubric[s-1] : "";
-          if(typeof v === "number" && v === s){
-            td.classList.add("selected");
-          }
-          tr.appendChild(td);
+        const tdScore = document.createElement("td");
+        tdScore.className = "col-score";
+        tdScore.textContent = (typeof v === "number") ? String(v) : "—";
+        tr.appendChild(tdScore);
+
+        const tdDesc = document.createElement("td");
+        tdDesc.className = "col-desc";
+        if(typeof v === "number" && it.rubric && it.rubric[v-1]){
+          tdDesc.textContent = it.rubric[v-1];
+        }else{
+          tdDesc.innerHTML = `<span class="muted-print">Sin selección</span>`;
         }
+        tr.appendChild(tdDesc);
 
         tbody.appendChild(tr);
       });
 
       table.appendChild(tbody);
       wrap.appendChild(table);
-
-      const note = document.createElement("div");
-      note.className = "rubric-note";
-      note.textContent = "La celda resaltada corresponde al puntaje seleccionado.";
-      wrap.appendChild(note);
 
       host.appendChild(wrap);
     });
@@ -943,14 +879,13 @@
     const header = getHeaderData();
     const extra = getExtraFields();
     const total = computeTotal();
-    const resumen = buildResumen();
-    const plans = autoConclusionsAndPlans(total);
 
-    $("rTitle").textContent = (header.tipo === "autoevaluacion")
-      ? "Autoevaluación del desempeño"
-      : (header.tipo === "clientes")
-        ? "Evaluación de clientes"
-        : "Evaluación del desempeño";
+    $("rTitle").textContent =
+      (header.tipo === "autoevaluacion")
+        ? "Autoevaluación del desempeño"
+        : (header.tipo === "clientes")
+          ? "Evaluación de clientes"
+          : "Evaluación del desempeño";
 
     $("rGenerated").textContent = new Date().toLocaleString();
 
@@ -960,21 +895,14 @@
     $("rDepartamento").textContent = header.departamento || "—";
     $("rPeriodo").textContent = header.periodo || "—";
     $("rVersion").textContent = header.version || "—";
-    $("rFecha").textContent = header.fecha || "—";
+    $("rFecha").textContent = formatDateES(header.fecha);
 
-    // Rúbricas como en Excel (1–5)
-    renderRubricasEnReporte();
+    // SOLO selección por ítem
+    renderSeleccionEnReporte();
 
     $("rTotal").textContent = String(total);
-    $("rResumen").textContent = resumen;
 
-    $("rConclusiones").textContent = plans.conclusiones;
-    $("rCapacitacion").textContent = plans.capacitacion;
-    $("rCarrera").textContent = plans.carrera;
-
-    // Comentarios colaborador:
-    // - autoevaluación: extra.comentarios_colaborador
-    // - desempeño: extra.comentarios_colaborador (viene del textarea 2)
+    // SOLO Comentarios del colaborador (según tipo)
     const comentarioColab =
       (header.tipo === "autoevaluacion")
         ? (extra.comentarios_colaborador || "")
@@ -990,7 +918,7 @@
       $("rComentarios").textContent = "—";
     }
 
-    // Bloque justificación (solo desempeño)
+    // Justificación (solo desempeño) -> si NO lo quieres en PDF, dímelo y lo eliminamos completo.
     if(header.tipo === "desempeno"){
       $("rJustifBlock").style.display = "block";
       const txt = [
@@ -998,8 +926,7 @@
         `Comentarios del evaluador: ${extra.comentarios_evaluador || "—"}`,
         `Fortalezas: ${extra.fortalezas || "—"}`,
         `Oportunidades de mejora: ${extra.oportunidades_mejora || "—"}`,
-        `Proyección y potencial: ${extra.proyeccion_potencial || "—"}`,
-        `Comentarios del colaborador: ${extra.comentarios_colaborador || "—"}`
+        `Proyección y potencial: ${extra.proyeccion_potencial || "—"}`
       ].join("\n\n");
       $("rJustifAll").textContent = txt;
     }else{
@@ -1074,9 +1001,6 @@
       creado_en: new Date().toISOString()
     };
 
-    // Tip: Apps Script suele dar CORS; hacemos “2 intentos”:
-    // 1) cors normal (si responde)
-    // 2) si falla por CORS, reintentamos no-cors (no da error y sí escribe)
     try{
       $("apiHint").className = "warn";
       $("apiHint").textContent = "Enviando a Google Sheets...";
@@ -1089,14 +1013,12 @@
           body: JSON.stringify(payload)
         });
 
-        // Si el navegador deja leer status:
         if(!res.ok){
           const t = await res.text().catch(()=> "");
           throw new Error(t || ("HTTP " + res.status));
         }
 
       }catch(eCors){
-        // Reintento no-cors (evita “Failed to fetch” cuando es CORS)
         await fetch(API_URL, {
           method: "POST",
           mode: "no-cors",
@@ -1140,7 +1062,7 @@
     $("btnSave").addEventListener("click", saveToSheet);
 
     $("btnGenerate").addEventListener("click", ()=>{
-      // En autoevaluación, aseguramos que el reporte incluya “Comentarios del colaborador”
+      // Generar = mismo contenido que el PDF (solo selección + comentarios)
       buildReport();
       state.generated = true;
       setDirty(true);
