@@ -2,276 +2,284 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Evaluación del desempeño</title>
   <style>
     :root{
       --bg:#050a14;
-      --panel:rgba(255,255,255,.06);
-      --panel2:rgba(255,255,255,.08);
-      --stroke:rgba(255,255,255,.10);
+      --panel: rgba(255,255,255,.06);
+      --panel2: rgba(255,255,255,.08);
+      --stroke: rgba(255,255,255,.10);
       --text:#eaf0ff;
-      --muted:rgba(234,240,255,.7);
-      --accent:#2f6bff;
-      --accent2:#7b61ff;
-      --danger:#ff4d6d;
-      --ok:#33d69f;
-      --shadow: 0 18px 50px rgba(0,0,0,.45);
+      --muted: rgba(234,240,255,.70);
+      --muted2: rgba(234,240,255,.55);
+      --accent:#3b82f6;
+      --accent2:#1d4ed8;
+      --good:#22c55e;
+      --warn:#f59e0b;
+      --bad:#ef4444;
+      --shadow: 0 18px 60px rgba(0,0,0,.55);
       --radius: 18px;
+      --radius2: 22px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
     }
     *{box-sizing:border-box}
+    html,body{height:100%}
     body{
       margin:0;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue";
-      color:var(--text);
+      font-family: var(--sans);
       background:
-        radial-gradient(900px 500px at 10% 0%, rgba(47,107,255,.22), transparent 55%),
-        radial-gradient(900px 500px at 95% 10%, rgba(123,97,255,.18), transparent 55%),
-        radial-gradient(700px 700px at 30% 100%, rgba(51,214,159,.10), transparent 60%),
-        var(--bg);
-      min-height:100vh;
+        radial-gradient(900px 500px at 15% 10%, rgba(59,130,246,.22), transparent 55%),
+        radial-gradient(900px 500px at 85% 0%, rgba(34,197,94,.10), transparent 60%),
+        radial-gradient(900px 600px at 50% 100%, rgba(147,51,234,.12), transparent 60%),
+        linear-gradient(180deg, #020617, var(--bg));
+      color: var(--text);
     }
-    a{color:inherit}
-    .wrap{max-width:1180px;margin:0 auto;padding:28px 18px 70px}
+    .wrap{max-width:1200px;margin:28px auto 60px; padding:0 18px;}
     .topbar{
-      display:flex; align-items:center; justify-content:space-between; gap:14px;
-      background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
+      display:flex; align-items:center; justify-content:space-between;
+      gap:14px; padding:18px 18px;
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
       border:1px solid var(--stroke);
-      border-radius:24px;
-      padding:16px 18px;
-      box-shadow:var(--shadow);
-      position:sticky; top:12px; z-index:30;
+      border-radius: var(--radius2);
+      box-shadow: var(--shadow);
+      position: sticky; top: 14px; z-index: 50;
       backdrop-filter: blur(10px);
     }
-    .brand{display:flex;align-items:center;gap:12px}
+    .brand{display:flex; align-items:center; gap:12px; min-width: 220px;}
     .logo{
       width:44px;height:44px;border-radius:14px;
-      background:linear-gradient(135deg, var(--accent), var(--accent2));
-      display:grid;place-items:center;
-      font-weight:800;
+      background: radial-gradient(circle at 30% 30%, #60a5fa, #1d4ed8);
+      display:grid; place-items:center; font-weight:800;
+      letter-spacing:.5px;
+      border:1px solid rgba(255,255,255,.18);
+      box-shadow: 0 14px 35px rgba(29,78,216,.25);
     }
-    .titlebox .h1{
-      font-size:20px; font-weight:800; letter-spacing:.2px; margin:0;
+    .brand h1{
+      margin:0;
+      font-size: 18px;
+      line-height: 1.1;
+      font-weight: 800;
     }
-    .titlebox .sub{
-      margin-top:2px; font-size:13px; color:var(--muted);
+    .brand p{
+      margin:2px 0 0;
+      font-size: 13px;
+      color: var(--muted);
     }
-    .actions{display:flex; align-items:center; gap:10px; flex-wrap:wrap; justify-content:flex-end}
+    .actions{display:flex; align-items:center; gap:10px; flex-wrap:wrap; justify-content:flex-end;}
     .pill{
       display:flex; align-items:center; gap:8px;
-      padding:9px 12px; border-radius:999px;
+      padding:9px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.06);
       border:1px solid var(--stroke);
-      background:rgba(0,0,0,.18);
-      color:var(--muted);
-      font-size:12.5px;
+      color: var(--muted);
+      font-size: 12.5px;
+      user-select:none;
+      white-space:nowrap;
     }
-    .dot{width:9px;height:9px;border-radius:50%}
-    .dot.ok{background:var(--ok)}
-    .dot.warn{background:var(--danger)}
+    .dot{width:9px;height:9px;border-radius:999px;background: var(--good); box-shadow:0 0 0 5px rgba(34,197,94,.12);}
     button{
-      border:1px solid var(--stroke);
-      background:rgba(255,255,255,.08);
-      color:var(--text);
+      appearance:none; border:1px solid transparent;
+      background: rgba(255,255,255,.06);
+      color: var(--text);
       padding:10px 14px;
-      border-radius:14px;
+      border-radius: 999px;
       cursor:pointer;
-      font-weight:700;
-      transition:.15s transform, .15s opacity, .15s background;
+      font-weight: 700;
+      letter-spacing:.2px;
+      transition: .18s ease;
+      border:1px solid var(--stroke);
     }
-    button:hover{transform: translateY(-1px); background:rgba(255,255,255,.12)}
-    button.primary{
-      border-color: rgba(47,107,255,.55);
-      background: linear-gradient(135deg, rgba(47,107,255,.95), rgba(123,97,255,.75));
-      box-shadow: 0 10px 30px rgba(47,107,255,.22);
-    }
-    button.primary:hover{background: linear-gradient(135deg, rgba(47,107,255,1), rgba(123,97,255,.85))}
-    button.ghost{background:rgba(255,255,255,.06)}
-    button:disabled{opacity:.45; cursor:not-allowed; transform:none}
+    button:hover{transform: translateY(-1px); background: rgba(255,255,255,.09);}
+    button:active{transform: translateY(0px);}
+    .btn-primary{background: linear-gradient(180deg, var(--accent), var(--accent2)); border-color: rgba(59,130,246,.35);}
+    .btn-primary:hover{filter: brightness(1.05);}
+    .btn-danger{background: rgba(239,68,68,.12); border-color: rgba(239,68,68,.35);}
+    .btn-muted{background: rgba(255,255,255,.05);}
+    .btn-disabled{opacity:.55; cursor:not-allowed;}
     .grid{
-      display:grid;
-      grid-template-columns: 1fr;
-      gap:16px;
-      margin-top:16px;
+      display:grid; gap:16px;
+      margin-top:18px;
     }
     .card{
-      background:linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.04));
+      background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.04));
       border:1px solid var(--stroke);
-      border-radius: var(--radius);
+      border-radius: var(--radius2);
+      box-shadow: var(--shadow);
       padding:18px;
-      box-shadow:var(--shadow);
     }
     .card h2{
-      margin:0 0 10px;
-      font-size:18px;
+      margin:0 0 12px;
+      font-size: 18px;
       letter-spacing:.2px;
     }
-    .muted{color:var(--muted)}
-    .fields{
+    .sub{color: var(--muted); font-size: 13px; margin:0 0 14px;}
+    .formgrid{
       display:grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(12, 1fr);
       gap:12px;
     }
-    .field{
-      display:flex; flex-direction:column; gap:7px;
-    }
+    .field{grid-column: span 4;}
+    .field.w6{grid-column: span 6;}
+    .field.w12{grid-column: span 12;}
     label{
-      font-size:12.5px; color:var(--muted);
-      display:flex; align-items:center; gap:8px;
+      display:block;
+      font-size: 12.5px;
+      color: var(--muted);
+      margin: 0 0 6px;
     }
     input, select, textarea{
       width:100%;
-      background:rgba(0,0,0,.22);
-      border:1px solid rgba(255,255,255,.10);
-      color:var(--text);
-      border-radius:14px;
-      padding:11px 12px;
+      padding:12px 12px;
+      border-radius: 14px;
+      background: rgba(0,0,0,.18);
+      color: var(--text);
+      border:1px solid rgba(255,255,255,.12);
       outline:none;
-      transition:.15s border, .15s background;
+      transition:.15s ease;
+      font-size: 14px;
     }
-    textarea{min-height:84px; resize:vertical}
+    textarea{min-height: 90px; resize: vertical;}
     input:focus, select:focus, textarea:focus{
-      border-color: rgba(47,107,255,.6);
-      background:rgba(0,0,0,.30);
-    }
-    .sectionTitle{
-      display:flex; align-items:baseline; justify-content:space-between; gap:10px;
-      margin:18px 0 10px;
-    }
-    .sectionTitle h3{
-      margin:0; font-size:16px;
-    }
-    .sectionTitle .hint{
-      font-size:12.5px; color:var(--muted);
+      border-color: rgba(59,130,246,.55);
+      box-shadow: 0 0 0 4px rgba(59,130,246,.14);
     }
     .factor{
-      margin-top:12px;
-      border:1px dashed rgba(255,255,255,.12);
-      border-radius:16px;
-      padding:14px;
-      background:rgba(0,0,0,.12);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius: var(--radius2);
+      padding:16px;
+      background: rgba(0,0,0,.10);
     }
-    .factor h4{
-      margin:0 0 10px;
-      font-size:14.5px;
-      color:var(--text);
-      letter-spacing:.2px;
-    }
+    .factor h3{margin:0 0 10px; font-size:16px;}
     .item{
       display:grid;
-      grid-template-columns: 1.4fr 1fr;
+      grid-template-columns: 1.3fr 1fr;
       gap:12px;
-      padding:12px 0;
-      border-top:1px solid rgba(255,255,255,.08);
+      padding:12px;
+      border-radius: 16px;
+      border:1px dashed rgba(255,255,255,.14);
+      background: rgba(255,255,255,.03);
+      margin: 10px 0;
     }
-    .item:first-of-type{border-top:none}
-    .item .name{
-      font-weight:800;
-      line-height:1.25;
+    .item-title{font-weight:800; margin:0; font-size:14px;}
+    .item-help{margin:6px 0 0; color: var(--muted2); font-size: 12.5px;}
+    .right{display:flex; flex-direction:column; gap:6px; justify-content:center;}
+    .tinyhint{font-size: 12px; color: var(--muted2); margin-top: 10px;}
+    .footerline{
+      display:flex; align-items:center; justify-content:space-between;
+      margin-top: 10px;
+      gap:10px;
+      color: var(--muted);
+      font-size: 12.5px;
     }
-    .item .help{
-      margin-top:6px;
-      font-size:12.5px;
-      color:var(--muted);
+    .badge{
+      font-family: var(--mono);
+      padding:6px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.10);
     }
-    .right{display:flex; flex-direction:column; gap:8px}
-    .row2{
-      display:grid;
-      grid-template-columns: 1fr;
-      gap:12px;
-    }
-    .footnote{
-      margin-top:10px;
-      font-size:12px;
-      color:var(--muted);
-      text-align:right;
-    }
-    .tiny{font-size:12px;color:var(--muted)}
-    .hide{display:none !important;}
 
-    /* ===== PRINT ===== */
-    #printArea{display:none}
+    /* REPORT (hidden until Generar) */
+    #reportWrap{display:none;}
+    .reportCard{
+      background: #ffffff;
+      color:#111827;
+      border-radius: 14px;
+      padding: 18px;
+      border:1px solid #e5e7eb;
+    }
+    .reportHeader{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:14px;
+      margin-bottom: 12px;
+    }
+    .reportTitle{
+      margin:0;
+      font-size: 32px; /* más grande */
+      letter-spacing:.2px;
+      font-weight: 900;
+    }
+    .reportMetaRight{
+      text-align:right;
+      font-size:12.5px;
+      color:#374151;
+    }
+    .reportGrid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+      margin: 12px 0 14px;
+    }
+    .metaRow{
+      grid-column: 1 / -1;
+      display:grid;
+      gap:10px;
+    }
+    .metaLine{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+    }
+    .metaLine.three{
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+    .metaBox{
+      border:1px solid #e5e7eb;
+      border-radius: 12px;
+      padding:10px 12px;
+      background:#f9fafb;
+    }
+    .metaBox small{display:block;color:#6b7280;font-size:12px;margin-bottom:4px;}
+    .metaBox strong{font-size:14px;}
+    .reportSectionTitle{
+      margin: 16px 0 8px;
+      font-size: 14px;
+      color:#111827;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing:.6px;
+    }
+    table{width:100%; border-collapse: collapse; font-size: 12.5px;}
+    th,td{border:1px solid #e5e7eb; padding:8px; vertical-align: top;}
+    th{background:#f3f4f6; text-align:left;}
+    .reportTwoCol{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+    }
+    .reportBox{
+      border:1px solid #e5e7eb;
+      border-radius: 12px;
+      padding:10px 12px;
+      background:#ffffff;
+      min-height: 86px;
+      white-space: pre-wrap;
+    }
+    .reportFooter{
+      margin-top: 14px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      color:#374151;
+      font-size:12px;
+    }
+
+    /* PRINT */
     @media print{
-      body{background:#fff;color:#111}
-      .wrap, .topbar, .card, .grid{display:none !important}
-      #printArea{display:block}
-      .p-page{
-        font-family: Arial, Helvetica, sans-serif;
-        color:#111;
-        padding:18mm 15mm;
-      }
-      .p-head{
-        display:flex; justify-content:space-between; align-items:flex-start; gap:10px;
-        margin-bottom:10px;
-      }
-      .p-title{
-        font-size:26px; font-weight:800; margin:0;
-      }
-      .p-meta{
-        font-size:12px; color:#333; text-align:right;
-      }
-      .p-sub{margin:3px 0 0; font-size:12px; color:#555}
-      .p-grid{
-        display:grid;
-        grid-template-columns: 1fr 1fr;
-        gap:8px 14px;
-        margin:14px 0 10px;
-      }
-      .p-row{
-        border:1px solid #ddd;
-        border-radius:10px;
-        padding:10px 12px;
-      }
-      .p-row .k{font-size:11px;color:#444;margin-bottom:4px}
-      .p-row .v{font-size:13px;font-weight:700}
-      .p-grid3{
-        display:grid;
-        grid-template-columns: 1fr 1fr 1fr;
-        gap:8px 14px;
-        margin-top:8px;
-      }
-      .p-section{
-        margin-top:14px;
-      }
-      .p-section h2{
-        font-size:14px; margin:0 0 8px; letter-spacing:.2px;
-      }
-      .p-table{
-        width:100%;
-        border-collapse:collapse;
-        font-size:11.5px;
-      }
-      .p-table th, .p-table td{
-        border:1px solid #ddd;
-        padding:7px 8px;
-        vertical-align:top;
-      }
-      .p-table th{
-        background:#f5f5f5;
-        text-align:left;
-        font-size:11px;
-      }
-      .p-total{
-        margin-top:10px;
-        display:flex;
-        justify-content:space-between;
-        align-items:center;
-        border-top:2px solid #222;
-        padding-top:10px;
-        font-weight:800;
-      }
-      .p-box{
-        border:1px solid #ddd;
-        border-radius:10px;
-        padding:10px 12px;
-        margin-top:8px;
-        white-space:pre-wrap;
-        font-size:11.5px;
-      }
-      .p-footer{
-        position:fixed;
-        left:15mm; right:15mm; bottom:10mm;
-        display:flex; justify-content:space-between; align-items:center;
-        font-size:11px; color:#555;
+      body{background:#fff;}
+      .topbar, #formWrap{display:none !important;}
+      #reportWrap{display:block !important;}
+      .wrap{max-width:none; margin:0; padding:0;}
+      #reportWrap .reportCard{
+        border:none;
+        border-radius:0;
+        padding: 18mm;
       }
     }
   </style>
@@ -282,216 +290,265 @@
     <div class="topbar">
       <div class="brand">
         <div class="logo">ED</div>
-        <div class="titlebox">
-          <div class="h1">Formulario de evaluación del desempeño</div>
-          <div class="sub">Escala 1–5 • Cálculo interno por pesos • Reporte listo para impresión</div>
+        <div>
+          <h1>Formulario de evaluación del desempeño</h1>
+          <p>Escala 1–5 • Cálculo interno por pesos • Reporte listo para PDF</p>
         </div>
       </div>
 
       <div class="actions">
-        <div class="pill" id="dirtyPill">
-          <span class="dot ok" id="dirtyDot"></span>
-          <span id="dirtyText">Sin cambios</span>
-        </div>
-        <button class="ghost" id="btnNew">Nuevo</button>
-        <button class="primary" id="btnSave">Guardar</button>
-        <button id="btnGenerate" class="primary">Generar Reporte</button>
-        <button id="btnPrint" class="ghost" disabled>Imprimir / Enviar a PDF</button>
+        <div class="pill" id="statusPill"><span class="dot" id="statusDot"></span><span id="statusText">Sin cambios</span></div>
+        <button class="btn-muted" id="btnNew">Nuevo</button>
+        <button class="btn-primary" id="btnSave">Guardar</button>
+        <button class="btn-primary" id="btnGenerate">Generar</button>
+        <button class="btn-muted" id="btnPrint">Imprimir / Enviar a PDF</button>
       </div>
     </div>
 
-    <div class="grid">
+    <!-- FORM -->
+    <div id="formWrap" class="grid">
       <div class="card">
         <h2>Datos del colaborador</h2>
-        <div class="fields">
-          <div class="field">
-            <label for="empNo">No. de personal</label>
-            <input id="empNo" placeholder="Ej: 1600" />
-          </div>
-          <div class="field">
-            <label for="name">Nombre</label>
-            <input id="name" placeholder="Ej: Carlos Paz" />
-          </div>
-          <div class="field">
-            <label for="pos">Posición</label>
-            <input id="pos" placeholder="Ej: Analista" />
-          </div>
+        <p class="sub">Completa la información y selecciona una opción (1–5) para cada ítem.</p>
 
-          <div class="field">
-            <label for="dept">Departamento</label>
-            <input id="dept" placeholder="Ej: Contabilidad" />
+        <div class="formgrid">
+          <div class="field w4">
+            <label>No. de personal</label>
+            <input id="noPersonal" type="text" placeholder="Ej. 1600" />
           </div>
-          <div class="field">
-            <label for="period">Periodo</label>
-            <input id="period" placeholder="Ej: 2025" />
+          <div class="field w4">
+            <label>Nombre</label>
+            <input id="nombre" type="text" placeholder="Ej. Carlos Paz" />
           </div>
-          <div class="field">
-            <label for="ver">Versión</label>
-            <input id="ver" placeholder="Ej: 1" />
+          <div class="field w4">
+            <label>Posición</label>
+            <input id="posicion" type="text" placeholder="Ej. Analista" />
           </div>
+          <div class="field w4">
+            <label>Departamento</label>
+            <input id="departamento" type="text" placeholder="Ej. Contabilidad" />
+          </div>
+          <div class="field w4">
+            <label>Periodo</label>
+            <input id="periodo" type="text" placeholder="Ej. 2025" />
+          </div>
+          <div class="field w4">
+            <label>Versión</label>
+            <input id="version" type="text" placeholder="Ej. 1" />
+          </div>
+          <div class="field w4">
+            <label>Fecha</label>
+            <input id="fecha" type="date" />
+          </div>
+        </div>
+      </div>
 
-          <div class="field" style="grid-column: span 2;">
-            <label for="date">Fecha</label>
-            <input id="date" type="date" />
+      <div class="card">
+        <h2>Evaluación (Factores 1–5)</h2>
+        <p class="sub">Elige la descripción que mejor refleje el desempeño para cada ítem.</p>
+
+        <div id="factorsHost"></div>
+
+        <div class="tinyhint">
+          Tip: <span class="badge">Guardar</span> almacena en este navegador (localStorage).
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Justificación y comentarios</h2>
+        <p class="sub">Completa los campos siguientes (según formato).</p>
+
+        <div class="formgrid">
+          <div class="field w12">
+            <label>Justificación calificaciones (1 - 6)</label>
+            <textarea id="justificacion" placeholder="Describe la justificación de las calificaciones..."></textarea>
           </div>
-          <div class="field">
-            <label class="tiny"> </label>
-            <div class="tiny">Tip: “Guardar” almacena en este navegador (localStorage).</div>
+          <div class="field w12">
+            <label>Comentarios del evaluador</label>
+            <textarea id="comentariosEvaluador" placeholder="Comentarios del evaluador..."></textarea>
+          </div>
+          <div class="field w12">
+            <label>Fortalezas</label>
+            <textarea id="fortalezas" placeholder="Fortalezas..."></textarea>
+          </div>
+          <div class="field w12">
+            <label>Oportunidades de mejora</label>
+            <textarea id="oportunidades" placeholder="Oportunidades de mejora..."></textarea>
+          </div>
+          <div class="field w12">
+            <label>Proyección y potencial de desarrollo</label>
+            <textarea id="proyeccion" placeholder="Proyección y potencial..."></textarea>
+          </div>
+          <div class="field w12">
+            <label>Comentarios del colaborador</label>
+            <textarea id="comentariosColaborador" placeholder="Comentarios del colaborador..."></textarea>
           </div>
         </div>
 
-        <div class="sectionTitle">
-          <h3>Evaluación (Factores 1–5)</h3>
-          <div class="hint">Selecciona una opción por cada ítem.</div>
+        <div class="footerline">
+          <div>Máximo total: <span class="badge">100</span></div>
+          <div class="badge" id="liveTotalBadge">Total actual: 0.00</div>
         </div>
-
-        <div id="formFactors"></div>
-
-        <div class="sectionTitle">
-          <h3>Campos del evaluador</h3>
-          <div class="hint">Se incluirán en el reporte impreso.</div>
-        </div>
-
-        <div class="row2">
-          <div class="field">
-            <label for="tResultados">Resultados</label>
-            <textarea id="tResultados" placeholder="Describe resultados, evidencias, logros y nivel alcanzado."></textarea>
-          </div>
-          <div class="field">
-            <label for="tConclusiones">Conclusiones</label>
-            <textarea id="tConclusiones" placeholder="Conclusiones generales del desempeño y decisiones sugeridas."></textarea>
-          </div>
-          <div class="field">
-            <label for="tCapacitacion">Plan de capacitación</label>
-            <textarea id="tCapacitacion" placeholder="Capacitaciones requeridas, temas, prioridad, plazos."></textarea>
-          </div>
-          <div class="field">
-            <label for="tCarrera">Plan de carrera</label>
-            <textarea id="tCarrera" placeholder="Próximos pasos, rol objetivo, competencias a fortalecer, ruta sugerida."></textarea>
-          </div>
-        </div>
-
-        <div class="footnote">Por Soamy Lanza</div>
       </div>
     </div>
-  </div>
 
-  <!-- ===== PRINT AREA (solo se ve al imprimir) ===== -->
-  <div id="printArea" aria-hidden="true">
-    <div class="p-page">
-      <div class="p-head">
-        <div>
-          <p class="p-title">Evaluación del desempeño</p>
-          <p class="p-sub">Generado automáticamente desde el formulario.</p>
-        </div>
-        <div class="p-meta">
-          <div><b>Generado:</b> <span id="pGenerated">—</span></div>
-        </div>
-      </div>
-
-      <!-- FILAS en 1 sola fila, como pediste -->
-      <div class="p-grid">
-        <div class="p-row">
-          <div class="k">No. de personal</div>
-          <div class="v" id="pEmpNo">—</div>
-        </div>
-        <div class="p-row">
-          <div class="k">Nombre</div>
-          <div class="v" id="pName">—</div>
+    <!-- REPORT -->
+    <div id="reportWrap" class="grid">
+      <div class="reportCard">
+        <div class="reportHeader">
+          <div>
+            <h1 class="reportTitle">Evaluación del desempeño</h1>
+            <div style="font-size:13px;color:#374151;margin-top:2px;">Generado automáticamente desde el formulario.</div>
+          </div>
+          <div class="reportMetaRight">
+            <div><strong>Generado:</strong> <span id="repGeneratedAt">—</span></div>
+          </div>
         </div>
 
-        <div class="p-row">
-          <div class="k">Posición</div>
-          <div class="v" id="pPos">—</div>
-        </div>
-        <div class="p-row">
-          <div class="k">Departamento</div>
-          <div class="v" id="pDept">—</div>
-        </div>
-      </div>
+        <div class="metaRow">
+          <div class="metaLine">
+            <div class="metaBox">
+              <small>No. de personal</small>
+              <strong id="repNoPersonal">—</strong>
+            </div>
+            <div class="metaBox">
+              <small>Nombre</small>
+              <strong id="repNombre">—</strong>
+            </div>
+          </div>
 
-      <div class="p-grid3">
-        <div class="p-row">
-          <div class="k">Periodo</div>
-          <div class="v" id="pPeriod">—</div>
-        </div>
-        <div class="p-row">
-          <div class="k">Versión</div>
-          <div class="v" id="pVer">—</div>
-        </div>
-        <div class="p-row">
-          <div class="k">Fecha</div>
-          <div class="v" id="pDate">—</div>
-        </div>
-      </div>
+          <div class="metaLine">
+            <div class="metaBox">
+              <small>Posición</small>
+              <strong id="repPosicion">—</strong>
+            </div>
+            <div class="metaBox">
+              <small>Departamento</small>
+              <strong id="repDepartamento">—</strong>
+            </div>
+          </div>
 
-      <div class="p-section">
-        <h2>Respuestas por ítem</h2>
-        <table class="p-table" id="pTable">
+          <div class="metaLine three">
+            <div class="metaBox">
+              <small>Periodo</small>
+              <strong id="repPeriodo">—</strong>
+            </div>
+            <div class="metaBox">
+              <small>Versión</small>
+              <strong id="repVersion">—</strong>
+            </div>
+            <div class="metaBox">
+              <small>Fecha</small>
+              <strong id="repFecha">—</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="reportSectionTitle">Resultados</div>
+        <div class="metaBox" style="margin-bottom:10px;">
+          <small>Total de puntos (máx. 100)</small>
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
+            <strong id="repTotal" style="font-size:20px;">0.00</strong>
+            <span style="color:#6b7280;font-size:12px;">Cálculo: (respuesta/5) × peso</span>
+          </div>
+        </div>
+
+        <table>
           <thead>
             <tr>
-              <th style="width:36%;">Ítem</th>
+              <th style="width:38%;">Ítem</th>
               <th>Respuesta elegida</th>
             </tr>
           </thead>
-          <tbody></tbody>
+          <tbody id="repItemsTbody"></tbody>
         </table>
 
-        <div class="p-total">
-          <div>Total de puntos (máx. 100)</div>
-          <div id="pTotal">0.00</div>
+        <div class="reportSectionTitle">Justificación y comentarios</div>
+        <div class="reportTwoCol">
+          <div>
+            <div style="font-weight:800;margin-bottom:6px;">Justificación calificaciones (1 - 6)</div>
+            <div class="reportBox" id="repJustificacion">—</div>
+          </div>
+          <div>
+            <div style="font-weight:800;margin-bottom:6px;">Comentarios del evaluador</div>
+            <div class="reportBox" id="repComentariosEvaluador">—</div>
+          </div>
+          <div>
+            <div style="font-weight:800;margin-bottom:6px;">Fortalezas</div>
+            <div class="reportBox" id="repFortalezas">—</div>
+          </div>
+          <div>
+            <div style="font-weight:800;margin-bottom:6px;">Oportunidades de mejora</div>
+            <div class="reportBox" id="repOportunidades">—</div>
+          </div>
+          <div>
+            <div style="font-weight:800;margin-bottom:6px;">Proyección y potencial de desarrollo</div>
+            <div class="reportBox" id="repProyeccion">—</div>
+          </div>
+          <div>
+            <div style="font-weight:800;margin-bottom:6px;">Comentarios del colaborador</div>
+            <div class="reportBox" id="repComentariosColaborador">—</div>
+          </div>
         </div>
-      </div>
 
-      <div class="p-section">
-        <h2>Resultados</h2>
-        <div class="p-box" id="pResultados">—</div>
-      </div>
+        <div class="reportSectionTitle">Conclusiones</div>
+        <div class="reportBox" id="repConclusiones">—</div>
 
-      <div class="p-section">
-        <h2>Conclusiones</h2>
-        <div class="p-box" id="pConclusiones">—</div>
-      </div>
+        <div class="reportSectionTitle">Plan de capacitación</div>
+        <div class="reportBox" id="repCapacitacion">—</div>
 
-      <div class="p-section">
-        <h2>Plan de capacitación</h2>
-        <div class="p-box" id="pCapacitacion">—</div>
-      </div>
+        <div class="reportSectionTitle">Plan de carrera</div>
+        <div class="reportBox" id="repCarrera">—</div>
 
-      <div class="p-section">
-        <h2>Plan de carrera</h2>
-        <div class="p-box" id="pCarrera">—</div>
-      </div>
-
-      <div class="p-footer">
-        <div>Por Soamy Lanza</div>
-        <div id="pUrl"></div>
+        <div class="reportFooter">
+          <div>Por <strong>Soamy Lanza</strong></div>
+          <div id="repUrl" style="color:#6b7280;">—</div>
+        </div>
       </div>
     </div>
   </div>
 
   <script>
-    // =========================
-    //  Data (pesos + textos)
-    // =========================
-    const STORAGE_KEY = "ED_EVALUACION_DESEMPENO_v1";
-
-    const weights = {
-      "1A": 15, "1B": 10, "1C": 2.5, "1D": 2.5,
-      "2A": 2.5, "2B": 5,  "2C": 10,  "2D": 2.5,
-      "3A": 10,  "3B": 5,  "3C": 2.5, "3D": 2.5,
-      "4A": 2.5, "4B": 2.5,"4C": 5,   "4D": 5,
-      "5A": 2.5, "5B": 2.5,"5C": 10
+    /***********************
+     * DATA (pesos + opciones por ítem)
+     ***********************/
+    const WEIGHTS = {
+      // 1. Metas, productividad y eficiencia
+      "1A": 15,
+      "1B": 10,
+      "1C": 2.5,
+      "1D": 2.5,
+      // 2. Calidad del Trabajo
+      "2A": 2.5,
+      "2B": 5,
+      "2C": 10,
+      "2D": 2.5,
+      // 3. Competencias y Habilidades
+      "3A": 10,
+      "3B": 5,
+      "3C": 2.5,
+      "3D": 2.5,
+      // 4. Actitud y Valores
+      "4A": 2.5,
+      "4B": 2.5,
+      "4C": 5,
+      "4D": 5,
+      // 5. Desarrollo y Potencial
+      "5A": 2.5,
+      "5B": 2.5,
+      "5C": 10
     };
 
-    const factors = [
+    // Opciones exactas (descripción larga por ítem) según las fotos/Excel.
+    // Nota: Las opciones se muestran dentro del combo.
+    const FACTORS = [
       {
         title: "1. Metas, productividad y eficiencia",
         items: [
           {
-            id:"1A",
-            name:"A. Cumplimiento de Metas. Grado de logro",
-            options:[
+            id: "1A",
+            label: "A. Cumplimiento de Metas. Grado de logro",
+            options: [
               "1 - No alcanza la mayoría de las metas; cumple menos del 70 % de lo establecido. La falta de avance afecta los resultados esperados.",
               "2 - Logra entre 70–89 % de las metas; presenta avances parciales o inconsistentes y requiere correcciones.",
               "3 - Alcanza el 100 % de las metas planificadas con calidad y dentro del tiempo establecido.",
@@ -500,9 +557,9 @@
             ]
           },
           {
-            id:"1B",
-            name:"B. Eficiencia en el uso del tiempo, costos y recursos",
-            options:[
+            id: "1B",
+            label: "B. Eficiencia en el uso del tiempo, costos y recursos",
+            options: [
               "1 - Usa el tiempo y los recursos con errores graves que afectan la eficiencia.",
               "2 - Muestra uso inestable del tiempo y los recursos; requiere evaluaciones y correcciones frecuentes.",
               "3 - Utiliza de manera adecuada el tiempo y los recursos, cumpliendo sin desperdicios significativos.",
@@ -511,9 +568,9 @@
             ]
           },
           {
-            id:"1C",
-            name:"C. Cumplimiento de normas de seguridad",
-            options:[
+            id: "1C",
+            label: "C. Cumplimiento de normas de seguridad",
+            options: [
               "1 - Incumple normas de seguridad y genera riesgos constantes para sí y el equipo.",
               "2 - Cumple parcialmente las normas; requiere supervisión continua para evitar incidentes.",
               "3 - Cumple todas las normas de seguridad y actúa de manera segura en su trabajo diario.",
@@ -522,13 +579,13 @@
             ]
           },
           {
-            id:"1D",
-            name:"D. Prioriza y organiza tareas adecuadamente",
-            options:[
+            id: "1D",
+            label: "D. Prioriza y organiza tareas adecuadamente",
+            options: [
               "1 - Desorganiza las tareas; incumple plazos y afecta resultados importantes.",
               "2 - Organiza parcialmente; presenta inconsistencias en prioridades y manejo del tiempo.",
               "3 - Gestiona las tareas de forma adecuada, cumple tiempos y mantiene orden en su trabajo.",
-              "4 - Organiza y prioriza con eficiencia; anticipa necesidades y mejora sus tiempos de entrega.",
+              "4 - Organiza y prioriza con eficiencia, anticipa necesidades y mejora sus tiempos de entrega.",
               "5 - Es referente en organización; redistribuye recursos, optimiza procesos y eleva la productividad del equipo."
             ]
           }
@@ -538,9 +595,9 @@
         title: "2. Calidad del Trabajo",
         items: [
           {
-            id:"2A",
-            name:"A. Exactitud y atención al detalle",
-            options:[
+            id: "2A",
+            label: "A. Exactitud y atención al detalle",
+            options: [
               "1 - Comete errores frecuentes y no identifica fallos evidentes; requiere supervisión constante para evitar errores mayores.",
               "2 - Presenta errores recurrentes por falta de revisión; la exactitud es inconsistente y requiere correcciones frecuentes.",
               "3 - Realiza su trabajo con un nivel adecuado de precisión; puede cometer errores menores que no afectan los resultados.",
@@ -549,9 +606,9 @@
             ]
           },
           {
-            id:"2B",
-            name:"B. Cumple con estándares de calidad",
-            options:[
+            id: "2B",
+            label: "B. Cumple con estándares de calidad",
+            options: [
               "1 - Menos del 70 % de los entregables cumplen los estándares; los resultados son inaceptables.",
               "2 - Entre 70–89 % de los entregables cumplen los estándares; requiere ajustes frecuentes.",
               "3 - El 100 % de los entregables cumplen los estándares establecidos.",
@@ -560,9 +617,9 @@
             ]
           },
           {
-            id:"2C",
-            name:"C. Entregas a tiempo. Cumple con plazos establecidos",
-            options:[
+            id: "2C",
+            label: "C. Entregas a Tiempo. Cumple con plazos establecidos",
+            options: [
               "1 - Menos del 70 % de las entregas se cumplen a tiempo; los retrasos afectan el área.",
               "2 - Entre 70–89 % de las entregas se realizan a tiempo; desempeño irregular.",
               "3 - El 100 % de las entregas se cumplen en los plazos pactados.",
@@ -571,14 +628,14 @@
             ]
           },
           {
-            id:"2D",
-            name:"D. Manejo de errores y mejoras",
-            options:[
+            id: "2D",
+            label: "D. Manejo de errores y mejoras",
+            options: [
               "1 - No reconoce ni corrige errores; genera reincidencias graves.",
-              "2 - Corrige parcialmente, con retrasos o bajo nivel de supervisión; la mejora no es constante.",
+              "2 - Corrige parcialmente, con retrasos o bajo supervisión; la mejora no es constante.",
               "3 - Detecta y corrige errores básicos cuando se le solicita; cumple lo necesario.",
               "4 - Se anticipa a errores y propone soluciones preventivas que mejoran el proceso.",
-              "5 - Asegura procesos libres de errores; implementa mejoras continuas y es referente en calidad."
+              "5 - Asegura procesos libres de errores, implementa mejoras continuas y es referente en calidad."
             ]
           }
         ]
@@ -587,9 +644,9 @@
         title: "3. Competencias y Habilidades",
         items: [
           {
-            id:"3A",
-            name:"A. Conocimientos técnicos del puesto",
-            options:[
+            id: "3A",
+            label: "A. Conocimientos técnicos del puesto",
+            options: [
               "1 - Conocimientos muy por debajo de lo esperado; no domina funciones básicas del puesto.",
               "2 - Gestiona parcialmente los conocimientos requeridos y necesita apoyo frecuente.",
               "3 - Posee el conocimiento necesario y funcional para el puesto; desempeño adecuado.",
@@ -598,9 +655,9 @@
             ]
           },
           {
-            id:"3B",
-            name:"B. Convincente respuesta técnica a clientes",
-            options:[
+            id: "3B",
+            label: "B. Convincente respuesta técnica a clientes",
+            options: [
               "1 - Respuestas incorrectas o inconsistentes que generan desconfianza.",
               "2 - Respuestas incompletas o poco claras que afectan la calidad del servicio.",
               "3 - Responde de forma adecuada y funcional, brindando confianza.",
@@ -609,9 +666,9 @@
             ]
           },
           {
-            id:"3C",
-            name:"C. Resolución de problemas",
-            options:[
+            id: "3C",
+            label: "C. Resolución de problemas",
+            options: [
               "1 - No logra resolver problemas; afecta procesos y resultados.",
               "2 - Resuelve parcialmente los problemas, requiriendo supervisión frecuente.",
               "3 - Resuelve problemas básicos de manera satisfactoria y funcional.",
@@ -620,9 +677,9 @@
             ]
           },
           {
-            id:"3D",
-            name:"D. Iniciativa y creatividad",
-            options:[
+            id: "3D",
+            label: "D. Iniciativa y creatividad",
+            options: [
               "1 - No genera ideas ni propone mejoras.",
               "2 - Propone ideas poco útiles o de aplicación limitada.",
               "3 - Propone ideas funcionales y aplicables cuando es necesario.",
@@ -636,9 +693,9 @@
         title: "4. Actitud y Valores",
         items: [
           {
-            id:"4A",
-            name:"A. Responsabilidad y compromiso",
-            options:[
+            id: "4A",
+            label: "A. Responsabilidad y compromiso",
+            options: [
               "1 - Incumple compromisos y entrega resultados muy por debajo de lo esperado.",
               "2 - Cumple compromisos de forma irregular y requiere seguimiento constante.",
               "3 - Cumple con sus responsabilidades de manera adecuada y confiable.",
@@ -647,9 +704,9 @@
             ]
           },
           {
-            id:"4B",
-            name:"B. Puntualidad y asistencia",
-            options:[
+            id: "4B",
+            label: "B. Puntualidad y asistencia",
+            options: [
               "1 - Ausencias frecuentes e injustificadas; llegadas tardías recurrentes sin aviso y sin intención de mejora.",
               "2 - Se presenta con frecuencia tarde o sin justificación clara, afectando la operación.",
               "3 - Asiste regularmente y cumple horarios; puede presentar llegadas tarde o ausencias justificadas sin reincidencia.",
@@ -658,9 +715,9 @@
             ]
           },
           {
-            id:"4C",
-            name:"C. Trabajo en equipo y cooperación",
-            options:[
+            id: "4C",
+            label: "C. Trabajo en equipo y cooperación",
+            options: [
               "1 - No coopera; genera conflictos y dificulta el trabajo del equipo.",
               "2 - Coopera parcialmente y de manera inestable.",
               "3 - Coopera cuando se le solicita, con resultados aceptables.",
@@ -669,9 +726,9 @@
             ]
           },
           {
-            id:"4D",
-            name:"D. Comunicación efectiva",
-            options:[
+            id: "4D",
+            label: "D. Comunicación efectiva",
+            options: [
               "1 - Comunicación confusa; genera malentendidos graves.",
               "2 - Comunicación incompleta o poco clara; requiere supervisión para asegurar entendimiento.",
               "3 - Comunica lo necesario de forma clara y suficiente.",
@@ -685,9 +742,9 @@
         title: "5. Desarrollo y Potencial",
         items: [
           {
-            id:"5A",
-            name:"A. Adaptación al cambio",
-            options:[
+            id: "5A",
+            label: "A. Adaptación al cambio",
+            options: [
               "1 - Se resiste activamente al cambio; afecta procesos y equipos.",
               "2 - Se adapta parcialmente, con dificultad y resultados limitados.",
               "3 - Se adapta lo necesario para mantener un desempeño adecuado.",
@@ -696,9 +753,9 @@
             ]
           },
           {
-            id:"5B",
-            name:"B. Disposición para aprender",
-            options:[
+            id: "5B",
+            label: "B. Disposición para aprender",
+            options: [
               "1 - No busca aprender; rechaza retroalimentación y capacitación.",
               "2 - Aprende solo lo obligatorio y con mínima aplicación práctica.",
               "3 - Aprende lo necesario para mantener un desempeño satisfactorio.",
@@ -707,9 +764,9 @@
             ]
           },
           {
-            id:"5C",
-            name:"C. Liderazgo",
-            options:[
+            id: "5C",
+            label: "C. Liderazgo",
+            options: [
               "1 - No logra coordinar ni dirigir; genera desorden y afecta resultados.",
               "2 - Lidera de forma débil, con bajo impacto en el equipo.",
               "3 - Lidera tareas básicas con resultados adecuados y funcionales.",
@@ -721,77 +778,88 @@
       }
     ];
 
-    // =========================
-    //  Helpers
-    // =========================
+    /***********************
+     * HELPERS
+     ***********************/
     const $ = (sel) => document.querySelector(sel);
     const $$ = (sel) => Array.from(document.querySelectorAll(sel));
 
-    function nowStamp(){
-      const d = new Date();
-      const pad = (n)=> String(n).padStart(2,"0");
-      const dd = pad(d.getDate());
-      const mm = pad(d.getMonth()+1);
-      const yy = d.getFullYear();
-      const hh = pad(d.getHours());
-      const mi = pad(d.getMinutes());
-      return `${dd}/${mm}/${yy}, ${hh}:${mi}`;
-    }
-
-    function setDirty(isDirty){
-      const dot = $("#dirtyDot");
-      const txt = $("#dirtyText");
-      if(isDirty){
-        dot.classList.remove("ok"); dot.classList.add("warn");
-        txt.textContent = "Cambios sin guardar";
-      }else{
-        dot.classList.remove("warn"); dot.classList.add("ok");
-        txt.textContent = "Sin cambios";
-      }
-    }
+    const STORAGE_KEY = "ed_eval_desempeno_v1";
 
     let dirty = false;
-    let lastReportReady = false;
 
-    function markDirty(){
-      if(!dirty){
-        dirty = true;
-        setDirty(true);
+    function setDirty(v){
+      dirty = v;
+      const dot = $("#statusDot");
+      const text = $("#statusText");
+      if(v){
+        dot.style.background = "var(--warn)";
+        dot.style.boxShadow = "0 0 0 5px rgba(245,158,11,.14)";
+        text.textContent = "Cambios sin guardar";
+      }else{
+        dot.style.background = "var(--good)";
+        dot.style.boxShadow = "0 0 0 5px rgba(34,197,94,.12)";
+        text.textContent = "Sin cambios";
       }
     }
 
-    function clearDirty(){
-      dirty = false;
-      setDirty(false);
+    function fmt2(n){
+      return (Math.round(n*100)/100).toFixed(2);
     }
 
-    // =========================
-    //  Render Form
-    // =========================
+    function todayISO(){
+      const d = new Date();
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth()+1).padStart(2,"0");
+      const dd = String(d.getDate()).padStart(2,"0");
+      return `${yyyy}-${mm}-${dd}`;
+    }
+
+    function niceDate(iso){
+      if(!iso) return "—";
+      const [y,m,d] = iso.split("-");
+      return `${d}/${m}/${y}`;
+    }
+
+    function nowNice(){
+      const d = new Date();
+      const dd = String(d.getDate()).padStart(2,"0");
+      const mm = String(d.getMonth()+1).padStart(2,"0");
+      const yyyy = d.getFullYear();
+      const hh = String(d.getHours()).padStart(2,"0");
+      const mi = String(d.getMinutes()).padStart(2,"0");
+      return `${dd}/${mm}/${yyyy}, ${hh}:${mi}`;
+    }
+
+    /***********************
+     * RENDER FORM (items)
+     ***********************/
     function renderForm(){
-      const host = $("#formFactors");
+      const host = $("#factorsHost");
       host.innerHTML = "";
 
-      factors.forEach((f) => {
-        const box = document.createElement("div");
-        box.className = "factor";
+      FACTORS.forEach((factor) => {
+        const wrap = document.createElement("div");
+        wrap.className = "factor";
 
-        const h = document.createElement("h4");
-        h.textContent = f.title;
-        box.appendChild(h);
+        const h = document.createElement("h3");
+        h.textContent = factor.title;
+        wrap.appendChild(h);
 
-        f.items.forEach((it) => {
+        factor.items.forEach((item) => {
           const row = document.createElement("div");
           row.className = "item";
 
           const left = document.createElement("div");
-          const nm = document.createElement("div");
-          nm.className = "name";
-          nm.textContent = it.name;
+          const t = document.createElement("div");
+          t.className = "item-title";
+          t.textContent = item.label;
+
           const help = document.createElement("div");
-          help.className = "help";
+          help.className = "item-help";
           help.textContent = "Elige la descripción que mejor refleje el desempeño.";
-          left.appendChild(nm);
+
+          left.appendChild(t);
           left.appendChild(help);
 
           const right = document.createElement("div");
@@ -799,28 +867,27 @@
 
           const lab = document.createElement("label");
           lab.textContent = "Respuesta";
-          lab.setAttribute("for", `sel_${it.id}`);
+          lab.setAttribute("for", `sel_${item.id}`);
 
           const sel = document.createElement("select");
-          sel.id = `sel_${it.id}`;
-          sel.dataset.itemId = it.id;
+          sel.id = `sel_${item.id}`;
+          sel.dataset.itemId = item.id;
 
           const opt0 = document.createElement("option");
           opt0.value = "";
           opt0.textContent = "— Seleccionar —";
           sel.appendChild(opt0);
 
-          it.options.forEach((t, idx) => {
+          item.options.forEach((txt, idx) => {
             const opt = document.createElement("option");
-            opt.value = String(idx+1); // 1..5
-            opt.textContent = t;
+            opt.value = String(idx+1);
+            opt.textContent = txt;
             sel.appendChild(opt);
           });
 
           sel.addEventListener("change", () => {
-            markDirty();
-            lastReportReady = false;
-            $("#btnPrint").disabled = true;
+            setDirty(true);
+            updateLiveTotal();
           });
 
           right.appendChild(lab);
@@ -828,222 +895,340 @@
 
           row.appendChild(left);
           row.appendChild(right);
-          box.appendChild(row);
+
+          wrap.appendChild(row);
         });
 
-        host.appendChild(box);
+        host.appendChild(wrap);
       });
-
-      // Dirty tracking on meta fields + textareas
-      ["#empNo","#name","#pos","#dept","#period","#ver","#date","#tResultados","#tConclusiones","#tCapacitacion","#tCarrera"]
-        .forEach((id) => {
-          const el = $(id);
-          el.addEventListener("input", () => {
-            markDirty();
-            lastReportReady = false;
-            $("#btnPrint").disabled = true;
-          });
-          el.addEventListener("change", () => {
-            markDirty();
-            lastReportReady = false;
-            $("#btnPrint").disabled = true;
-          });
-        });
     }
 
-    // =========================
-    //  State (save/load)
-    // =========================
-    function collectState(){
-      const answers = {};
-      factors.forEach(f => f.items.forEach(it => {
-        const v = $(`#sel_${it.id}`).value;
-        answers[it.id] = v ? Number(v) : null;
-      }));
+    /***********************
+     * SCORING
+     ***********************/
+    function getAnswers(){
+      const ans = {};
+      for(const factor of FACTORS){
+        for(const item of factor.items){
+          const v = $(`#sel_${item.id}`).value;
+          ans[item.id] = v ? Number(v) : null;
+        }
+      }
+      return ans;
+    }
 
-      return {
-        meta:{
-          empNo: $("#empNo").value.trim(),
-          name: $("#name").value.trim(),
-          pos: $("#pos").value.trim(),
-          dept: $("#dept").value.trim(),
-          period: $("#period").value.trim(),
-          ver: $("#ver").value.trim(),
-          date: $("#date").value // yyyy-mm-dd
+    function calcTotal(answers){
+      let total = 0;
+      for(const [id, val] of Object.entries(answers)){
+        if(val == null) continue;
+        const w = WEIGHTS[id] || 0;
+        total += (val/5) * w;
+      }
+      return total;
+    }
+
+    function updateLiveTotal(){
+      const total = calcTotal(getAnswers());
+      $("#liveTotalBadge").textContent = `Total actual: ${fmt2(total)}`;
+    }
+
+    /***********************
+     * SAVE / LOAD
+     ***********************/
+    function collectState(){
+      const state = {
+        meta: {
+          noPersonal: $("#noPersonal").value.trim(),
+          nombre: $("#nombre").value.trim(),
+          posicion: $("#posicion").value.trim(),
+          departamento: $("#departamento").value.trim(),
+          periodo: $("#periodo").value.trim(),
+          version: $("#version").value.trim(),
+          fecha: $("#fecha").value
         },
-        notes:{
-          resultados: $("#tResultados").value.trim(),
-          conclusiones: $("#tConclusiones").value.trim(),
-          capacitacion: $("#tCapacitacion").value.trim(),
-          carrera: $("#tCarrera").value.trim()
-        },
-        answers
+        answers: getAnswers(),
+        extras: {
+          justificacion: $("#justificacion").value.trim(),
+          comentariosEvaluador: $("#comentariosEvaluador").value.trim(),
+          fortalezas: $("#fortalezas").value.trim(),
+          oportunidades: $("#oportunidades").value.trim(),
+          proyeccion: $("#proyeccion").value.trim(),
+          comentariosColaborador: $("#comentariosColaborador").value.trim()
+        }
       };
+      return state;
     }
 
     function applyState(state){
       if(!state) return;
-      const { meta, notes, answers } = state;
 
-      $("#empNo").value = meta?.empNo || "";
-      $("#name").value  = meta?.name  || "";
-      $("#pos").value   = meta?.pos   || "";
-      $("#dept").value  = meta?.dept  || "";
-      $("#period").value= meta?.period|| "";
-      $("#ver").value   = meta?.ver   || "";
-      $("#date").value  = meta?.date  || "";
+      const m = state.meta || {};
+      $("#noPersonal").value = m.noPersonal || "";
+      $("#nombre").value = m.nombre || "";
+      $("#posicion").value = m.posicion || "";
+      $("#departamento").value = m.departamento || "";
+      $("#periodo").value = m.periodo || "";
+      $("#version").value = m.version || "";
+      $("#fecha").value = m.fecha || "";
 
-      $("#tResultados").value  = notes?.resultados || "";
-      $("#tConclusiones").value= notes?.conclusiones || "";
-      $("#tCapacitacion").value= notes?.capacitacion || "";
-      $("#tCarrera").value     = notes?.carrera || "";
+      const a = state.answers || {};
+      for(const factor of FACTORS){
+        for(const item of factor.items){
+          const v = a[item.id];
+          $(`#sel_${item.id}`).value = v == null ? "" : String(v);
+        }
+      }
 
-      if(answers){
-        Object.keys(answers).forEach((k)=>{
-          const el = $(`#sel_${k}`);
-          if(el) el.value = answers[k] ? String(answers[k]) : "";
-        });
+      const e = state.extras || {};
+      $("#justificacion").value = e.justificacion || "";
+      $("#comentariosEvaluador").value = e.comentariosEvaluador || "";
+      $("#fortalezas").value = e.fortalezas || "";
+      $("#oportunidades").value = e.oportunidades || "";
+      $("#proyeccion").value = e.proyeccion || "";
+      $("#comentariosColaborador").value = e.comentariosColaborador || "";
+
+      updateLiveTotal();
+      setDirty(false);
+    }
+
+    function loadSaved(){
+      try{
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if(!raw) return;
+        const state = JSON.parse(raw);
+        applyState(state);
+      }catch(err){
+        console.warn("No se pudo cargar guardado:", err);
       }
     }
 
     function handleSave(){
       const state = collectState();
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-      clearDirty();
-      lastReportReady = false;
-      $("#btnPrint").disabled = true;
-    }
-
-    function loadSaved(){
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if(!raw) return;
-      try{
-        const state = JSON.parse(raw);
-        applyState(state);
-      }catch(e){
-        console.warn("No se pudo leer guardado:", e);
-      }
+      setDirty(false);
+      // feedback corto
+      $("#statusText").textContent = "Guardado";
+      $("#statusDot").style.background = "var(--good)";
+      $("#statusDot").style.boxShadow = "0 0 0 5px rgba(34,197,94,.12)";
+      setTimeout(()=> setDirty(false), 800);
     }
 
     function handleNew(){
-      if(dirty){
-        const ok = confirm("Hay cambios sin guardar. ¿Deseas continuar y limpiar el formulario?");
-        if(!ok) return;
-      }
+      const ok = !dirty || confirm("Hay cambios sin guardar. ¿Deseas limpiar el formulario?");
+      if(!ok) return;
+
       localStorage.removeItem(STORAGE_KEY);
-      renderForm();
-      // limpiar campos
-      applyState({
-        meta:{empNo:"",name:"",pos:"",dept:"",period:"",ver:"",date:""},
-        notes:{resultados:"",conclusiones:"",capacitacion:"",carrera:""},
-        answers:{}
-      });
-      clearDirty();
-      lastReportReady = false;
-      $("#btnPrint").disabled = true;
-    }
 
-    // =========================
-    //  Scoring + Report build
-    // =========================
-    function computeTotal(state){
-      let total = 0;
-      for(const [id, val] of Object.entries(state.answers)){
-        if(val == null) continue;
-        const w = weights[id] || 0;
-        total += (val/5) * w;
-      }
-      return Number(total.toFixed(2));
-    }
+      // clear meta
+      ["noPersonal","nombre","posicion","departamento","periodo","version"].forEach(id => $("#"+id).value = "");
+      $("#fecha").value = todayISO();
 
-    function getItemById(id){
-      for(const f of factors){
-        for(const it of f.items){
-          if(it.id === id) return it;
+      // clear answers
+      for(const factor of FACTORS){
+        for(const item of factor.items){
+          $(`#sel_${item.id}`).value = "";
         }
       }
-      return null;
+
+      // clear extras
+      ["justificacion","comentariosEvaluador","fortalezas","oportunidades","proyeccion","comentariosColaborador"].forEach(id => $("#"+id).value = "");
+
+      // hide report
+      $("#reportWrap").style.display = "none";
+
+      updateLiveTotal();
+      setDirty(false);
+      window.scrollTo({top:0,behavior:"smooth"});
     }
 
-    function fillReport(state){
-      // header meta
-      $("#pGenerated").textContent = nowStamp();
-      $("#pUrl").textContent = location.href;
-
-      $("#pEmpNo").textContent = state.meta.empNo || "—";
-      $("#pName").textContent  = state.meta.name  || "—";
-      $("#pPos").textContent   = state.meta.pos   || "—";
-      $("#pDept").textContent  = state.meta.dept  || "—";
-      $("#pPeriod").textContent= state.meta.period|| "—";
-      $("#pVer").textContent   = state.meta.ver   || "—";
-
-      // date format
-      const d = state.meta.date;
-      if(d){
-        const [yy, mm, dd] = d.split("-");
-        $("#pDate").textContent = `${dd}/${mm}/${yy}`;
-      }else{
-        $("#pDate").textContent = "—";
+    /***********************
+     * REPORT GENERATION (Conclusiones + planes)
+     ***********************/
+    function getAllItemsFlat(){
+      const out = [];
+      for(const f of FACTORS){
+        for(const it of f.items){
+          out.push({factorTitle: f.title, ...it});
+        }
       }
+      return out;
+    }
 
-      // table rows
-      const tbody = $("#pTable tbody");
-      tbody.innerHTML = "";
+    function summarizeSelection(item, val){
+      if(val == null) return "—";
+      const idx = val - 1;
+      return item.options[idx] || `Opción ${val}`;
+    }
 
-      // Maintain the same order as the form
-      factors.forEach(f => {
-        f.items.forEach(it => {
-          const tr = document.createElement("tr");
+    function buildInsights(state){
+      const items = getAllItemsFlat();
+      const answers = state.answers;
 
-          const tdItem = document.createElement("td");
-          tdItem.textContent = it.name;
-
-          const tdAns = document.createElement("td");
-          const v = state.answers[it.id];
-          if(v == null){
-            tdAns.textContent = "—";
-          }else{
-            const text = it.options[v-1] || `${v}`;
-            tdAns.textContent = text;
-          }
-
-          tr.appendChild(tdItem);
-          tr.appendChild(tdAns);
-          tbody.appendChild(tr);
-        });
+      const scored = items.map(it => {
+        const v = answers[it.id];
+        const w = WEIGHTS[it.id] || 0;
+        const score = (v == null) ? null : (v/5)*w;
+        return { ...it, value: v, weight: w, score };
       });
 
-      const total = computeTotal(state);
-      $("#pTotal").textContent = total.toFixed(2);
+      const answered = scored.filter(x => x.value != null);
+      const total = calcTotal(state.answers);
 
-      $("#pResultados").textContent   = state.notes.resultados  || "—";
-      $("#pConclusiones").textContent = state.notes.conclusiones|| "—";
-      $("#pCapacitacion").textContent = state.notes.capacitacion|| "—";
-      $("#pCarrera").textContent      = state.notes.carrera     || "—";
+      // Top 3 y Bottom 3 por valor (y por score como desempate)
+      const byValue = [...answered].sort((a,b) => (a.value - b.value) || (a.score - b.score));
+      const bottom = byValue.slice(0,3);
+      const top = [...answered].sort((a,b)=> (b.value - a.value) || (b.score - a.score)).slice(0,3);
 
-      lastReportReady = true;
-      $("#btnPrint").disabled = false;
+      // Nivel general por total
+      let nivel = "Satisfactorio";
+      if(total >= 90) nivel = "Sobresaliente";
+      else if(total >= 75) nivel = "Alto";
+      else if(total >= 60) nivel = "Satisfactorio";
+      else if(total >= 45) nivel = "En desarrollo";
+      else nivel = "Crítico";
+
+      const conclusiones = [];
+      conclusiones.push(`Nivel general estimado: ${nivel} (Total: ${fmt2(total)} / 100).`);
+
+      if(answered.length < scored.length){
+        conclusiones.push(`Nota: Hay ${scored.length - answered.length} ítem(s) sin respuesta; el total refleja solo lo contestado.`);
+      }
+
+      if(top.length){
+        conclusiones.push("");
+        conclusiones.push("Fortalezas destacadas (mayor puntuación):");
+        top.forEach(t => conclusiones.push(`• ${t.label} (opción ${t.value}).`));
+      }
+
+      if(bottom.length){
+        conclusiones.push("");
+        conclusiones.push("Áreas prioritarias de mejora (menor puntuación):");
+        bottom.forEach(b => conclusiones.push(`• ${b.label} (opción ${b.value}).`));
+      }
+
+      // Plan de capacitación: enfocado en bottom
+      const cap = [];
+      cap.push("Sugerencias de capacitación (basadas en los ítems con menor puntuación):");
+      if(bottom.length){
+        bottom.forEach(b => {
+          cap.push(`• ${b.label}: sesión práctica + guía de estándares/ejemplos + seguimiento en 30 días.`);
+        });
+      } else {
+        cap.push("• Mantener y reforzar habilidades con micro-capacitaciones trimestrales.");
+      }
+      cap.push("");
+      cap.push("Acciones recomendadas:");
+      cap.push("• Establecer 1–2 objetivos medibles por cada área prioritaria.");
+      cap.push("• Acordar evidencias/entregables y una fecha de revisión.");
+      cap.push("• Retroalimentación quincenal (10–15 min) para ajustar el plan.");
+
+      // Plan de carrera: basado en top + desarrollo
+      const car = [];
+      car.push("Sugerencia de plan de carrera (orientativo):");
+      if(top.length){
+        car.push("• Consolidar fortalezas actuales con proyectos donde se puedan demostrar resultados medibles.");
+      }
+      car.push("• Definir una ruta de crecimiento (3–6 meses): asumir responsabilidades graduales, documentar logros y aprendizajes.");
+      car.push("• Mentoría: asignar un referente del área para acompañamiento mensual.");
+      car.push("• Portafolio de evidencias: metas, mejoras implementadas, entregas a tiempo, aprendizajes y aportes al equipo.");
+      car.push("• Revisión de progreso: evaluación corta a los 90 días y ajuste del plan.");
+
+      return {
+        total,
+        conclusiones: conclusiones.join("\n"),
+        capacitacion: cap.join("\n"),
+        carrera: car.join("\n")
+      };
     }
 
     function handleGenerate(){
       const state = collectState();
-      fillReport(state);
-      // imprimir directamente (para PDF)
-      window.print();
+
+      // Validación suave: al menos meta básica
+      if(!state.meta.noPersonal || !state.meta.nombre){
+        alert("Completa al menos No. de personal y Nombre antes de generar el reporte.");
+        return;
+      }
+
+      // Construir reporte
+      const insights = buildInsights(state);
+
+      $("#repGeneratedAt").textContent = nowNice();
+      $("#repUrl").textContent = location.href;
+
+      $("#repNoPersonal").textContent = state.meta.noPersonal || "—";
+      $("#repNombre").textContent = state.meta.nombre || "—";
+      $("#repPosicion").textContent = state.meta.posicion || "—";
+      $("#repDepartamento").textContent = state.meta.departamento || "—";
+      $("#repPeriodo").textContent = state.meta.periodo || "—";
+      $("#repVersion").textContent = state.meta.version || "—";
+      $("#repFecha").textContent = state.meta.fecha ? niceDate(state.meta.fecha) : "—";
+
+      $("#repTotal").textContent = fmt2(insights.total);
+
+      // Tabla de ítems (sin columna Factor)
+      const tbody = $("#repItemsTbody");
+      tbody.innerHTML = "";
+
+      const flat = getAllItemsFlat();
+      flat.forEach(it => {
+        const v = state.answers[it.id];
+        const tr = document.createElement("tr");
+
+        const tdItem = document.createElement("td");
+        tdItem.textContent = it.label;
+
+        const tdResp = document.createElement("td");
+        tdResp.textContent = summarizeSelection(it, v);
+
+        tr.appendChild(tdItem);
+        tr.appendChild(tdResp);
+        tbody.appendChild(tr);
+      });
+
+      // Extras
+      $("#repJustificacion").textContent = state.extras.justificacion || "—";
+      $("#repComentariosEvaluador").textContent = state.extras.comentariosEvaluador || "—";
+      $("#repFortalezas").textContent = state.extras.fortalezas || "—";
+      $("#repOportunidades").textContent = state.extras.oportunidades || "—";
+      $("#repProyeccion").textContent = state.extras.proyeccion || "—";
+      $("#repComentariosColaborador").textContent = state.extras.comentariosColaborador || "—";
+
+      // Insights
+      $("#repConclusiones").textContent = insights.conclusiones || "—";
+      $("#repCapacitacion").textContent = insights.capacitacion || "—";
+      $("#repCarrera").textContent = insights.carrera || "—";
+
+      // Mostrar reporte (y ocultar resultados en pantalla hasta generar)
+      $("#reportWrap").style.display = "block";
+      window.scrollTo({ top: $("#reportWrap").offsetTop - 90, behavior: "smooth" });
     }
 
     function handlePrint(){
-      if(!lastReportReady){
-        // si aún no hay reporte, lo generamos con lo actual
-        const state = collectState();
-        fillReport(state);
+      // Solo imprimir si ya se generó el reporte
+      const visible = $("#reportWrap").style.display === "block";
+      if(!visible){
+        alert('Primero haz clic en "Generar" para preparar el reporte.');
+        return;
       }
-      window.print();
+      window.print(); // el usuario elige "Guardar como PDF"
     }
 
-    // =========================
-    //  Init
-    // =========================
+    /***********************
+     * BIND INPUTS (dirty)
+     ***********************/
+    function bindDirty(){
+      const ids = [
+        "noPersonal","nombre","posicion","departamento","periodo","version","fecha",
+        "justificacion","comentariosEvaluador","fortalezas","oportunidades","proyeccion","comentariosColaborador"
+      ];
+      ids.forEach(id => {
+        const el = $("#"+id);
+        el.addEventListener("input", () => { setDirty(true); });
+        el.addEventListener("change", () => { setDirty(true); });
+      });
+    }
+
     function bindButtons(){
       $("#btnNew").addEventListener("click", handleNew);
       $("#btnSave").addEventListener("click", handleSave);
@@ -1051,11 +1236,20 @@
       $("#btnPrint").addEventListener("click", handlePrint);
     }
 
-    (function bootstrap(){
+    /***********************
+     * INIT
+     ***********************/
+    (function init(){
       renderForm();
-      loadSaved();
-      clearDirty();
+      bindDirty();
       bindButtons();
+
+      // fecha por defecto
+      if(!$("#fecha").value) $("#fecha").value = todayISO();
+
+      loadSaved();
+      updateLiveTotal();
+      setDirty(false);
     })();
   </script>
 </body>
