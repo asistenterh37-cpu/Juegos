@@ -409,7 +409,7 @@
   /************************************************************
    * 1) URL COMPLETA DEL APPS SCRIPT (/exec) ✅ (LA NUEVA)
    ************************************************************/
-  const API_URL = "https://script.google.com/macros/s/AKfycbynVd0AITOOG1WXD5hHzY1C1zF1Ko8lhIWf8iGkYkato1T5Kn92hVB-pT_IlDd-57SnBA/exec";
+  const API_URL = "https://script.google.com/macros/s/AKfycbyRhQK7HF4dlOY8LBlaOn8ypFl91ENwzYTojtuFS4pCr7u4XBel4RKtfXYXh8eBDsvTYA/exec";
 
   /************************************************************
    * 2) Ítems + rúbrica 1–5
@@ -418,9 +418,7 @@
     {
       group: "1. Metas, productividad y eficiencia",
       items: [
-        {
-          key: "A_metas",
-          label: "A. Cumplimiento de Metas. Grado de logro",
+        { key: "A_metas", label: "A. Cumplimiento de Metas. Grado de logro",
           rubric: [
             "No alcanza la mayoría de las metas; cumple menos del 70 % de lo establecido. La falta de avance afecta los resultados esperados.",
             "Logra entre 70–89 % de las metas; presenta avances parciales o inconsistentes y requiere correcciones.",
@@ -429,9 +427,7 @@
             "Supera más del 110 % de las metas de forma sostenida, con impacto significativo y calidad superior."
           ]
         },
-        {
-          key: "B_eficiencia",
-          label: "B. Eficiencia en el uso del tiempo, costos y recursos",
+        { key: "B_eficiencia", label: "B. Eficiencia en el uso del tiempo, costos y recursos",
           rubric: [
             "Usa el tiempo y los recursos con errores graves que afectan la eficiencia.",
             "Muestra uso inestable del tiempo y los recursos; requiere evaluaciones y correcciones frecuentes.",
@@ -440,9 +436,7 @@
             "Maximiza la eficiencia de forma sostenida, mejora procesos y logra resultados superiores sin comprometer la calidad."
           ]
         },
-        {
-          key: "C_seguridad",
-          label: "C. Cumplimiento de normas de seguridad",
+        { key: "C_seguridad", label: "C. Cumplimiento de normas de seguridad",
           rubric: [
             "Incumple normas de seguridad y genera riesgos constantes para sí y el equipo.",
             "Cumple parcialmente las normas; requiere supervisión continua para evitar incidentes.",
@@ -451,9 +445,7 @@
             "Promueve una cultura de seguridad; motiva a otros y contribuye a mantener ambientes sin incidentes."
           ]
         },
-        {
-          key: "D_prioriza",
-          label: "D. Prioriza y organiza tareas adecuadamente",
+        { key: "D_prioriza", label: "D. Prioriza y organiza tareas adecuadamente",
           rubric: [
             "Desorganiza las tareas; incumple plazos y afecta resultados importantes.",
             "Organiza parcialmente; presenta inconsistencias en prioridades y manejo del tiempo.",
@@ -467,9 +459,7 @@
     {
       group: "2. Calidad del Trabajo",
       items: [
-        {
-          key: "A_exactitud",
-          label: "A. Exactitud y atención al detalle",
+        { key: "A_exactitud", label: "A. Exactitud y atención al detalle",
           rubric: [
             "Comete errores frecuentes y no identifica fallos evidentes; requiere supervisión constante para evitar errores mayores.",
             "Presenta errores recurrentes por falta de revisión; la exactitud es inconsistente y requiere correcciones frecuentes.",
@@ -478,9 +468,7 @@
             "Su trabajo es impecable; detecta errores propios y ajenos, propone mejoras y es referente en precisión."
           ]
         },
-        {
-          key: "B_estandares",
-          label: "B. Cumple con estándares de calidad",
+        { key: "B_estandares", label: "B. Cumple con estándares de calidad",
           rubric: [
             "Menos del 70 % de los entregables cumplen los estándares; los resultados son inaceptables.",
             "Entre 70–89 % de los entregables cumplen los estándares; requiere ajustes frecuentes.",
@@ -489,9 +477,7 @@
             "Más del 110 % de cumplimiento; supera ampliamente los estándares y produce resultados sobresalientes."
           ]
         },
-        {
-          key: "C_entregas",
-          label: "C. Entregas a tiempo, cumple con plazos establecidos",
+        { key: "C_entregas", label: "C. Entregas a tiempo, cumple con plazos establecidos",
           rubric: [
             "Menos del 70 % de las entregas se cumplen a tiempo; los retrasos afectan el área.",
             "Entre 70–89 % de las entregas se realizan a tiempo; desempeño irregular.",
@@ -500,9 +486,7 @@
             "Entrega más del 110 % a tiempo; supera plazos, mantiene calidad y mejora la eficiencia general."
           ]
         },
-        {
-          key: "D_errores",
-          label: "D. Manejo de errores y mejoras",
+        { key: "D_errores", label: "D. Manejo de errores y mejoras",
           rubric: [
             "No reconoce ni corrige errores; genera reincidencias graves.",
             "Corrige parcialmente, con retrasos o bajo nivel de supervisión; la mejora no es constante.",
@@ -516,9 +500,7 @@
     {
       group: "3. Competencias y Habilidades",
       items: [
-        {
-          key: "A_conocimientos",
-          label: "A. Conocimientos técnicos del puesto",
+        { key: "A_conocimientos", label: "A. Conocimientos técnicos del puesto",
           rubric: [
             "Conocimientos muy por debajo de lo esperado; no domina funciones básicas del puesto.",
             "Gestiona parcialmente los conocimientos requeridos y necesita apoyo frecuente.",
@@ -527,9 +509,7 @@
             "Domina los conocimientos, aplica técnicas avanzadas y es referente técnico en el área."
           ]
         },
-        {
-          key: "B_clientes",
-          label: "B. Convincente respuesta técnica a clientes",
+        { key: "B_clientes", label: "B. Convincente respuesta técnica a clientes",
           rubric: [
             "Respuestas incorrectas o inconsistentes que generan desconfianza.",
             "Respuestas incompletas o poco claras que afectan la calidad del servicio.",
@@ -538,9 +518,7 @@
             "Respuestas sobresalientes y precisas, reconocidas como referente por clientes."
           ]
         },
-        {
-          key: "C_problemas",
-          label: "C. Resolución de problemas",
+        { key: "C_problemas", label: "C. Resolución de problemas",
           rubric: [
             "No logra resolver problemas; afecta procesos y resultados.",
             "Resuelve parcialmente los problemas, requiriendo supervisión frecuente.",
@@ -549,9 +527,7 @@
             "Anticipa problemas y desarrolla soluciones preventivas y estratégicas."
           ]
         },
-        {
-          key: "D_iniciativa",
-          label: "D. Iniciativa y creatividad",
+        { key: "D_iniciativa", label: "D. Iniciativa y creatividad",
           rubric: [
             "No genera ideas ni propone mejoras.",
             "Propone ideas poco útiles o de aplicación limitada.",
@@ -565,9 +541,7 @@
     {
       group: "4. Actitud y Valores",
       items: [
-        {
-          key: "A_responsabilidad",
-          label: "A. Responsabilidad y compromiso",
+        { key: "A_responsabilidad", label: "A. Responsabilidad y compromiso",
           rubric: [
             "Incumple compromisos y entrega resultados muy por debajo de lo esperado.",
             "Cumple compromisos de forma irregular y requiere seguimiento constante.",
@@ -576,9 +550,7 @@
             "Inspira por su compromiso; es modelo de conducta para el equipo."
           ]
         },
-        {
-          key: "B_puntualidad",
-          label: "B. Puntualidad y asistencia",
+        { key: "B_puntualidad", label: "B. Puntualidad y asistencia",
           rubric: [
             "Ausencias frecuentes e injustificadas; llegadas tardías recurrentes sin aviso y sin intención de mejora.",
             "Se presenta con frecuencia tarde o sin justificación clara, afectando la operación.",
@@ -587,9 +559,7 @@
             "Puntualidad y asistencia impecables; es referente para el equipo y se adapta a horarios especiales sin afectar el desempeño."
           ]
         },
-        {
-          key: "C_equipo",
-          label: "C. Trabajo en equipo y cooperación",
+        { key: "C_equipo", label: "C. Trabajo en equipo y cooperación",
           rubric: [
             "No coopera; genera conflictos y dificulta el trabajo del equipo.",
             "Coopera parcialmente y de manera inestable, con resultados aceptables.",
@@ -598,9 +568,7 @@
             "Es referente en trabajo en equipo; promueve colaboración, comunicación e influye positivamente en otros."
           ]
         },
-        {
-          key: "D_comunicacion",
-          label: "D. Comunicación efectiva",
+        { key: "D_comunicacion", label: "D. Comunicación efectiva",
           rubric: [
             "Comunicación confusa; genera malentendidos graves.",
             "Comunicación incompleta o poco clara; requiere supervisión para asegurar claridad.",
@@ -614,9 +582,7 @@
     {
       group: "5. Desarrollo y Potencial",
       items: [
-        {
-          key: "A_adaptacion",
-          label: "A. Adaptación al cambio",
+        { key: "A_adaptacion", label: "A. Adaptación al cambio",
           rubric: [
             "Se resiste activamente al cambio; afecta procesos y equipos.",
             "Se adapta parcialmente, con dificultad y resultados limitados.",
@@ -625,9 +591,7 @@
             "Es referente en adaptación; motiva y guía a otros en procesos de cambio."
           ]
         },
-        {
-          key: "B_aprender",
-          label: "B. Disposición para aprender",
+        { key: "B_aprender", label: "B. Disposición para aprender",
           rubric: [
             "No busca aprender; rechaza retroalimentación y capacitación.",
             "Aprende solo lo obligatorio y con mínima aplicación práctica.",
@@ -636,9 +600,7 @@
             "Se mantiene en aprendizaje continuo, comparte conocimientos y forma a otros."
           ]
         },
-        {
-          key: "C_liderazgo",
-          label: "C. Liderazgo",
+        { key: "C_liderazgo", label: "C. Liderazgo",
           rubric: [
             "No logra coordinar ni dirigir; genera desorden y afecta resultados.",
             "Lidera de forma débil, con bajo impacto en el equipo.",
@@ -651,9 +613,6 @@
     }
   ];
 
-  /************************************************************
-   * Estado UI
-   ************************************************************/
   const state = { dirty:false, generated:false, answers:{} };
   const $ = (id) => document.getElementById(id);
 
@@ -968,9 +927,6 @@
     return out;
   }
 
-  /************************************************************
-   * ✅ form-urlencoded para Apps Script (evita CORS desde GitHub)
-   ************************************************************/
   function toFormUrlEncoded(obj){
     return Object.keys(obj)
       .map(k => encodeURIComponent(k) + "=" + encodeURIComponent(obj[k] ?? ""))
@@ -1004,8 +960,6 @@
     const answers = flattenAnswers();
     const total = computeTotal();
 
-    // ✅ Mantengo tu contrato original hacia Apps Script:
-    // no_personal, nombre, posicion, departamento, periodo, version, fecha, respuestas_json, comentarios
     const respuestasJSON = JSON.stringify({
       header,
       answers,
@@ -1026,7 +980,6 @@
       comentarios: buildComentariosParaSheet(header.tipo, extra)
     };
 
-    // 🔎 Debug (te ayuda a ver en consola del navegador qué se manda)
     console.log("Enviando a Apps Script:", formPayload);
 
     try{
@@ -1035,7 +988,6 @@
 
       const body = toFormUrlEncoded(formPayload);
 
-      // Intento estándar (a veces deja leer respuesta)
       try{
         const res = await fetch(API_URL, {
           method: "POST",
@@ -1048,7 +1000,6 @@
           throw new Error(t || ("HTTP " + res.status));
         }
       }catch(e){
-        // Fallback anti-CORS: envía igual aunque no puedas leer respuesta
         await fetch(API_URL, {
           method: "POST",
           mode: "no-cors",
@@ -1058,7 +1009,7 @@
       }
 
       $("apiHint").className = "ok";
-      $("apiHint").textContent = "Enviado a Google Sheets ✅ (si no ves fila, revisa permisos del Web App)";
+      $("apiHint").textContent = "Enviado a Google Sheets ✅";
       setDirty(false);
 
     }catch(err){
@@ -1106,7 +1057,6 @@
     });
   }
 
-  // Init
   renderItems();
   applyTipoUI();
   bind();
