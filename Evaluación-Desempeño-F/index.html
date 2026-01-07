@@ -907,6 +907,185 @@
   }
 
   /************************************************************
+   * ✅ CAMBIO PRINCIPAL: RECUPERAR (No. personal + Periodo + Versión)
+   * - Llena campos + selects sin perder las otras opciones
+   * - Llena Comentarios del colaborador (en desempeño: comentariosColaborador2)
+   ************************************************************/
+
+  // Convierte lo que venga del Sheet a un número 1..5 si es posible
+  function parseScore(value){
+    if(value === null || value === undefined) return null;
+    if(typeof value === "number" && value >= 1 && value <= 5) return value;
+    const s = String(value).trim();
+    if(!s) return null;
+    // acepta "3 — ..." o "3-..." o "3"
+    const m = s.match(/^([1-5])/);
+    if(!m) return null;
+    const n = Number(m[1]);
+    return (n>=1 && n<=5) ? n : null;
+  }
+
+  // Llena el formulario desde un payload (JSON) retornado por Apps Script
+  function fillFromRecovered(payload){
+    // payload esperado (ejemplo):
+    // {
+    //   ok:true,
+    //   data:{
+    //     header:{ no_personal, nombre, posicion, departamento, periodo, version, fecha },
+    //     answers:{ A_metas: "1 — ...", ... }  // o números
+    //     extra:{ justificacion, comentarios_evaluador, fortalezas, oportunidades_mejora, proyeccion_potencial, comentarios_colaborador }
+    //   }
+    // }
+
+    const data = payload && payload.data ? payload.data : null;
+    if(!data) throw new Error("Respuesta inválida del servidor.");
+
+    const h = data.header || {};
+    const a = data.answers || {};
+    const e = data.extra || {};
+
+    // Header (no tocamos tipo)
+    if(h.no_personal !== undefined) $("noPersonal").value = String(h.no_personal ?? "");
+    if(h.nombre !== undefined) $("nombre").value = String(h.nombre ?? "");
+    if(h.posicion !== undefined) $("posicion").value = String(h.posicion ?? "");
+    if(h.departamento !== undefined) $("departamento").value = String(h.departamento ?? "");
+    if(h.periodo !== undefined) $("periodo").value = String(h.periodo ?? "");
+    if(h.version !== undefined) $("version").value = String(h.version ?? "");
+    if(h.fecha !== undefined) $("fecha").value = String(h.fecha ?? "");
+
+    // Extra (desempeño)
+    if($("tipoFormulario").value === "desempeno"){
+      $("justificacion").value = String(e.justificacion ?? "");
+      $("comentariosEvaluador").value = String(e.comentarios_evaluador ?? "");
+      $("fortalezas").value = String(e.fortalezas ?? "");
+      $("oportunidades").value = String(e.oportunidades_mejora ?? "");
+      $("proyeccion").value = String(e.proyeccion_potencial ?? "");
+      $("comentariosColaborador2").value = String(e.comentarios_colaborador ?? "");
+    }else if($("tipoFormulario").value === "autoevaluacion"){
+      $("comentariosColaborador").value = String(e.comentarios_colaborador ?? "");
+    }
+
+    // Selects: setear value NO elimina opciones; quedan disponibles las otras 4 ✅
+    ITEMS.forEach(sec => sec.items.forEach(it => {
+      const raw = a[it.key];
+      const score = parseScore(raw);
+      const sel = $("ans_" + it.key);
+      if(sel){
+        sel.value = score ? String(score) : "";     // esto deja el resto de opciones intactas
+      }
+      if(score){
+        state.answers[it.key] = score;
+      }else{
+        state.answers[it.key] = null;
+      }
+    }));
+
+    // Oculta reporte si estaba generado
+    $("printArea").style.display = "none";
+    state.generated = false;
+
+    // Marcamos como “sin cambios” (recién recuperado)
+    setDirty(false);
+  }
+
+  // GET JSON normal (requiere que tu Apps Script responda con JSON + CORS)
+  async function apiGetJSON(params){
+    const url = new URL(API_URL);
+    Object.entries(params).forEach(([k,v]) => url.searchParams.set(k, v ?? ""));
+    const res = await fetch(url.toString(), { method:"GET" });
+    // si no retorna JSON, aquí truena
+    return await res.json();
+  }
+
+  // Fallback JSONP (sirve si tu Apps Script no te deja CORS pero sí callback)
+  function apiGetJSONP(params){
+    return new Promise((resolve, reject) => {
+      const cb = "__cb_" + Math.random().toString(36).slice(2);
+      const url = new URL(API_URL);
+      Object.entries(params).forEach(([k,v]) => url.searchParams.set(k, v ?? ""));
+      url.searchParams.set("callback", cb);
+
+      const script = document.createElement("script");
+      const timeout = setTimeout(() => {
+        cleanup();
+        reject(new Error("Timeout al recuperar (JSONP)."));
+      }, 12000);
+
+      function cleanup(){
+        clearTimeout(timeout);
+        try{ delete window[cb]; }catch(_){}
+        if(script && script.parentNode) script.parentNode.removeChild(script);
+      }
+
+      window[cb] = (data) => {
+        cleanup();
+        resolve(data);
+      };
+
+      script.onerror = () => {
+        cleanup();
+        reject(new Error("Error de red (JSONP)."));
+      };
+
+      script.src = url.toString();
+      document.body.appendChild(script);
+    });
+  }
+
+  async function recuperarDesempeno(){
+    const tipo = $("tipoFormulario").value;
+    if(tipo !== "desempeno"){
+      alert("Recuperar está habilitado solo en 'Evaluación del desempeño'.");
+      return;
+    }
+
+    const no = $("noPersonal").value.trim();
+    const per = $("periodo").value.trim();
+    const ver = $("version").value.trim();
+
+    if(!no || !per || !ver){
+      alert("Para recuperar, llena: No. de personal + Periodo + Versión.");
+      return;
+    }
+
+    try{
+      setBusy(true);
+      $("apiHint").className = "warn";
+      $("apiHint").textContent = "Recuperando desde Google Sheets...";
+
+      // OJO: aquí mandamos action=recuperar
+      const params = { action:"recuperar", no_personal:no, periodo:per, version:ver };
+
+      let payload;
+      try{
+        payload = await apiGetJSON(params);   // primer intento (CORS + JSON)
+      }catch(_){
+        payload = await apiGetJSONP(params);  // fallback (JSONP)
+      }
+
+      if(!payload || payload.ok !== true){
+        const msg = (payload && payload.message) ? payload.message : "Registro no encontrado.";
+        $("apiHint").className = "err";
+        $("apiHint").textContent = msg;
+        alert(msg);
+        return;
+      }
+
+      fillFromRecovered(payload);
+
+      $("apiHint").className = "ok";
+      $("apiHint").textContent = "Registro recuperado ✅";
+    }catch(err){
+      console.error(err);
+      $("apiHint").className = "err";
+      $("apiHint").textContent = "No se pudo recuperar";
+      alert("No se pudo recuperar: " + (err.message || err));
+    }finally{
+      setBusy(false);
+    }
+  }
+
+  /************************************************************
    * ✅ CAMBIOS: botón Nuevo/Recuperar + limpiar al elegir desempeño
    ************************************************************/
   function updateBtnNewLabel(){
@@ -934,7 +1113,7 @@
     $("desempenoCamposBox").style.display = (tipo === "desempeno") ? "block" : "none";
     $("clientesBox").style.display = (tipo === "clientes") ? "block" : "none";
 
-    updateBtnNewLabel(); // ✅
+    updateBtnNewLabel();
   }
 
   function clearForm(){
@@ -1005,7 +1184,6 @@
 
     const missing = [];
 
-    // Datos mínimos (ajusta aquí si quieres obligar TODOS los header)
     if(!header.no_personal) missing.push("No. de personal");
     if(!header.nombre) missing.push("Nombre");
     if(!header.posicion) missing.push("Posición");
@@ -1014,7 +1192,6 @@
     if(!header.version) missing.push("Versión");
     if(!header.fecha) missing.push("Fecha");
 
-    // Todos los ítems deben estar seleccionados
     ITEMS.forEach(sec => sec.items.forEach(it => {
       const v = state.answers[it.key];
       if(!(typeof v === "number" && v >= 1 && v <= 5)){
@@ -1022,12 +1199,10 @@
       }
     }));
 
-    // Requisitos por tipo
     if(tipo === "autoevaluacion"){
       if(!extra.comentarios_colaborador) missing.push("Comentarios del colaborador");
     }
     if(tipo === "desempeno"){
-      // Si quieres que sea obligatorio todo en desempeño (recomendado):
       if(!extra.justificacion) missing.push("Justificación calificaciones");
       if(!extra.comentarios_evaluador) missing.push("Comentarios del evaluador");
       if(!extra.fortalezas) missing.push("Fortalezas");
@@ -1040,7 +1215,7 @@
   }
 
   async function saveToSheet(){
-    if(state.saving) return; // ✅ evita doble envío por doble click
+    if(state.saving) return;
 
     const v = validateAll();
     if(!v.ok){
@@ -1052,18 +1227,17 @@
     const header = v.header;
     const extra = v.extra;
 
-    const answersText = flattenAnswersSelectedText(); // ✅ solo "n — descripción"
+    const answersText = flattenAnswersSelectedText();
     const total = computeTotal();
 
     const respuestasJSON = JSON.stringify({
       header,
-      answers: answersText,   // ✅ aquí ya no van objetos
+      answers: answersText,
       extra,
       puntaje_total: total,
       creado_en: new Date().toISOString()
     });
 
-    // ✅ Enviamos también cada item como campo propio para llenar columnas (si tu Apps Script lo usa)
     const formPayload = {
       no_personal: header.no_personal,
       nombre: header.nombre,
@@ -1073,17 +1247,11 @@
       version: header.version,
       fecha: header.fecha,
 
-      // Por-item (H, I, J, K, etc. según headers de tu sheet)
       ...answersText,
 
-      // JSON completo (por si tu Apps Script lo necesita)
       respuestas_json: respuestasJSON,
-
-      // Comentarios generales (para tu columna "Comentarios")
       comentarios: buildComentariosParaSheet(header.tipo, extra)
     };
-
-    console.log("Enviando a Apps Script:", formPayload);
 
     try{
       setBusy(true);
@@ -1092,8 +1260,6 @@
 
       const body = toFormUrlEncoded(formPayload);
 
-      // ✅ ENVIAR UNA SOLA VEZ (evita filas duplicadas)
-      // Usamos no-cors para que no falle por CORS y no tengamos que reintentar.
       await fetch(API_URL, {
         method: "POST",
         mode: "no-cors",
@@ -1127,37 +1293,30 @@
 
     $("tipoFormulario").addEventListener("change", ()=>{
       const tipo = $("tipoFormulario").value;
-
-      // ✅ Si el usuario elige "desempeño", dejar todo en blanco como adjuntos
       if(tipo === "desempeno"){
         resetToBlankForDesempeno();
         return;
       }
-
       applyTipoUI();
       setDirty(true);
     });
 
     $("btnNew").addEventListener("click", ()=>{
       if(state.saving) return;
-
       const tipo = $("tipoFormulario").value;
 
-      // ✅ En desempeño, el botón se llama "Recuperar"
+      // ✅ AHORA: en desempeño, "Recuperar" trae el registro (no borra)
       if(tipo === "desempeno"){
-        resetToBlankForDesempeno();
-        $("noPersonal").focus();
+        recuperarDesempeno();
         return;
       }
 
-      // ✅ En otros tipos funciona como "Nuevo"
       if(state.dirty && !confirm("Hay cambios sin guardar. ¿Crear nuevo de todas formas?")) return;
       clearForm();
     });
 
     $("btnSave").addEventListener("click", saveToSheet);
 
-    // ✅ Generar SOLO si todo está completo (igual que Guardar)
     $("btnGenerate").addEventListener("click", ()=>{
       if(state.saving) return;
 
@@ -1195,7 +1354,7 @@
   applyTipoUI();
   bind();
   setDirty(false);
-  updateBtnNewLabel(); // ✅ asegura que aparezca "Recuperar" si es desempeño
+  updateBtnNewLabel();
 </script>
 </body>
 </html>
