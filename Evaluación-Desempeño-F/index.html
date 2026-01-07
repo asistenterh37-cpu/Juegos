@@ -1,415 +1,8 @@
-<!doctype html>
-<html lang="es">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Evaluación del desempeño</title>
-  <style>
-    :root{
-      --bg:#050a14;
-      --panel:rgba(255,255,255,.06);
-      --panel2:rgba(255,255,255,.08);
-      --stroke:rgba(255,255,255,.10);
-      --text:#eaf0ff;
-      --muted:rgba(234,240,255,.72);
-      --brand:#2f7bff;
-      --brand2:#4aa3ff;
-      --ok:#23c55e;
-      --warn:#f59e0b;
-      --bad:#ef4444;
-      --radius:18px;
-
-      /* Print colors */
-      --p-border:#e6e6e6;
-      --p-gray:#f7f7f7;
-      --p-ink:#111;
-      --p-sub:#444;
-      --p-hi:#dbeafe;
-    }
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
-      background: radial-gradient(1000px 700px at 30% -10%, rgba(47,123,255,.25), transparent 60%),
-                  radial-gradient(900px 650px at 70% 20%, rgba(124,58,237,.18), transparent 55%),
-                  linear-gradient(180deg, #040816, #02040b 60%);
-      color:var(--text);
-    }
-    .wrap{max-width:1180px; margin:28px auto; padding:0 18px 80px}
-    .topbar{
-      display:flex; align-items:center; justify-content:space-between;
-      padding:18px 18px; border-radius:22px;
-      background: linear-gradient(180deg, rgba(255,255,255,.09), rgba(255,255,255,.05));
-      border:1px solid var(--stroke);
-      box-shadow: 0 12px 40px rgba(0,0,0,.35);
-      position:sticky; top:12px; z-index:20;
-      backdrop-filter: blur(10px);
-      gap:14px;
-    }
-    .brand{display:flex; gap:12px; align-items:center;}
-    .logo{
-      width:46px; height:46px; border-radius:14px;
-      display:grid; place-items:center;
-      background: linear-gradient(135deg, rgba(47,123,255,.95), rgba(74,163,255,.85));
-      font-weight:800;
-      letter-spacing:.5px;
-      flex:0 0 auto;
-    }
-    .titles h1{margin:0; font-size:20px}
-    .titles p{margin:2px 0 0; font-size:13px; color:var(--muted)}
-    .actions{display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:flex-end}
-    .pill{
-      padding:8px 12px; border-radius:999px;
-      border:1px solid var(--stroke);
-      background:rgba(0,0,0,.22);
-      color:var(--muted);
-      font-size:12px;
-      display:flex; gap:8px; align-items:center;
-    }
-    .dot{width:10px; height:10px; border-radius:50%;}
-    .btn{
-      border:1px solid var(--stroke);
-      background:rgba(255,255,255,.06);
-      color:var(--text);
-      border-radius:999px;
-      padding:10px 16px;
-      font-weight:650;
-      cursor:pointer;
-      transition:.15s transform, .15s background;
-      user-select:none;
-      white-space:nowrap;
-    }
-    .btn:hover{transform: translateY(-1px); background:rgba(255,255,255,.09)}
-    .btn.primary{
-      border:none;
-      background: linear-gradient(135deg, var(--brand), var(--brand2));
-      box-shadow: 0 12px 26px rgba(47,123,255,.25);
-    }
-    .btn.ghost{background:transparent}
-    .grid{
-      display:grid;
-      grid-template-columns: 1fr;
-      gap:16px;
-      margin-top:16px;
-    }
-    .card{
-      border:1px solid var(--stroke);
-      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
-      border-radius: var(--radius);
-      box-shadow: 0 12px 40px rgba(0,0,0,.35);
-      padding:18px;
-    }
-    .card h2{margin:0 0 6px; font-size:18px;}
-    .card p{margin:0; color:var(--muted); font-size:13px}
-    .form-grid{
-      display:grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap:12px;
-      margin-top:14px;
-    }
-    @media (max-width: 980px){
-      .form-grid{grid-template-columns: 1fr}
-      .actions{justify-content:flex-end}
-      .topbar{flex-wrap:wrap}
-    }
-    label{display:block; font-size:12px; color:var(--muted); margin:0 0 6px}
-    input, select, textarea{
-      width:100%;
-      padding:12px 12px;
-      border-radius:14px;
-      border:1px solid rgba(255,255,255,.10);
-      outline:none;
-      color:var(--text);
-      background: rgba(0,0,0,.25);
-    }
-    textarea{min-height:90px; resize:vertical}
-    .section-title{display:flex; align-items:center; justify-content:space-between; margin:14px 0 8px;}
-    .section-title h3{margin:0; font-size:16px}
-    .muted{color:var(--muted)}
-    .divider{height:1px; background:rgba(255,255,255,.10); margin:16px 0;}
-    .hint{font-size:12px; color:var(--muted); margin-top:8px}
-    .warn{color:#ffd28b}
-    .ok{color:#9dffb6}
-    .err{color:#ffb4b4}
-
-    /* ===== Reporte (para impresión) ===== */
-    .print-area{margin-top:20px; display:none;}
-    .report{
-      background:#fff;
-      color:var(--p-ink);
-      border-radius:18px;
-      padding:20px;
-      border:1px solid #e8e8e8;
-    }
-    .report-head{
-      display:flex; justify-content:space-between; align-items:flex-start; gap:12px;
-      margin-bottom:10px;
-    }
-    .report-head h1{margin:0; font-size:32px; letter-spacing:.2px;}
-    .report-head .small{font-size:12px; color:var(--p-sub); text-align:right;}
-    .report-sub{margin:0 0 14px; color:var(--p-sub)}
-    .report-kv{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:10px;
-      margin-bottom:10px;
-    }
-    .kv-row{display:grid; grid-template-columns: 1fr 1fr; gap:10px;}
-    .kv{
-      border:1px solid var(--p-border);
-      padding:10px 12px;
-      border-radius:12px;
-    }
-    .kv .k{font-size:11px; color:#666; margin-bottom:3px}
-    .kv .v{font-size:13px; font-weight:650}
-
-    /* Tabla SOLO opción seleccionada */
-    .rubric-wrap{margin-top:14px;}
-    .rubric-title{
-      margin:0 0 6px;
-      font-size:15px;
-      color:var(--p-ink);
-      font-weight:800;
-    }
-    .sel-table{
-      width:100%;
-      border-collapse:collapse;
-      table-layout:fixed;
-      border:1px solid var(--p-border);
-    }
-    .sel-table th, .sel-table td{
-      border:1px solid var(--p-border);
-      padding:8px 8px;
-      vertical-align:top;
-      font-size:11px;
-      word-wrap:break-word;
-    }
-    .sel-table th{
-      background:var(--p-gray);
-      text-align:left;
-      font-weight:800;
-      font-size:11px;
-    }
-    .col-item{width:32%; font-weight:700;}
-    .col-score{width:10%; text-align:center; font-weight:800;}
-    .col-desc{width:auto;}
-    .muted-print{color:#555}
-
-    .block{margin-top:14px;}
-    .block h2{margin:0 0 6px; font-size:15px;}
-    .block .box{
-      border:1px solid var(--p-border);
-      border-radius:12px;
-      padding:10px 12px;
-      min-height:48px;
-      font-size:12px;
-      white-space:pre-wrap;
-    }
-
-    @media print{
-      body{background:#fff}
-      .wrap{max-width:none; margin:0; padding:0}
-      .topbar, .no-print{display:none !important}
-      .print-area{display:block !important}
-      .report{border:none; border-radius:0; padding:0}
-    }
-  </style>
-</head>
-
-<body>
-  <div class="wrap">
-
-    <div class="topbar no-print">
-      <div class="brand">
-        <div class="logo">ED</div>
-        <div class="titles">
-          <h1 id="appTitle">Formulario de evaluación del desempeño</h1>
-          <p>Escala 1–5 • Guardado en Google Sheets • Reporte PDF (solo opción seleccionada)</p>
-        </div>
-      </div>
-      <div class="actions">
-        <div class="pill" title="Estado">
-          <span class="dot" id="stateDot" style="background: var(--ok)"></span>
-          <span id="stateText">Sin cambios</span>
-        </div>
-        <button class="btn ghost" id="btnNew" type="button">Nuevo</button>
-        <button class="btn primary" id="btnSave" type="button">Guardar</button>
-        <button class="btn primary" id="btnGenerate" type="button">Generar</button>
-        <button class="btn" id="btnPrint" type="button">Imprimir / Enviar a PDF</button>
-      </div>
-    </div>
-
-    <div class="grid no-print">
-
-      <div class="card">
-        <h2>Tipo de formulario</h2>
-        <p>Selecciona el tipo para mostrar/ocultar campos automáticamente.</p>
-        <div class="form-grid" style="grid-template-columns: 1fr;">
-          <div>
-            <label>Tipo</label>
-            <select id="tipoFormulario">
-              <option value="autoevaluacion">Formulario de autoevaluación</option>
-              <option value="desempeno" selected>Formulario de evaluación del desempeño</option>
-              <option value="clientes">Evaluación de clientes</option>
-            </select>
-            <div class="hint">El guardado siempre va a Google Sheets (Web App de Apps Script).</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <h2>Datos del colaborador</h2>
-        <p>Completa la información y selecciona una opción (1–5) para cada ítem.</p>
-
-        <div class="form-grid">
-          <div>
-            <label>No. de personal</label>
-            <input id="noPersonal" placeholder="Ej. 1600" />
-          </div>
-          <div>
-            <label>Nombre</label>
-            <input id="nombre" placeholder="Ej. Carlos Paz" />
-          </div>
-          <div>
-            <label>Posición</label>
-            <input id="posicion" placeholder="Ej. Analista" />
-          </div>
-          <div>
-            <label>Departamento</label>
-            <input id="departamento" placeholder="Ej. Contabilidad" />
-          </div>
-          <div>
-            <label>Periodo</label>
-            <input id="periodo" placeholder="Ej. 2025" />
-          </div>
-          <div>
-            <label>Versión</label>
-            <input id="version" placeholder="Ej. 1" />
-          </div>
-          <div>
-            <label>Fecha</label>
-            <input id="fecha" type="date" />
-          </div>
-        </div>
-
-        <div class="hint">
-          Estado API: <span id="apiHint" class="warn">Listo para enviar</span>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="section-title">
-          <h3>Evaluación (1–5)</h3>
-          <span class="muted">Selecciona una opción por ítem</span>
-        </div>
-
-        <div id="itemsContainer"></div>
-
-        <div id="autoComentariosBox" style="display:none; margin-top:14px;">
-          <div class="divider"></div>
-          <h3 style="margin:0 0 6px;">Comentarios del colaborador</h3>
-          <p class="muted" style="margin:0 0 10px;">Incluye observaciones, ejemplos, mejoras o apoyo requerido.</p>
-          <textarea id="comentariosColaborador" placeholder="Comentarios del colaborador..."></textarea>
-        </div>
-      </div>
-
-      <div class="card" id="desempenoCamposBox" style="display:none;">
-        <h2>Justificación y comentarios</h2>
-        <p>Completa los campos siguientes (según formato).</p>
-
-        <div style="margin-top:14px;">
-          <label>Justificación calificaciones (1 - 6)</label>
-          <textarea id="justificacion" placeholder="Describe la justificación de las calificaciones..."></textarea>
-        </div>
-
-        <div style="margin-top:12px;">
-          <label>Comentarios del evaluador</label>
-          <textarea id="comentariosEvaluador" placeholder="Comentarios del evaluador..."></textarea>
-        </div>
-
-        <div style="margin-top:12px;">
-          <label>Fortalezas</label>
-          <textarea id="fortalezas" placeholder="Fortalezas..."></textarea>
-        </div>
-
-        <div style="margin-top:12px;">
-          <label>Oportunidades de mejora</label>
-          <textarea id="oportunidades" placeholder="Oportunidades de mejora..."></textarea>
-        </div>
-
-        <div style="margin-top:12px;">
-          <label>Proyección y potencial de desarrollo</label>
-          <textarea id="proyeccion" placeholder="Proyección y potencial..."></textarea>
-        </div>
-
-        <div style="margin-top:12px;">
-          <label>Comentarios del colaborador</label>
-          <textarea id="comentariosColaborador2" placeholder="Comentarios del colaborador..."></textarea>
-        </div>
-      </div>
-
-      <div class="card" id="clientesBox" style="display:none;">
-        <h2>Evaluación de clientes</h2>
-        <p>Este modo puede reutilizar el mismo set de ítems o tener su propia lista.</p>
-        <div class="hint">Si quieres, luego lo dejamos con su propio set de preguntas.</div>
-      </div>
-
-    </div>
-
-    <div class="print-area" id="printArea">
-      <div class="report" id="report">
-        <div class="report-head">
-          <div>
-            <h1 id="rTitle">Evaluación del desempeño</h1>
-            <p class="report-sub">Generado automáticamente desde el formulario.</p>
-          </div>
-          <div class="small">
-            <div><b>Generado:</b> <span id="rGenerated"></span></div>
-          </div>
-        </div>
-
-        <div class="report-kv">
-          <div class="kv-row">
-            <div class="kv"><div class="k">No. de personal</div><div class="v" id="rNoPersonal">—</div></div>
-            <div class="kv"><div class="k">Nombre</div><div class="v" id="rNombre">—</div></div>
-          </div>
-          <div class="kv-row">
-            <div class="kv"><div class="k">Posición</div><div class="v" id="rPosicion">—</div></div>
-            <div class="kv"><div class="k">Departamento</div><div class="v" id="rDepartamento">—</div></div>
-          </div>
-          <div class="kv-row" style="grid-template-columns: 1fr 1fr 1fr;">
-            <div class="kv"><div class="k">Periodo</div><div class="v" id="rPeriodo">—</div></div>
-            <div class="kv"><div class="k">Versión</div><div class="v" id="rVersion">—</div></div>
-            <div class="kv"><div class="k">Fecha</div><div class="v" id="rFecha">—</div></div>
-          </div>
-        </div>
-
-        <div id="rRubricas"></div>
-
-        <div class="block">
-          <h2>Puntaje total</h2>
-          <div class="box" id="rTotal">0.00</div>
-        </div>
-
-        <div class="block" id="rComentariosBlock" style="display:none;">
-          <h2>Comentarios del colaborador</h2>
-          <div class="box" id="rComentarios">—</div>
-        </div>
-
-        <div class="block" id="rJustifBlock" style="display:none;">
-          <h2>Justificación y comentarios (evaluación del desempeño)</h2>
-          <div class="box" id="rJustifAll">—</div>
-        </div>
-      </div>
-    </div>
-
-  </div>
-
 <script>
   /************************************************************
    * 1) URL COMPLETA DEL APPS SCRIPT (/exec) ✅ (LA NUEVA)
    ************************************************************/
-  const API_URL = "https://script.google.com/macros/s/AKfycbyRhQK7HF4dlOY8LBlaOn8ypFl91ENwzYTojtuFS4pCr7u4XBel4RKtfXYXh8eBDsvTYA/exec";
+  const API_URL = "https://script.google.com/macros/s/AKfycbxkY7Ieg9BZoHcZF-Uw0n3R8jn1kGv-10uyuL9T7OFZNFr5vZlsWnDaXAsukrOoRp28dQ/exec";
 
   /************************************************************
    * 2) Ítems + rúbrica 1–5
@@ -418,7 +11,9 @@
     {
       group: "1. Metas, productividad y eficiencia",
       items: [
-        { key: "A_metas", label: "A. Cumplimiento de Metas. Grado de logro",
+        {
+          key: "A_metas",
+          label: "A. Cumplimiento de Metas. Grado de logro",
           rubric: [
             "No alcanza la mayoría de las metas; cumple menos del 70 % de lo establecido. La falta de avance afecta los resultados esperados.",
             "Logra entre 70–89 % de las metas; presenta avances parciales o inconsistentes y requiere correcciones.",
@@ -427,7 +22,9 @@
             "Supera más del 110 % de las metas de forma sostenida, con impacto significativo y calidad superior."
           ]
         },
-        { key: "B_eficiencia", label: "B. Eficiencia en el uso del tiempo, costos y recursos",
+        {
+          key: "B_eficiencia",
+          label: "B. Eficiencia en el uso del tiempo, costos y recursos",
           rubric: [
             "Usa el tiempo y los recursos con errores graves que afectan la eficiencia.",
             "Muestra uso inestable del tiempo y los recursos; requiere evaluaciones y correcciones frecuentes.",
@@ -436,7 +33,9 @@
             "Maximiza la eficiencia de forma sostenida, mejora procesos y logra resultados superiores sin comprometer la calidad."
           ]
         },
-        { key: "C_seguridad", label: "C. Cumplimiento de normas de seguridad",
+        {
+          key: "C_seguridad",
+          label: "C. Cumplimiento de normas de seguridad",
           rubric: [
             "Incumple normas de seguridad y genera riesgos constantes para sí y el equipo.",
             "Cumple parcialmente las normas; requiere supervisión continua para evitar incidentes.",
@@ -445,7 +44,9 @@
             "Promueve una cultura de seguridad; motiva a otros y contribuye a mantener ambientes sin incidentes."
           ]
         },
-        { key: "D_prioriza", label: "D. Prioriza y organiza tareas adecuadamente",
+        {
+          key: "D_prioriza",
+          label: "D. Prioriza y organiza tareas adecuadamente",
           rubric: [
             "Desorganiza las tareas; incumple plazos y afecta resultados importantes.",
             "Organiza parcialmente; presenta inconsistencias en prioridades y manejo del tiempo.",
@@ -459,7 +60,9 @@
     {
       group: "2. Calidad del Trabajo",
       items: [
-        { key: "A_exactitud", label: "A. Exactitud y atención al detalle",
+        {
+          key: "A_exactitud",
+          label: "A. Exactitud y atención al detalle",
           rubric: [
             "Comete errores frecuentes y no identifica fallos evidentes; requiere supervisión constante para evitar errores mayores.",
             "Presenta errores recurrentes por falta de revisión; la exactitud es inconsistente y requiere correcciones frecuentes.",
@@ -468,7 +71,9 @@
             "Su trabajo es impecable; detecta errores propios y ajenos, propone mejoras y es referente en precisión."
           ]
         },
-        { key: "B_estandares", label: "B. Cumple con estándares de calidad",
+        {
+          key: "B_estandares",
+          label: "B. Cumple con estándares de calidad",
           rubric: [
             "Menos del 70 % de los entregables cumplen los estándares; los resultados son inaceptables.",
             "Entre 70–89 % de los entregables cumplen los estándares; requiere ajustes frecuentes.",
@@ -477,7 +82,9 @@
             "Más del 110 % de cumplimiento; supera ampliamente los estándares y produce resultados sobresalientes."
           ]
         },
-        { key: "C_entregas", label: "C. Entregas a tiempo, cumple con plazos establecidos",
+        {
+          key: "C_entregas",
+          label: "C. Entregas a tiempo, cumple con plazos establecidos",
           rubric: [
             "Menos del 70 % de las entregas se cumplen a tiempo; los retrasos afectan el área.",
             "Entre 70–89 % de las entregas se realizan a tiempo; desempeño irregular.",
@@ -486,7 +93,9 @@
             "Entrega más del 110 % a tiempo; supera plazos, mantiene calidad y mejora la eficiencia general."
           ]
         },
-        { key: "D_errores", label: "D. Manejo de errores y mejoras",
+        {
+          key: "D_errores",
+          label: "D. Manejo de errores y mejoras",
           rubric: [
             "No reconoce ni corrige errores; genera reincidencias graves.",
             "Corrige parcialmente, con retrasos o bajo nivel de supervisión; la mejora no es constante.",
@@ -500,7 +109,9 @@
     {
       group: "3. Competencias y Habilidades",
       items: [
-        { key: "A_conocimientos", label: "A. Conocimientos técnicos del puesto",
+        {
+          key: "A_conocimientos",
+          label: "A. Conocimientos técnicos del puesto",
           rubric: [
             "Conocimientos muy por debajo de lo esperado; no domina funciones básicas del puesto.",
             "Gestiona parcialmente los conocimientos requeridos y necesita apoyo frecuente.",
@@ -509,7 +120,9 @@
             "Domina los conocimientos, aplica técnicas avanzadas y es referente técnico en el área."
           ]
         },
-        { key: "B_clientes", label: "B. Convincente respuesta técnica a clientes",
+        {
+          key: "B_clientes",
+          label: "B. Convincente respuesta técnica a clientes",
           rubric: [
             "Respuestas incorrectas o inconsistentes que generan desconfianza.",
             "Respuestas incompletas o poco claras que afectan la calidad del servicio.",
@@ -518,7 +131,9 @@
             "Respuestas sobresalientes y precisas, reconocidas como referente por clientes."
           ]
         },
-        { key: "C_problemas", label: "C. Resolución de problemas",
+        {
+          key: "C_problemas",
+          label: "C. Resolución de problemas",
           rubric: [
             "No logra resolver problemas; afecta procesos y resultados.",
             "Resuelve parcialmente los problemas, requiriendo supervisión frecuente.",
@@ -527,7 +142,9 @@
             "Anticipa problemas y desarrolla soluciones preventivas y estratégicas."
           ]
         },
-        { key: "D_iniciativa", label: "D. Iniciativa y creatividad",
+        {
+          key: "D_iniciativa",
+          label: "D. Iniciativa y creatividad",
           rubric: [
             "No genera ideas ni propone mejoras.",
             "Propone ideas poco útiles o de aplicación limitada.",
@@ -541,7 +158,9 @@
     {
       group: "4. Actitud y Valores",
       items: [
-        { key: "A_responsabilidad", label: "A. Responsabilidad y compromiso",
+        {
+          key: "A_responsabilidad",
+          label: "A. Responsabilidad y compromiso",
           rubric: [
             "Incumple compromisos y entrega resultados muy por debajo de lo esperado.",
             "Cumple compromisos de forma irregular y requiere seguimiento constante.",
@@ -550,7 +169,9 @@
             "Inspira por su compromiso; es modelo de conducta para el equipo."
           ]
         },
-        { key: "B_puntualidad", label: "B. Puntualidad y asistencia",
+        {
+          key: "B_puntualidad",
+          label: "B. Puntualidad y asistencia",
           rubric: [
             "Ausencias frecuentes e injustificadas; llegadas tardías recurrentes sin aviso y sin intención de mejora.",
             "Se presenta con frecuencia tarde o sin justificación clara, afectando la operación.",
@@ -559,7 +180,9 @@
             "Puntualidad y asistencia impecables; es referente para el equipo y se adapta a horarios especiales sin afectar el desempeño."
           ]
         },
-        { key: "C_equipo", label: "C. Trabajo en equipo y cooperación",
+        {
+          key: "C_equipo",
+          label: "C. Trabajo en equipo y cooperación",
           rubric: [
             "No coopera; genera conflictos y dificulta el trabajo del equipo.",
             "Coopera parcialmente y de manera inestable, con resultados aceptables.",
@@ -568,7 +191,9 @@
             "Es referente en trabajo en equipo; promueve colaboración, comunicación e influye positivamente en otros."
           ]
         },
-        { key: "D_comunicacion", label: "D. Comunicación efectiva",
+        {
+          key: "D_comunicacion",
+          label: "D. Comunicación efectiva",
           rubric: [
             "Comunicación confusa; genera malentendidos graves.",
             "Comunicación incompleta o poco clara; requiere supervisión para asegurar claridad.",
@@ -582,7 +207,9 @@
     {
       group: "5. Desarrollo y Potencial",
       items: [
-        { key: "A_adaptacion", label: "A. Adaptación al cambio",
+        {
+          key: "A_adaptacion",
+          label: "A. Adaptación al cambio",
           rubric: [
             "Se resiste activamente al cambio; afecta procesos y equipos.",
             "Se adapta parcialmente, con dificultad y resultados limitados.",
@@ -591,7 +218,9 @@
             "Es referente en adaptación; motiva y guía a otros en procesos de cambio."
           ]
         },
-        { key: "B_aprender", label: "B. Disposición para aprender",
+        {
+          key: "B_aprender",
+          label: "B. Disposición para aprender",
           rubric: [
             "No busca aprender; rechaza retroalimentación y capacitación.",
             "Aprende solo lo obligatorio y con mínima aplicación práctica.",
@@ -600,7 +229,9 @@
             "Se mantiene en aprendizaje continuo, comparte conocimientos y forma a otros."
           ]
         },
-        { key: "C_liderazgo", label: "C. Liderazgo",
+        {
+          key: "C_liderazgo",
+          label: "C. Liderazgo",
           rubric: [
             "No logra coordinar ni dirigir; genera desorden y afecta resultados.",
             "Lidera de forma débil, con bajo impacto en el equipo.",
@@ -613,6 +244,9 @@
     }
   ];
 
+  /************************************************************
+   * Estado UI
+   ************************************************************/
   const state = { dirty:false, generated:false, answers:{} };
   const $ = (id) => document.getElementById(id);
 
@@ -685,7 +319,7 @@
         }
 
         sel.addEventListener("change", () => {
-          state.answers[it.key] = sel.value ? Number(sel.value) : null;
+          state.answers[it.key] = sel.value ? Number(sel.value) : "";
           setDirty(true);
         });
 
@@ -798,7 +432,7 @@
 
         const tdScore = document.createElement("td");
         tdScore.className = "col-score";
-        tdScore.textContent = (typeof v === "number") ? String(v) : "—";
+        tdScore.textContent = (typeof v === "number") ? String(v) : (v ? String(v) : "—");
         tr.appendChild(tdScore);
 
         const tdDesc = document.createElement("td");
@@ -922,11 +556,14 @@
   function flattenAnswers(){
     const out = {};
     ITEMS.forEach(sec=>sec.items.forEach(it=>{
-      out[it.key] = (typeof state.answers[it.key] === "number") ? state.answers[it.key] : "";
+      out[it.key] = (typeof state.answers[it.key] === "number") ? state.answers[it.key] : (state.answers[it.key] || "");
     }));
     return out;
   }
 
+  /************************************************************
+   * ✅ form-urlencoded (evita CORS desde GitHub Pages)
+   ************************************************************/
   function toFormUrlEncoded(obj){
     return Object.keys(obj)
       .map(k => encodeURIComponent(k) + "=" + encodeURIComponent(obj[k] ?? ""))
@@ -938,6 +575,7 @@
       return extra.comentarios_colaborador || "";
     }
     if(tipo === "desempeno"){
+      // Si en tu sheet SOLO tienes "Comentarios del colaborador", acá mandamos un resumen único
       return [
         extra.comentarios_evaluador ? `Comentarios evaluador: ${extra.comentarios_evaluador}` : "",
         extra.fortalezas ? `Fortalezas: ${extra.fortalezas}` : "",
@@ -947,6 +585,45 @@
       ].filter(Boolean).join("\n\n");
     }
     return "";
+  }
+
+  /************************************************************
+   * ✅ CLAVE: construir payload con campos planos por columna
+   *     (esto es lo que hace que "sí llene" la hoja)
+   ************************************************************/
+  function buildFlatPayload(header, answers, extra, total){
+    const payload = {
+      // Datos base (típicos en Apps Script)
+      no_personal: header.no_personal,
+      nombre: header.nombre,
+      posicion: header.posicion,
+      departamento: header.departamento,
+      periodo: header.periodo,
+      version: header.version,
+      fecha: header.fecha,
+
+      // Comentarios (columna final en tu sheet)
+      comentarios: buildComentariosParaSheet(header.tipo, extra),
+
+      // Total por si lo quieres guardar (si tu script lo ignora, no pasa nada)
+      puntaje_total: total
+    };
+
+    // Puntajes por columna (A_metas, B_eficiencia, etc.)
+    Object.keys(answers).forEach(k => {
+      payload[k] = answers[k] ?? "";
+    });
+
+    // Respaldo completo en JSON (si tu Apps Script tiene columna respuestas_json)
+    payload.respuestas_json = JSON.stringify({
+      header,
+      answers,
+      extra,
+      puntaje_total: total,
+      creado_en: new Date().toISOString()
+    });
+
+    return payload;
   }
 
   async function saveToSheet(){
@@ -960,27 +637,10 @@
     const answers = flattenAnswers();
     const total = computeTotal();
 
-    const respuestasJSON = JSON.stringify({
-      header,
-      answers,
-      extra,
-      puntaje_total: total,
-      creado_en: new Date().toISOString()
-    });
+    const formPayload = buildFlatPayload(header, answers, extra, total);
 
-    const formPayload = {
-      no_personal: header.no_personal,
-      nombre: header.nombre,
-      posicion: header.posicion,
-      departamento: header.departamento,
-      periodo: header.periodo,
-      version: header.version,
-      fecha: header.fecha,
-      respuestas_json: respuestasJSON,
-      comentarios: buildComentariosParaSheet(header.tipo, extra)
-    };
-
-    console.log("Enviando a Apps Script:", formPayload);
+    // Debug (F12 -> Console)
+    console.log("Enviando a Apps Script (payload):", formPayload);
 
     try{
       $("apiHint").className = "warn";
@@ -988,28 +648,16 @@
 
       const body = toFormUrlEncoded(formPayload);
 
-      try{
-        const res = await fetch(API_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
-          body
-        });
-
-        if(!res.ok){
-          const t = await res.text().catch(()=> "");
-          throw new Error(t || ("HTTP " + res.status));
-        }
-      }catch(e){
-        await fetch(API_URL, {
-          method: "POST",
-          mode: "no-cors",
-          headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
-          body
-        });
-      }
+      // En GitHub Pages, lo más estable es no-cors (igual guarda)
+      await fetch(API_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+        body
+      });
 
       $("apiHint").className = "ok";
-      $("apiHint").textContent = "Enviado a Google Sheets ✅";
+      $("apiHint").textContent = "Enviado a Google Sheets ✅ (revisa la fila en tu hoja)";
       setDirty(false);
 
     }catch(err){
@@ -1057,10 +705,9 @@
     });
   }
 
+  // Init
   renderItems();
   applyTipoUI();
   bind();
   setDirty(false);
 </script>
-</body>
-</html>
