@@ -19,7 +19,6 @@
       --bad:#ef4444;
       --radius:18px;
 
-      /* Print colors */
       --p-border:#e6e6e6;
       --p-gray:#f7f7f7;
       --p-ink:#111;
@@ -86,17 +85,8 @@
       box-shadow: 0 12px 26px rgba(47,123,255,.25);
     }
     .btn.ghost{background:transparent}
-    .btn:disabled{
-      cursor:not-allowed;
-      opacity:.55;
-      transform:none !important;
-    }
-    .grid{
-      display:grid;
-      grid-template-columns: 1fr;
-      gap:16px;
-      margin-top:16px;
-    }
+    .btn:disabled{opacity:.55; cursor:not-allowed; transform:none}
+    .grid{display:grid; grid-template-columns:1fr; gap:16px; margin-top:16px;}
     .card{
       border:1px solid var(--stroke);
       background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
@@ -106,12 +96,7 @@
     }
     .card h2{margin:0 0 6px; font-size:18px;}
     .card p{margin:0; color:var(--muted); font-size:13px}
-    .form-grid{
-      display:grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap:12px;
-      margin-top:14px;
-    }
+    .form-grid{display:grid; grid-template-columns: repeat(3, 1fr); gap:12px; margin-top:14px;}
     @media (max-width: 980px){
       .form-grid{grid-template-columns: 1fr}
       .actions{justify-content:flex-end}
@@ -137,7 +122,6 @@
     .ok{color:#9dffb6}
     .err{color:#ffb4b4}
 
-    /* ===== Reporte (para impresión) ===== */
     .print-area{margin-top:20px; display:none;}
     .report{
       background:#fff;
@@ -146,71 +130,27 @@
       padding:20px;
       border:1px solid #e8e8e8;
     }
-    .report-head{
-      display:flex; justify-content:space-between; align-items:flex-start; gap:12px;
-      margin-bottom:10px;
-    }
+    .report-head{display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:10px;}
     .report-head h1{margin:0; font-size:32px; letter-spacing:.2px;}
     .report-head .small{font-size:12px; color:var(--p-sub); text-align:right;}
     .report-sub{margin:0 0 14px; color:var(--p-sub)}
-    .report-kv{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:10px;
-      margin-bottom:10px;
-    }
-    .kv-row{display:grid; grid-template-columns: 1fr 1fr; gap:10px;}
-    .kv{
-      border:1px solid var(--p-border);
-      padding:10px 12px;
-      border-radius:12px;
-    }
+    .report-kv{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;}
+    .kv-row{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+    .kv{border:1px solid var(--p-border); padding:10px 12px; border-radius:12px;}
     .kv .k{font-size:11px; color:#666; margin-bottom:3px}
     .kv .v{font-size:13px; font-weight:650}
-
-    /* Tabla SOLO opción seleccionada */
     .rubric-wrap{margin-top:14px;}
-    .rubric-title{
-      margin:0 0 6px;
-      font-size:15px;
-      color:var(--p-ink);
-      font-weight:800;
-    }
-    .sel-table{
-      width:100%;
-      border-collapse:collapse;
-      table-layout:fixed;
-      border:1px solid var(--p-border);
-    }
-    .sel-table th, .sel-table td{
-      border:1px solid var(--p-border);
-      padding:8px 8px;
-      vertical-align:top;
-      font-size:11px;
-      word-wrap:break-word;
-    }
-    .sel-table th{
-      background:var(--p-gray);
-      text-align:left;
-      font-weight:800;
-      font-size:11px;
-    }
+    .rubric-title{margin:0 0 6px; font-size:15px; color:var(--p-ink); font-weight:800;}
+    .sel-table{width:100%; border-collapse:collapse; table-layout:fixed; border:1px solid var(--p-border);}
+    .sel-table th, .sel-table td{border:1px solid var(--p-border); padding:8px 8px; vertical-align:top; font-size:11px; word-wrap:break-word;}
+    .sel-table th{background:var(--p-gray); text-align:left; font-weight:800; font-size:11px;}
     .col-item{width:32%; font-weight:700;}
     .col-score{width:10%; text-align:center; font-weight:800;}
     .col-desc{width:auto;}
     .muted-print{color:#555}
-
     .block{margin-top:14px;}
     .block h2{margin:0 0 6px; font-size:15px;}
-    .block .box{
-      border:1px solid var(--p-border);
-      border-radius:12px;
-      padding:10px 12px;
-      min-height:48px;
-      font-size:12px;
-      white-space:pre-wrap;
-    }
-
+    .block .box{border:1px solid var(--p-border); border-radius:12px; padding:10px 12px; min-height:48px; font-size:12px; white-space:pre-wrap;}
     @media print{
       body{background:#fff}
       .wrap{max-width:none; margin:0; padding:0}
@@ -228,7 +168,7 @@
       <div class="brand">
         <div class="logo">ED</div>
         <div class="titles">
-          <h1 id="appTitle">Formulario de autoevaluación del desempeño</h1>
+          <h1 id="appTitle">Formulario de evaluación del desempeño</h1>
           <p>Escala 1–5 • Guardado en Google Sheets • Reporte PDF (solo opción seleccionada)</p>
         </div>
       </div>
@@ -253,8 +193,8 @@
           <div>
             <label>Tipo</label>
             <select id="tipoFormulario">
-              <option value="autoevaluacion" selected>Formulario de autoevaluación</option>
-              <option value="desempeno">Formulario de evaluación del desempeño</option>
+              <option value="autoevaluacion">Formulario de autoevaluación</option>
+              <option value="desempeno" selected>Formulario de evaluación del desempeño</option>
               <option value="clientes">Evaluación de clientes</option>
             </select>
             <div class="hint">El guardado siempre va a Google Sheets (Web App de Apps Script).</div>
@@ -365,7 +305,7 @@
       <div class="report" id="report">
         <div class="report-head">
           <div>
-            <h1 id="rTitle">Autoevaluación del desempeño</h1>
+            <h1 id="rTitle">Evaluación del desempeño</h1>
             <p class="report-sub">Generado automáticamente desde el formulario.</p>
           </div>
           <div class="small">
@@ -618,7 +558,15 @@
     }
   ];
 
-  const state = { dirty:false, generated:false, answers:{}, isSaving:false, lastSavedFingerprint:null };
+  const state = {
+    dirty:false,
+    generated:false,
+    answers:{},         // {key: number}
+    saving:false,
+    lastSubmitSig:null,
+    lastSubmitAt:0
+  };
+
   const $ = (id) => document.getElementById(id);
 
   function setDirty(v){
@@ -632,6 +580,20 @@
       dot.style.background = "var(--ok)";
       text.textContent = "Sin cambios";
     }
+    updateSaveButtonState();
+  }
+
+  function updateSaveButtonState(){
+    const btn = $("btnSave");
+    const ok = validateForm({silent:true}).ok;
+    btn.disabled = state.saving || !ok;
+  }
+
+  function getOptionText(it, score){
+    if(typeof score !== "number") return "";
+    const desc = (it.rubric && it.rubric[score-1]) ? it.rubric[score-1] : "";
+    // Formato que quieres en la hoja: "1 — Descripción..."
+    return `${score} — ${desc}`;
   }
 
   function renderItems(){
@@ -662,6 +624,7 @@
         const title = document.createElement("div");
         title.style.fontWeight = "800";
         title.textContent = it.label;
+
         const sub = document.createElement("div");
         sub.className = "muted";
         sub.style.fontSize = "12px";
@@ -685,6 +648,7 @@
           const o = document.createElement("option");
           o.value = String(v);
           const desc = (it.rubric && it.rubric[v-1]) ? it.rubric[v-1] : "(Rúbrica no definida aquí)";
+          // Mostrar igual que en tu ejemplo: "1 — No alcanza la mayoría..."
           o.textContent = `${v} — ${desc}`;
           sel.appendChild(o);
         }
@@ -751,23 +715,6 @@
     if(!y || !m || !d) return yyyy_mm_dd;
     const dt = new Date(y, m-1, d);
     return dt.toLocaleDateString("es-HN");
-  }
-
-  function getItemByKey(key){
-    for(const sec of ITEMS){
-      for(const it of sec.items){
-        if(it.key === key) return it;
-      }
-    }
-    return null;
-  }
-
-  function answerDisplay(key){
-    const it = getItemByKey(key);
-    const v = state.answers[key];
-    if(!it || typeof v !== "number") return "";
-    const desc = (it.rubric && it.rubric[v-1]) ? it.rubric[v-1] : "";
-    return desc ? `${v} — ${desc}` : String(v);
   }
 
   function renderSeleccionEnReporte(){
@@ -911,6 +858,8 @@
     $("autoComentariosBox").style.display = (tipo === "autoevaluacion") ? "block" : "none";
     $("desempenoCamposBox").style.display = (tipo === "desempeno") ? "block" : "none";
     $("clientesBox").style.display = (tipo === "clientes") ? "block" : "none";
+
+    updateSaveButtonState();
   }
 
   function clearForm(){
@@ -938,61 +887,13 @@
 
     $("printArea").style.display = "none";
     state.generated = false;
-    state.lastSavedFingerprint = null;
     setDirty(false);
   }
 
-  function buildAnswersNumeric(){
-    const out = {};
-    ITEMS.forEach(sec=>sec.items.forEach(it=>{
-      out[it.key] = (typeof state.answers[it.key] === "number") ? state.answers[it.key] : "";
-    }));
-    return out;
-  }
-
-  function buildAnswersDisplay(){
-    const out = {};
-    ITEMS.forEach(sec=>sec.items.forEach(it=>{
-      out[it.key] = answerDisplay(it.key); // "N — descripción"
-    }));
-    return out;
-  }
-
-  function allItemsAnswered(){
-    for(const sec of ITEMS){
-      for(const it of sec.items){
-        const v = state.answers[it.key];
-        if(typeof v !== "number") return false;
-      }
-    }
-    return true;
-  }
-
-  function validateBeforeSave(){
-    const header = getHeaderData();
-    const tipo = header.tipo;
-    const missing = [];
-
-    if(!header.no_personal) missing.push("No. de personal");
-    if(!header.nombre) missing.push("Nombre");
-    if(!header.posicion) missing.push("Posición");
-    if(!header.departamento) missing.push("Departamento");
-    if(!header.periodo) missing.push("Periodo");
-    if(!header.version) missing.push("Versión");
-    if(!header.fecha) missing.push("Fecha");
-
-    if(!allItemsAnswered()) missing.push("Seleccionar todos los ítems (1–5)");
-
-    if(tipo === "autoevaluacion"){
-      const c = $("comentariosColaborador").value.trim();
-      if(!c) missing.push("Comentarios del colaborador");
-    }
-
-    if(missing.length){
-      alert("Faltan campos obligatorios:\n\n• " + missing.join("\n• "));
-      return false;
-    }
-    return true;
+  function toFormUrlEncoded(obj){
+    return Object.keys(obj)
+      .map(k => encodeURIComponent(k) + "=" + encodeURIComponent(obj[k] ?? ""))
+      .join("&");
   }
 
   function buildComentariosParaSheet(tipo, extra){
@@ -1011,45 +912,67 @@
     return "";
   }
 
-  function toFormUrlEncoded(obj){
-    return Object.keys(obj)
-      .map(k => encodeURIComponent(k) + "=" + encodeURIComponent(obj[k] ?? ""))
-      .join("&");
-  }
-
-  function fingerprintPayload(obj){
-    // huella simple para evitar duplicados si el usuario clickea 2 veces sin cambiar nada
-    try{
-      return btoa(unescape(encodeURIComponent(JSON.stringify(obj)))).slice(0, 120);
-    }catch{
-      return String(Date.now());
-    }
-  }
-
-  async function saveToSheet(){
-    if(state.isSaving) return; // evita doble envío inmediato
-
-    if(!validateBeforeSave()) return;
-
-    const btn = $("btnSave");
+  // ✅ Validación: no deja guardar si falta algún item o comentario (en autoevaluación)
+  function validateForm({silent=false}={}){
     const header = getHeaderData();
-    const extra = getExtraFields();
+    const tipo = header.tipo;
 
-    const answersNumeric = buildAnswersNumeric();
-    const answersDisplay = buildAnswersDisplay();
-    const total = computeTotal();
+    const missing = [];
 
-    const respuestasJSON = JSON.stringify({
-      header,
-      answers_numeric: answersNumeric,
-      answers_display: answersDisplay, // ✅ lo que quieres ver en la sheet
-      extra,
-      puntaje_total: total,
-      creado_en: new Date().toISOString()
+    // mínimos (ajusta si quieres obligar TODOS los headers)
+    if(!header.no_personal) missing.push("No. de personal");
+    if(!header.nombre) missing.push("Nombre");
+    if(!header.posicion) missing.push("Posición");
+    if(!header.departamento) missing.push("Departamento");
+    if(!header.periodo) missing.push("Periodo");
+    if(!header.version) missing.push("Versión");
+    if(!header.fecha) missing.push("Fecha");
+
+    // todos los ítems
+    ITEMS.forEach(sec=>{
+      sec.items.forEach(it=>{
+        const v = state.answers[it.key];
+        if(!(typeof v === "number" && v >= 1 && v <= 5)){
+          missing.push(it.label);
+        }
+      });
     });
 
-    // payload que tu Apps Script ya entiende (mantengo campos existentes)
-    const formPayload = {
+    // comentario obligatorio para autoevaluación
+    if(tipo === "autoevaluacion"){
+      const c = $("comentariosColaborador").value.trim();
+      if(!c) missing.push("Comentarios del colaborador");
+    }
+
+    const ok = missing.length === 0;
+
+    if(!silent && !ok){
+      alert("Faltan campos por completar:\n\n- " + missing.slice(0, 25).join("\n- ") + (missing.length>25 ? "\n\n(+ más…)" : ""));
+    }
+
+    // UI hint
+    if(ok){
+      $("apiHint").className = "warn";
+      $("apiHint").textContent = "Listo para enviar";
+    }else{
+      $("apiHint").className = "warn";
+      $("apiHint").textContent = "Completa todos los campos requeridos";
+    }
+
+    return { ok, missing };
+  }
+
+  // ✅ Construye payload con:
+  // - columnas base
+  // - cada item como: "A. Cumplimiento..." => "1 — descripción..."
+  // - también manda la clave técnica por si tu Apps Script mapea por key
+  function buildSheetPayload(){
+    const header = getHeaderData();
+    const extra = getExtraFields();
+    const total = computeTotal();
+
+    const payload = {
+      tipo: header.tipo, // por si lo quieres en una columna
       no_personal: header.no_personal,
       nombre: header.nombre,
       posicion: header.posicion,
@@ -1057,52 +980,138 @@
       periodo: header.periodo,
       version: header.version,
       fecha: header.fecha,
-      respuestas_json: respuestasJSON,
+
+      // campos extra "separados" por si los quieres en columnas también
+      comentarios_colaborador: (header.tipo === "autoevaluacion")
+        ? (extra.comentarios_colaborador || "")
+        : (header.tipo === "desempeno")
+          ? (extra.comentarios_colaborador || "")
+          : "",
+
+      justificacion: extra.justificacion || "",
+      comentarios_evaluador: extra.comentarios_evaluador || "",
+      fortalezas: extra.fortalezas || "",
+      oportunidades_mejora: extra.oportunidades_mejora || "",
+      proyeccion_potencial: extra.proyeccion_potencial || "",
+
+      puntaje_total: String(total),
+
+      // comentario consolidado (si tu Apps Script ya usa "comentarios")
       comentarios: buildComentariosParaSheet(header.tipo, extra)
     };
 
-    const fp = fingerprintPayload(formPayload);
-    if(state.lastSavedFingerprint && state.lastSavedFingerprint === fp && !state.dirty){
-      // ya se guardó exactamente lo mismo y no hubo cambios
-      alert("Ya estaba guardado. (No se envió un duplicado).");
+    // cada item en su propia columna (con el NÚMERO + DESCRIPCIÓN)
+    ITEMS.forEach(sec=>{
+      sec.items.forEach(it=>{
+        const score = state.answers[it.key];
+        const display = getOptionText(it, score);
+
+        // 1) por etiqueta EXACTA (esto ayuda si el Apps Script usa headers = nombres)
+        payload[it.label] = display;
+
+        // 2) por key técnica (por si tu Apps Script usa keys fijas)
+        payload[it.key] = display;
+
+        // 3) además el valor numérico (por si quieres calcular en Sheet)
+        payload[it.key + "_score"] = (typeof score === "number") ? String(score) : "";
+      });
+    });
+
+    // respaldo JSON completo
+    payload.respuestas_json = JSON.stringify({
+      header,
+      answers: Object.fromEntries(
+        ITEMS.flatMap(sec => sec.items.map(it => {
+          const v = state.answers[it.key];
+          return [it.key, {
+            score: (typeof v === "number") ? v : null,
+            label: it.label,
+            selected_text: getOptionText(it, v)
+          }];
+        }))
+      ),
+      extra,
+      puntaje_total: total,
+      creado_en: new Date().toISOString()
+    });
+
+    return payload;
+  }
+
+  function signatureForSubmit(payload){
+    // firma simple para evitar doble envío accidental
+    const base = {
+      no_personal: payload.no_personal,
+      nombre: payload.nombre,
+      fecha: payload.fecha,
+      tipo: payload.tipo,
+      puntaje_total: payload.puntaje_total,
+      respuestas_json: payload.respuestas_json
+    };
+    return btoa(unescape(encodeURIComponent(JSON.stringify(base)))).slice(0, 200);
+  }
+
+  async function postForm(payload){
+    const body = toFormUrlEncoded(payload);
+
+    // Intento normal
+    try{
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+        body
+      });
+      // si el Apps Script responde JSON, esto te sirve para debug
+      const text = await res.text().catch(()=> "");
+      if(!res.ok){
+        throw new Error(text || ("HTTP " + res.status));
+      }
+      return text;
+    }catch(e){
+      // Fallback no-cors (si CORS molesta en GitHub Pages)
+      await fetch(API_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+        body
+      });
+      return "no-cors";
+    }
+  }
+
+  async function saveToSheet(){
+    // 1) validar TODO
+    const check = validateForm({silent:false});
+    if(!check.ok) return;
+
+    // 2) armar payload
+    const payload = buildSheetPayload();
+    const sig = signatureForSubmit(payload);
+
+    // 3) evitar doble click / doble envío
+    const now = Date.now();
+    if(state.saving) return;
+    if(state.lastSubmitSig === sig && (now - state.lastSubmitAt) < 4000){
+      // mismo contenido en <4s => ignorar
+      $("apiHint").className = "warn";
+      $("apiHint").textContent = "Ya se envió (evitando duplicado) ✅";
       return;
     }
 
-    console.log("Enviando a Apps Script:", formPayload);
+    state.saving = true;
+    updateSaveButtonState();
+
+    $("apiHint").className = "warn";
+    $("apiHint").textContent = "Enviando a Google Sheets...";
 
     try{
-      state.isSaving = true;
-      btn.disabled = true;
+      await postForm(payload);
 
-      $("apiHint").className = "warn";
-      $("apiHint").textContent = "Enviando a Google Sheets...";
-
-      const body = toFormUrlEncoded(formPayload);
-
-      try{
-        const res = await fetch(API_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
-          body
-        });
-
-        if(!res.ok){
-          const t = await res.text().catch(()=> "");
-          throw new Error(t || ("HTTP " + res.status));
-        }
-      }catch(e){
-        // fallback para CORS en GitHub Pages
-        await fetch(API_URL, {
-          method: "POST",
-          mode: "no-cors",
-          headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
-          body
-        });
-      }
+      state.lastSubmitSig = sig;
+      state.lastSubmitAt = Date.now();
 
       $("apiHint").className = "ok";
       $("apiHint").textContent = "Enviado a Google Sheets ✅";
-      state.lastSavedFingerprint = fp;
       setDirty(false);
 
     }catch(err){
@@ -1111,8 +1120,8 @@
       $("apiHint").textContent = "Error al guardar: " + (err.message || err);
       alert("Error al guardar en Google Sheets: " + (err.message || err));
     }finally{
-      state.isSaving = false;
-      btn.disabled = false;
+      state.saving = false;
+      updateSaveButtonState();
     }
   }
 
@@ -1122,18 +1131,20 @@
       "comentariosColaborador","justificacion","comentariosEvaluador","fortalezas",
       "oportunidades","proyeccion","comentariosColaborador2"
     ].forEach(id=>{
-      $(id).addEventListener("input", ()=> setDirty(true));
-      $(id).addEventListener("change", ()=> setDirty(true));
+      $(id).addEventListener("input", ()=> { setDirty(true); validateForm({silent:true}); });
+      $(id).addEventListener("change", ()=> { setDirty(true); validateForm({silent:true}); });
     });
 
     $("tipoFormulario").addEventListener("change", ()=>{
       applyTipoUI();
       setDirty(true);
+      validateForm({silent:true});
     });
 
     $("btnNew").addEventListener("click", ()=>{
       if(state.dirty && !confirm("Hay cambios sin guardar. ¿Crear nuevo de todas formas?")) return;
       clearForm();
+      validateForm({silent:true});
     });
 
     $("btnSave").addEventListener("click", saveToSheet);
@@ -1158,6 +1169,7 @@
   applyTipoUI();
   bind();
   setDirty(false);
+  validateForm({silent:true});
 </script>
 </body>
 </html>
