@@ -290,7 +290,6 @@
           </div>
           <div>
             <label>Fecha</label>
-            <!-- Calendario -->
             <input id="fecha" type="date" />
           </div>
         </div>
@@ -376,7 +375,6 @@
           </div>
         </div>
 
-        <!-- Layout solicitado: 2 columnas por fila y una fila de 3 -->
         <div class="report-kv">
           <div class="kv-row">
             <div class="kv"><div class="k">No. de personal</div><div class="v" id="rNoPersonal">—</div></div>
@@ -393,7 +391,6 @@
           </div>
         </div>
 
-        <!-- SOLO opción seleccionada por ítem -->
         <div id="rRubricas"></div>
 
         <div class="block">
@@ -401,13 +398,11 @@
           <div class="box" id="rTotal">0.00</div>
         </div>
 
-        <!-- SOLO Comentarios del colaborador -->
         <div class="block" id="rComentariosBlock" style="display:none;">
           <h2>Comentarios del colaborador</h2>
           <div class="box" id="rComentarios">—</div>
         </div>
 
-        <!-- Justificación (solo desempeño). Si NO lo quieres en PDF también, lo quitamos. -->
         <div class="block" id="rJustifBlock" style="display:none;">
           <h2>Justificación y comentarios (evaluación del desempeño)</h2>
           <div class="box" id="rJustifAll">—</div>
@@ -419,9 +414,9 @@
 
 <script>
   /************************************************************
-   * 1) URL COMPLETA DEL APPS SCRIPT (/exec)
+   * 1) URL COMPLETA DEL APPS SCRIPT (/exec)  ✅ (TU URL)
    ************************************************************/
-  const API_URL = "https://script.google.com/macros/s/AKfycbyg4Ajs3N-Rq59DftYFh5gpcLjkLL4eZ1s-rznjDabwVRib6SJUqRsnVfG-WNCbz1HiDg/exec";
+  const API_URL = "https://script.google.com/macros/s/AKfycby48-EVDlbkZ81RMlTClz13MZmLqnvJ-YCYV63is78iWF-tZ3B345jz4agZi9g0SDw6Rw/exec";
 
   /************************************************************
    * 2) Ítems + rúbrica 1–5
@@ -795,14 +790,12 @@
 
   function formatDateES(yyyy_mm_dd){
     if(!yyyy_mm_dd) return "—";
-    // yyyy-mm-dd -> Date en local
     const [y,m,d] = yyyy_mm_dd.split("-").map(n=>parseInt(n,10));
     if(!y || !m || !d) return yyyy_mm_dd;
     const dt = new Date(y, m-1, d);
     return dt.toLocaleDateString("es-HN");
   }
 
-  // SOLO opción seleccionada por ítem (no tabla 1-5 completa)
   function renderSeleccionEnReporte(){
     const host = $("rRubricas");
     host.innerHTML = "";
@@ -843,7 +836,7 @@
       const tbody = document.createElement("tbody");
 
       sec.items.forEach(it => {
-        const v = state.answers[it.key]; // 1..5 o null
+        const v = state.answers[it.key];
         const tr = document.createElement("tr");
 
         const tdItem = document.createElement("td");
@@ -897,12 +890,9 @@
     $("rVersion").textContent = header.version || "—";
     $("rFecha").textContent = formatDateES(header.fecha);
 
-    // SOLO selección por ítem
     renderSeleccionEnReporte();
-
     $("rTotal").textContent = String(total);
 
-    // SOLO Comentarios del colaborador (según tipo)
     const comentarioColab =
       (header.tipo === "autoevaluacion")
         ? (extra.comentarios_colaborador || "")
@@ -918,7 +908,6 @@
       $("rComentarios").textContent = "—";
     }
 
-    // Justificación (solo desempeño) -> si NO lo quieres en PDF, dímelo y lo eliminamos completo.
     if(header.tipo === "desempeno"){
       $("rJustifBlock").style.display = "block";
       const txt = [
@@ -986,6 +975,32 @@
     return out;
   }
 
+  /************************************************************
+   * ✅ NUEVO: form-urlencoded para Apps Script (evita CORS)
+   ************************************************************/
+  function toFormUrlEncoded(obj){
+    return Object.keys(obj)
+      .map(k => encodeURIComponent(k) + "=" + encodeURIComponent(obj[k] ?? ""))
+      .join("&");
+  }
+
+  function buildComentariosParaSheet(tipo, extra){
+    if(tipo === "autoevaluacion"){
+      return extra.comentarios_colaborador || "";
+    }
+    if(tipo === "desempeno"){
+      // Un resumen práctico en una sola celda
+      return [
+        extra.comentarios_evaluador ? `Comentarios evaluador: ${extra.comentarios_evaluador}` : "",
+        extra.fortalezas ? `Fortalezas: ${extra.fortalezas}` : "",
+        extra.oportunidades_mejora ? `Oportunidades: ${extra.oportunidades_mejora}` : "",
+        extra.proyeccion_potencial ? `Proyección: ${extra.proyeccion_potencial}` : "",
+        extra.comentarios_colaborador ? `Comentarios colaborador: ${extra.comentarios_colaborador}` : ""
+      ].filter(Boolean).join("\n\n");
+    }
+    return "";
+  }
+
   async function saveToSheet(){
     const header = getHeaderData();
     if(!header.no_personal || !header.nombre){
@@ -993,37 +1008,59 @@
       return;
     }
 
-    const payload = {
-      ...header,
-      ...flattenAnswers(),
-      ...getExtraFields(),
-      puntaje_total: computeTotal(),
+    const extra = getExtraFields();
+    const answers = flattenAnswers();
+    const total = computeTotal();
+
+    // ✅ Lo que Apps Script espera:
+    // no_personal, nombre, posicion, departamento, periodo, version, fecha, respuestas_json, comentarios
+    const respuestasJSON = JSON.stringify({
+      header,
+      answers,
+      extra,
+      puntaje_total: total,
       creado_en: new Date().toISOString()
+    });
+
+    const formPayload = {
+      no_personal: header.no_personal,
+      nombre: header.nombre,
+      posicion: header.posicion,
+      departamento: header.departamento,
+      periodo: header.periodo,
+      version: header.version,
+      fecha: header.fecha,
+      respuestas_json: respuestasJSON,
+      comentarios: buildComentariosParaSheet(header.tipo, extra)
     };
 
     try{
       $("apiHint").className = "warn";
       $("apiHint").textContent = "Enviando a Google Sheets...";
 
+      const body = toFormUrlEncoded(formPayload);
+
+      // Intento normal (si deja leer respuesta)
       try{
         const res = await fetch(API_URL, {
           method: "POST",
-          mode: "cors",
-          headers: { "Content-Type": "text/plain;charset=utf-8" },
-          body: JSON.stringify(payload)
+          headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+          body
         });
 
+        // Si responde, excelente (no siempre por CORS)
+        // Igual validamos status si se puede.
         if(!res.ok){
           const t = await res.text().catch(()=> "");
           throw new Error(t || ("HTTP " + res.status));
         }
-
-      }catch(eCors){
+      }catch(e){
+        // Fallback: no-cors (no puedes leer respuesta, pero sí guarda)
         await fetch(API_URL, {
           method: "POST",
           mode: "no-cors",
-          headers: { "Content-Type": "text/plain;charset=utf-8" },
-          body: JSON.stringify(payload)
+          headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+          body
         });
       }
 
@@ -1062,7 +1099,6 @@
     $("btnSave").addEventListener("click", saveToSheet);
 
     $("btnGenerate").addEventListener("click", ()=>{
-      // Generar = mismo contenido que el PDF (solo selección + comentarios)
       buildReport();
       state.generated = true;
       setDirty(true);
