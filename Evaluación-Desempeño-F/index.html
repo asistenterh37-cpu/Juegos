@@ -241,7 +241,6 @@
 
     <div class="grid no-print">
 
-      <!-- Tipo de formulario -->
       <div class="card">
         <h2>Tipo de formulario</h2>
         <p>Selecciona el tipo para mostrar/ocultar campos automáticamente.</p>
@@ -258,7 +257,6 @@
         </div>
       </div>
 
-      <!-- Datos del colaborador -->
       <div class="card">
         <h2>Datos del colaborador</h2>
         <p>Completa la información y selecciona una opción (1–5) para cada ítem.</p>
@@ -299,7 +297,6 @@
         </div>
       </div>
 
-      <!-- Evaluación -->
       <div class="card">
         <div class="section-title">
           <h3>Evaluación (1–5)</h3>
@@ -308,7 +305,6 @@
 
         <div id="itemsContainer"></div>
 
-        <!-- Campo SOLO para autoevaluación -->
         <div id="autoComentariosBox" style="display:none; margin-top:14px;">
           <div class="divider"></div>
           <h3 style="margin:0 0 6px;">Comentarios del colaborador</h3>
@@ -317,7 +313,6 @@
         </div>
       </div>
 
-      <!-- Justificación y comentarios (SOLO evaluación del desempeño) -->
       <div class="card" id="desempenoCamposBox" style="display:none;">
         <h2>Justificación y comentarios</h2>
         <p>Completa los campos siguientes (según formato).</p>
@@ -353,7 +348,6 @@
         </div>
       </div>
 
-      <!-- Clientes (placeholder) -->
       <div class="card" id="clientesBox" style="display:none;">
         <h2>Evaluación de clientes</h2>
         <p>Este modo puede reutilizar el mismo set de ítems o tener su propia lista.</p>
@@ -362,7 +356,6 @@
 
     </div>
 
-    <!-- Reporte (solo aparece al imprimir / generar) -->
     <div class="print-area" id="printArea">
       <div class="report" id="report">
         <div class="report-head">
@@ -414,9 +407,9 @@
 
 <script>
   /************************************************************
-   * 1) URL COMPLETA DEL APPS SCRIPT (/exec)  ✅ (TU URL)
+   * 1) URL COMPLETA DEL APPS SCRIPT (/exec) ✅ (LA NUEVA)
    ************************************************************/
-  const API_URL = "https://script.google.com/macros/s/AKfycby48-EVDlbkZ81RMlTClz13MZmLqnvJ-YCYV63is78iWF-tZ3B345jz4agZi9g0SDw6Rw/exec";
+  const API_URL = "https://script.google.com/macros/s/AKfycbynVd0AITOOG1WXD5hHzY1C1zF1Ko8lhIWf8iGkYkato1T5Kn92hVB-pT_IlDd-57SnBA/exec";
 
   /************************************************************
    * 2) Ítems + rúbrica 1–5
@@ -976,7 +969,7 @@
   }
 
   /************************************************************
-   * ✅ NUEVO: form-urlencoded para Apps Script (evita CORS)
+   * ✅ form-urlencoded para Apps Script (evita CORS desde GitHub)
    ************************************************************/
   function toFormUrlEncoded(obj){
     return Object.keys(obj)
@@ -989,7 +982,6 @@
       return extra.comentarios_colaborador || "";
     }
     if(tipo === "desempeno"){
-      // Un resumen práctico en una sola celda
       return [
         extra.comentarios_evaluador ? `Comentarios evaluador: ${extra.comentarios_evaluador}` : "",
         extra.fortalezas ? `Fortalezas: ${extra.fortalezas}` : "",
@@ -1012,7 +1004,7 @@
     const answers = flattenAnswers();
     const total = computeTotal();
 
-    // ✅ Lo que Apps Script espera:
+    // ✅ Mantengo tu contrato original hacia Apps Script:
     // no_personal, nombre, posicion, departamento, periodo, version, fecha, respuestas_json, comentarios
     const respuestasJSON = JSON.stringify({
       header,
@@ -1034,13 +1026,16 @@
       comentarios: buildComentariosParaSheet(header.tipo, extra)
     };
 
+    // 🔎 Debug (te ayuda a ver en consola del navegador qué se manda)
+    console.log("Enviando a Apps Script:", formPayload);
+
     try{
       $("apiHint").className = "warn";
       $("apiHint").textContent = "Enviando a Google Sheets...";
 
       const body = toFormUrlEncoded(formPayload);
 
-      // Intento normal (si deja leer respuesta)
+      // Intento estándar (a veces deja leer respuesta)
       try{
         const res = await fetch(API_URL, {
           method: "POST",
@@ -1048,14 +1043,12 @@
           body
         });
 
-        // Si responde, excelente (no siempre por CORS)
-        // Igual validamos status si se puede.
         if(!res.ok){
           const t = await res.text().catch(()=> "");
           throw new Error(t || ("HTTP " + res.status));
         }
       }catch(e){
-        // Fallback: no-cors (no puedes leer respuesta, pero sí guarda)
+        // Fallback anti-CORS: envía igual aunque no puedas leer respuesta
         await fetch(API_URL, {
           method: "POST",
           mode: "no-cors",
