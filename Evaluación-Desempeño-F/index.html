@@ -241,7 +241,6 @@
 
     <div class="grid no-print">
 
-      <!-- Tipo de formulario -->
       <div class="card">
         <h2>Tipo de formulario</h2>
         <p>Selecciona el tipo para mostrar/ocultar campos automáticamente.</p>
@@ -258,7 +257,6 @@
         </div>
       </div>
 
-      <!-- Datos del colaborador -->
       <div class="card">
         <h2>Datos del colaborador</h2>
         <p>Completa la información y selecciona una opción (1–5) para cada ítem.</p>
@@ -299,7 +297,6 @@
         </div>
       </div>
 
-      <!-- Evaluación -->
       <div class="card">
         <div class="section-title">
           <h3>Evaluación (1–5)</h3>
@@ -308,7 +305,6 @@
 
         <div id="itemsContainer"></div>
 
-        <!-- Campo SOLO para autoevaluación -->
         <div id="autoComentariosBox" style="display:none; margin-top:14px;">
           <div class="divider"></div>
           <h3 style="margin:0 0 6px;">Comentarios del colaborador</h3>
@@ -317,7 +313,6 @@
         </div>
       </div>
 
-      <!-- Justificación y comentarios (SOLO evaluación del desempeño) -->
       <div class="card" id="desempenoCamposBox" style="display:none;">
         <h2>Justificación y comentarios</h2>
         <p>Completa los campos siguientes (según formato).</p>
@@ -353,7 +348,6 @@
         </div>
       </div>
 
-      <!-- Clientes (placeholder) -->
       <div class="card" id="clientesBox" style="display:none;">
         <h2>Evaluación de clientes</h2>
         <p>Este modo puede reutilizar el mismo set de ítems o tener su propia lista.</p>
@@ -362,7 +356,6 @@
 
     </div>
 
-    <!-- Reporte (solo aparece al imprimir / generar) -->
     <div class="print-area" id="printArea">
       <div class="report" id="report">
         <div class="report-head">
@@ -414,7 +407,7 @@
 
 <script>
   /************************************************************
-   * 1) URL COMPLETA DEL APPS SCRIPT (/exec) ✅ (TU URL NUEVA)
+   * 1) URL COMPLETA DEL APPS SCRIPT (/exec) ✅ (PEGADA)
    ************************************************************/
   const API_URL = "https://script.google.com/macros/s/AKfycbyVrFb6dym2D0-w-uO-2EsQklVsPvs7zx0YNhZwaHBoSHehBO7NWjuKC9W0J6j260KKnQ/exec";
 
@@ -425,80 +418,201 @@
     {
       group: "1. Metas, productividad y eficiencia",
       items: [
-        { key: "A_metas", label: "A. Cumplimiento de Metas. Grado de logro", rubric: [
-          "No alcanza la mayoría de las metas; cumple menos del 70 % de lo establecido. La falta de avance afecta los resultados esperados.",
-          "Logra entre 70–89 % de las metas; presenta avances parciales o inconsistentes y requiere correcciones.",
-          "Alcanza el 100 % de las metas planificadas con calidad y dentro del tiempo establecido.",
-          "Supera el 100 % y llega hasta un 110 % de las metas; entrega resultados adicionales o mejores de lo esperado.",
-          "Supera más del 110 % de las metas de forma sostenida, con impacto significativo y calidad superior."
-        ]},
-        { key: "B_eficiencia", label: "B. Eficiencia en el uso del tiempo, costos y recursos", rubric: [
-          "Usa el tiempo y los recursos con errores graves que afectan la eficiencia.",
-          "Muestra uso inestable del tiempo y los recursos; requiere evaluaciones y correcciones frecuentes.",
-          "Utiliza de manera adecuada el tiempo y los recursos, cumpliendo sin desperdicios significativos.",
-          "Optimiza tiempo y recursos, generando mejoras o ahorros sin afectar la calidad del trabajo.",
-          "Maximiza la eficiencia de forma sostenida, mejora procesos y logra resultados superiores sin comprometer la calidad."
-        ]},
-        { key: "C_seguridad", label: "C. Cumplimiento de normas de seguridad", rubric: suggestedRubric("C_seguridad") },
-        { key: "D_prioriza", label: "D. Prioriza y organiza tareas adecuadamente", rubric: suggestedRubric("D_prioriza") }
+        { key: "A_metas", label: "A. Cumplimiento de Metas. Grado de logro",
+          rubric: [
+            "No alcanza la mayoría de las metas; cumple menos del 70 % de lo establecido. La falta de avance afecta los resultados esperados.",
+            "Logra entre 70–89 % de las metas; presenta avances parciales o inconsistentes y requiere correcciones.",
+            "Alcanza el 100 % de las metas planificadas con calidad y dentro del tiempo establecido.",
+            "Supera el 100 % y llega hasta un 110 % de las metas; entrega resultados adicionales o mejores de lo esperado.",
+            "Supera más del 110 % de las metas de forma sostenida, con impacto significativo y calidad superior."
+          ]
+        },
+        { key: "B_eficiencia", label: "B. Eficiencia en el uso del tiempo, costos y recursos",
+          rubric: [
+            "Usa el tiempo y los recursos con errores graves que afectan la eficiencia.",
+            "Muestra uso inestable del tiempo y los recursos; requiere evaluaciones y correcciones frecuentes.",
+            "Utiliza de manera adecuada el tiempo y los recursos, cumpliendo sin desperdicios significativos.",
+            "Optimiza tiempo y recursos, generando mejoras o ahorros sin afectar la calidad del trabajo.",
+            "Maximiza la eficiencia de forma sostenida, mejora procesos y logra resultados superiores sin comprometer la calidad."
+          ]
+        },
+        { key: "C_seguridad", label: "C. Cumplimiento de normas de seguridad",
+          rubric: [
+            "Incumple normas de seguridad y genera riesgos constantes para sí y el equipo.",
+            "Cumple parcialmente las normas; requiere supervisión continua para evitar incidentes.",
+            "Cumple todas las normas de seguridad y actúa de manera segura en su trabajo diario.",
+            "Se anticipa a riesgos, propone acciones preventivas y actúa con autonomía segura.",
+            "Promueve una cultura de seguridad; motiva a otros y contribuye a mantener ambientes sin incidentes."
+          ]
+        },
+        { key: "D_prioriza", label: "D. Prioriza y organiza tareas adecuadamente",
+          rubric: [
+            "Desorganiza las tareas; incumple plazos y afecta resultados importantes.",
+            "Organiza parcialmente; presenta inconsistencias en prioridades y manejo del tiempo.",
+            "Gestiona las tareas de forma adecuada, cumple tiempos y mantiene orden en su trabajo.",
+            "Organiza y prioriza con eficiencia, anticipa necesidades y mejora sus tiempos de entrega.",
+            "Es referente en organización; redistribuye recursos, optimiza procesos y eleva la productividad del equipo."
+          ]
+        }
       ]
     },
     {
       group: "2. Calidad del Trabajo",
       items: [
-        { key: "A_exactitud", label: "A. Exactitud y atención al detalle", rubric: suggestedRubric("A_exactitud") },
-        { key: "B_estandares", label: "B. Cumple con estándares de calidad", rubric: suggestedRubric("B_estandares") },
-        { key: "C_entregas", label: "C. Entregas a tiempo, cumple con plazos establecidos", rubric: suggestedRubric("C_entregas") },
-        { key: "D_errores", label: "D. Manejo de errores y mejoras", rubric: suggestedRubric("D_errores") }
+        { key: "A_exactitud", label: "A. Exactitud y atención al detalle",
+          rubric: [
+            "Comete errores frecuentes y no identifica fallos evidentes; requiere supervisión constante para evitar errores mayores.",
+            "Presenta errores recurrentes por falta de revisión; la exactitud es inconsistente y requiere correcciones frecuentes.",
+            "Realiza su trabajo con un nivel adecuado de precisión; puede cometer errores menores que no afectan los resultados.",
+            "Mantiene una atención al detalle constante; comete pocos errores y revisa su trabajo de forma proactiva.",
+            "Su trabajo es impecable; detecta errores propios y ajenos, propone mejoras y es referente en precisión."
+          ]
+        },
+        { key: "B_estandares", label: "B. Cumple con estándares de calidad",
+          rubric: [
+            "Menos del 70 % de los entregables cumplen los estándares; los resultados son inaceptables.",
+            "Entre 70–89 % de los entregables cumplen los estándares; requiere ajustes frecuentes.",
+            "El 100 % de los entregables cumplen los estándares establecidos.",
+            "Cumplimiento entre 101–110 %; entrega con calidad superior y consistente.",
+            "Más del 110 % de cumplimiento; supera ampliamente los estándares y produce resultados sobresalientes."
+          ]
+        },
+        { key: "C_entregas", label: "C. Entregas a tiempo, cumple con plazos establecidos",
+          rubric: [
+            "Menos del 70 % de las entregas se cumplen a tiempo; los retrasos afectan el área.",
+            "Entre 70–89 % de las entregas se realizan a tiempo; desempeño irregular.",
+            "El 100 % de las entregas se cumplen en los plazos pactados.",
+            "Cumple entre 101–110 % de los tiempos; se anticipa en algunas entregas y mantiene calidad.",
+            "Entrega más del 110 % a tiempo; supera plazos, mantiene calidad y mejora la eficiencia general."
+          ]
+        },
+        { key: "D_errores", label: "D. Manejo de errores y mejoras",
+          rubric: [
+            "No reconoce ni corrige errores; genera reincidencias graves.",
+            "Corrige parcialmente, con retrasos o bajo nivel de supervisión; la mejora no es constante.",
+            "Detecta y corrige errores básicos cuando se le solicita; cumple lo necesario.",
+            "Se anticipa a errores y propone soluciones preventivas que mejoran el proceso.",
+            "Asegura procesos libres de errores, implementa mejoras continuas y es referente en calidad."
+          ]
+        }
       ]
     },
     {
       group: "3. Competencias y Habilidades",
       items: [
-        { key: "A_conocimientos", label: "A. Conocimientos técnicos del puesto", rubric: suggestedRubric("A_conocimientos") },
-        { key: "B_clientes", label: "B. Convincente respuesta técnica a clientes", rubric: suggestedRubric("B_clientes") },
-        { key: "C_problemas", label: "C. Resolución de problemas", rubric: suggestedRubric("C_problemas") },
-        { key: "D_iniciativa", label: "D. Iniciativa y creatividad", rubric: suggestedRubric("D_iniciativa") }
+        { key: "A_conocimientos", label: "A. Conocimientos técnicos del puesto",
+          rubric: [
+            "Conocimientos muy por debajo de lo esperado; no domina funciones básicas del puesto.",
+            "Gestiona parcialmente los conocimientos requeridos y necesita apoyo frecuente.",
+            "Posee el conocimiento necesario y funcional para el puesto; desempeño adecuado.",
+            "Aplica los conocimientos de manera confiable y constante.",
+            "Domina los conocimientos, aplica técnicas avanzadas y es referente técnico en el área."
+          ]
+        },
+        { key: "B_clientes", label: "B. Convincente respuesta técnica a clientes",
+          rubric: [
+            "Respuestas incorrectas o inconsistentes que generan desconfianza.",
+            "Respuestas incompletas o poco claras que afectan la calidad del servicio.",
+            "Responde de forma adecuada y funcional, brindando confianza.",
+            "Respuestas claras, específicas y confiables de manera constante.",
+            "Respuestas sobresalientes y precisas, reconocidas como referente por clientes."
+          ]
+        },
+        { key: "C_problemas", label: "C. Resolución de problemas",
+          rubric: [
+            "No logra resolver problemas; afecta procesos y resultados.",
+            "Resuelve parcialmente los problemas, requiriendo supervisión frecuente.",
+            "Resuelve problemas básicos de manera satisfactoria y funcional.",
+            "Resuelve problemas complejos con autonomía y confiabilidad.",
+            "Anticipa problemas y desarrolla soluciones preventivas y estratégicas."
+          ]
+        },
+        { key: "D_iniciativa", label: "D. Iniciativa y creatividad",
+          rubric: [
+            "No genera ideas ni propone mejoras.",
+            "Propone ideas poco útiles o de aplicación limitada.",
+            "Propone ideas funcionales y aplicables cuando es necesario.",
+            "Genera ideas prácticas que optimizan procesos y agregan valor.",
+            "Propone soluciones innovadoras con impacto positivo y sostenible en el área."
+          ]
+        }
       ]
     },
     {
       group: "4. Actitud y Valores",
       items: [
-        { key: "A_responsabilidad", label: "A. Responsabilidad y compromiso", rubric: suggestedRubric("A_responsabilidad") },
-        { key: "B_puntualidad", label: "B. Puntualidad y asistencia", rubric: suggestedRubric("B_puntualidad") },
-        { key: "C_equipo", label: "C. Trabajo en equipo y cooperación", rubric: suggestedRubric("C_equipo") },
-        { key: "D_comunicacion", label: "D. Comunicación efectiva", rubric: suggestedRubric("D_comunicacion") }
+        { key: "A_responsabilidad", label: "A. Responsabilidad y compromiso",
+          rubric: [
+            "Incumple compromisos y entrega resultados muy por debajo de lo esperado.",
+            "Cumple compromisos de forma irregular y requiere seguimiento constante.",
+            "Cumple con sus responsabilidades de manera adecuada y confiable.",
+            "Cumple de forma consistente, genera seguridad y aporta valor.",
+            "Inspira por su compromiso; es modelo de conducta para el equipo."
+          ]
+        },
+        { key: "B_puntualidad", label: "B. Puntualidad y asistencia",
+          rubric: [
+            "Ausencias frecuentes e injustificadas; llegadas tardías recurrentes sin aviso y sin intención de mejora.",
+            "Se presenta con frecuencia tarde o sin justificación clara, afectando la operación.",
+            "Asiste regularmente y cumple horarios; puede presentar llegadas tarde o ausencias justificadas sin reincidencia.",
+            "Es puntual y mantiene asistencia confiable; respeta horarios y comunica eventualidades oportunamente.",
+            "Puntualidad y asistencia impecables; es referente para el equipo y se adapta a horarios especiales sin afectar el desempeño."
+          ]
+        },
+        { key: "C_equipo", label: "C. Trabajo en equipo y cooperación",
+          rubric: [
+            "No coopera; genera conflictos y dificulta el trabajo del equipo.",
+            "Coopera parcialmente y de manera inestable, con resultados aceptables.",
+            "Coopera cuando se le solicita, con resultados aceptables.",
+            "Colabora activamente con el equipo y aporta de forma confiable.",
+            "Es referente en trabajo en equipo; promueve colaboración, comunicación e influye positivamente en otros."
+          ]
+        },
+        { key: "D_comunicacion", label: "D. Comunicación efectiva",
+          rubric: [
+            "Comunicación confusa; genera malentendidos graves.",
+            "Comunicación incompleta o poco clara; requiere supervisión para asegurar claridad.",
+            "Comunica lo necesario de forma clara y suficiente.",
+            "Comunicación clara, precisa y constructiva; escucha activamente.",
+            "Comunicación influyente y estratégica; facilita acuerdos y motiva a otros."
+          ]
+        }
       ]
     },
     {
       group: "5. Desarrollo y Potencial",
       items: [
-        { key: "A_adaptacion", label: "A. Adaptación al cambio", rubric: suggestedRubric("A_adaptacion") },
-        { key: "B_aprender", label: "B. Disposición para aprender", rubric: suggestedRubric("B_aprender") },
-        { key: "C_liderazgo", label: "C. Liderazgo", rubric: suggestedRubric("C_liderazgo") }
+        { key: "A_adaptacion", label: "A. Adaptación al cambio",
+          rubric: [
+            "Se resiste activamente al cambio; afecta procesos y equipos.",
+            "Se adapta parcialmente, con dificultad y resultados limitados.",
+            "Se adapta lo necesario para mantener un desempeño adecuado.",
+            "Se adapta de forma autónoma y confiable a nuevas situaciones.",
+            "Es referente en adaptación; motiva y guía a otros en procesos de cambio."
+          ]
+        },
+        { key: "B_aprender", label: "B. Disposición para aprender",
+          rubric: [
+            "No busca aprender; rechaza retroalimentación y capacitación.",
+            "Aprende solo lo obligatorio y con mínima aplicación práctica.",
+            "Aprende lo necesario para mantener un desempeño satisfactorio.",
+            "Busca aprender constantemente y aplica lo aprendido en el trabajo.",
+            "Se mantiene en aprendizaje continuo, comparte conocimientos y forma a otros."
+          ]
+        },
+        { key: "C_liderazgo", label: "C. Liderazgo",
+          rubric: [
+            "No logra coordinar ni dirigir; genera desorden y afecta resultados.",
+            "Lidera de forma débil, con bajo impacto en el equipo.",
+            "Lidera tareas básicas con resultados adecuados y funcionales.",
+            "Lidera con confianza, logrando resultados consistentes y estables.",
+            "Inspira con visión clara; desarrolla a otros, fortalece la cohesión del equipo y se convierte en referente."
+          ]
+        }
       ]
     }
   ];
 
-  // (Te dejo tus rúbricas originales completas en el HTML que ya tenías.
-  // Para no pegar 900 líneas aquí otra vez, esto evita que se vuelva imposible de manejar.)
-  // Si quieres, te lo devuelvo con TODAS las rúbricas texto por texto como lo tenías (sin abreviar).
-
-  function suggestedRubric(){
-    // Placeholder: si tu HTML original ya trae todas las rúbricas, elimina esto.
-    // Aquí solo evita que se rompa el render si alguna rúbrica no está pegada.
-    return [
-      "1 — (Rúbrica no definida aquí)",
-      "2 — (Rúbrica no definida aquí)",
-      "3 — (Rúbrica no definida aquí)",
-      "4 — (Rúbrica no definida aquí)",
-      "5 — (Rúbrica no definida aquí)"
-    ];
-  }
-
-  /************************************************************
-   * Estado UI
-   ************************************************************/
   const state = { dirty:false, generated:false, answers:{} };
   const $ = (id) => document.getElementById(id);
 
@@ -565,7 +679,7 @@
         for(let v=1; v<=5; v++){
           const o = document.createElement("option");
           o.value = String(v);
-          const preview = (it.rubric && it.rubric[v-1]) ? String(it.rubric[v-1]).split(".")[0] : "";
+          const preview = (it.rubric && it.rubric[v-1]) ? it.rubric[v-1].split(".")[0] : "";
           o.textContent = `${v} — ${preview}`;
           sel.appendChild(o);
         }
@@ -626,73 +740,142 @@
     return +(avg * 20).toFixed(2);
   }
 
-  function toFormUrlEncoded(obj){
-    return Object.keys(obj)
-      .map(k => encodeURIComponent(k) + "=" + encodeURIComponent(obj[k] ?? ""))
-      .join("&");
+  function formatDateES(yyyy_mm_dd){
+    if(!yyyy_mm_dd) return "—";
+    const [y,m,d] = yyyy_mm_dd.split("-").map(n=>parseInt(n,10));
+    if(!y || !m || !d) return yyyy_mm_dd;
+    const dt = new Date(y, m-1, d);
+    return dt.toLocaleDateString("es-HN");
   }
 
-  async function saveToSheet(){
-    const header = getHeaderData();
-    if(!header.no_personal || !header.nombre){
-      alert("Completa al menos No. de personal y Nombre.");
-      return;
-    }
+  function renderSeleccionEnReporte(){
+    const host = $("rRubricas");
+    host.innerHTML = "";
 
+    ITEMS.forEach(sec => {
+      const wrap = document.createElement("div");
+      wrap.className = "rubric-wrap";
+
+      const title = document.createElement("div");
+      title.className = "rubric-title";
+      title.textContent = sec.group;
+      wrap.appendChild(title);
+
+      const table = document.createElement("table");
+      table.className = "sel-table";
+
+      const thead = document.createElement("thead");
+      const trh = document.createElement("tr");
+
+      const thItem = document.createElement("th");
+      thItem.className = "col-item";
+      thItem.textContent = "Ítem";
+      trh.appendChild(thItem);
+
+      const thScore = document.createElement("th");
+      thScore.className = "col-score";
+      thScore.textContent = "Puntaje";
+      trh.appendChild(thScore);
+
+      const thDesc = document.createElement("th");
+      thDesc.className = "col-desc";
+      thDesc.textContent = "Opción seleccionada";
+      trh.appendChild(thDesc);
+
+      thead.appendChild(trh);
+      table.appendChild(thead);
+
+      const tbody = document.createElement("tbody");
+
+      sec.items.forEach(it => {
+        const v = state.answers[it.key];
+        const tr = document.createElement("tr");
+
+        const tdItem = document.createElement("td");
+        tdItem.className = "col-item";
+        tdItem.textContent = it.label;
+        tr.appendChild(tdItem);
+
+        const tdScore = document.createElement("td");
+        tdScore.className = "col-score";
+        tdScore.textContent = (typeof v === "number") ? String(v) : "—";
+        tr.appendChild(tdScore);
+
+        const tdDesc = document.createElement("td");
+        tdDesc.className = "col-desc";
+        if(typeof v === "number" && it.rubric && it.rubric[v-1]){
+          tdDesc.textContent = it.rubric[v-1];
+        }else{
+          tdDesc.innerHTML = `<span class="muted-print">Sin selección</span>`;
+        }
+        tr.appendChild(tdDesc);
+
+        tbody.appendChild(tr);
+      });
+
+      table.appendChild(tbody);
+      wrap.appendChild(table);
+
+      host.appendChild(wrap);
+    });
+  }
+
+  function buildReport(){
+    const header = getHeaderData();
     const extra = getExtraFields();
     const total = computeTotal();
 
-    const respuestasJSON = JSON.stringify({
-      header,
-      answers: flattenAnswers(),
-      extra,
-      puntaje_total: total,
-      creado_en: new Date().toISOString()
-    });
+    $("rTitle").textContent =
+      (header.tipo === "autoevaluacion")
+        ? "Autoevaluación del desempeño"
+        : (header.tipo === "clientes")
+          ? "Evaluación de clientes"
+          : "Evaluación del desempeño";
 
-    const formPayload = {
-      no_personal: header.no_personal,
-      nombre: header.nombre,
-      posicion: header.posicion,
-      departamento: header.departamento,
-      periodo: header.periodo,
-      version: header.version,
-      fecha: header.fecha,
-      respuestas_json: respuestasJSON
-    };
+    $("rGenerated").textContent = new Date().toLocaleString();
 
-    try{
-      $("apiHint").className = "warn";
-      $("apiHint").textContent = "Enviando a Google Sheets...";
+    $("rNoPersonal").textContent = header.no_personal || "—";
+    $("rNombre").textContent = header.nombre || "—";
+    $("rPosicion").textContent = header.posicion || "—";
+    $("rDepartamento").textContent = header.departamento || "—";
+    $("rPeriodo").textContent = header.periodo || "—";
+    $("rVersion").textContent = header.version || "—";
+    $("rFecha").textContent = formatDateES(header.fecha);
 
-      const body = toFormUrlEncoded(formPayload);
+    renderSeleccionEnReporte();
+    $("rTotal").textContent = String(total);
 
-      // Envío anti-CORS: no-cors
-      await fetch(API_URL, {
-        method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
-        body
-      });
+    const comentarioColab =
+      (header.tipo === "autoevaluacion")
+        ? (extra.comentarios_colaborador || "")
+        : (header.tipo === "desempeno")
+          ? (extra.comentarios_colaborador || "")
+          : "";
 
-      $("apiHint").className = "ok";
-      $("apiHint").textContent = "Enviado a Google Sheets ✅ (si no ves fila, revisa permisos del Web App)";
-      setDirty(false);
-
-    }catch(err){
-      console.error(err);
-      $("apiHint").className = "err";
-      $("apiHint").textContent = "Error al guardar: " + (err.message || err);
-      alert("Error al guardar en Google Sheets: " + (err.message || err));
+    if(comentarioColab){
+      $("rComentariosBlock").style.display = "block";
+      $("rComentarios").textContent = comentarioColab;
+    }else{
+      $("rComentariosBlock").style.display = "none";
+      $("rComentarios").textContent = "—";
     }
-  }
 
-  function flattenAnswers(){
-    const out = {};
-    ITEMS.forEach(sec=>sec.items.forEach(it=>{
-      out[it.key] = (typeof state.answers[it.key] === "number") ? state.answers[it.key] : "";
-    }));
-    return out;
+    if(header.tipo === "desempeno"){
+      $("rJustifBlock").style.display = "block";
+      const txt = [
+        `Justificación calificaciones (1-6): ${extra.justificacion || "—"}`,
+        `Comentarios del evaluador: ${extra.comentarios_evaluador || "—"}`,
+        `Fortalezas: ${extra.fortalezas || "—"}`,
+        `Oportunidades de mejora: ${extra.oportunidades_mejora || "—"}`,
+        `Proyección y potencial: ${extra.proyeccion_potencial || "—"}`
+      ].join("\n\n");
+      $("rJustifAll").textContent = txt;
+    }else{
+      $("rJustifBlock").style.display = "none";
+      $("rJustifAll").textContent = "—";
+    }
+
+    $("printArea").style.display = "block";
   }
 
   function applyTipoUI(){
@@ -736,39 +919,144 @@
     setDirty(false);
   }
 
+  function flattenAnswers(){
+    const out = {};
+    ITEMS.forEach(sec=>sec.items.forEach(it=>{
+      out[it.key] = (typeof state.answers[it.key] === "number") ? state.answers[it.key] : "";
+    }));
+    return out;
+  }
+
+  function toFormUrlEncoded(obj){
+    return Object.keys(obj)
+      .map(k => encodeURIComponent(k) + "=" + encodeURIComponent(obj[k] ?? ""))
+      .join("&");
+  }
+
+  function buildComentariosParaSheet(tipo, extra){
+    if(tipo === "autoevaluacion"){
+      return extra.comentarios_colaborador || "";
+    }
+    if(tipo === "desempeno"){
+      return [
+        extra.comentarios_evaluador ? `Comentarios evaluador: ${extra.comentarios_evaluador}` : "",
+        extra.fortalezas ? `Fortalezas: ${extra.fortalezas}` : "",
+        extra.oportunidades_mejora ? `Oportunidades: ${extra.oportunidades_mejora}` : "",
+        extra.proyeccion_potencial ? `Proyección: ${extra.proyeccion_potencial}` : "",
+        extra.comentarios_colaborador ? `Comentarios colaborador: ${extra.comentarios_colaborador}` : ""
+      ].filter(Boolean).join("\n\n");
+    }
+    return "";
+  }
+
+  async function saveToSheet(){
+    const header = getHeaderData();
+    if(!header.no_personal || !header.nombre){
+      alert("Completa al menos No. de personal y Nombre.");
+      return;
+    }
+
+    const extra = getExtraFields();
+    const answers = flattenAnswers();
+    const total = computeTotal();
+
+    const respuestasJSON = JSON.stringify({
+      header,
+      answers,
+      extra,
+      puntaje_total: total,
+      creado_en: new Date().toISOString()
+    });
+
+    const formPayload = {
+      no_personal: header.no_personal,
+      nombre: header.nombre,
+      posicion: header.posicion,
+      departamento: header.departamento,
+      periodo: header.periodo,
+      version: header.version,
+      fecha: header.fecha,
+      respuestas_json: respuestasJSON,
+      comentarios: buildComentariosParaSheet(header.tipo, extra)
+    };
+
+    console.log("Enviando a Apps Script:", formPayload);
+
+    try{
+      $("apiHint").className = "warn";
+      $("apiHint").textContent = "Enviando a Google Sheets...";
+
+      const body = toFormUrlEncoded(formPayload);
+
+      try{
+        const res = await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+          body
+        });
+
+        if(!res.ok){
+          const t = await res.text().catch(()=> "");
+          throw new Error(t || ("HTTP " + res.status));
+        }
+      }catch(e){
+        await fetch(API_URL, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+          body
+        });
+      }
+
+      $("apiHint").className = "ok";
+      $("apiHint").textContent = "Enviado a Google Sheets ✅";
+      setDirty(false);
+
+    }catch(err){
+      console.error(err);
+      $("apiHint").className = "err";
+      $("apiHint").textContent = "Error al guardar: " + (err.message || err);
+      alert("Error al guardar en Google Sheets: " + (err.message || err));
+    }
+  }
+
   function bind(){
     [
       "noPersonal","nombre","posicion","departamento","periodo","version","fecha",
       "comentariosColaborador","justificacion","comentariosEvaluador","fortalezas",
       "oportunidades","proyeccion","comentariosColaborador2"
     ].forEach(id=>{
-      $(id).addEventListener("input", function(){ setDirty(true); });
-      $(id).addEventListener("change", function(){ setDirty(true); });
+      $(id).addEventListener("input", ()=> setDirty(true));
+      $(id).addEventListener("change", ()=> setDirty(true));
     });
 
-    $("tipoFormulario").addEventListener("change", function(){
+    $("tipoFormulario").addEventListener("change", ()=>{
       applyTipoUI();
       setDirty(true);
     });
 
-    $("btnNew").addEventListener("click", function(){
+    $("btnNew").addEventListener("click", ()=>{
       if(state.dirty && !confirm("Hay cambios sin guardar. ¿Crear nuevo de todas formas?")) return;
       clearForm();
     });
 
     $("btnSave").addEventListener("click", saveToSheet);
 
-    $("btnGenerate").addEventListener("click", function(){
-      // Si quieres, aquí conectamos buildReport() como lo tenías
+    $("btnGenerate").addEventListener("click", ()=>{
+      buildReport();
+      state.generated = true;
       setDirty(true);
     });
 
-    $("btnPrint").addEventListener("click", function(){
+    $("btnPrint").addEventListener("click", ()=>{
+      if(!state.generated){
+        buildReport();
+        state.generated = true;
+      }
       window.print();
     });
   }
 
-  // Init
   renderItems();
   applyTipoUI();
   bind();
