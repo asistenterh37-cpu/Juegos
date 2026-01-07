@@ -19,6 +19,7 @@
       --bad:#ef4444;
       --radius:18px;
 
+      /* Print colors */
       --p-border:#e6e6e6;
       --p-gray:#f7f7f7;
       --p-ink:#111;
@@ -85,8 +86,13 @@
       box-shadow: 0 12px 26px rgba(47,123,255,.25);
     }
     .btn.ghost{background:transparent}
-    .btn:disabled{opacity:.55; cursor:not-allowed; transform:none}
-    .grid{display:grid; grid-template-columns:1fr; gap:16px; margin-top:16px;}
+    .btn[disabled]{opacity:.55; cursor:not-allowed; transform:none !important}
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:16px;
+      margin-top:16px;
+    }
     .card{
       border:1px solid var(--stroke);
       background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
@@ -96,7 +102,12 @@
     }
     .card h2{margin:0 0 6px; font-size:18px;}
     .card p{margin:0; color:var(--muted); font-size:13px}
-    .form-grid{display:grid; grid-template-columns: repeat(3, 1fr); gap:12px; margin-top:14px;}
+    .form-grid{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap:12px;
+      margin-top:14px;
+    }
     @media (max-width: 980px){
       .form-grid{grid-template-columns: 1fr}
       .actions{justify-content:flex-end}
@@ -122,6 +133,7 @@
     .ok{color:#9dffb6}
     .err{color:#ffb4b4}
 
+    /* ===== Reporte (para impresión) ===== */
     .print-area{margin-top:20px; display:none;}
     .report{
       background:#fff;
@@ -130,27 +142,71 @@
       padding:20px;
       border:1px solid #e8e8e8;
     }
-    .report-head{display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:10px;}
+    .report-head{
+      display:flex; justify-content:space-between; align-items:flex-start; gap:12px;
+      margin-bottom:10px;
+    }
     .report-head h1{margin:0; font-size:32px; letter-spacing:.2px;}
     .report-head .small{font-size:12px; color:var(--p-sub); text-align:right;}
     .report-sub{margin:0 0 14px; color:var(--p-sub)}
-    .report-kv{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;}
-    .kv-row{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
-    .kv{border:1px solid var(--p-border); padding:10px 12px; border-radius:12px;}
+    .report-kv{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+      margin-bottom:10px;
+    }
+    .kv-row{display:grid; grid-template-columns: 1fr 1fr; gap:10px;}
+    .kv{
+      border:1px solid var(--p-border);
+      padding:10px 12px;
+      border-radius:12px;
+    }
     .kv .k{font-size:11px; color:#666; margin-bottom:3px}
     .kv .v{font-size:13px; font-weight:650}
+
+    /* Tabla SOLO opción seleccionada */
     .rubric-wrap{margin-top:14px;}
-    .rubric-title{margin:0 0 6px; font-size:15px; color:var(--p-ink); font-weight:800;}
-    .sel-table{width:100%; border-collapse:collapse; table-layout:fixed; border:1px solid var(--p-border);}
-    .sel-table th, .sel-table td{border:1px solid var(--p-border); padding:8px 8px; vertical-align:top; font-size:11px; word-wrap:break-word;}
-    .sel-table th{background:var(--p-gray); text-align:left; font-weight:800; font-size:11px;}
+    .rubric-title{
+      margin:0 0 6px;
+      font-size:15px;
+      color:var(--p-ink);
+      font-weight:800;
+    }
+    .sel-table{
+      width:100%;
+      border-collapse:collapse;
+      table-layout:fixed;
+      border:1px solid var(--p-border);
+    }
+    .sel-table th, .sel-table td{
+      border:1px solid var(--p-border);
+      padding:8px 8px;
+      vertical-align:top;
+      font-size:11px;
+      word-wrap:break-word;
+    }
+    .sel-table th{
+      background:var(--p-gray);
+      text-align:left;
+      font-weight:800;
+      font-size:11px;
+    }
     .col-item{width:32%; font-weight:700;}
     .col-score{width:10%; text-align:center; font-weight:800;}
     .col-desc{width:auto;}
     .muted-print{color:#555}
+
     .block{margin-top:14px;}
     .block h2{margin:0 0 6px; font-size:15px;}
-    .block .box{border:1px solid var(--p-border); border-radius:12px; padding:10px 12px; min-height:48px; font-size:12px; white-space:pre-wrap;}
+    .block .box{
+      border:1px solid var(--p-border);
+      border-radius:12px;
+      padding:10px 12px;
+      min-height:48px;
+      font-size:12px;
+      white-space:pre-wrap;
+    }
+
     @media print{
       body{background:#fff}
       .wrap{max-width:none; margin:0; padding:0}
@@ -558,15 +614,16 @@
     }
   ];
 
+  /************************************************************
+   * 3) Estado: guardamos score + texto (para Sheets) por ítem
+   ************************************************************/
   const state = {
     dirty:false,
     generated:false,
-    answers:{},         // {key: number}
     saving:false,
-    lastSubmitSig:null,
-    lastSubmitAt:0
+    // answersDetail[key] = { score:number, selected_text:string }
+    answersDetail:{}
   };
-
   const $ = (id) => document.getElementById(id);
 
   function setDirty(v){
@@ -580,20 +637,12 @@
       dot.style.background = "var(--ok)";
       text.textContent = "Sin cambios";
     }
-    updateSaveButtonState();
   }
 
-  function updateSaveButtonState(){
-    const btn = $("btnSave");
-    const ok = validateForm({silent:true}).ok;
-    btn.disabled = state.saving || !ok;
-  }
-
-  function getOptionText(it, score){
-    if(typeof score !== "number") return "";
-    const desc = (it.rubric && it.rubric[score-1]) ? it.rubric[score-1] : "";
-    // Formato que quieres en la hoja: "1 — Descripción..."
-    return `${score} — ${desc}`;
+  function allItemKeys(){
+    const keys = [];
+    ITEMS.forEach(sec => sec.items.forEach(it => keys.push(it.key)));
+    return keys;
   }
 
   function renderItems(){
@@ -624,7 +673,6 @@
         const title = document.createElement("div");
         title.style.fontWeight = "800";
         title.textContent = it.label;
-
         const sub = document.createElement("div");
         sub.className = "muted";
         sub.style.fontSize = "12px";
@@ -644,18 +692,29 @@
         opt0.textContent = "Seleccionar...";
         sel.appendChild(opt0);
 
+        // ✅ OPCIONES como en tus adjuntos: "n — descripción completa"
         for(let v=1; v<=5; v++){
           const o = document.createElement("option");
           o.value = String(v);
           const desc = (it.rubric && it.rubric[v-1]) ? it.rubric[v-1] : "(Rúbrica no definida aquí)";
-          // Mostrar igual que en tu ejemplo: "1 — No alcanza la mayoría..."
           o.textContent = `${v} — ${desc}`;
           sel.appendChild(o);
         }
 
         sel.addEventListener("change", () => {
-          state.answers[it.key] = sel.value ? Number(sel.value) : null;
+          if(sel.value){
+            const score = Number(sel.value);
+            const desc = (it.rubric && it.rubric[score-1]) ? it.rubric[score-1] : "";
+            // ✅ Guardamos SOLO "n — descripción" (sin label del factor)
+            state.answersDetail[it.key] = {
+              score,
+              selected_text: `${score} — ${desc}`
+            };
+          }else{
+            delete state.answersDetail[it.key];
+          }
           setDirty(true);
+          refreshSaveEnabled();
         });
 
         right.appendChild(lab);
@@ -703,7 +762,9 @@
   }
 
   function computeTotal(){
-    const vals = Object.values(state.answers).filter(v => typeof v === "number");
+    const vals = Object.values(state.answersDetail)
+      .map(x => x && typeof x.score === "number" ? x.score : null)
+      .filter(v => typeof v === "number");
     if(!vals.length) return 0;
     const avg = vals.reduce((a,b)=>a+b,0) / vals.length;
     return +(avg * 20).toFixed(2);
@@ -757,7 +818,7 @@
       const tbody = document.createElement("tbody");
 
       sec.items.forEach(it => {
-        const v = state.answers[it.key];
+        const det = state.answersDetail[it.key];
         const tr = document.createElement("tr");
 
         const tdItem = document.createElement("td");
@@ -767,13 +828,14 @@
 
         const tdScore = document.createElement("td");
         tdScore.className = "col-score";
-        tdScore.textContent = (typeof v === "number") ? String(v) : "—";
+        tdScore.textContent = det && typeof det.score === "number" ? String(det.score) : "—";
         tr.appendChild(tdScore);
 
         const tdDesc = document.createElement("td");
         tdDesc.className = "col-desc";
-        if(typeof v === "number" && it.rubric && it.rubric[v-1]){
-          tdDesc.textContent = it.rubric[v-1];
+        if(det && det.selected_text){
+          // En el reporte sí mostramos lo seleccionado "n — descripción"
+          tdDesc.textContent = det.selected_text;
         }else{
           tdDesc.innerHTML = `<span class="muted-print">Sin selección</span>`;
         }
@@ -859,7 +921,7 @@
     $("desempenoCamposBox").style.display = (tipo === "desempeno") ? "block" : "none";
     $("clientesBox").style.display = (tipo === "clientes") ? "block" : "none";
 
-    updateSaveButtonState();
+    refreshSaveEnabled();
   }
 
   function clearForm(){
@@ -879,7 +941,7 @@
     $("proyeccion").value = "";
     $("comentariosColaborador2").value = "";
 
-    state.answers = {};
+    state.answersDetail = {};
     ITEMS.forEach(sec=>sec.items.forEach(it=>{
       const el = $("ans_"+it.key);
       if(el) el.value = "";
@@ -887,7 +949,31 @@
 
     $("printArea").style.display = "none";
     state.generated = false;
+    state.saving = false;
     setDirty(false);
+    refreshSaveEnabled();
+  }
+
+  // ✅ Para Sheets: SOLO "n — descripción" (sin label del factor)
+  function flattenAnswersForSheet(){
+    const out = {};
+    ITEMS.forEach(sec=>sec.items.forEach(it=>{
+      out[it.key] = (state.answersDetail[it.key] && state.answersDetail[it.key].selected_text)
+        ? state.answersDetail[it.key].selected_text
+        : "";
+    }));
+    return out;
+  }
+
+  // ✅ Para cálculo / trazabilidad (por si lo ocupas en tu Apps Script)
+  function flattenScores(){
+    const out = {};
+    ITEMS.forEach(sec=>sec.items.forEach(it=>{
+      out[it.key] = (state.answersDetail[it.key] && typeof state.answersDetail[it.key].score === "number")
+        ? state.answersDetail[it.key].score
+        : "";
+    }));
+    return out;
   }
 
   function toFormUrlEncoded(obj){
@@ -912,14 +998,19 @@
     return "";
   }
 
-  // ✅ Validación: no deja guardar si falta algún item o comentario (en autoevaluación)
-  function validateForm({silent=false}={}){
+  /************************************************************
+   * ✅ Validación fuerte para que Guardar NO funcione si falta algo
+   * - Requiere header completo
+   * - Requiere TODOS los ítems seleccionados
+   * - En autoevaluación requiere Comentarios del colaborador
+   ************************************************************/
+  function validateBeforeSave(){
     const header = getHeaderData();
-    const tipo = header.tipo;
+    const extra = getExtraFields();
 
     const missing = [];
 
-    // mínimos (ajusta si quieres obligar TODOS los headers)
+    // header obligatorio
     if(!header.no_personal) missing.push("No. de personal");
     if(!header.nombre) missing.push("Nombre");
     if(!header.posicion) missing.push("Posición");
@@ -929,50 +1020,68 @@
     if(!header.fecha) missing.push("Fecha");
 
     // todos los ítems
-    ITEMS.forEach(sec=>{
-      sec.items.forEach(it=>{
-        const v = state.answers[it.key];
-        if(!(typeof v === "number" && v >= 1 && v <= 5)){
-          missing.push(it.label);
-        }
-      });
-    });
+    const keys = allItemKeys();
+    const missingItems = keys.filter(k => !state.answersDetail[k] || typeof state.answersDetail[k].score !== "number");
+    if(missingItems.length) missing.push(`Respuestas de ítems (${missingItems.length} pendientes)`);
 
-    // comentario obligatorio para autoevaluación
-    if(tipo === "autoevaluacion"){
-      const c = $("comentariosColaborador").value.trim();
-      if(!c) missing.push("Comentarios del colaborador");
+    // comentario obligatorio en autoevaluación
+    if(header.tipo === "autoevaluacion"){
+      if(!extra.comentarios_colaborador) missing.push("Comentarios del colaborador");
     }
 
-    const ok = missing.length === 0;
-
-    if(!silent && !ok){
-      alert("Faltan campos por completar:\n\n- " + missing.slice(0, 25).join("\n- ") + (missing.length>25 ? "\n\n(+ más…)" : ""));
+    // si quieres obligar todos los campos extra en desempeño, descomenta:
+    /*
+    if(header.tipo === "desempeno"){
+      if(!extra.justificacion) missing.push("Justificación");
+      if(!extra.comentarios_evaluador) missing.push("Comentarios del evaluador");
+      if(!extra.fortalezas) missing.push("Fortalezas");
+      if(!extra.oportunidades_mejora) missing.push("Oportunidades de mejora");
+      if(!extra.proyeccion_potencial) missing.push("Proyección y potencial");
+      if(!extra.comentarios_colaborador) missing.push("Comentarios del colaborador");
     }
+    */
 
-    // UI hint
-    if(ok){
-      $("apiHint").className = "warn";
-      $("apiHint").textContent = "Listo para enviar";
-    }else{
-      $("apiHint").className = "warn";
-      $("apiHint").textContent = "Completa todos los campos requeridos";
-    }
-
-    return { ok, missing };
+    return { ok: missing.length === 0, missing };
   }
 
-  // ✅ Construye payload con:
-  // - columnas base
-  // - cada item como: "A. Cumplimiento..." => "1 — descripción..."
-  // - también manda la clave técnica por si tu Apps Script mapea por key
-  function buildSheetPayload(){
+  function refreshSaveEnabled(){
+    const btn = $("btnSave");
+    if(!btn) return;
+    const v = validateBeforeSave();
+    btn.disabled = state.saving || !v.ok;
+  }
+
+  async function saveToSheet(){
+    if(state.saving) return; // ✅ evita doble click (doble fila)
+    const check = validateBeforeSave();
+    if(!check.ok){
+      alert("Faltan campos obligatorios:\n\n- " + check.missing.join("\n- "));
+      refreshSaveEnabled();
+      return;
+    }
+
     const header = getHeaderData();
     const extra = getExtraFields();
+
+    const answers_for_sheet = flattenAnswersForSheet(); // ✅ "n — descripción"
+    const answers_score = flattenScores();              // opcional
     const total = computeTotal();
 
-    const payload = {
-      tipo: header.tipo, // por si lo quieres en una columna
+    // ✅ respuestas_json SOLO con lo necesario (sin label del factor en cada respuesta)
+    const respuestasJSON = JSON.stringify({
+      header,
+      answers: answers_for_sheet,
+      answers_score,
+      extra,
+      puntaje_total: total,
+      creado_en: new Date().toISOString()
+    });
+
+    // ✅ Enviamos también cada ítem como campo plano (por si tu Apps Script llena columnas por keys)
+    const flatToSend = { ...answers_for_sheet };
+
+    const formPayload = {
+      tipo: header.tipo, // por si tu sheet/script lo usa
       no_personal: header.no_personal,
       nombre: header.nombre,
       posicion: header.posicion,
@@ -980,139 +1089,51 @@
       periodo: header.periodo,
       version: header.version,
       fecha: header.fecha,
-
-      // campos extra "separados" por si los quieres en columnas también
-      comentarios_colaborador: (header.tipo === "autoevaluacion")
-        ? (extra.comentarios_colaborador || "")
-        : (header.tipo === "desempeno")
-          ? (extra.comentarios_colaborador || "")
-          : "",
-
-      justificacion: extra.justificacion || "",
-      comentarios_evaluador: extra.comentarios_evaluador || "",
-      fortalezas: extra.fortalezas || "",
-      oportunidades_mejora: extra.oportunidades_mejora || "",
-      proyeccion_potencial: extra.proyeccion_potencial || "",
-
-      puntaje_total: String(total),
-
-      // comentario consolidado (si tu Apps Script ya usa "comentarios")
-      comentarios: buildComentariosParaSheet(header.tipo, extra)
+      respuestas_json: respuestasJSON,
+      comentarios: buildComentariosParaSheet(header.tipo, extra),
+      ...flatToSend
     };
 
-    // cada item en su propia columna (con el NÚMERO + DESCRIPCIÓN)
-    ITEMS.forEach(sec=>{
-      sec.items.forEach(it=>{
-        const score = state.answers[it.key];
-        const display = getOptionText(it, score);
-
-        // 1) por etiqueta EXACTA (esto ayuda si el Apps Script usa headers = nombres)
-        payload[it.label] = display;
-
-        // 2) por key técnica (por si tu Apps Script usa keys fijas)
-        payload[it.key] = display;
-
-        // 3) además el valor numérico (por si quieres calcular en Sheet)
-        payload[it.key + "_score"] = (typeof score === "number") ? String(score) : "";
-      });
-    });
-
-    // respaldo JSON completo
-    payload.respuestas_json = JSON.stringify({
-      header,
-      answers: Object.fromEntries(
-        ITEMS.flatMap(sec => sec.items.map(it => {
-          const v = state.answers[it.key];
-          return [it.key, {
-            score: (typeof v === "number") ? v : null,
-            label: it.label,
-            selected_text: getOptionText(it, v)
-          }];
-        }))
-      ),
-      extra,
-      puntaje_total: total,
-      creado_en: new Date().toISOString()
-    });
-
-    return payload;
-  }
-
-  function signatureForSubmit(payload){
-    // firma simple para evitar doble envío accidental
-    const base = {
-      no_personal: payload.no_personal,
-      nombre: payload.nombre,
-      fecha: payload.fecha,
-      tipo: payload.tipo,
-      puntaje_total: payload.puntaje_total,
-      respuestas_json: payload.respuestas_json
-    };
-    return btoa(unescape(encodeURIComponent(JSON.stringify(base)))).slice(0, 200);
-  }
-
-  async function postForm(payload){
-    const body = toFormUrlEncoded(payload);
-
-    // Intento normal
     try{
-      const res = await fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
-        body
-      });
-      // si el Apps Script responde JSON, esto te sirve para debug
-      const text = await res.text().catch(()=> "");
-      if(!res.ok){
-        throw new Error(text || ("HTTP " + res.status));
-      }
-      return text;
-    }catch(e){
-      // Fallback no-cors (si CORS molesta en GitHub Pages)
-      await fetch(API_URL, {
-        method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
-        body
-      });
-      return "no-cors";
-    }
-  }
+      state.saving = true;
+      refreshSaveEnabled();
 
-  async function saveToSheet(){
-    // 1) validar TODO
-    const check = validateForm({silent:false});
-    if(!check.ok) return;
+      const btn = $("btnSave");
+      const oldText = btn.textContent;
+      btn.textContent = "Guardando...";
 
-    // 2) armar payload
-    const payload = buildSheetPayload();
-    const sig = signatureForSubmit(payload);
-
-    // 3) evitar doble click / doble envío
-    const now = Date.now();
-    if(state.saving) return;
-    if(state.lastSubmitSig === sig && (now - state.lastSubmitAt) < 4000){
-      // mismo contenido en <4s => ignorar
       $("apiHint").className = "warn";
-      $("apiHint").textContent = "Ya se envió (evitando duplicado) ✅";
-      return;
-    }
+      $("apiHint").textContent = "Enviando a Google Sheets...";
 
-    state.saving = true;
-    updateSaveButtonState();
+      const body = toFormUrlEncoded(formPayload);
 
-    $("apiHint").className = "warn";
-    $("apiHint").textContent = "Enviando a Google Sheets...";
+      // Intento normal (CORS)
+      try{
+        const res = await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+          body
+        });
 
-    try{
-      await postForm(payload);
-
-      state.lastSubmitSig = sig;
-      state.lastSubmitAt = Date.now();
+        if(!res.ok){
+          const t = await res.text().catch(()=> "");
+          throw new Error(t || ("HTTP " + res.status));
+        }
+      }catch(e){
+        // Fallback no-cors (no podemos leer respuesta, pero envía)
+        await fetch(API_URL, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+          body
+        });
+      }
 
       $("apiHint").className = "ok";
       $("apiHint").textContent = "Enviado a Google Sheets ✅";
       setDirty(false);
+
+      btn.textContent = oldText;
 
     }catch(err){
       console.error(err);
@@ -1121,7 +1142,7 @@
       alert("Error al guardar en Google Sheets: " + (err.message || err));
     }finally{
       state.saving = false;
-      updateSaveButtonState();
+      refreshSaveEnabled();
     }
   }
 
@@ -1131,20 +1152,18 @@
       "comentariosColaborador","justificacion","comentariosEvaluador","fortalezas",
       "oportunidades","proyeccion","comentariosColaborador2"
     ].forEach(id=>{
-      $(id).addEventListener("input", ()=> { setDirty(true); validateForm({silent:true}); });
-      $(id).addEventListener("change", ()=> { setDirty(true); validateForm({silent:true}); });
+      $(id).addEventListener("input", ()=> { setDirty(true); refreshSaveEnabled(); });
+      $(id).addEventListener("change", ()=> { setDirty(true); refreshSaveEnabled(); });
     });
 
     $("tipoFormulario").addEventListener("change", ()=>{
       applyTipoUI();
       setDirty(true);
-      validateForm({silent:true});
     });
 
     $("btnNew").addEventListener("click", ()=>{
       if(state.dirty && !confirm("Hay cambios sin guardar. ¿Crear nuevo de todas formas?")) return;
       clearForm();
-      validateForm({silent:true});
     });
 
     $("btnSave").addEventListener("click", saveToSheet);
@@ -1164,12 +1183,11 @@
     });
   }
 
-  // init
   renderItems();
   applyTipoUI();
   bind();
   setDirty(false);
-  validateForm({silent:true});
+  refreshSaveEnabled();
 </script>
 </body>
 </html>
