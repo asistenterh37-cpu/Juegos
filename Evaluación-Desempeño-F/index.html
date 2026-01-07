@@ -906,6 +906,22 @@
     $("printArea").style.display = "block";
   }
 
+  /************************************************************
+   * ✅ CAMBIOS: botón Nuevo/Recuperar + limpiar al elegir desempeño
+   ************************************************************/
+  function updateBtnNewLabel(){
+    const tipo = $("tipoFormulario").value;
+    $("btnNew").textContent = (tipo === "desempeno") ? "Recuperar" : "Nuevo";
+  }
+
+  function resetToBlankForDesempeno(){
+    clearForm(); // limpia campos y selects
+    $("tipoFormulario").value = "desempeno"; // asegura el tipo
+    applyTipoUI();
+    updateBtnNewLabel();
+    setDirty(false);
+  }
+
   function applyTipoUI(){
     const tipo = $("tipoFormulario").value;
 
@@ -917,6 +933,8 @@
     $("autoComentariosBox").style.display = (tipo === "autoevaluacion") ? "block" : "none";
     $("desempenoCamposBox").style.display = (tipo === "desempeno") ? "block" : "none";
     $("clientesBox").style.display = (tipo === "clientes") ? "block" : "none";
+
+    updateBtnNewLabel(); // ✅
   }
 
   function clearForm(){
@@ -1108,12 +1126,31 @@
     });
 
     $("tipoFormulario").addEventListener("change", ()=>{
+      const tipo = $("tipoFormulario").value;
+
+      // ✅ Si el usuario elige "desempeño", dejar todo en blanco como adjuntos
+      if(tipo === "desempeno"){
+        resetToBlankForDesempeno();
+        return;
+      }
+
       applyTipoUI();
       setDirty(true);
     });
 
     $("btnNew").addEventListener("click", ()=>{
       if(state.saving) return;
+
+      const tipo = $("tipoFormulario").value;
+
+      // ✅ En desempeño, el botón se llama "Recuperar"
+      if(tipo === "desempeno"){
+        resetToBlankForDesempeno();
+        $("noPersonal").focus();
+        return;
+      }
+
+      // ✅ En otros tipos funciona como "Nuevo"
       if(state.dirty && !confirm("Hay cambios sin guardar. ¿Crear nuevo de todas formas?")) return;
       clearForm();
     });
@@ -1158,6 +1195,7 @@
   applyTipoUI();
   bind();
   setDirty(false);
+  updateBtnNewLabel(); // ✅ asegura que aparezca "Recuperar" si es desempeño
 </script>
 </body>
 </html>
