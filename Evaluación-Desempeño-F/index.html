@@ -408,9 +408,45 @@
 
 <script>
   /************************************************************
-   * 1) URL COMPLETA DEL APPS SCRIPT (/exec) ✅
+   * 1) URL COMPLETA DEL APPS SCRIPT (/exec) ✅ (ACTUALIZADA)
    ************************************************************/
-  const API_URL = "https://script.google.com/macros/s/AKfycbyVrFb6dym2D0-w-uO-2EsQklVsPvs7zx0YNhZwaHBoSHehBO7NWjuKC9W0J6j260KKnQ/exec";
+  const API_URL = "https://script.google.com/macros/s/AKfycbzZ5vz6xa-9p0OgajrARGEt1t1-CgRP3wpdG9fCFCPM1sa0i3lDRzC25iawJN-kW2vYiA/exec";
+
+  /************************************************************
+   * 1.1) JSONP helper (para recuperar sin CORS) ✅
+   ************************************************************/
+  function jsonpRequest(url, params){
+    return new Promise((resolve, reject) => {
+      const cbName = "cb_" + Math.random().toString(36).slice(2);
+      const script = document.createElement("script");
+
+      const qs = new URLSearchParams({ ...params, callback: cbName }).toString();
+      script.src = url + (url.includes("?") ? "&" : "?") + qs;
+
+      const timeout = setTimeout(() => {
+        cleanup();
+        reject(new Error("Timeout JSONP"));
+      }, 12000);
+
+      function cleanup(){
+        clearTimeout(timeout);
+        if(window[cbName]) delete window[cbName];
+        if(script && script.parentNode) script.parentNode.removeChild(script);
+      }
+
+      window[cbName] = (data) => {
+        cleanup();
+        resolve(data);
+      };
+
+      script.onerror = () => {
+        cleanup();
+        reject(new Error("Error de red (JSONP)."));
+      };
+
+      document.body.appendChild(script);
+    });
+  }
 
   /************************************************************
    * 2) Ítems + rúbrica 1–5 (TODOS con rúbrica)
@@ -614,7 +650,7 @@
     }
   ];
 
-  const state = { dirty:false, generated:false, answers:{}, saving:false, recovering:false };
+  const state = { dirty:false, generated:false, answers:{}, saving:false };
   const $ = (id) => document.getElementById(id);
 
   function setDirty(v){
@@ -632,29 +668,11 @@
 
   function setBusy(isBusy){
     state.saving = isBusy;
-    $("btnSave").disabled = isBusy || state.recovering;
-    $("btnGenerate").disabled = isBusy || state.recovering;
-    $("btnPrint").disabled = isBusy || state.recovering;
-    $("btnNew").disabled = isBusy || state.recovering;
-    $("tipoFormulario").disabled = isBusy || state.recovering;
-  }
-
-  function setRecovering(isRec){
-    state.recovering = isRec;
-    $("btnSave").disabled = state.saving || isRec;
-    $("btnGenerate").disabled = state.saving || isRec;
-    $("btnPrint").disabled = state.saving || isRec;
-    $("btnNew").disabled = state.saving || isRec;
-    $("tipoFormulario").disabled = state.saving || isRec;
-  }
-
-  function getSelectedText(itKey){
-    const found = findItemByKey(itKey);
-    const v = state.answers[itKey];
-    if(!found || typeof v !== "number") return "";
-    const desc = (found.rubric && found.rubric[v-1]) ? found.rubric[v-1] : "";
-    if(!desc) return "";
-    return `${v} — ${desc}`;
+    $("btnSave").disabled = isBusy;
+    $("btnGenerate").disabled = isBusy;
+    $("btnPrint").disabled = isBusy;
+    $("btnNew").disabled = isBusy;
+    $("tipoFormulario").disabled = isBusy;
   }
 
   function findItemByKey(key){
@@ -664,6 +682,15 @@
       }
     }
     return null;
+  }
+
+  function getSelectedText(itKey){
+    const found = findItemByKey(itKey);
+    const v = state.answers[itKey];
+    if(!found || typeof v !== "number") return "";
+    const desc = (found.rubric && found.rubric[v-1]) ? found.rubric[v-1] : "";
+    if(!desc) return "";
+    return `${v} — ${desc}`;
   }
 
   function renderItems(){
@@ -916,11 +943,120 @@
   }
 
   /************************************************************
-   * ✅ Recuperar (JSONP) + llenar formulario manteniendo selects editables
+   * ✅ Recuperar: trae datos por no_personal + periodo + version
+   * - Llena inputs y selects (dejando el select editable)
+   ************************************************************/
+  function parseScoreFromCell(val){
+    // Acepta "3 — texto..." o "3 - texto" o "3" => 3
+    const s = String(val || "").trim();
+    if(!s) return null;
+    const m = s.match(/^([1-5])\s*(?:[—-]|$)/);
+    if(m) return Number(m[1]);
+    const n = Number(s);
+    if(Number.isFinite(n) && n>=1 && n<=5) return n;
+    return null;
+  }
+
+  function setSelectValue(key, score){
+    const el = $("ans_" + key);
+    if(!el) return;
+    // Mantiene todas las opciones disponibles; solo selecciona la que toca
+    el.value = (score>=1 && score<=5) ? String(score) : "";
+    state.answers[key] = (score>=1 && score<=5) ? score : null;
+  }
+
+  async function recoverRecord(){
+    if(state.saving) return;
+
+    const no_personal = $("noPersonal").value.trim();
+    const periodo = $("periodo").value.trim();
+    const version = $("version").value.trim();
+
+    if(!no_personal || !periodo || !version){
+      alert("Para recuperar, completa:\n\n• No. de personal\n• Periodo\n• Versión");
+      return;
+    }
+
+    try{
+      setBusy(true);
+      $("apiHint").className = "warn";
+      $("apiHint").textContent = "Recuperando desde Google Sheets...";
+
+      const data = await jsonpRequest(API_URL, {
+        action: "recuperar",
+        no_personal,
+        periodo,
+        version
+      });
+
+      if(!data || !data.found){
+        $("apiHint").className = "warn";
+        $("apiHint").textContent = "No se encontró registro con esos datos.";
+        alert("No se encontró registro con ese No. de personal, Periodo y Versión.");
+        return;
+      }
+
+      const row = data.row || {};
+
+      // Header / datos colaborador
+      $("nombre").value = row.nombre || $("nombre").value;
+      $("posicion").value = row.posicion || $("posicion").value;
+      $("departamento").value = row.departamento || $("departamento").value;
+      $("fecha").value = row.fecha || $("fecha").value;
+
+      // Extra campos desempeño (y comentarios colaborador)
+      // Nota: en tu guardado actual se manda "comentarios" como texto agregado,
+      // pero si guardas por separado estos campos, también los tomará.
+      $("justificacion").value = row.justificacion || $("justificacion").value;
+      $("comentariosEvaluador").value = row.comentarios_evaluador || $("comentariosEvaluador").value;
+      $("fortalezas").value = row.fortalezas || $("fortalezas").value;
+      $("oportunidades").value = row.oportunidades_mejora || $("oportunidades").value;
+      $("proyeccion").value = row.proyeccion_potencial || $("proyeccion").value;
+      $("comentariosColaborador2").value = row.comentarios_colaborador || $("comentariosColaborador2").value;
+
+      // Si solo existiera la columna "comentarios" en sheet, úsala como fallback
+      if(!row.comentarios_colaborador && row.comentarios){
+        // Intenta extraer "Comentarios colaborador: ..."
+        const txt = String(row.comentarios);
+        const m = txt.match(/Comentarios\s+colaborador:\s*([\s\S]*)$/i);
+        $("comentariosColaborador2").value = m ? m[1].trim() : txt;
+      }
+
+      // Ítems: intenta llenar desde columnas por-key (A_metas, B_eficiencia...)
+      ITEMS.forEach(sec => sec.items.forEach(it => {
+        const raw = row[it.key];
+        const score = parseScoreFromCell(raw);
+        setSelectValue(it.key, score);
+      }));
+
+      $("apiHint").className = "ok";
+      $("apiHint").textContent = "Registro recuperado ✅";
+      setDirty(false);
+
+    }catch(err){
+      console.error(err);
+      $("apiHint").className = "err";
+      $("apiHint").textContent = "No se pudo recuperar: " + (err.message || err);
+      alert("No se pudo recuperar: " + (err.message || err));
+    }finally{
+      setBusy(false);
+    }
+  }
+
+  /************************************************************
+   * ✅ CAMBIOS: botón Nuevo/Recuperar + limpiar al elegir desempeño
    ************************************************************/
   function updateBtnNewLabel(){
     const tipo = $("tipoFormulario").value;
     $("btnNew").textContent = (tipo === "desempeno") ? "Recuperar" : "Nuevo";
+  }
+
+  function resetToBlankForDesempeno(){
+    clearForm(); // limpia campos y selects
+    $("tipoFormulario").value = "desempeno"; // asegura el tipo
+    applyTipoUI();
+    updateBtnNewLabel();
+    setDirty(false);
   }
 
   function applyTipoUI(){
@@ -935,7 +1071,7 @@
     $("desempenoCamposBox").style.display = (tipo === "desempeno") ? "block" : "none";
     $("clientesBox").style.display = (tipo === "clientes") ? "block" : "none";
 
-    updateBtnNewLabel();
+    updateBtnNewLabel(); // ✅
   }
 
   function clearForm(){
@@ -1101,183 +1237,6 @@
     }
   }
 
-  // ======== ✅ Helpers Recuperar (parseo y llenado) ========
-  function parseScoreFromCell(val){
-    if(val == null) return null;
-    const s = String(val).trim();
-    if(!s) return null;
-
-    // si viene "1 — ..." o "1- ..." o "1 ..."
-    const m = s.match(/^([1-5])\s*/);
-    if(m) return Number(m[1]);
-
-    // si viene "3" simple
-    if(/^[1-5]$/.test(s)) return Number(s);
-
-    return null;
-  }
-
-  function setSelectValueByKey(itemKey, score){
-    const el = $("ans_" + itemKey);
-    if(!el) return;
-    if(typeof score === "number" && score >= 1 && score <= 5){
-      el.value = String(score);          // ✅ selecciona una opción pero deja las demás disponibles
-      state.answers[itemKey] = score;    // ✅ mantiene estado interno correcto
-    }else{
-      el.value = "";
-      state.answers[itemKey] = null;
-    }
-  }
-
-  function fillFromRecovered(payload){
-    // payload esperado: { found:true, row:{...}, respuestas_json: "..."} (ver Apps Script)
-    const row = payload.row || {};
-
-    // Si hay JSON guardado, es lo más confiable
-    let parsed = null;
-    if(payload.respuestas_json){
-      try{ parsed = JSON.parse(payload.respuestas_json); }catch(_){}
-    }
-
-    const header = (parsed && parsed.header) ? parsed.header : row;
-
-    // Header
-    if(header.no_personal != null) $("noPersonal").value = String(header.no_personal);
-    if(header.nombre != null) $("nombre").value = String(header.nombre);
-    if(header.posicion != null) $("posicion").value = String(header.posicion);
-    if(header.departamento != null) $("departamento").value = String(header.departamento);
-    if(header.periodo != null) $("periodo").value = String(header.periodo);
-    if(header.version != null) $("version").value = String(header.version);
-    if(header.fecha != null) $("fecha").value = String(header.fecha);
-
-    // Answers (selects)
-    // 1) Si viene del JSON (answers en texto), parseamos el número
-    if(parsed && parsed.answers){
-      for(const sec of ITEMS){
-        for(const it of sec.items){
-          const raw = parsed.answers[it.key];
-          const score = parseScoreFromCell(raw);
-          setSelectValueByKey(it.key, score);
-        }
-      }
-    }else{
-      // 2) Si no hay JSON, intentamos leer columnas por key directa
-      for(const sec of ITEMS){
-        for(const it of sec.items){
-          const raw = row[it.key];
-          const score = parseScoreFromCell(raw);
-          setSelectValueByKey(it.key, score);
-        }
-      }
-    }
-
-    // Extra fields (comentarios, etc.)
-    if(parsed && parsed.extra){
-      const ex = parsed.extra;
-
-      // desempeño
-      if(ex.justificacion != null) $("justificacion").value = String(ex.justificacion);
-      if(ex.comentarios_evaluador != null) $("comentariosEvaluador").value = String(ex.comentarios_evaluador);
-      if(ex.fortalezas != null) $("fortalezas").value = String(ex.fortalezas);
-      if(ex.oportunidades_mejora != null) $("oportunidades").value = String(ex.oportunidades_mejora);
-      if(ex.proyeccion_potencial != null) $("proyeccion").value = String(ex.proyeccion_potencial);
-
-      // ✅ Comentarios del colaborador (clave)
-      if(ex.comentarios_colaborador != null) $("comentariosColaborador2").value = String(ex.comentarios_colaborador);
-
-      // autoevaluación
-      if(ex.comentarios_colaborador != null) $("comentariosColaborador").value = String(ex.comentarios_colaborador);
-    }else{
-      // fallback: si tu sheet tiene columna "comentarios"
-      // (en desempeño lo guardas concatenado, igual lo ponemos en comentariosColaborador2 como mínimo)
-      if(row.comentarios){
-        $("comentariosColaborador2").value = String(row.comentarios);
-      }
-    }
-
-    $("apiHint").className = "ok";
-    $("apiHint").textContent = "Registro recuperado ✅";
-
-    // no lo marcamos como sucio al recuperar; queda listo para editar
-    setDirty(false);
-  }
-
-  function jsonpRequest(url, cbName){
-    return new Promise((resolve, reject) => {
-      const s = document.createElement("script");
-      s.src = url;
-      s.async = true;
-
-      const timeout = setTimeout(() => {
-        cleanup();
-        reject(new Error("Tiempo de espera agotado (JSONP)."));
-      }, 12000);
-
-      function cleanup(){
-        clearTimeout(timeout);
-        if(s.parentNode) s.parentNode.removeChild(s);
-        try{ delete window[cbName]; }catch(_){ window[cbName] = undefined; }
-      }
-
-      window[cbName] = (data) => {
-        cleanup();
-        resolve(data);
-      };
-
-      s.onerror = () => {
-        cleanup();
-        reject(new Error("Error de red (JSONP)."));
-      };
-
-      document.body.appendChild(s);
-    });
-  }
-
-  async function recuperarRegistroDesempeno(){
-    const no_personal = $("noPersonal").value.trim();
-    const periodo = $("periodo").value.trim();
-    const version = $("version").value.trim();
-
-    if(!no_personal || !periodo || !version){
-      alert("Para recuperar necesitas:\n\n• No. de personal\n• Periodo (Año)\n• Versión");
-      return;
-    }
-
-    try{
-      setRecovering(true);
-      $("apiHint").className = "warn";
-      $("apiHint").textContent = "Recuperando desde Google Sheets...";
-
-      const cbName = "__cb_" + Date.now();
-      const url = API_URL
-        + "?action=recuperar"
-        + "&no_personal=" + encodeURIComponent(no_personal)
-        + "&periodo=" + encodeURIComponent(periodo)
-        + "&version=" + encodeURIComponent(version)
-        + "&callback=" + encodeURIComponent(cbName);
-
-      const data = await jsonpRequest(url, cbName);
-
-      if(!data || data.found !== true){
-        $("apiHint").className = "err";
-        $("apiHint").textContent = "No se encontró el registro.";
-        alert("No se encontró un registro con:\n\nNo. personal: " + no_personal + "\nPeriodo: " + periodo + "\nVersión: " + version);
-        return;
-      }
-
-      // ✅ importante: NO limpiamos selects (para que conserve opciones), solo seteamos value
-      fillFromRecovered(data);
-
-    }catch(err){
-      console.error(err);
-      $("apiHint").className = "err";
-      $("apiHint").textContent = "No se pudo recuperar: " + (err.message || err);
-      alert("No se pudo recuperar: " + (err.message || err));
-    }finally{
-      setRecovering(false);
-    }
-  }
-
   function bind(){
     [
       "noPersonal","nombre","posicion","departamento","periodo","version","fecha",
@@ -1289,22 +1248,29 @@
     });
 
     $("tipoFormulario").addEventListener("change", ()=>{
+      const tipo = $("tipoFormulario").value;
+
+      if(tipo === "desempeno"){
+        resetToBlankForDesempeno();
+        return;
+      }
+
       applyTipoUI();
       setDirty(true);
     });
 
-    $("btnNew").addEventListener("click", async ()=>{
-      if(state.saving || state.recovering) return;
+    $("btnNew").addEventListener("click", ()=>{
+      if(state.saving) return;
 
       const tipo = $("tipoFormulario").value;
 
+      // ✅ En desempeño, "Recuperar"
       if(tipo === "desempeno"){
-        // ✅ Recuperar real
-        await recuperarRegistroDesempeno();
+        recoverRecord();
         return;
       }
 
-      // otros tipos = Nuevo
+      // ✅ En otros tipos, "Nuevo"
       if(state.dirty && !confirm("Hay cambios sin guardar. ¿Crear nuevo de todas formas?")) return;
       clearForm();
     });
@@ -1312,7 +1278,7 @@
     $("btnSave").addEventListener("click", saveToSheet);
 
     $("btnGenerate").addEventListener("click", ()=>{
-      if(state.saving || state.recovering) return;
+      if(state.saving) return;
 
       const v = validateAll();
       if(!v.ok){
@@ -1327,7 +1293,7 @@
     });
 
     $("btnPrint").addEventListener("click", ()=>{
-      if(state.saving || state.recovering) return;
+      if(state.saving) return;
 
       const v = validateAll();
       if(!v.ok){
