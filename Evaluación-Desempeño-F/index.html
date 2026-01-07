@@ -132,6 +132,22 @@
     .ok{color:#9dffb6}
     .err{color:#ffb4b4}
 
+    /* ===== Bloque del iFrame ===== */
+    .iframe-wrap{
+      width:100%;
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:16px;
+      overflow:hidden;
+      background: rgba(0,0,0,.18);
+    }
+    .iframe-wrap iframe{
+      width:100%;
+      height:1200px; /* ajusta si lo quieres más alto */
+      border:0;
+      display:block;
+      background:#fff;
+    }
+
     /* ===== Reporte (para impresión) ===== */
     .print-area{margin-top:20px; display:none;}
     .report{
@@ -240,6 +256,23 @@
     </div>
 
     <div class="grid no-print">
+
+      <!-- ✅ FORMULARIO GOOGLE EMBEBIDO (IFRAME) -->
+      <div class="card">
+        <h2>Autoevaluaciones (Google Form)</h2>
+        <p>Este es el formulario embebido desde Google Forms.</p>
+
+        <div class="iframe-wrap">
+          <iframe
+            src="https://docs.google.com/forms/d/e/1FAIpQLSfzuIYx3mTOYjrdHR8DntRJTzDvpetvAZ2C0h_kKDQw8xibkw/viewform?embedded=true"
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade">
+            Cargando…
+          </iframe>
+        </div>
+
+        <div class="hint">Si lo quieres más alto, cambia <b>height</b> en CSS (.iframe-wrap iframe).</div>
+      </div>
 
       <!-- Tipo de formulario -->
       <div class="card">
@@ -794,14 +827,12 @@
 
   function formatDateES(yyyy_mm_dd){
     if(!yyyy_mm_dd) return "—";
-    // yyyy-mm-dd -> Date en local
     const [y,m,d] = yyyy_mm_dd.split("-").map(n=>parseInt(n,10));
     if(!y || !m || !d) return yyyy_mm_dd;
     const dt = new Date(y, m-1, d);
     return dt.toLocaleDateString("es-HN");
   }
 
-  // SOLO opción seleccionada por ítem (no tabla 1-5 completa)
   function renderSeleccionEnReporte(){
     const host = $("rRubricas");
     host.innerHTML = "";
@@ -842,7 +873,7 @@
       const tbody = document.createElement("tbody");
 
       sec.items.forEach(it => {
-        const v = state.answers[it.key]; // 1..5 o null
+        const v = state.answers[it.key];
         const tr = document.createElement("tr");
 
         const tdItem = document.createElement("td");
@@ -896,12 +927,9 @@
     $("rVersion").textContent = header.version || "—";
     $("rFecha").textContent = formatDateES(header.fecha);
 
-    // SOLO selección por ítem
     renderSeleccionEnReporte();
-
     $("rTotal").textContent = String(total);
 
-    // SOLO Comentarios del colaborador (según tipo)
     const comentarioColab =
       (header.tipo === "autoevaluacion")
         ? (extra.comentarios_colaborador || "")
@@ -917,7 +945,6 @@
       $("rComentarios").textContent = "—";
     }
 
-    // Justificación (solo desempeño) -> si NO lo quieres en PDF, dímelo y lo eliminamos completo.
     if(header.tipo === "desempeno"){
       $("rJustifBlock").style.display = "block";
       const txt = [
@@ -1061,7 +1088,6 @@
     $("btnSave").addEventListener("click", saveToSheet);
 
     $("btnGenerate").addEventListener("click", ()=>{
-      // Generar = mismo contenido que el PDF (solo selección + comentarios)
       buildReport();
       state.generated = true;
       setDirty(true);
@@ -1076,7 +1102,6 @@
     });
   }
 
-  // Init
   renderItems();
   applyTipoUI();
   bind();
