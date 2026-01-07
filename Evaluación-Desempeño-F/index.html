@@ -122,8 +122,6 @@
       color:var(--text);
       background: rgba(0,0,0,.25);
     }
-    /* para que el select aguante texto largo */
-    select{white-space:normal; line-height:1.2}
     textarea{min-height:90px; resize:vertical}
     .section-title{display:flex; align-items:center; justify-content:space-between; margin:14px 0 8px;}
     .section-title h3{margin:0; font-size:16px}
@@ -165,6 +163,7 @@
     .kv .k{font-size:11px; color:#666; margin-bottom:3px}
     .kv .v{font-size:13px; font-weight:650}
 
+    /* Tabla SOLO opción seleccionada */
     .rubric-wrap{margin-top:14px;}
     .rubric-title{
       margin:0 0 6px;
@@ -408,7 +407,7 @@
 
 <script>
   /************************************************************
-   * 1) URL COMPLETA DEL APPS SCRIPT (/exec) ✅ (LA TUYA)
+   * 1) URL COMPLETA DEL APPS SCRIPT (/exec) ✅ (LA TUYA NUEVA)
    ************************************************************/
   const API_URL = "https://script.google.com/macros/s/AKfycbyVrFb6dym2D0-w-uO-2EsQklVsPvs7zx0YNhZwaHBoSHehBO7NWjuKC9W0J6j260KKnQ/exec";
 
@@ -658,12 +657,10 @@
         const title = document.createElement("div");
         title.style.fontWeight = "800";
         title.textContent = it.label;
-
         const sub = document.createElement("div");
         sub.className = "muted";
         sub.style.fontSize = "12px";
         sub.textContent = "Selecciona 1–5 según la rúbrica.";
-
         left.appendChild(title);
         left.appendChild(sub);
 
@@ -679,12 +676,11 @@
         opt0.textContent = "Seleccionar...";
         sel.appendChild(opt0);
 
-        // ✅ Opciones con el texto COMPLETO de la rúbrica (como tus adjuntos)
         for(let v=1; v<=5; v++){
           const o = document.createElement("option");
           o.value = String(v);
-          const full = (Array.isArray(it.rubric) && it.rubric[v-1]) ? it.rubric[v-1] : "";
-          o.textContent = full ? `${v} — ${full}` : `${v} — (Rúbrica no definida)`;
+          const preview = (it.rubric && it.rubric[v-1]) ? it.rubric[v-1].split(".")[0] : "(Rúbrica no definida aquí)";
+          o.textContent = `${v} — ${preview}`;
           sel.appendChild(o);
         }
 
@@ -750,6 +746,15 @@
     if(!y || !m || !d) return yyyy_mm_dd;
     const dt = new Date(y, m-1, d);
     return dt.toLocaleDateString("es-HN");
+  }
+
+  /************************************************************
+   * ✅ CLAVE: convertir selección a "número + descripción"
+   ************************************************************/
+  function answerText(it, v){
+    if(typeof v !== "number") return "";
+    const desc = (it.rubric && it.rubric[v-1]) ? it.rubric[v-1] : "";
+    return desc ? `${v} — ${desc}` : String(v);
   }
 
   function renderSeleccionEnReporte(){
@@ -923,10 +928,25 @@
     setDirty(false);
   }
 
-  function flattenAnswers(){
+  /************************************************************
+   * ✅ Antes era número. Ahora armamos:
+   * - answers_num  (1..5)
+   * - answers_text ("1 — descripción...")
+   * Y enviamos answers_text como answers para que en Sheets se vea.
+   ************************************************************/
+  function flattenAnswersNum(){
     const out = {};
     ITEMS.forEach(sec=>sec.items.forEach(it=>{
       out[it.key] = (typeof state.answers[it.key] === "number") ? state.answers[it.key] : "";
+    }));
+    return out;
+  }
+
+  function flattenAnswersText(){
+    const out = {};
+    ITEMS.forEach(sec=>sec.items.forEach(it=>{
+      const v = state.answers[it.key];
+      out[it.key] = answerText(it, v);
     }));
     return out;
   }
@@ -961,12 +981,15 @@
     }
 
     const extra = getExtraFields();
-    const answers = flattenAnswers();
+    const answers_num = flattenAnswersNum();
+    const answers_text = flattenAnswersText();
     const total = computeTotal();
 
+    // ✅ IMPORTANTE: mandamos answers_text como "answers" para que la hoja muestre texto
     const respuestasJSON = JSON.stringify({
       header,
-      answers,
+      answers: answers_text,       // <-- lo que se verá en la celda (si tu script usa answers)
+      answers_num: answers_num,    // <-- por si luego quieres cálculos
       extra,
       puntaje_total: total,
       creado_en: new Date().toISOString()
@@ -1004,7 +1027,6 @@
           throw new Error(t || ("HTTP " + res.status));
         }
       }catch(e){
-        // fallback para CORS en GitHub Pages
         await fetch(API_URL, {
           method: "POST",
           mode: "no-cors",
