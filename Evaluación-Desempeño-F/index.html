@@ -410,7 +410,7 @@
   /************************************************************
    * 1) URL COMPLETA DEL APPS SCRIPT (/exec) ✅ (ACTUALIZADA)
    ************************************************************/
-  const API_URL = "https://script.google.com/macros/s/AKfycbzZ5vz6xa-9p0OgajrARGEt1t1-CgRP3wpdG9fCFCPM1sa0i3lDRzC25iawJN-kW2vYiA/exec";
+  const API_URL = "https://script.google.com/macros/s/AKfycbxF0Lvb-XEp9V-YvyxGO-ZDwplrkMmE7Tp09tExqkje7ARoHhRU-pdZlAIJNC2y3tYLag/exec";
 
   /************************************************************
    * 1.1) JSONP helper (para recuperar sin CORS) ✅
@@ -942,12 +942,7 @@
     $("printArea").style.display = "block";
   }
 
-  /************************************************************
-   * ✅ Recuperar: trae datos por no_personal + periodo + version
-   * - Llena inputs y selects (dejando el select editable)
-   ************************************************************/
   function parseScoreFromCell(val){
-    // Acepta "3 — texto..." o "3 - texto" o "3" => 3
     const s = String(val || "").trim();
     if(!s) return null;
     const m = s.match(/^([1-5])\s*(?:[—-]|$)/);
@@ -960,7 +955,6 @@
   function setSelectValue(key, score){
     const el = $("ans_" + key);
     if(!el) return;
-    // Mantiene todas las opciones disponibles; solo selecciona la que toca
     el.value = (score>=1 && score<=5) ? String(score) : "";
     state.answers[key] = (score>=1 && score<=5) ? score : null;
   }
@@ -998,15 +992,11 @@
 
       const row = data.row || {};
 
-      // Header / datos colaborador
       $("nombre").value = row.nombre || $("nombre").value;
       $("posicion").value = row.posicion || $("posicion").value;
       $("departamento").value = row.departamento || $("departamento").value;
       $("fecha").value = row.fecha || $("fecha").value;
 
-      // Extra campos desempeño (y comentarios colaborador)
-      // Nota: en tu guardado actual se manda "comentarios" como texto agregado,
-      // pero si guardas por separado estos campos, también los tomará.
       $("justificacion").value = row.justificacion || $("justificacion").value;
       $("comentariosEvaluador").value = row.comentarios_evaluador || $("comentariosEvaluador").value;
       $("fortalezas").value = row.fortalezas || $("fortalezas").value;
@@ -1014,15 +1004,12 @@
       $("proyeccion").value = row.proyeccion_potencial || $("proyeccion").value;
       $("comentariosColaborador2").value = row.comentarios_colaborador || $("comentariosColaborador2").value;
 
-      // Si solo existiera la columna "comentarios" en sheet, úsala como fallback
       if(!row.comentarios_colaborador && row.comentarios){
-        // Intenta extraer "Comentarios colaborador: ..."
         const txt = String(row.comentarios);
         const m = txt.match(/Comentarios\s+colaborador:\s*([\s\S]*)$/i);
         $("comentariosColaborador2").value = m ? m[1].trim() : txt;
       }
 
-      // Ítems: intenta llenar desde columnas por-key (A_metas, B_eficiencia...)
       ITEMS.forEach(sec => sec.items.forEach(it => {
         const raw = row[it.key];
         const score = parseScoreFromCell(raw);
@@ -1043,17 +1030,14 @@
     }
   }
 
-  /************************************************************
-   * ✅ CAMBIOS: botón Nuevo/Recuperar + limpiar al elegir desempeño
-   ************************************************************/
   function updateBtnNewLabel(){
     const tipo = $("tipoFormulario").value;
     $("btnNew").textContent = (tipo === "desempeno") ? "Recuperar" : "Nuevo";
   }
 
   function resetToBlankForDesempeno(){
-    clearForm(); // limpia campos y selects
-    $("tipoFormulario").value = "desempeno"; // asegura el tipo
+    clearForm();
+    $("tipoFormulario").value = "desempeno";
     applyTipoUI();
     updateBtnNewLabel();
     setDirty(false);
@@ -1071,7 +1055,7 @@
     $("desempenoCamposBox").style.display = (tipo === "desempeno") ? "block" : "none";
     $("clientesBox").style.display = (tipo === "clientes") ? "block" : "none";
 
-    updateBtnNewLabel(); // ✅
+    updateBtnNewLabel();
   }
 
   function clearForm(){
@@ -1104,7 +1088,6 @@
     $("apiHint").textContent = "Listo para enviar";
   }
 
-  // ✅ SOLO envía "número — descripción seleccionada" (sin nombre del factor)
   function flattenAnswersSelectedText(){
     const out = {};
     ITEMS.forEach(sec=>sec.items.forEach(it=>{
@@ -1264,13 +1247,11 @@
 
       const tipo = $("tipoFormulario").value;
 
-      // ✅ En desempeño, "Recuperar"
       if(tipo === "desempeno"){
         recoverRecord();
         return;
       }
 
-      // ✅ En otros tipos, "Nuevo"
       if(state.dirty && !confirm("Hay cambios sin guardar. ¿Crear nuevo de todas formas?")) return;
       clearForm();
     });
