@@ -156,7 +156,7 @@
     }
     .searchBadge .dot{background: rgba(74,163,255,.95);}
 
-    /* ===== Modal Recuperado ===== */
+    /* ===== Modal (general) ===== */
     .modal-backdrop{
       position:fixed; inset:0;
       background: rgba(0,0,0,.58);
@@ -185,6 +185,7 @@
       position:sticky; top:0;
       background: linear-gradient(180deg, rgba(0,0,0,.25), rgba(0,0,0,.05));
       backdrop-filter: blur(10px);
+      z-index:2;
     }
     .modal-title{
       margin:0;
@@ -213,6 +214,8 @@
     }
     .tag-ok .dot{background: var(--ok);}
     .modal-body{padding:14px 16px 18px;}
+
+    /* ===== tablas ===== */
     .mini-table{
       width:100%;
       border-collapse:collapse;
@@ -238,6 +241,7 @@
     .mini-table tr:last-child td{border-bottom:none;}
     .col-k{width:34%; font-weight:800;}
     .col-v{width:auto;}
+
     .items-table{
       margin-top:14px;
       width:100%;
@@ -269,6 +273,59 @@
       background: rgba(255,255,255,.06);
       font-weight:950;
       color: rgba(234,240,255,.92);
+    }
+
+    /* ===== Modal Consulta (tabla) ===== */
+    .lookup-grid{
+      display:grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap:10px;
+      margin-top:10px;
+    }
+    @media (max-width: 980px){
+      .lookup-grid{grid-template-columns: 1fr}
+    }
+    .lookup-actions{
+      display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:12px;
+    }
+    .small-muted{font-size:12px; color:var(--muted)}
+    .results-wrap{margin-top:14px;}
+    .results-table{
+      width:100%;
+      border-collapse:collapse;
+      table-layout:fixed;
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:16px;
+      overflow:hidden;
+    }
+    .results-table th,.results-table td{
+      border-bottom:1px solid rgba(255,255,255,.08);
+      padding:10px 10px;
+      font-size:12px;
+      vertical-align:top;
+      word-wrap:break-word;
+    }
+    .results-table th{
+      background: rgba(0,0,0,.20);
+      font-weight:900;
+      color: rgba(234,240,255,.85);
+      text-align:left;
+    }
+    .results-table tr:last-child td{border-bottom:none;}
+    .r-col-act{width:120px; text-align:center;}
+    .r-col-row{width:90px; text-align:center; font-weight:900;}
+    .r-col-np{width:130px;}
+    .r-col-per{width:110px;}
+    .r-col-ver{width:90px; text-align:center;}
+    .r-col-fecha{width:130px;}
+    .chip{
+      display:inline-flex; align-items:center; gap:6px;
+      padding:4px 8px; border-radius:999px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.18);
+      font-size:12px;
+      color: rgba(234,240,255,.88);
+      font-weight:750;
     }
 
     /* ===== Reporte (para impresión) ===== */
@@ -505,7 +562,78 @@
 
     </div>
 
-    <!-- ✅ Modal flotante de recuperación -->
+    <!-- ✅ Modal flotante: CONSULTA / BÚSQUEDA (NUEVO) -->
+    <div class="modal-backdrop" id="lookupBackdrop" aria-hidden="true">
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="lookupTitle">
+        <div class="modal-head">
+          <div>
+            <div class="modal-title" id="lookupTitle">Consulta de registros</div>
+            <div class="modal-sub" id="lookupSub">Busca por No. personal / Nombre / Periodo / Versión y selecciona una fila para autollenar.</div>
+          </div>
+          <div class="modal-actions">
+            <button class="btn" id="btnCloseLookup" type="button">Cerrar</button>
+          </div>
+        </div>
+
+        <div class="modal-body">
+          <div class="card" style="padding:14px; background:rgba(0,0,0,.14)">
+            <div class="lookup-grid">
+              <div>
+                <label>No. de personal</label>
+                <input id="qNoPersonal" placeholder="Ej. 1600" />
+              </div>
+              <div>
+                <label>Nombre (contiene)</label>
+                <input id="qNombre" placeholder="Ej. Carlos" />
+              </div>
+              <div>
+                <label>Periodo</label>
+                <input id="qPeriodo" placeholder="Ej. 2025" />
+              </div>
+              <div>
+                <label>Versión</label>
+                <input id="qVersion" placeholder="Ej. 1" />
+              </div>
+            </div>
+
+            <div class="lookup-actions">
+              <button class="btn primary" id="btnSearch" type="button">Buscar</button>
+              <button class="btn" id="btnClearSearch" type="button">Limpiar</button>
+              <span class="small-muted" id="lookupStatus">Listo para buscar.</span>
+            </div>
+            <div class="hint">Tip: si llenas No. personal + Periodo + Versión, la búsqueda queda “quirúrgica”. Si no, te devuelve una lista (máx. 50).</div>
+          </div>
+
+          <div class="results-wrap">
+            <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:space-between;">
+              <div class="chip" id="chipCount">0 resultados</div>
+              <div class="small-muted" id="chipNote"></div>
+            </div>
+
+            <table class="results-table" style="margin-top:10px;">
+              <thead>
+                <tr>
+                  <th class="r-col-act">Acción</th>
+                  <th class="r-col-row">Fila</th>
+                  <th class="r-col-np">No. personal</th>
+                  <th>Nombre</th>
+                  <th class="r-col-per">Periodo</th>
+                  <th class="r-col-ver">Versión</th>
+                  <th class="r-col-fecha">Fecha</th>
+                  <th>Departamento</th>
+                </tr>
+              </thead>
+              <tbody id="lookupResultsBody">
+                <tr><td colspan="8" class="small-muted">Sin resultados aún.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ✅ Modal flotante: DETALLE RECUPERADO (se mantiene) -->
     <div class="modal-backdrop" id="recoverBackdrop" aria-hidden="true">
       <div class="modal" role="dialog" aria-modal="true" aria-labelledby="recoverTitle">
         <div class="modal-head">
@@ -579,10 +707,10 @@
   /************************************************************
    * 1) URL COMPLETA DEL APPS SCRIPT (/exec)
    ************************************************************/
-  const API_URL = "https://script.google.com/macros/s/AKfycby1_dB_apZTO0v4DDQjWbZum6O0chkvyygOvGHrLsgfnZUdLwRnDh62EQKoAHGmt_O0Zg/exec";
+  const API_URL = "https://script.google.com/macros/s/AKfycbwxmI9XJQXq3BFdDnew9wfD-M4pBdhywUsqKADdiSnjnJcvIAjUkJT7wf6l91eMwApTvw/exec";
 
   /************************************************************
-   * 1.1) JSONP helper (para recuperar sin CORS)
+   * 1.1) JSONP helper (para recuperar/buscar sin CORS)
    ************************************************************/
   function jsonpRequest(url, params){
     return new Promise((resolve, reject) => {
@@ -1130,7 +1258,7 @@
   }
 
   // =======================
-  // Modal helpers
+  // Modal helpers (detalle)
   // =======================
   let lastRecovered = null;
 
@@ -1143,11 +1271,32 @@
     $("recoverBackdrop").setAttribute("aria-hidden", "true");
   }
 
+  // =======================
+  // Modal helpers (consulta)
+  // =======================
+  function openLookupModal(){
+    $("lookupBackdrop").style.display = "flex";
+    $("lookupBackdrop").setAttribute("aria-hidden", "false");
+  }
+  function closeLookupModal(){
+    $("lookupBackdrop").style.display = "none";
+    $("lookupBackdrop").setAttribute("aria-hidden", "true");
+  }
+
+  function escapeHtml(s){
+    return String(s ?? "")
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
+  }
+
   function buildRecoverModal(rowParams, meta){
     lastRecovered = { rowParams, meta };
 
     $("recoverTitle").textContent = "Registro encontrado";
-    $("recoverSub").textContent = `Keys: ${meta.no_personal} / ${meta.periodo} / ${meta.version} • Fila: ${meta.rowNumber || "—"}`;
+    $("recoverSub").textContent = `Keys: ${meta.no_personal || "—"} / ${meta.periodo || "—"} / ${meta.version || "—"} • Fila: ${meta.rowNumber || "—"}`;
 
     const generalRows = [
       ["No. de personal", rowParams.no_personal || meta.no_personal || ""],
@@ -1223,15 +1372,6 @@
     openRecoverModal();
   }
 
-  function escapeHtml(s){
-    return String(s ?? "")
-      .replaceAll("&","&amp;")
-      .replaceAll("<","&lt;")
-      .replaceAll(">","&gt;")
-      .replaceAll('"',"&quot;")
-      .replaceAll("'","&#039;");
-  }
-
   function applyRecoveredToForm(rowParams){
     $("noPersonal").value = rowParams.no_personal || $("noPersonal").value;
     $("periodo").value = rowParams.periodo || $("periodo").value;
@@ -1258,20 +1398,21 @@
       setSelectValue(it.key, score);
     }));
 
+    $("printArea").style.display = "none";
+    state.generated = false;
+
     setDirty(false);
   }
 
-  async function recoverRecord(){
+  // =======================
+  // Recuperación exacta (3 keys)
+  // =======================
+  async function recoverRecordExact(){
     if(state.saving) return;
 
     const no_personal = $("noPersonal").value.trim();
     const periodo = $("periodo").value.trim();
     const version = $("version").value.trim();
-
-    if(!no_personal || !periodo || !version){
-      alert("Para recuperar, completa:\n\n• No. de personal\n• Periodo\n• Versión");
-      return;
-    }
 
     try{
       setBusy(true);
@@ -1313,6 +1454,124 @@
     }finally{
       setBusy(false);
     }
+  }
+
+  // =======================
+  // ✅ Consulta (tabla flotante) + selección
+  // =======================
+  let lastLookupResults = [];
+
+  function setLookupStatus(txt, kind){
+    const el = $("lookupStatus");
+    el.textContent = txt;
+    el.style.color =
+      kind === "ok" ? "rgba(157,255,182,.95)" :
+      kind === "err" ? "rgba(255,180,180,.95)" :
+      "rgba(234,240,255,.72)";
+  }
+
+  function renderLookupResults(rows){
+    const tbody = $("lookupResultsBody");
+    lastLookupResults = Array.isArray(rows) ? rows : [];
+
+    $("chipCount").textContent = `${lastLookupResults.length} resultados`;
+    $("chipNote").textContent = lastLookupResults.length ? "Selecciona una fila para autollenar." : "";
+
+    if(!lastLookupResults.length){
+      tbody.innerHTML = `<tr><td colspan="8" class="small-muted">Sin resultados.</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = lastLookupResults.map((r, idx) => {
+      const meta = r.meta || {};
+      const rp = r.rowParams || {};
+      return `
+        <tr>
+          <td class="r-col-act">
+            <button class="btn primary" type="button" data-use="${idx}" style="padding:8px 12px;">Usar</button>
+          </td>
+          <td class="r-col-row">${escapeHtml(String(meta.rowNumber ?? "—"))}</td>
+          <td class="r-col-np">${escapeHtml(String(rp.no_personal ?? ""))}</td>
+          <td>${escapeHtml(String(rp.nombre ?? ""))}</td>
+          <td class="r-col-per">${escapeHtml(String(rp.periodo ?? ""))}</td>
+          <td class="r-col-ver">${escapeHtml(String(rp.version ?? ""))}</td>
+          <td class="r-col-fecha">${escapeHtml(String(rp.fecha ?? ""))}</td>
+          <td>${escapeHtml(String(rp.departamento ?? ""))}</td>
+        </tr>
+      `;
+    }).join("");
+
+    // bind actions
+    tbody.querySelectorAll("button[data-use]").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        const i = Number(btn.getAttribute("data-use"));
+        const pick = lastLookupResults[i];
+        if(!pick || !pick.rowParams) return;
+
+        applyRecoveredToForm(pick.rowParams);
+        $("apiHint").className = "ok";
+        $("apiHint").textContent = "Registro aplicado al formulario ✅";
+        closeLookupModal();
+      });
+    });
+  }
+
+  async function searchRecords(){
+    if(state.saving) return;
+
+    const no_personal = $("qNoPersonal").value.trim();
+    const nombre = $("qNombre").value.trim();
+    const periodo = $("qPeriodo").value.trim();
+    const version = $("qVersion").value.trim();
+
+    try{
+      setLookupStatus("Buscando...", "warn");
+      const data = await jsonpRequest(API_URL, {
+        action: "buscar",
+        no_personal,
+        nombre,
+        periodo,
+        version,
+        limit: "50"
+      });
+
+      if(!data || data.ok === false){
+        const msg = (data && data.error) ? data.error : "Respuesta inválida del servidor.";
+        setLookupStatus("Error: " + msg, "err");
+        renderLookupResults([]);
+        return;
+      }
+
+      const rows = data.rows || [];
+      renderLookupResults(rows);
+
+      if(!rows.length){
+        setLookupStatus("Sin resultados con esos filtros.", "warn");
+      }else{
+        setLookupStatus(`Listo. ${rows.length} resultado(s).`, "ok");
+      }
+
+    }catch(err){
+      console.error(err);
+      setLookupStatus("Error: " + (err.message || err), "err");
+      renderLookupResults([]);
+    }
+  }
+
+  function openLookupPrefilled(){
+    // prefill con lo que ya está en el form (para que sea “1 clic y buscar”)
+    $("qNoPersonal").value = $("noPersonal").value.trim();
+    $("qNombre").value = $("nombre").value.trim();
+    $("qPeriodo").value = $("periodo").value.trim();
+    $("qVersion").value = $("version").value.trim();
+
+    // reset visual
+    $("chipCount").textContent = "0 resultados";
+    $("chipNote").textContent = "";
+    $("lookupResultsBody").innerHTML = `<tr><td colspan="8" class="small-muted">Sin resultados aún.</td></tr>`;
+    setLookupStatus("Listo para buscar.", "warn");
+
+    openLookupModal();
   }
 
   // ✅ CAMBIO: aplica/oculta resaltado + badge + botón Recuperar según tipo
@@ -1479,6 +1738,7 @@
     });
 
     const formPayload = {
+      tipo: header.tipo,
       no_personal: header.no_personal,
       nombre: header.nombre,
       posicion: header.posicion,
@@ -1540,8 +1800,20 @@
       clearForm();
     });
 
+    // ✅ RECUPERAR: si están las 3 keys -> exacto; si no -> abre consulta
     $("btnRecover").addEventListener("click", ()=>{
-      recoverRecord();
+      const noP = $("noPersonal").value.trim();
+      const per = $("periodo").value.trim();
+      const ver = $("version").value.trim();
+
+      // si faltan keys, abre consulta (sin regañar 😄)
+      if(!noP || !per || !ver){
+        openLookupPrefilled();
+        return;
+      }
+
+      // con keys completas, hace recuperación exacta (y muestra detalle)
+      recoverRecordExact();
     });
 
     $("btnSave").addEventListener("click", saveToSheet);
@@ -1578,11 +1850,11 @@
       window.print();
     });
 
+    // modal detalle
     $("btnCloseRecovered").addEventListener("click", closeRecoverModal);
     $("recoverBackdrop").addEventListener("click", (e)=>{
       if(e.target === $("recoverBackdrop")) closeRecoverModal();
     });
-
     $("btnApplyRecovered").addEventListener("click", ()=>{
       if(!lastRecovered || !lastRecovered.rowParams) return;
       applyRecoveredToForm(lastRecovered.rowParams);
@@ -1590,10 +1862,35 @@
       $("apiHint").textContent = "Registro aplicado al formulario ✅";
       closeRecoverModal();
     });
+
+    // modal consulta
+    $("btnCloseLookup").addEventListener("click", closeLookupModal);
+    $("lookupBackdrop").addEventListener("click", (e)=>{
+      if(e.target === $("lookupBackdrop")) closeLookupModal();
+    });
+    $("btnSearch").addEventListener("click", searchRecords);
+    $("btnClearSearch").addEventListener("click", ()=>{
+      $("qNoPersonal").value = "";
+      $("qNombre").value = "";
+      $("qPeriodo").value = "";
+      $("qVersion").value = "";
+      renderLookupResults([]);
+      setLookupStatus("Listo para buscar.", "warn");
+    });
+
+    // Enter = buscar
+    ["qNoPersonal","qNombre","qPeriodo","qVersion"].forEach(id=>{
+      $(id).addEventListener("keydown", (e)=>{
+        if(e.key === "Enter"){
+          e.preventDefault();
+          searchRecords();
+        }
+      });
+    });
   }
 
   renderItems();
-  applyTipoUI();   // ✅ Esto también aplica el hide del badge, resaltado y botón Recuperar según el tipo actual
+  applyTipoUI();
   bind();
   setDirty(false);
 </script>
