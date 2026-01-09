@@ -446,9 +446,13 @@
           <div>
             <label>Tipo</label>
             <select id="tipoFormulario">
+              <!-- ✅ Orden solicitado:
+                   1) Autoevaluación
+                   2) Evaluación clientes
+                   3) Evaluación del desempeño -->
               <option value="autoevaluacion">Formulario de autoevaluación</option>
+              <option value="clientes">Formulario evaluación clientes</option>
               <option value="desempeno" selected>Formulario de evaluación del desempeño</option>
-              <option value="clientes">Evaluación de clientes</option>
             </select>
             <div class="hint">El guardado siempre va a Google Sheets (Web App de Apps Script).</div>
           </div>
@@ -555,7 +559,7 @@
       </div>
 
       <div class="card" id="clientesBox" style="display:none;">
-        <h2>Evaluación de clientes</h2>
+        <h2>Formulario evaluación clientes</h2>
         <p>Este modo puede reutilizar el mismo set de ítems o tener su propia lista.</p>
         <div class="hint">Si quieres, luego lo dejamos con su propio set de preguntas.</div>
       </div>
@@ -1191,7 +1195,7 @@
       (header.tipo === "autoevaluacion")
         ? "Autoevaluación del desempeño"
         : (header.tipo === "clientes")
-          ? "Evaluación de clientes"
+          ? "Formulario evaluación clientes"
           : "Evaluación del desempeño";
 
     $("rGenerated").textContent = new Date().toLocaleString();
@@ -1605,8 +1609,8 @@
     const tipo = $("tipoFormulario").value;
 
     $("appTitle").textContent =
-      tipo === "autoevaluacion" ? "Formulario de autoevaluación del desempeño" :
-      tipo === "clientes" ? "Formulario de evaluación de clientes" :
+      tipo === "autoevaluacion" ? "Formulario de autoevaluación" :
+      tipo === "clientes" ? "Formulario evaluación clientes" :
       "Formulario de evaluación del desempeño";
 
     $("autoComentariosBox").style.display = (tipo === "autoevaluacion") ? "block" : "none";
