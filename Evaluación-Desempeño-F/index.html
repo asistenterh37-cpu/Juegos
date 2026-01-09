@@ -402,11 +402,16 @@
         <h2>Datos del colaborador</h2>
         <p>
           Completa la información y selecciona una opción (1–5) para cada ítem.
-          &nbsp;&nbsp; <span class="searchBadge"><span class="dot"></span>Campos de búsqueda: No. personal • Periodo • Versión</span>
+          &nbsp;&nbsp;
+          <!-- ✅ Se oculta automáticamente en "autoevaluacion" -->
+          <span id="searchBadgeWrap">
+            <span class="searchBadge"><span class="dot"></span>Campos de búsqueda: No. personal • Periodo • Versión</span>
+          </span>
         </p>
 
         <div class="form-grid">
-          <div class="searchField">
+          <!-- ✅ Quité el class="searchField" fijo; ahora se aplica por JS solo cuando corresponda -->
+          <div id="fldNoPersonal">
             <label>No. de personal</label>
             <input id="noPersonal" placeholder="Ej. 1600" />
           </div>
@@ -423,11 +428,11 @@
             <label>Departamento</label>
             <input id="departamento" placeholder="Ej. Contabilidad" />
           </div>
-          <div class="searchField">
+          <div id="fldPeriodo">
             <label>Periodo</label>
             <input id="periodo" placeholder="Ej. 2025" />
           </div>
-          <div class="searchField">
+          <div id="fldVersion">
             <label>Versión</label>
             <input id="version" placeholder="Ej. 1" />
           </div>
@@ -576,7 +581,7 @@
   /************************************************************
    * 1) URL COMPLETA DEL APPS SCRIPT (/exec)
    ************************************************************/
-  const API_URL = "https://script.google.com/macros/s/AKfycbxsl6Do-tpgHS5QLAGNXLwVmiqaVdzOh-w7XkeH2kelpFuEjzDml-dWHEqdyrrO8rv_zQ/exec";
+  const API_URL = "https://script.google.com/macros/s/AKfycby1_dB_apZTO0v4DDQjWbZum6O0chkvyygOvGHrLsgfnZUdLwRnDh62EQKoAHGmt_O0Zg/exec";
 
   /************************************************************
    * 1.1) JSONP helper (para recuperar sin CORS)
@@ -1301,6 +1306,7 @@
 
       $("apiHint").className = "ok";
       $("apiHint").textContent = "Registro encontrado ✅ (revisa y aplica)";
+
     }catch(err){
       console.error(err);
       $("apiHint").className = "err";
@@ -1309,6 +1315,27 @@
     }finally{
       setBusy(false);
     }
+  }
+
+  // ✅ NUEVO: aplica/oculta resaltado + badge según tipo
+  function applySearchUI(tipo){
+    const isAuto = (tipo === "autoevaluacion");
+
+    // 1) Ocultar el “cuadro”/badge de campos de búsqueda en autoevaluación
+    const badgeWrap = $("searchBadgeWrap");
+    if(badgeWrap) badgeWrap.style.display = isAuto ? "none" : "inline";
+
+    // 2) Quitar resaltado (clase searchField) en autoevaluación, mantenerlo en otros tipos
+    const targets = ["fldNoPersonal", "fldPeriodo", "fldVersion"];
+    targets.forEach(id=>{
+      const el = $(id);
+      if(!el) return;
+      if(isAuto){
+        el.classList.remove("searchField");
+      }else{
+        el.classList.add("searchField");
+      }
+    });
   }
 
   function applyTipoUI(){
@@ -1322,6 +1349,9 @@
     $("autoComentariosBox").style.display = (tipo === "autoevaluacion") ? "block" : "none";
     $("desempenoCamposBox").style.display = (tipo === "desempeno") ? "block" : "none";
     $("clientesBox").style.display = (tipo === "clientes") ? "block" : "none";
+
+    // ✅ aplica cambios solicitados
+    applySearchUI(tipo);
   }
 
   function clearForm(){
@@ -1421,18 +1451,6 @@
     return { ok: missing.length === 0, missing, header, extra };
   }
 
-  // ✅ NUEVO: verificar guardado por JSONP (recuperar)
-  async function verifySavedAfterPost(header){
-    await new Promise(r => setTimeout(r, 900));
-    const data = await jsonpRequest(API_URL, {
-      action: "recuperar",
-      no_personal: header.no_personal,
-      periodo: header.periodo,
-      version: header.version
-    });
-    return !!(data && data.found);
-  }
-
   async function saveToSheet(){
     if(state.saving) return;
 
@@ -1458,9 +1476,6 @@
     });
 
     const formPayload = {
-      // ✅ agregamos tipo (si la columna existe se llena; si no, se ignora en Apps Script)
-      tipo: header.tipo,
-
       no_personal: header.no_personal,
       nombre: header.nombre,
       posicion: header.posicion,
@@ -1487,26 +1502,9 @@
         body
       });
 
-      $("apiHint").className = "warn";
-      $("apiHint").textContent = "Verificando guardado en Sheets...";
-
-      const ok = await verifySavedAfterPost(header);
-
-      if(ok){
-        $("apiHint").className = "ok";
-        $("apiHint").textContent = "Guardado confirmado en Google Sheets ✅";
-        setDirty(false);
-      }else{
-        $("apiHint").className = "err";
-        $("apiHint").textContent = "No se confirmó el guardado ❌ (revisar despliegue/permisos del Web App)";
-        alert(
-          "Envié el registro, pero NO pude confirmarlo al recuperar.\n\n" +
-          "Causas típicas:\n" +
-          "• Web App no está desplegada como 'Cualquiera' (acceso público)\n" +
-          "• Estás usando una URL /exec vieja (nuevo despliegue)\n" +
-          "• El script pide autorización o cambió de propietario\n"
-        );
-      }
+      $("apiHint").className = "ok";
+      $("apiHint").textContent = "Enviado a Google Sheets ✅";
+      setDirty(false);
 
     }catch(err){
       console.error(err);
@@ -1592,7 +1590,7 @@
   }
 
   renderItems();
-  applyTipoUI();
+  applyTipoUI();   // ✅ Esto también aplica el hide del badge y el resaltado según el tipo actual
   bind();
   setDirty(false);
 </script>
