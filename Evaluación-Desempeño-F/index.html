@@ -214,6 +214,71 @@
       .print-area{display:block !important}
       .report{border:none; border-radius:0; padding:0}
     }
+
+    /* ========= MODAL TABLA FLOTANTE (Recuperado) ========= */
+    .modal-backdrop{
+      position:fixed; inset:0;
+      background: rgba(0,0,0,.55);
+      backdrop-filter: blur(6px);
+      display:none;
+      z-index:999;
+      padding:16px;
+    }
+    .modal{
+      max-width:980px;
+      margin:60px auto;
+      background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.06));
+      border:1px solid rgba(255,255,255,.14);
+      box-shadow: 0 18px 60px rgba(0,0,0,.55);
+      border-radius: 18px;
+      overflow:hidden;
+    }
+    .modal-head{
+      display:flex; align-items:center; justify-content:space-between;
+      padding:14px 16px;
+      border-bottom: 1px solid rgba(255,255,255,.10);
+      gap:12px;
+    }
+    .modal-head h3{margin:0; font-size:16px}
+    .modal-body{padding:12px 16px 16px}
+    .mini{
+      font-size:12px; color:var(--muted);
+    }
+    .tbl{
+      width:100%;
+      border-collapse:collapse;
+      margin-top:10px;
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:14px;
+      overflow:hidden;
+    }
+    .tbl th, .tbl td{
+      padding:10px 10px;
+      border-bottom:1px solid rgba(255,255,255,.08);
+      font-size:12px;
+      vertical-align:top;
+      word-break:break-word;
+    }
+    .tbl th{
+      text-align:left;
+      background: rgba(0,0,0,.25);
+      font-weight:800;
+      color: var(--text);
+    }
+    .pill2{
+      display:inline-flex; align-items:center; gap:6px;
+      padding:6px 10px; border-radius:999px;
+      background: rgba(47,123,255,.18);
+      border:1px solid rgba(47,123,255,.22);
+      font-size:12px;
+      color: var(--text);
+    }
+    .row-num{
+      font-size:12px; color: var(--muted);
+    }
+    .modal-actions{
+      display:flex; gap:10px; justify-content:flex-end; margin-top:12px; flex-wrap:wrap;
+    }
   </style>
 </head>
 
@@ -406,13 +471,37 @@
 
   </div>
 
+  <!-- ===== Modal flotante de Recuperación ===== -->
+  <div class="modal-backdrop" id="recoveryModalBackdrop">
+    <div class="modal">
+      <div class="modal-head">
+        <div>
+          <h3>Registro encontrado</h3>
+          <div class="mini" id="recoveryMeta">—</div>
+        </div>
+        <button class="btn ghost" id="btnCloseRecovery" type="button">Cerrar</button>
+      </div>
+      <div class="modal-body">
+        <div class="mini">
+          Revisa la fila y presiona <span class="pill2">Aplicar al formulario</span> para autollenar.
+        </div>
+        <div id="recoveryTableHost"></div>
+        <div class="modal-actions">
+          <button class="btn" id="btnApplyRecovery" type="button">Aplicar al formulario</button>
+          <button class="btn ghost" id="btnCloseRecovery2" type="button">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
 <script>
   /************************************************************
-   * 1) URL COMPLETA DEL APPS SCRIPT (/exec) ✅ (ACTUALIZADA)
+   * 1) URL COMPLETA DEL APPS SCRIPT (/exec)
    ************************************************************/
-  const API_URL = "https://script.google.com/macros/s/AKfycbw20z3RvABhBczy1sEOogqFfssvZo3mJL9-AwRk2zQ7sr290ouyCe_1yiK9g0vvVJcBBA/exec";
+  const API_URL = "https://script.google.com/macros/s/AKfycbwecNre4MDdBiXYpou9zHoviacs1eZ68dewSjTgxLjTzLcmmMgBItaG7_oF43f_M7NkJg/exec";
+
   /************************************************************
-   * 1.1) JSONP helper (para recuperar sin CORS) ✅
+   * 1.1) JSONP helper (para recuperar sin CORS)
    ************************************************************/
   function jsonpRequest(url, params){
     return new Promise((resolve, reject) => {
@@ -958,6 +1047,97 @@
     state.answers[key] = (score>=1 && score<=5) ? score : null;
   }
 
+  /* ========= Modal recuperación ========= */
+  let __lastRecovered = null;
+
+  function openRecoveryModal(){
+    $("recoveryModalBackdrop").style.display = "block";
+  }
+  function closeRecoveryModal(){
+    $("recoveryModalBackdrop").style.display = "none";
+  }
+
+  function buildRecoveryTable(rowParams){
+    const host = $("recoveryTableHost");
+    host.innerHTML = "";
+
+    // Campos “útiles” arriba
+    const important = [
+      "no_personal","periodo","version","nombre","posicion","departamento","fecha",
+      "justificacion","comentarios_evaluador","fortalezas","oportunidades_mejora","proyeccion_potencial","comentarios_colaborador"
+    ];
+
+    // Armamos lista ordenada: importantes primero, luego el resto
+    const keys = Object.keys(rowParams || {});
+    const seen = new Set();
+    const ordered = [];
+
+    important.forEach(k=>{
+      if(keys.includes(k)){ ordered.push(k); seen.add(k); }
+    });
+    keys.forEach(k=>{
+      if(!seen.has(k)) ordered.push(k);
+    });
+
+    const table = document.createElement("table");
+    table.className = "tbl";
+    table.innerHTML = `
+      <thead>
+        <tr><th style="width:220px;">Campo</th><th>Valor (Sheets)</th></tr>
+      </thead>
+      <tbody></tbody>
+    `;
+    const tbody = table.querySelector("tbody");
+
+    ordered.forEach(k=>{
+      const v = rowParams[k];
+      const tr = document.createElement("tr");
+      const td1 = document.createElement("td");
+      td1.textContent = k;
+      td1.style.fontWeight = important.includes(k) ? "800" : "650";
+      const td2 = document.createElement("td");
+      td2.textContent = (v == null || v === "") ? "—" : String(v);
+      td2.style.color = (v == null || v === "") ? "rgba(234,240,255,.65)" : "var(--text)";
+      tr.appendChild(td1);
+      tr.appendChild(td2);
+      tbody.appendChild(tr);
+    });
+
+    host.appendChild(table);
+  }
+
+  function showRecoveredRow(rowParams, metaText){
+    __lastRecovered = rowParams || {};
+    $("recoveryMeta").textContent = metaText || "—";
+    buildRecoveryTable(__lastRecovered);
+    openRecoveryModal();
+  }
+
+  function applyRecoveredToForm(row){
+    // Base
+    $("nombre").value = row.nombre || $("nombre").value;
+    $("posicion").value = row.posicion || $("posicion").value;
+    $("departamento").value = row.departamento || $("departamento").value;
+    $("fecha").value = row.fecha || $("fecha").value;
+
+    // Desempeño extra
+    $("justificacion").value = row.justificacion || $("justificacion").value;
+    $("comentariosEvaluador").value = row.comentarios_evaluador || $("comentariosEvaluador").value;
+    $("fortalezas").value = row.fortalezas || $("fortalezas").value;
+    $("oportunidades").value = row.oportunidades_mejora || $("oportunidades").value;
+    $("proyeccion").value = row.proyeccion_potencial || $("proyeccion").value;
+    $("comentariosColaborador2").value = row.comentarios_colaborador || $("comentariosColaborador2").value;
+
+    // Ítems 1–5
+    ITEMS.forEach(sec => sec.items.forEach(it => {
+      const raw = row[it.key];
+      const score = parseScoreFromCell(raw);
+      setSelectValue(it.key, score);
+    }));
+
+    setDirty(false);
+  }
+
   async function recoverRecord(){
     if(state.saving) return;
 
@@ -989,34 +1169,15 @@
         return;
       }
 
-      const row = data.row || {};
+      // ✅ FIX: Apps Script devuelve rowParams (PLANO)
+      const row = data.rowParams || {};
 
-      $("nombre").value = row.nombre || $("nombre").value;
-      $("posicion").value = row.posicion || $("posicion").value;
-      $("departamento").value = row.departamento || $("departamento").value;
-      $("fecha").value = row.fecha || $("fecha").value;
-
-      $("justificacion").value = row.justificacion || $("justificacion").value;
-      $("comentariosEvaluador").value = row.comentarios_evaluador || $("comentariosEvaluador").value;
-      $("fortalezas").value = row.fortalezas || $("fortalezas").value;
-      $("oportunidades").value = row.oportunidades_mejora || $("oportunidades").value;
-      $("proyeccion").value = row.proyeccion_potencial || $("proyeccion").value;
-      $("comentariosColaborador2").value = row.comentarios_colaborador || $("comentariosColaborador2").value;
-
-      if(!row.comentarios_colaborador && row.comentarios){
-        const txt = String(row.comentarios);
-        const m = txt.match(/Comentarios\s+colaborador:\s*([\s\S]*)$/i);
-        $("comentariosColaborador2").value = m ? m[1].trim() : txt;
-      }
-
-      ITEMS.forEach(sec => sec.items.forEach(it => {
-        const raw = row[it.key];
-        const score = parseScoreFromCell(raw);
-        setSelectValue(it.key, score);
-      }));
+      // Mostrar tabla flotante primero
+      const meta = `Keys: ${no_personal} / ${periodo} / ${version} • ${data.rowNumber ? ("Fila: " + data.rowNumber) : ""}`;
+      showRecoveredRow(row, meta);
 
       $("apiHint").className = "ok";
-      $("apiHint").textContent = "Registro recuperado ✅";
+      $("apiHint").textContent = "Registro encontrado ✅ (revisa y aplica)";
       setDirty(false);
 
     }catch(err){
@@ -1287,6 +1448,20 @@
         state.generated = true;
       }
       window.print();
+    });
+
+    /* Modal handlers */
+    $("btnCloseRecovery").addEventListener("click", closeRecoveryModal);
+    $("btnCloseRecovery2").addEventListener("click", closeRecoveryModal);
+    $("recoveryModalBackdrop").addEventListener("click", (ev)=>{
+      if(ev.target === $("recoveryModalBackdrop")) closeRecoveryModal();
+    });
+    $("btnApplyRecovery").addEventListener("click", ()=>{
+      if(!__lastRecovered) return;
+      applyRecoveredToForm(__lastRecovered);
+      $("apiHint").className = "ok";
+      $("apiHint").textContent = "Registro aplicado al formulario ✅";
+      closeRecoveryModal();
     });
   }
 
