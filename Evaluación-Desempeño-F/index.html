@@ -428,10 +428,11 @@
           <span id="stateText">Sin cambios</span>
         </div>
 
+        <!-- ✅ CAMBIO: orden del menú arriba derecha -> Nuevo, Guardar, Recuperar -->
         <button class="btn ghost" id="btnNew" type="button">Nuevo</button>
+        <button class="btn primary" id="btnSave" type="button">Guardar</button>
         <button class="btn" id="btnRecover" type="button">Recuperar</button>
 
-        <button class="btn primary" id="btnSave" type="button">Guardar</button>
         <button class="btn primary" id="btnGenerate" type="button">Generar</button>
         <button class="btn" id="btnPrint" type="button">Imprimir / Enviar a PDF</button>
       </div>
@@ -559,7 +560,7 @@
         </div>
       </div>
 
-      <!-- ✅ CAMBIO: clientesBox ahora tiene SOLO Retroalimentación -->
+      <!-- ✅ CAMBIO: clientesBox ahora tiene Retroalimentación + Nombre del evaluador -->
       <div class="card" id="clientesBox" style="display:none;">
         <h2>Formulario evaluación clientes</h2>
         <p>Después de los datos del colaborador, solo se solicita la retroalimentación.</p>
@@ -567,6 +568,12 @@
         <div style="margin-top:14px;">
           <label>Retroalimentación</label>
           <textarea id="retroalimentacion" placeholder="Escribe aquí la retroalimentación..."></textarea>
+        </div>
+
+        <!-- ✅ NUEVO CAMPO: debajo de Retroalimentación -->
+        <div style="margin-top:12px;">
+          <label>Nombre del evaluador</label>
+          <input id="nombreEvaluador" placeholder="Ej. María López" />
         </div>
       </div>
 
@@ -1086,7 +1093,7 @@
     };
   }
 
-  // ✅ CAMBIO: soporte clientes -> retroalimentación
+  // ✅ CAMBIO: soporte clientes -> retroalimentación + nombre evaluador
   function getExtraFields(){
     const tipo = $("tipoFormulario").value;
 
@@ -1104,7 +1111,10 @@
       };
     }
     if(tipo === "clientes"){
-      return { retroalimentacion: ($("retroalimentacion")?.value || "").trim() };
+      return {
+        retroalimentacion: ($("retroalimentacion")?.value || "").trim(),
+        nombre_evaluador: ($("nombreEvaluador")?.value || "").trim()
+      };
     }
     return {};
   }
@@ -1320,7 +1330,9 @@
       ["Posición", rowParams.posicion || ""],
       ["Departamento", rowParams.departamento || ""],
       ["Fecha", rowParams.fecha || ""],
-      ["Comentarios", rowParams.comentarios || ""]
+      ["Comentarios", rowParams.comentarios || ""],
+      // ✅ NUEVO: si tu sheet lo trae
+      ["Nombre del evaluador", rowParams.nombre_evaluador || rowParams.evaluador || ""]
     ];
 
     const gen = document.createElement("table");
@@ -1408,6 +1420,10 @@
       // ✅ CAMBIO: si el registro trae comentarios, lo ponemos como retroalimentación (si aplica)
       const r = $("retroalimentacion");
       if(r) r.value = rowParams.comentarios || r.value;
+
+      // ✅ NUEVO: nombre evaluador si viene
+      const ne = $("nombreEvaluador");
+      if(ne) ne.value = rowParams.nombre_evaluador || rowParams.evaluador || ne.value;
     }
 
     ITEMS.forEach(sec => sec.items.forEach(it => {
@@ -1664,9 +1680,11 @@
     $("proyeccion").value = "";
     $("comentariosColaborador2").value = "";
 
-    // ✅ CAMBIO: limpiar retroalimentación
+    // ✅ CAMBIO: limpiar retroalimentación + nombre evaluador
     const r = $("retroalimentacion");
     if(r) r.value = "";
+    const ne = $("nombreEvaluador");
+    if(ne) ne.value = "";
 
     state.answers = {};
     ITEMS.forEach(sec=>sec.items.forEach(it=>{
@@ -1695,7 +1713,7 @@
       .join("&");
   }
 
-  // ✅ CAMBIO: clientes usa retroalimentación en "comentarios"
+  // ✅ CAMBIO: clientes usa retroalimentación (y nombre evaluador) en "comentarios"
   function buildComentariosParaSheet(tipo, extra){
     if(tipo === "autoevaluacion"){
       return extra.comentarios_colaborador || "";
@@ -1710,12 +1728,15 @@
       ].filter(Boolean).join("\n\n");
     }
     if(tipo === "clientes"){
-      return extra.retroalimentacion || "";
+      return [
+        extra.nombre_evaluador ? `Nombre del evaluador: ${extra.nombre_evaluador}` : "",
+        extra.retroalimentacion ? extra.retroalimentacion : ""
+      ].filter(Boolean).join("\n\n");
     }
     return "";
   }
 
-  // ✅ CAMBIO: validación especial para clientes (solo header + retroalimentación)
+  // ✅ CAMBIO: validación especial para clientes (solo header + retroalimentación + nombre evaluador)
   function validateAll(){
     const header = getHeaderData();
     const extra = getExtraFields();
@@ -1733,6 +1754,7 @@
 
     if(tipo === "clientes"){
       if(!extra.retroalimentacion) missing.push("Retroalimentación");
+      if(!extra.nombre_evaluador) missing.push("Nombre del evaluador");
       return { ok: missing.length === 0, missing, header, extra };
     }
 
@@ -1797,8 +1819,9 @@
       fecha: header.fecha,
       ...answersText,
 
-      // ✅ CAMBIO: campo explícito para clientes
+      // ✅ CAMBIO: campos explícitos para clientes
       retroalimentacion: (header.tipo === "clientes") ? (extra.retroalimentacion || "") : "",
+      nombre_evaluador: (header.tipo === "clientes") ? (extra.nombre_evaluador || "") : "",
 
       respuestas_json: respuestasJSON,
       comentarios: buildComentariosParaSheet(header.tipo, extra)
@@ -1837,8 +1860,8 @@
       "noPersonal","nombre","posicion","departamento","periodo","version","fecha",
       "comentariosColaborador","justificacion","comentariosEvaluador","fortalezas",
       "oportunidades","proyeccion","comentariosColaborador2",
-      // ✅ CAMBIO: retroalimentación
-      "retroalimentacion"
+      // ✅ CAMBIO: retroalimentación + nombre evaluador
+      "retroalimentacion","nombreEvaluador"
     ].forEach(id=>{
       const el = $(id);
       if(!el) return;
