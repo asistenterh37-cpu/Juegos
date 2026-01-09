@@ -403,14 +403,12 @@
         <p>
           Completa la información y selecciona una opción (1–5) para cada ítem.
           &nbsp;&nbsp;
-          <!-- ✅ Se oculta automáticamente en "autoevaluacion" -->
           <span id="searchBadgeWrap">
             <span class="searchBadge"><span class="dot"></span>Campos de búsqueda: No. personal • Periodo • Versión</span>
           </span>
         </p>
 
         <div class="form-grid">
-          <!-- ✅ Quité el class="searchField" fijo; ahora se aplica por JS solo cuando corresponda -->
           <div id="fldNoPersonal">
             <label>No. de personal</label>
             <input id="noPersonal" placeholder="Ej. 1600" />
@@ -1317,15 +1315,15 @@
     }
   }
 
-  // ✅ NUEVO: aplica/oculta resaltado + badge según tipo
+  // ✅ CAMBIO: aplica/oculta resaltado + badge + botón Recuperar según tipo
   function applySearchUI(tipo){
     const isAuto = (tipo === "autoevaluacion");
 
-    // 1) Ocultar el “cuadro”/badge de campos de búsqueda en autoevaluación
+    // 1) Ocultar el badge en autoevaluación
     const badgeWrap = $("searchBadgeWrap");
     if(badgeWrap) badgeWrap.style.display = isAuto ? "none" : "inline";
 
-    // 2) Quitar resaltado (clase searchField) en autoevaluación, mantenerlo en otros tipos
+    // 2) Resaltado de campos (solo en no-auto)
     const targets = ["fldNoPersonal", "fldPeriodo", "fldVersion"];
     targets.forEach(id=>{
       const el = $(id);
@@ -1336,6 +1334,12 @@
         el.classList.add("searchField");
       }
     });
+
+    // 3) ✅ OCULTAR "RECUPERAR" SOLO EN AUTOEVALUACIÓN
+    const btnRecover = $("btnRecover");
+    if(btnRecover){
+      btnRecover.style.display = isAuto ? "none" : "";
+    }
   }
 
   function applyTipoUI(){
@@ -1350,7 +1354,6 @@
     $("desempenoCamposBox").style.display = (tipo === "desempeno") ? "block" : "none";
     $("clientesBox").style.display = (tipo === "clientes") ? "block" : "none";
 
-    // ✅ aplica cambios solicitados
     applySearchUI(tipo);
   }
 
@@ -1590,7 +1593,7 @@
   }
 
   renderItems();
-  applyTipoUI();   // ✅ Esto también aplica el hide del badge y el resaltado según el tipo actual
+  applyTipoUI();   // ✅ Esto también aplica el hide del badge, resaltado y botón Recuperar según el tipo actual
   bind();
   setDirty(false);
 </script>
