@@ -87,6 +87,7 @@
       box-shadow: 0 12px 26px rgba(47,123,255,.25);
     }
     .btn.ghost{background:transparent}
+
     .grid{
       display:grid;
       grid-template-columns: 1fr;
@@ -102,6 +103,7 @@
     }
     .card h2{margin:0 0 6px; font-size:18px;}
     .card p{margin:0; color:var(--muted); font-size:13px}
+
     .form-grid{
       display:grid;
       grid-template-columns: repeat(3, 1fr);
@@ -132,6 +134,31 @@
     .warn{color:#ffd28b}
     .ok{color:#9dffb6}
     .err{color:#ffb4b4}
+
+    /* ====== RESALTE: campos de búsqueda ====== */
+    .search-wrap{
+      border:1px dashed rgba(74,163,255,.45);
+      background: rgba(74,163,255,.06);
+      border-radius: 16px;
+      padding: 10px 10px 12px;
+    }
+    .search-badge{
+      display:inline-flex; gap:8px; align-items:center;
+      font-size:12px; color:rgba(234,240,255,.82);
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid rgba(74,163,255,.40);
+      background: rgba(0,0,0,.25);
+      margin-bottom:10px;
+    }
+    .key-input{
+      border:1px solid rgba(74,163,255,.55) !important;
+      box-shadow: 0 0 0 3px rgba(74,163,255,.10);
+    }
+    .key-label{
+      color: rgba(234,240,255,.92) !important;
+      font-weight: 800;
+    }
 
     /* ===== Reporte (para impresión) ===== */
     .print-area{margin-top:20px; display:none;}
@@ -164,7 +191,7 @@
     .kv .k{font-size:11px; color:#666; margin-bottom:3px}
     .kv .v{font-size:13px; font-weight:650}
 
-    /* Tabla SOLO opción seleccionada */
+    /* Tabla SOLO opción seleccionada (reporte) */
     .rubric-wrap{margin-top:14px;}
     .rubric-title{
       margin:0 0 6px;
@@ -207,79 +234,124 @@
       white-space:pre-wrap;
     }
 
+    /* ===== Modal (tabla flotante: Recuperar) ===== */
+    .modal{
+      position:fixed; inset:0;
+      background: rgba(0,0,0,.68);
+      backdrop-filter: blur(4px);
+      display:none;
+      z-index:9999;
+      padding: 26px 16px;
+    }
+    .modal-card{
+      max-width: 1080px;
+      margin: 0 auto;
+      border:1px solid rgba(255,255,255,.12);
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
+      border-radius: 18px;
+      box-shadow: 0 18px 70px rgba(0,0,0,.55);
+      overflow:hidden;
+    }
+    .modal-head{
+      display:flex; align-items:flex-start; justify-content:space-between;
+      gap:12px;
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(255,255,255,.10);
+    }
+    .modal-head h3{
+      margin:0;
+      font-size: 16px;
+      font-weight: 900;
+    }
+    .modal-head .sub{
+      margin-top: 4px;
+      font-size: 12px;
+      color: rgba(234,240,255,.75);
+    }
+    .modal-actions{
+      display:flex; gap:10px; align-items:center;
+    }
+    .tag-ok{
+      padding: 7px 10px;
+      border-radius: 999px;
+      border:1px solid rgba(35,197,94,.35);
+      background: rgba(35,197,94,.10);
+      font-size: 12px;
+      color: rgba(234,240,255,.9);
+      display:flex; align-items:center; gap:8px;
+      white-space:nowrap;
+    }
+    .modal-body{
+      max-height: 72vh;
+      overflow:auto;
+      padding: 14px 16px 16px;
+    }
+    .preview-table{
+      width:100%;
+      border-collapse: collapse;
+      border:1px solid rgba(255,255,255,.10);
+      border-radius: 14px;
+      overflow:hidden;
+      table-layout: fixed;
+      background: rgba(0,0,0,.18);
+    }
+    .preview-table th, .preview-table td{
+      border-bottom:1px solid rgba(255,255,255,.08);
+      padding: 10px 10px;
+      vertical-align: top;
+      font-size: 13px;
+      word-wrap: break-word;
+    }
+    .preview-table th{
+      width: 26%;
+      color: rgba(234,240,255,.88);
+      text-align:left;
+      font-weight: 850;
+      background: rgba(255,255,255,.04);
+    }
+    .preview-divider{
+      height:1px;
+      background: rgba(255,255,255,.10);
+      margin: 14px 0;
+    }
+    .items-table{
+      width:100%;
+      border-collapse: collapse;
+      border:1px solid rgba(255,255,255,.10);
+      border-radius: 14px;
+      overflow:hidden;
+      table-layout: fixed;
+      background: rgba(0,0,0,.18);
+    }
+    .items-table th, .items-table td{
+      border-bottom:1px solid rgba(255,255,255,.08);
+      padding: 10px 10px;
+      vertical-align: top;
+      font-size: 12px;
+      word-wrap: break-word;
+    }
+    .items-table th{
+      text-align:left;
+      font-weight: 900;
+      background: rgba(255,255,255,.04);
+      color: rgba(234,240,255,.88);
+    }
+    .items-col-item{width: 44%;}
+    .items-col-score{width: 10%; text-align:center; font-weight:900;}
+    .items-col-text{width: auto;}
+    .sec-row{
+      background: rgba(47,123,255,.10);
+      font-weight: 900;
+      color: rgba(234,240,255,.92);
+    }
+
     @media print{
       body{background:#fff}
       .wrap{max-width:none; margin:0; padding:0}
       .topbar, .no-print{display:none !important}
       .print-area{display:block !important}
       .report{border:none; border-radius:0; padding:0}
-    }
-
-    /* ===== Modal flotante (Recuperación) ===== */
-    .overlay{
-      position:fixed; inset:0;
-      background: rgba(0,0,0,.55);
-      display:none;
-      align-items:center;
-      justify-content:center;
-      z-index:9999;
-      padding:18px;
-      backdrop-filter: blur(6px);
-    }
-    .overlay.show{ display:flex; }
-
-    .modal{
-      width:min(980px, 96vw);
-      max-height: 86vh;
-      overflow:auto;
-      border:1px solid rgba(255,255,255,.14);
-      background: linear-gradient(180deg, rgba(15,20,35,.95), rgba(10,12,20,.92));
-      border-radius: 18px;
-      box-shadow: 0 20px 60px rgba(0,0,0,.55);
-    }
-    .modal-head{
-      position:sticky; top:0;
-      background: linear-gradient(180deg, rgba(20,26,46,.98), rgba(15,20,35,.90));
-      border-bottom:1px solid rgba(255,255,255,.10);
-      padding:14px 14px;
-      display:flex; align-items:center; justify-content:space-between;
-      gap:10px;
-    }
-    .modal-head h3{ margin:0; font-size:15px; }
-    .modal-head .sub{ font-size:12px; color: rgba(234,240,255,.72); margin-top:2px; }
-    .modal-body{ padding:14px; }
-
-    .mini-table{
-      width:100%;
-      border-collapse:collapse;
-      border:1px solid rgba(255,255,255,.10);
-      border-radius:14px;
-      overflow:hidden;
-    }
-    .mini-table th, .mini-table td{
-      border-bottom:1px solid rgba(255,255,255,.08);
-      padding:10px 10px;
-      vertical-align:top;
-      font-size:12px;
-    }
-    .mini-table th{
-      text-align:left;
-      background: rgba(255,255,255,.06);
-      font-weight:800;
-    }
-    .badge{
-      display:inline-flex; align-items:center; gap:8px;
-      padding:6px 10px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,.14);
-      background: rgba(0,0,0,.25);
-      font-size:12px;
-      color: rgba(234,240,255,.78);
-    }
-    .score{
-      font-weight:900;
-      text-align:center;
-      width:90px;
+      .modal{display:none !important}
     }
   </style>
 </head>
@@ -300,7 +372,13 @@
           <span class="dot" id="stateDot" style="background: var(--ok)"></span>
           <span id="stateText">Sin cambios</span>
         </div>
+
+        <!-- ✅ NUEVO: botón Nuevo fijo -->
         <button class="btn ghost" id="btnNew" type="button">Nuevo</button>
+
+        <!-- ✅ NUEVO: botón Recuperar fijo -->
+        <button class="btn" id="btnRecover" type="button">Recuperar</button>
+
         <button class="btn primary" id="btnSave" type="button">Guardar</button>
         <button class="btn primary" id="btnGenerate" type="button">Generar</button>
         <button class="btn" id="btnPrint" type="button">Imprimir / Enviar a PDF</button>
@@ -329,39 +407,44 @@
         <h2>Datos del colaborador</h2>
         <p>Completa la información y selecciona una opción (1–5) para cada ítem.</p>
 
-        <div class="form-grid">
-          <div>
-            <label>No. de personal</label>
-            <input id="noPersonal" placeholder="Ej. 1600" />
-          </div>
-          <div>
-            <label>Nombre</label>
-            <input id="nombre" placeholder="Ej. Carlos Paz" />
-          </div>
-          <div>
-            <label>Posición</label>
-            <input id="posicion" placeholder="Ej. Analista" />
-          </div>
-          <div>
-            <label>Departamento</label>
-            <input id="departamento" placeholder="Ej. Contabilidad" />
-          </div>
-          <div>
-            <label>Periodo</label>
-            <input id="periodo" placeholder="Ej. 2025" />
-          </div>
-          <div>
-            <label>Versión</label>
-            <input id="version" placeholder="Ej. 1" />
-          </div>
-          <div>
-            <label>Fecha</label>
-            <input id="fecha" type="date" />
-          </div>
-        </div>
+        <!-- ✅ Resalte de campos de búsqueda -->
+        <div class="search-wrap">
+          <div class="search-badge">🔎 Campos de búsqueda para <b>Recuperar</b>: <b>No. de personal</b>, <b>Periodo</b>, <b>Versión</b></div>
 
-        <div class="hint">
-          Estado API: <span id="apiHint" class="warn">Listo para enviar</span>
+          <div class="form-grid">
+            <div>
+              <label class="key-label">No. de personal</label>
+              <input id="noPersonal" class="key-input" placeholder="Ej. 1600" />
+            </div>
+            <div>
+              <label>Nombre</label>
+              <input id="nombre" placeholder="Ej. Carlos Paz" />
+            </div>
+            <div>
+              <label>Posición</label>
+              <input id="posicion" placeholder="Ej. Analista" />
+            </div>
+            <div>
+              <label>Departamento</label>
+              <input id="departamento" placeholder="Ej. Contabilidad" />
+            </div>
+            <div>
+              <label class="key-label">Periodo</label>
+              <input id="periodo" class="key-input" placeholder="Ej. 2025" />
+            </div>
+            <div>
+              <label class="key-label">Versión</label>
+              <input id="version" class="key-input" placeholder="Ej. 1" />
+            </div>
+            <div>
+              <label>Fecha</label>
+              <input id="fecha" type="date" />
+            </div>
+          </div>
+
+          <div class="hint">
+            Estado API: <span id="apiHint" class="warn">Listo para enviar</span>
+          </div>
         </div>
       </div>
 
@@ -473,33 +556,37 @@
 
   </div>
 
-  <!-- ===== Modal flotante para mostrar la fila recuperada ===== -->
-  <div class="overlay" id="recoverOverlay">
-    <div class="modal">
+  <!-- ✅ MODAL: Vista rápida al Recuperar (tabla flotante) -->
+  <div class="modal" id="recoverModal" aria-hidden="true">
+    <div class="modal-card">
       <div class="modal-head">
         <div>
-          <h3>Fila recuperada (vista rápida)</h3>
-          <div class="sub" id="recoverSubtitle">—</div>
+          <h3 id="mTitle">Fila recuperada (vista rápida)</h3>
+          <div class="sub" id="mSub">—</div>
         </div>
-        <div style="display:flex; gap:10px; align-items:center;">
-          <span class="badge" id="recoverBadge">Listo</span>
-          <button class="btn" type="button" id="btnCloseRecover">Cerrar</button>
+        <div class="modal-actions">
+          <div class="tag-ok" id="mTag" style="display:none;">Registro encontrado ✅</div>
+          <button class="btn" id="btnCloseModal" type="button">Cerrar</button>
         </div>
       </div>
       <div class="modal-body">
-        <div id="recoverTableHost"></div>
+        <table class="preview-table" id="mPreviewTable"></table>
+
+        <div class="preview-divider"></div>
+
+        <table class="items-table" id="mItemsTable"></table>
       </div>
     </div>
   </div>
 
 <script>
   /************************************************************
-   * 1) URL COMPLETA DEL APPS SCRIPT (/exec) ✅ (ACTUALIZADA)
+   * 1) URL COMPLETA DEL APPS SCRIPT (/exec)
    ************************************************************/
-  const API_URL = "https://script.google.com/macros/s/AKfycbzzaiJNBwK3n7nqQhEzAjk8KrTH7UM7iuS3A8qSrGa1SKdmlK502c-WBkhEVomJLVQfmg/exec";
+  const API_URL = "https://script.google.com/macros/s/AKfycbyqZkk_cEaG40py3AW0Dd5LpWdKyp6Av7inF6lxjhSCE8FHr1_-ZYtyGBHUnJ0ZWDZ2nA/exec";
 
   /************************************************************
-   * 1.1) JSONP helper (para recuperar sin CORS) ✅
+   * 1.1) JSONP helper (para recuperar sin CORS)
    ************************************************************/
   function jsonpRequest(url, params){
     return new Promise((resolve, reject) => {
@@ -758,6 +845,7 @@
     $("btnGenerate").disabled = isBusy;
     $("btnPrint").disabled = isBusy;
     $("btnNew").disabled = isBusy;
+    $("btnRecover").disabled = isBusy;
     $("tipoFormulario").disabled = isBusy;
   }
 
@@ -1045,95 +1133,96 @@
     state.answers[key] = (score>=1 && score<=5) ? score : null;
   }
 
-  /* ===== Modal helpers ===== */
-  function escHtml(s){
-    return String(s ?? "")
-      .replaceAll("&","&amp;")
-      .replaceAll("<","&lt;")
-      .replaceAll(">","&gt;")
-      .replaceAll('"',"&quot;")
-      .replaceAll("'","&#039;");
+  // ===== MODAL (Vista rápida) =====
+  function openModal(){
+    $("recoverModal").style.display = "block";
+    $("recoverModal").setAttribute("aria-hidden", "false");
   }
-  function openRecoverModal(){ $("recoverOverlay").classList.add("show"); }
-  function closeRecoverModal(){ $("recoverOverlay").classList.remove("show"); }
-
-  function scoreFromAny(val){
-    const s = String(val ?? "").trim();
-    if(!s) return "";
-    const m = s.match(/^([1-5])\s*(?:[—-]|$)/);
-    if(m) return m[1];
-    const n = Number(s);
-    if(Number.isFinite(n) && n>=1 && n<=5) return String(n);
-    return "";
+  function closeModal(){
+    $("recoverModal").style.display = "none";
+    $("recoverModal").setAttribute("aria-hidden", "true");
   }
 
-  function buildRecoverTable(row){
-    const header = {
-      no_personal: $("noPersonal").value.trim(),
-      periodo: $("periodo").value.trim(),
-      version: $("version").value.trim()
-    };
+  // ✅ Campos que SÍ van en vista rápida (se excluyen los que pediste)
+  function renderRecoverPreview(row, keys){
+    // Encabezado modal
+    $("mTag").style.display = "flex";
+    $("mSub").textContent = `No. Personal: ${keys.no_personal} • Periodo: ${keys.periodo} • Versión: ${keys.version}`;
 
-    $("recoverSubtitle").textContent = `No. Personal: ${header.no_personal} • Periodo: ${header.periodo} • Versión: ${header.version}`;
-    $("recoverBadge").textContent = "Registro encontrado ✅";
+    // Tabla de datos (sin Justificación, Comentarios evaluador, Fortalezas, Oportunidades, Proyección)
+    const preview = $("mPreviewTable");
+    preview.innerHTML = "";
 
-    const baseRows = [
-      ["No. de personal", header.no_personal],
-      ["Periodo", header.periodo],
-      ["Versión", header.version],
-      ["Nombre", row.nombre || ""],
-      ["Posición", row.posicion || ""],
-      ["Departamento", row.departamento || ""],
-      ["Fecha", row.fecha || ""],
-      ["Justificación", row.justificacion || ""],
-      ["Comentarios evaluador", row.comentarios_evaluador || ""],
-      ["Fortalezas", row.fortalezas || ""],
-      ["Oportunidades de mejora", row.oportunidades_mejora || ""],
-      ["Proyección y potencial", row.proyeccion_potencial || ""],
-      ["Comentarios colaborador", row.comentarios_colaborador || row.comentarios || ""]
+    const rows = [
+      ["Nombre", row.nombre || "—"],
+      ["Posición", row.posicion || "—"],
+      ["Departamento", row.departamento || "—"],
+      ["Fecha", row.fecha || "—"],
+      ["Comentarios colaborador", row.comentarios_colaborador || "—"]
     ];
 
-    let html = `
-      <table class="mini-table" style="margin-bottom:14px;">
-        <thead>
-          <tr><th style="width:260px;">Campo</th><th>Valor</th></tr>
-        </thead>
-        <tbody>
-          ${baseRows.map(r => `<tr><td><b>${escHtml(r[0])}</b></td><td>${escHtml(r[1])}</td></tr>`).join("")}
-        </tbody>
-      </table>
-    `;
+    rows.forEach(([k,v])=>{
+      const tr = document.createElement("tr");
+      const th = document.createElement("th");
+      th.textContent = k;
+      const td = document.createElement("td");
+      td.textContent = String(v ?? "").trim() || "—";
+      tr.appendChild(th);
+      tr.appendChild(td);
+      preview.appendChild(tr);
+    });
 
-    html += `
-      <table class="mini-table">
-        <thead>
-          <tr>
-            <th>Ítem</th>
-            <th class="score">Puntaje</th>
-            <th>Texto guardado (rúbrica / opción)</th>
-          </tr>
-        </thead>
-        <tbody>
-    `;
+    // Tabla de ítems
+    const itemsTable = $("mItemsTable");
+    itemsTable.innerHTML = "";
+
+    const thead = document.createElement("thead");
+    const trh = document.createElement("tr");
+    const th1 = document.createElement("th"); th1.className="items-col-item"; th1.textContent="Ítem";
+    const th2 = document.createElement("th"); th2.className="items-col-score"; th2.textContent="Puntaje";
+    const th3 = document.createElement("th"); th3.className="items-col-text"; th3.textContent="Texto guardado (rúbrica / opción)";
+    trh.appendChild(th1); trh.appendChild(th2); trh.appendChild(th3);
+    thead.appendChild(trh);
+    itemsTable.appendChild(thead);
+
+    const tbody = document.createElement("tbody");
 
     ITEMS.forEach(sec=>{
-      html += `<tr><th colspan="3" style="background:rgba(255,255,255,.05);">${escHtml(sec.group)}</th></tr>`;
+      // fila sección
+      const trSec = document.createElement("tr");
+      trSec.className = "sec-row";
+      const tdSec = document.createElement("td");
+      tdSec.colSpan = 3;
+      tdSec.textContent = sec.group;
+      trSec.appendChild(tdSec);
+      tbody.appendChild(trSec);
+
       sec.items.forEach(it=>{
-        const raw = row[it.key] ?? "";
-        const sc = scoreFromAny(raw);
-        const desc = String(raw).trim();
-        html += `
-          <tr>
-            <td><b>${escHtml(it.label)}</b></td>
-            <td class="score">${escHtml(sc || "—")}</td>
-            <td>${escHtml(desc || "—")}</td>
-          </tr>
-        `;
+        const raw = row[it.key] || "";
+        const score = parseScoreFromCell(raw);
+
+        const tr = document.createElement("tr");
+
+        const tdItem = document.createElement("td");
+        tdItem.className="items-col-item";
+        tdItem.textContent = it.label;
+
+        const tdScore = document.createElement("td");
+        tdScore.className="items-col-score";
+        tdScore.textContent = (typeof score==="number") ? String(score) : "—";
+
+        const tdText = document.createElement("td");
+        tdText.className="items-col-text";
+        tdText.textContent = String(raw || "").trim() || "—";
+
+        tr.appendChild(tdItem);
+        tr.appendChild(tdScore);
+        tr.appendChild(tdText);
+        tbody.appendChild(tr);
       });
     });
 
-    html += `</tbody></table>`;
-    $("recoverTableHost").innerHTML = html;
+    itemsTable.appendChild(tbody);
   }
 
   async function recoverRecord(){
@@ -1167,15 +1256,16 @@
         return;
       }
 
-      // ✅ compatible: rowParams (nuevo) o row (viejo)
-      const row = data.rowParams || data.row || {};
+      // ✅ Compat: tomamos row (si viene) o rowParams
+      const row = data.row || data.rowParams || {};
 
-      // Autollenado (igual que antes)
+      // Autollenar campos generales
       $("nombre").value = row.nombre || $("nombre").value;
       $("posicion").value = row.posicion || $("posicion").value;
       $("departamento").value = row.departamento || $("departamento").value;
       $("fecha").value = row.fecha || $("fecha").value;
 
+      // Autollenar campos desempeño (aunque NO se muestren en modal)
       $("justificacion").value = row.justificacion || $("justificacion").value;
       $("comentariosEvaluador").value = row.comentarios_evaluador || $("comentariosEvaluador").value;
       $("fortalezas").value = row.fortalezas || $("fortalezas").value;
@@ -1183,12 +1273,7 @@
       $("proyeccion").value = row.proyeccion_potencial || $("proyeccion").value;
       $("comentariosColaborador2").value = row.comentarios_colaborador || $("comentariosColaborador2").value;
 
-      if(!row.comentarios_colaborador && row.comentarios){
-        const txt = String(row.comentarios);
-        const m = txt.match(/Comentarios\s+colaborador:\s*([\s\S]*)$/i);
-        $("comentariosColaborador2").value = m ? m[1].trim() : txt;
-      }
-
+      // Set selects por ítem
       ITEMS.forEach(sec => sec.items.forEach(it => {
         const raw = row[it.key];
         const score = parseScoreFromCell(raw);
@@ -1199,9 +1284,9 @@
       $("apiHint").textContent = "Registro recuperado ✅";
       setDirty(false);
 
-      // ✅ Mostrar tabla flotante completa
-      buildRecoverTable(row);
-      openRecoverModal();
+      // ✅ Mostrar modal (vista rápida) SIN campos excluidos
+      renderRecoverPreview(row, { no_personal, periodo, version });
+      openModal();
 
     }catch(err){
       console.error(err);
@@ -1211,19 +1296,6 @@
     }finally{
       setBusy(false);
     }
-  }
-
-  function updateBtnNewLabel(){
-    const tipo = $("tipoFormulario").value;
-    $("btnNew").textContent = (tipo === "desempeno") ? "Recuperar" : "Nuevo";
-  }
-
-  function resetToBlankForDesempeno(){
-    clearForm();
-    $("tipoFormulario").value = "desempeno";
-    applyTipoUI();
-    updateBtnNewLabel();
-    setDirty(false);
   }
 
   function applyTipoUI(){
@@ -1237,8 +1309,6 @@
     $("autoComentariosBox").style.display = (tipo === "autoevaluacion") ? "block" : "none";
     $("desempenoCamposBox").style.display = (tipo === "desempeno") ? "block" : "none";
     $("clientesBox").style.display = (tipo === "clientes") ? "block" : "none";
-
-    updateBtnNewLabel();
   }
 
   function clearForm(){
@@ -1372,7 +1442,15 @@
       fecha: header.fecha,
       ...answersText,
       respuestas_json: respuestasJSON,
-      comentarios: buildComentariosParaSheet(header.tipo, extra)
+      comentarios: buildComentariosParaSheet(header.tipo, extra),
+
+      // extras desempeño (para que queden como columnas si existen)
+      justificacion: extra.justificacion || "",
+      comentarios_evaluador: extra.comentarios_evaluador || "",
+      fortalezas: extra.fortalezas || "",
+      oportunidades_mejora: extra.oportunidades_mejora || "",
+      proyeccion_potencial: extra.proyeccion_potencial || "",
+      comentarios_colaborador: extra.comentarios_colaborador || ""
     };
 
     try{
@@ -1414,29 +1492,21 @@
     });
 
     $("tipoFormulario").addEventListener("change", ()=>{
-      const tipo = $("tipoFormulario").value;
-
-      if(tipo === "desempeno"){
-        resetToBlankForDesempeno();
-        return;
-      }
-
       applyTipoUI();
       setDirty(true);
     });
 
+    // ✅ Nuevo: limpia
     $("btnNew").addEventListener("click", ()=>{
       if(state.saving) return;
-
-      const tipo = $("tipoFormulario").value;
-
-      if(tipo === "desempeno"){
-        recoverRecord();
-        return;
-      }
-
-      if(state.dirty && !confirm("Hay cambios sin guardar. ¿Crear nuevo de todas formas?")) return;
+      if(state.dirty && !confirm("Hay cambios sin guardar. ¿Limpiar el formulario de todas formas?")) return;
       clearForm();
+    });
+
+    // ✅ Recuperar: siempre disponible
+    $("btnRecover").addEventListener("click", ()=>{
+      if(state.saving) return;
+      recoverRecord();
     });
 
     $("btnSave").addEventListener("click", saveToSheet);
@@ -1473,10 +1543,13 @@
       window.print();
     });
 
-    // ✅ Cerrar modal
-    $("btnCloseRecover").addEventListener("click", closeRecoverModal);
-    $("recoverOverlay").addEventListener("click", (e)=>{
-      if(e.target && e.target.id === "recoverOverlay") closeRecoverModal();
+    // Modal close
+    $("btnCloseModal").addEventListener("click", closeModal);
+    $("recoverModal").addEventListener("click", (ev)=>{
+      if(ev.target && ev.target.id === "recoverModal") closeModal();
+    });
+    document.addEventListener("keydown",(ev)=>{
+      if(ev.key === "Escape") closeModal();
     });
   }
 
@@ -1484,7 +1557,6 @@
   applyTipoUI();
   bind();
   setDirty(false);
-  updateBtnNewLabel();
 </script>
 </body>
 </html>
