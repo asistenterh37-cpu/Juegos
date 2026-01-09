@@ -371,10 +371,7 @@
           <span id="stateText">Sin cambios</span>
         </div>
 
-        <!-- ✅ Nuevo separado -->
         <button class="btn ghost" id="btnNew" type="button">Nuevo</button>
-
-        <!-- ✅ Recuperar separado -->
         <button class="btn" id="btnRecover" type="button">Recuperar</button>
 
         <button class="btn primary" id="btnSave" type="button">Guardar</button>
@@ -1144,14 +1141,11 @@
   }
 
   function buildRecoverModal(rowParams, meta){
-    // rowParams: plano { no_personal, periodo, version, nombre, ... , A_metas, ... }
     lastRecovered = { rowParams, meta };
 
     $("recoverTitle").textContent = "Registro encontrado";
     $("recoverSub").textContent = `Keys: ${meta.no_personal} / ${meta.periodo} / ${meta.version} • Fila: ${meta.rowNumber || "—"}`;
 
-    // ✅ Tabla general (SIN campos extra solicitados)
-    // Incluimos: no_personal, periodo, version, nombre, posicion, departamento, fecha, comentarios
     const generalRows = [
       ["No. de personal", rowParams.no_personal || meta.no_personal || ""],
       ["Periodo", rowParams.periodo || meta.periodo || ""],
@@ -1184,7 +1178,6 @@
     $("recoverGeneral").innerHTML = "";
     $("recoverGeneral").appendChild(gen);
 
-    // ✅ Tabla de ítems (TODOS)
     const it = document.createElement("table");
     it.className = "items-table";
     it.innerHTML = `
@@ -1201,7 +1194,6 @@
     const tbody = it.querySelector("#recoverItemsBody");
 
     ITEMS.forEach(sec => {
-      // group header row
       const trg = document.createElement("tr");
       trg.className = "group-row";
       trg.innerHTML = `<td colspan="4">${escapeHtml(sec.group)}</td>`;
@@ -1238,7 +1230,6 @@
   }
 
   function applyRecoveredToForm(rowParams){
-    // Header
     $("noPersonal").value = rowParams.no_personal || $("noPersonal").value;
     $("periodo").value = rowParams.periodo || $("periodo").value;
     $("version").value = rowParams.version || $("version").value;
@@ -1248,13 +1239,9 @@
     $("departamento").value = rowParams.departamento || $("departamento").value;
     $("fecha").value = rowParams.fecha || $("fecha").value;
 
-    // Comentarios (si aplica)
-    // Nota: En tu Sheet "comentarios" trae texto consolidado; lo dejamos donde corresponda.
-    // Para desempeño, te guardas el colaborador en comentariosColaborador2 normalmente.
     if($("tipoFormulario").value === "autoevaluacion"){
       $("comentariosColaborador").value = rowParams.comentarios || $("comentariosColaborador").value;
     }else if($("tipoFormulario").value === "desempeno"){
-      // Mantengo lo funcional: si tu "comentarios" trae "Comentarios colaborador:" intento extraerlo
       const txt = String(rowParams.comentarios || "");
       if(txt){
         const m = txt.match(/Comentarios\s+colaborador:\s*([\s\S]*)$/i);
@@ -1262,7 +1249,6 @@
       }
     }
 
-    // Ítems
     ITEMS.forEach(sec => sec.items.forEach(it => {
       const raw = rowParams[it.key];
       const score = parseScoreFromCell(raw);
@@ -1303,13 +1289,11 @@
         return;
       }
 
-      // ✅ IMPORTANTE: usar rowParams (plano)
       const rowParams = data.rowParams || data.row || {};
       if(!rowParams || typeof rowParams !== "object"){
         throw new Error("Respuesta inválida del servidor (sin rowParams).");
       }
 
-      // ✅ Mostrar tabla completa en modal (sin campos extra)
       buildRecoverModal(rowParams, {
         no_personal, periodo, version,
         rowNumber: data.rowNumber || ""
@@ -1317,9 +1301,6 @@
 
       $("apiHint").className = "ok";
       $("apiHint").textContent = "Registro encontrado ✅ (revisa y aplica)";
-
-      // NO auto-aplico para que puedas revisar; se aplica con botón "Aplicar al formulario"
-      // (Si quieres auto-aplicar, te lo activo.)
     }catch(err){
       console.error(err);
       $("apiHint").className = "err";
@@ -1440,6 +1421,18 @@
     return { ok: missing.length === 0, missing, header, extra };
   }
 
+  // ✅ NUEVO: verificar guardado por JSONP (recuperar)
+  async function verifySavedAfterPost(header){
+    await new Promise(r => setTimeout(r, 900));
+    const data = await jsonpRequest(API_URL, {
+      action: "recuperar",
+      no_personal: header.no_personal,
+      periodo: header.periodo,
+      version: header.version
+    });
+    return !!(data && data.found);
+  }
+
   async function saveToSheet(){
     if(state.saving) return;
 
@@ -1465,6 +1458,9 @@
     });
 
     const formPayload = {
+      // ✅ agregamos tipo (si la columna existe se llena; si no, se ignora en Apps Script)
+      tipo: header.tipo,
+
       no_personal: header.no_personal,
       nombre: header.nombre,
       posicion: header.posicion,
@@ -1491,9 +1487,26 @@
         body
       });
 
-      $("apiHint").className = "ok";
-      $("apiHint").textContent = "Enviado a Google Sheets ✅";
-      setDirty(false);
+      $("apiHint").className = "warn";
+      $("apiHint").textContent = "Verificando guardado en Sheets...";
+
+      const ok = await verifySavedAfterPost(header);
+
+      if(ok){
+        $("apiHint").className = "ok";
+        $("apiHint").textContent = "Guardado confirmado en Google Sheets ✅";
+        setDirty(false);
+      }else{
+        $("apiHint").className = "err";
+        $("apiHint").textContent = "No se confirmó el guardado ❌ (revisar despliegue/permisos del Web App)";
+        alert(
+          "Envié el registro, pero NO pude confirmarlo al recuperar.\n\n" +
+          "Causas típicas:\n" +
+          "• Web App no está desplegada como 'Cualquiera' (acceso público)\n" +
+          "• Estás usando una URL /exec vieja (nuevo despliegue)\n" +
+          "• El script pide autorización o cambió de propietario\n"
+        );
+      }
 
     }catch(err){
       console.error(err);
@@ -1520,14 +1533,12 @@
       setDirty(true);
     });
 
-    // ✅ Nuevo = limpiar
     $("btnNew").addEventListener("click", ()=>{
       if(state.saving) return;
       if(state.dirty && !confirm("Hay cambios sin guardar. ¿Limpiar todo de todas formas?")) return;
       clearForm();
     });
 
-    // ✅ Recuperar
     $("btnRecover").addEventListener("click", ()=>{
       recoverRecord();
     });
@@ -1566,7 +1577,6 @@
       window.print();
     });
 
-    // Modal handlers
     $("btnCloseRecovered").addEventListener("click", closeRecoverModal);
     $("recoverBackdrop").addEventListener("click", (e)=>{
       if(e.target === $("recoverBackdrop")) closeRecoverModal();
