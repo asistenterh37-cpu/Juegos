@@ -507,7 +507,8 @@
         </div>
       </div>
 
-      <div class="card">
+      <!-- ✅ CAMBIO: le agregamos id para poder ocultar esta tarjeta SOLO en clientes -->
+      <div class="card" id="evalCard">
         <div class="section-title">
           <h3>Evaluación (1–5)</h3>
           <span class="muted">Selecciona una opción por ítem</span>
@@ -558,10 +559,15 @@
         </div>
       </div>
 
+      <!-- ✅ CAMBIO: clientesBox ahora tiene SOLO Retroalimentación -->
       <div class="card" id="clientesBox" style="display:none;">
         <h2>Formulario evaluación clientes</h2>
-        <p>Este modo puede reutilizar el mismo set de ítems o tener su propia lista.</p>
-        <div class="hint">Si quieres, luego lo dejamos con su propio set de preguntas.</div>
+        <p>Después de los datos del colaborador, solo se solicita la retroalimentación.</p>
+
+        <div style="margin-top:14px;">
+          <label>Retroalimentación</label>
+          <textarea id="retroalimentacion" placeholder="Escribe aquí la retroalimentación..."></textarea>
+        </div>
       </div>
 
     </div>
@@ -1080,6 +1086,7 @@
     };
   }
 
+  // ✅ CAMBIO: soporte clientes -> retroalimentación
   function getExtraFields(){
     const tipo = $("tipoFormulario").value;
 
@@ -1095,6 +1102,9 @@
         proyeccion_potencial: $("proyeccion").value.trim(),
         comentarios_colaborador: $("comentariosColaborador2").value.trim()
       };
+    }
+    if(tipo === "clientes"){
+      return { retroalimentacion: ($("retroalimentacion")?.value || "").trim() };
     }
     return {};
   }
@@ -1394,6 +1404,10 @@
         const m = txt.match(/Comentarios\s+colaborador:\s*([\s\S]*)$/i);
         $("comentariosColaborador2").value = m ? m[1].trim() : txt;
       }
+    }else if($("tipoFormulario").value === "clientes"){
+      // ✅ CAMBIO: si el registro trae comentarios, lo ponemos como retroalimentación (si aplica)
+      const r = $("retroalimentacion");
+      if(r) r.value = rowParams.comentarios || r.value;
     }
 
     ITEMS.forEach(sec => sec.items.forEach(it => {
@@ -1581,8 +1595,9 @@
   // ✅ CAMBIO: aplica/oculta resaltado + badge + botón Recuperar según tipo
   function applySearchUI(tipo){
     const isAuto = (tipo === "autoevaluacion");
+    const isClientes = (tipo === "clientes");
 
-    // 1) Ocultar el badge en autoevaluación
+    // 1) Ocultar el badge en autoevaluación (se mantiene igual)
     const badgeWrap = $("searchBadgeWrap");
     if(badgeWrap) badgeWrap.style.display = isAuto ? "none" : "inline";
 
@@ -1598,11 +1613,19 @@
       }
     });
 
-    // 3) ✅ OCULTAR "RECUPERAR" SOLO EN AUTOEVALUACIÓN
+    // 3) ✅ OCULTAR "RECUPERAR" EN AUTOEVALUACIÓN Y EN CLIENTES
     const btnRecover = $("btnRecover");
     if(btnRecover){
-      btnRecover.style.display = isAuto ? "none" : "";
+      btnRecover.style.display = (isAuto || isClientes) ? "none" : "";
     }
+  }
+
+  // ✅ CAMBIO: en el menú arriba derecha, en "clientes" dejar SOLO Nuevo y Guardar
+  function applyTopActionsUI(tipo){
+    const isClientes = (tipo === "clientes");
+    $("btnGenerate").style.display = isClientes ? "none" : "";
+    $("btnPrint").style.display = isClientes ? "none" : "";
+    // btnRecover ya se oculta en applySearchUI (auto + clientes)
   }
 
   function applyTipoUI(){
@@ -1617,7 +1640,11 @@
     $("desempenoCamposBox").style.display = (tipo === "desempeno") ? "block" : "none";
     $("clientesBox").style.display = (tipo === "clientes") ? "block" : "none";
 
+    // ✅ CAMBIO: ocultar la tarjeta de evaluación completa cuando es clientes
+    $("evalCard").style.display = (tipo === "clientes") ? "none" : "block";
+
     applySearchUI(tipo);
+    applyTopActionsUI(tipo);
   }
 
   function clearForm(){
@@ -1636,6 +1663,10 @@
     $("oportunidades").value = "";
     $("proyeccion").value = "";
     $("comentariosColaborador2").value = "";
+
+    // ✅ CAMBIO: limpiar retroalimentación
+    const r = $("retroalimentacion");
+    if(r) r.value = "";
 
     state.answers = {};
     ITEMS.forEach(sec=>sec.items.forEach(it=>{
@@ -1664,6 +1695,7 @@
       .join("&");
   }
 
+  // ✅ CAMBIO: clientes usa retroalimentación en "comentarios"
   function buildComentariosParaSheet(tipo, extra){
     if(tipo === "autoevaluacion"){
       return extra.comentarios_colaborador || "";
@@ -1677,9 +1709,13 @@
         extra.comentarios_colaborador ? `Comentarios colaborador: ${extra.comentarios_colaborador}` : ""
       ].filter(Boolean).join("\n\n");
     }
+    if(tipo === "clientes"){
+      return extra.retroalimentacion || "";
+    }
     return "";
   }
 
+  // ✅ CAMBIO: validación especial para clientes (solo header + retroalimentación)
   function validateAll(){
     const header = getHeaderData();
     const extra = getExtraFields();
@@ -1694,6 +1730,11 @@
     if(!header.periodo) missing.push("Periodo");
     if(!header.version) missing.push("Versión");
     if(!header.fecha) missing.push("Fecha");
+
+    if(tipo === "clientes"){
+      if(!extra.retroalimentacion) missing.push("Retroalimentación");
+      return { ok: missing.length === 0, missing, header, extra };
+    }
 
     ITEMS.forEach(sec => sec.items.forEach(it => {
       const v = state.answers[it.key];
@@ -1730,8 +1771,12 @@
     const header = v.header;
     const extra = v.extra;
 
-    const answersText = flattenAnswersSelectedText();
-    const total = computeTotal();
+    // ✅ CAMBIO: para clientes no dependemos de selections (pero mantenemos keys vacías para no romper tu sheet)
+    const answersText = (header.tipo === "clientes")
+      ? flattenAnswersSelectedText() // envía todas las columnas de ítems en blanco (""), sin requerirlas
+      : flattenAnswersSelectedText();
+
+    const total = (header.tipo === "clientes") ? 0 : computeTotal();
 
     const respuestasJSON = JSON.stringify({
       header,
@@ -1751,6 +1796,10 @@
       version: header.version,
       fecha: header.fecha,
       ...answersText,
+
+      // ✅ CAMBIO: campo explícito para clientes
+      retroalimentacion: (header.tipo === "clientes") ? (extra.retroalimentacion || "") : "",
+
       respuestas_json: respuestasJSON,
       comentarios: buildComentariosParaSheet(header.tipo, extra)
     };
@@ -1787,10 +1836,14 @@
     [
       "noPersonal","nombre","posicion","departamento","periodo","version","fecha",
       "comentariosColaborador","justificacion","comentariosEvaluador","fortalezas",
-      "oportunidades","proyeccion","comentariosColaborador2"
+      "oportunidades","proyeccion","comentariosColaborador2",
+      // ✅ CAMBIO: retroalimentación
+      "retroalimentacion"
     ].forEach(id=>{
-      $(id).addEventListener("input", ()=> setDirty(true));
-      $(id).addEventListener("change", ()=> setDirty(true));
+      const el = $(id);
+      if(!el) return;
+      el.addEventListener("input", ()=> setDirty(true));
+      el.addEventListener("change", ()=> setDirty(true));
     });
 
     $("tipoFormulario").addEventListener("change", ()=>{
