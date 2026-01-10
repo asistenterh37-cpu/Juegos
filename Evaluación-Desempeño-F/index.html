@@ -428,13 +428,10 @@
           <span id="stateText">Sin cambios</span>
         </div>
 
-        <!-- ✅ Orden solicitado + TODOS en azul -->
         <button class="btn primary" id="btnNew" type="button">Nuevo</button>
         <button class="btn primary" id="btnRecover" type="button">Recuperar</button>
         <button class="btn primary" id="btnGenerate" type="button">Generar</button>
         <button class="btn primary" id="btnSave" type="button">Guardar</button>
-
-        <!-- Se mantiene (no solicitado cambiar) -->
         <button class="btn" id="btnPrint" type="button">Imprimir / Enviar a PDF</button>
       </div>
     </div>
@@ -555,7 +552,6 @@
           <textarea id="comentariosColaborador2" placeholder="Comentarios del colaborador..."></textarea>
         </div>
 
-        <!-- ✅ NUEVO: después de Comentarios del colaborador -->
         <div style="margin-top:12px;">
           <label>Evaluación clientes</label>
           <textarea id="evaluacionClientes" placeholder="Evaluación clientes..."></textarea>
@@ -665,6 +661,9 @@
           </div>
         </div>
         <div class="modal-body">
+          <!-- ✅ NUEVO: Resumen flotante de llaves -->
+          <div id="recoverKeyReport" style="margin-bottom:12px;"></div>
+
           <div id="recoverGeneral"></div>
           <div id="recoverItems"></div>
         </div>
@@ -730,7 +729,6 @@
           <div class="box" id="rComentarios">—</div>
         </div>
 
-        <!-- ✅ NUEVO: Evaluación clientes en reporte (solo desempeño) -->
         <div class="block" id="rEvalClientesBlock" style="display:none;">
           <h2>Evaluación clientes</h2>
           <div class="box" id="rEvalClientes">—</div>
@@ -749,7 +747,7 @@
   /************************************************************
    * 1) URL COMPLETA DEL APPS SCRIPT (/exec)
    ************************************************************/
-  const API_URL = "https://script.google.com/macros/s/AKfycby_lvwOOzu63GRtDp3V21kKgO6XE0TKdXyhzoFxlBENPluosi8DZVWBX7GZzIFw-R1_Zw/exec";
+  const API_URL = "https://script.google.com/macros/s/AKfycbwFi2Ow5ypKosE0T_s3z-kvUTN1hesPTs2sp_lj8xfbomMZmDzRCpTnyzN-uMIFdGL8WQ/exec";
 
   function assertApiUrl(){
     if(!API_URL || !/^https?:\/\//i.test(API_URL)){
@@ -757,22 +755,29 @@
     }
   }
 
+  // ✅ Hardening JSONP: cache buster + mensaje más útil
   function jsonpRequest(url, params){
     return new Promise((resolve, reject) => {
       const cbName = "cb_" + Math.random().toString(36).slice(2);
       const script = document.createElement("script");
+      script.async = true;
 
-      const qs = new URLSearchParams({ ...params, callback: cbName }).toString();
+      const qs = new URLSearchParams({
+        ...params,
+        callback: cbName,
+        _ts: Date.now().toString()
+      }).toString();
+
       script.src = url + (url.includes("?") ? "&" : "?") + qs;
 
       const timeout = setTimeout(() => {
         cleanup();
-        reject(new Error("Timeout JSONP"));
-      }, 12000);
+        reject(new Error("Timeout JSONP (no llegó callback). Posible bloqueo de WebApp o URL incorrecta."));
+      }, 15000);
 
       function cleanup(){
         clearTimeout(timeout);
-        if(window[cbName]) delete window[cbName];
+        try{ if(window[cbName]) delete window[cbName]; }catch(_){}
         if(script && script.parentNode) script.parentNode.removeChild(script);
       }
 
@@ -783,13 +788,14 @@
 
       script.onerror = () => {
         cleanup();
-        reject(new Error("Error de red (JSONP)."));
+        reject(new Error("Error de red (JSONP). Revisa bloqueadores/Firewall o disponibilidad de script.google.com"));
       };
 
       document.body.appendChild(script);
     });
   }
 
+  // ⚠️ Pega aquí tu ITEMS real (lo dejaste truncado)
   const ITEMS = [/* ... (SIN CAMBIOS: tu arreglo completo original) ... */];
 
   const state = { dirty:false, generated:false, answers:{}, saving:false };
@@ -935,7 +941,7 @@
         oportunidades_mejora: $("oportunidades").value.trim(),
         proyeccion_potencial: $("proyeccion").value.trim(),
         comentarios_colaborador: $("comentariosColaborador2").value.trim(),
-        evaluacion_clientes: ($("evaluacionClientes")?.value || "").trim()  // ✅ NUEVO
+        evaluacion_clientes: ($("evaluacionClientes")?.value || "").trim()
       };
     }
     if(tipo === "clientes"){
@@ -1034,7 +1040,6 @@
     });
   }
 
-  // ✅ Reporte flotante
   function openReportModal(){
     $("reportHost").innerHTML = "";
     const clone = $("report").cloneNode(true);
@@ -1089,7 +1094,6 @@
       $("rComentarios").textContent = "—";
     }
 
-    // ✅ NUEVO: Evaluación clientes en reporte (solo desempeño)
     if(header.tipo === "desempeno" && extra.evaluacion_clientes){
       $("rEvalClientesBlock").style.display = "block";
       $("rEvalClientes").textContent = extra.evaluacion_clientes;
@@ -1113,7 +1117,7 @@
       $("rJustifAll").textContent = "—";
     }
 
-    $("printArea").style.display = "block"; // se mantiene para imprimir
+    $("printArea").style.display = "block";
   }
 
   function parseScoreFromCell(val){
@@ -1162,11 +1166,43 @@
       .replaceAll("'","&#039;");
   }
 
-  function buildRecoverModal(rowParams, meta){
-    lastRecovered = { rowParams, meta };
+  // ✅ NUEVO: mini reporte flotante de llaves dentro del modal Recuperar
+  function renderKeyReport(no_personal, periodo, version, sourceHint){
+    const box = document.createElement("div");
+    box.className = "card";
+    box.style.padding = "12px";
+    box.style.background = "rgba(0,0,0,.14)";
+    box.innerHTML = `
+      <div style="display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; align-items:center;">
+        <div class="chip"><b>Reporte (llaves)</b></div>
+        <div class="small-muted">${escapeHtml(sourceHint || "")}</div>
+      </div>
+      <table class="mini-table" style="margin-top:10px;">
+        <thead><tr><th class="col-k">Campo</th><th class="col-v">Valor</th></tr></thead>
+        <tbody>
+          <tr><td class="col-k">No. personal</td><td class="col-v">${escapeHtml(no_personal || "—")}</td></tr>
+          <tr><td class="col-k">Periodo</td><td class="col-v">${escapeHtml(periodo || "—")}</td></tr>
+          <tr><td class="col-k">Versión</td><td class="col-v">${escapeHtml(version || "—")}</td></tr>
+        </tbody>
+      </table>
+    `;
+    const host = $("recoverKeyReport");
+    host.innerHTML = "";
+    host.appendChild(box);
+  }
+
+  // ✅ NUEVO: buildRecoverModal ahora acepta clientesInfo opcional
+  function buildRecoverModal(rowParams, meta, clientesInfo){
+    lastRecovered = { rowParams, meta, clientesInfo };
 
     $("recoverTitle").textContent = "Registro encontrado";
     $("recoverSub").textContent = `Keys: ${meta.no_personal || "—"} / ${meta.periodo || "—"} / ${meta.version || "—"} • Fila: ${meta.rowNumber || "—"}`;
+
+    renderKeyReport(meta.no_personal, meta.periodo, meta.version,
+      (clientesInfo && clientesInfo.found)
+        ? `Autoevaluaciones + Clientes (fila Clientes: ${clientesInfo.rowNumber || "—"})`
+        : `Autoevaluaciones (Clientes: sin registro)`
+    );
 
     const generalRows = [
       ["No. de personal", rowParams.no_personal || meta.no_personal || ""],
@@ -1177,9 +1213,14 @@
       ["Departamento", rowParams.departamento || ""],
       ["Fecha", rowParams.fecha || ""],
       ["Comentarios", rowParams.comentarios || ""],
-      ["Evaluación clientes", rowParams.evaluacion_clientes || ""], // ✅ NUEVO
-      ["Nombre del evaluador", rowParams.nombre_evaluador || rowParams.evaluador || ""]
+      ["Evaluación clientes (campo desempeño)", rowParams.evaluacion_clientes || ""],
     ];
+
+    // ✅ NUEVO: mostrar retroalimentación de Clientes si vino
+    if(clientesInfo){
+      generalRows.push(["Retroalimentación (Clientes)", clientesInfo.retroalimentacion || ""]);
+      generalRows.push(["Nombre evaluador (Clientes)", clientesInfo.nombre_evaluador || ""]);
+    }
 
     const gen = document.createElement("table");
     gen.className = "mini-table";
@@ -1244,7 +1285,8 @@
     openRecoverModal();
   }
 
-  function applyRecoveredToForm(rowParams){
+  // ✅ NUEVO: aplica recovered + clientesInfo al desempeño
+  function applyRecoveredToForm(rowParams, clientesInfo){
     $("noPersonal").value = rowParams.no_personal || $("noPersonal").value;
     $("periodo").value = rowParams.periodo || $("periodo").value;
     $("version").value = rowParams.version || $("version").value;
@@ -1262,8 +1304,19 @@
         const m = txt.match(/Comentarios\s+colaborador:\s*([\s\S]*)$/i);
         $("comentariosColaborador2").value = m ? m[1].trim() : $("comentariosColaborador2").value;
       }
-      // ✅ NUEVO
-      $("evaluacionClientes").value = rowParams.evaluacion_clientes || $("evaluacionClientes").value;
+
+      // ✅ si tu hoja autoevaluaciones ya tenía evaluacion_clientes, lo respeta
+      if(rowParams.evaluacion_clientes){
+        $("evaluacionClientes").value = rowParams.evaluacion_clientes;
+      }
+
+      // ✅ NUEVO: si existe Clientes, lo mete aquí
+      if(clientesInfo && clientesInfo.retroalimentacion){
+        const head = (clientesInfo.nombre_evaluador ? `(${clientesInfo.nombre_evaluador}) ` : "");
+        const composed = `${head}${clientesInfo.retroalimentacion}`.trim();
+        if(composed) $("evaluacionClientes").value = composed;
+      }
+
     }else if($("tipoFormulario").value === "clientes"){
       const r = $("retroalimentacion");
       if(r) r.value = rowParams.retroalimentacion || rowParams.comentarios || r.value;
@@ -1280,16 +1333,17 @@
 
     $("printArea").style.display = "none";
     state.generated = false;
-
     setDirty(false);
   }
 
+  // ✅ Recuperación estándar
   async function recoverRecordExact(){
     if(state.saving) return;
 
     const no_personal = $("noPersonal").value.trim();
     const periodo = $("periodo").value.trim();
     const version = $("version").value.trim();
+    const tipo = $("tipoFormulario").value;
 
     try{
       assertApiUrl();
@@ -1297,12 +1351,15 @@
       $("apiHint").className = "warn";
       $("apiHint").textContent = "Recuperando desde Google Sheets...";
 
+      // ✅ NUEVO: desempeño usa acción compuesta
+      const action = (tipo === "desempeno") ? "recuperar_desempeno" : "recuperar";
+
       const data = await jsonpRequest(API_URL, {
-        action: "recuperar",
+        action,
         no_personal,
         periodo,
         version,
-        tipo: $("tipoFormulario").value
+        tipo
       });
 
       if(!data || !data.found){
@@ -1317,10 +1374,13 @@
         throw new Error("Respuesta inválida del servidor (sin rowParams).");
       }
 
+      // ✅ NUEVO: clientesInfo (solo viene en recuperar_desempeno)
+      const clientesInfo = data.clientes || null;
+
       buildRecoverModal(rowParams, {
         no_personal, periodo, version,
         rowNumber: data.rowNumber || ""
-      });
+      }, clientesInfo);
 
       $("apiHint").className = "ok";
       $("apiHint").textContent = "Registro encontrado ✅ (revisa y aplica)";
@@ -1383,7 +1443,9 @@
         const pick = lastLookupResults[i];
         if(!pick || !pick.rowParams) return;
 
-        applyRecoveredToForm(pick.rowParams);
+        // En búsqueda simple no traemos Clientes (solo desempeño exacto lo trae)
+        applyRecoveredToForm(pick.rowParams, null);
+
         $("apiHint").className = "ok";
         $("apiHint").textContent = "Registro aplicado al formulario ✅";
         closeLookupModal();
@@ -1513,7 +1575,7 @@
     $("oportunidades").value = "";
     $("proyeccion").value = "";
     $("comentariosColaborador2").value = "";
-    $("evaluacionClientes").value = ""; // ✅ NUEVO
+    $("evaluacionClientes").value = "";
 
     const r = $("retroalimentacion");
     if(r) r.value = "";
@@ -1558,7 +1620,7 @@
         extra.oportunidades_mejora ? `Oportunidades: ${extra.oportunidades_mejora}` : "",
         extra.proyeccion_potencial ? `Proyección: ${extra.proyeccion_potencial}` : "",
         extra.comentarios_colaborador ? `Comentarios colaborador: ${extra.comentarios_colaborador}` : "",
-        extra.evaluacion_clientes ? `Evaluación clientes: ${extra.evaluacion_clientes}` : "" // ✅ NUEVO
+        extra.evaluacion_clientes ? `Evaluación clientes: ${extra.evaluacion_clientes}` : ""
       ].filter(Boolean).join("\n\n");
     }
     if(tipo === "clientes"){
@@ -1608,7 +1670,6 @@
       if(!extra.oportunidades_mejora) missing.push("Oportunidades de mejora");
       if(!extra.proyeccion_potencial) missing.push("Proyección y potencial");
       if(!extra.comentarios_colaborador) missing.push("Comentarios del colaborador");
-      // evaluacion_clientes NO requerida (no lo pediste como obligatorio)
     }
 
     return { ok: missing.length === 0, missing, header, extra };
@@ -1652,7 +1713,7 @@
       retroalimentacion: (header.tipo === "clientes") ? (extra.retroalimentacion || "") : "",
       nombre_evaluador: (header.tipo === "clientes") ? (extra.nombre_evaluador || "") : "",
 
-      evaluacion_clientes: (header.tipo === "desempeno") ? (extra.evaluacion_clientes || "") : "", // ✅ NUEVO
+      evaluacion_clientes: (header.tipo === "desempeno") ? (extra.evaluacion_clientes || "") : "",
 
       respuestas_json: respuestasJSON,
       comentarios: buildComentariosParaSheet(header.tipo, extra)
@@ -1725,7 +1786,6 @@
 
     $("btnSave").addEventListener("click", saveToSheet);
 
-    // ✅ Generar => arma reporte y abre modal flotante
     $("btnGenerate").addEventListener("click", ()=>{
       if(state.saving) return;
 
@@ -1742,7 +1802,6 @@
       openReportModal();
     });
 
-    // Se mantiene: imprime usando el área de impresión
     $("btnPrint").addEventListener("click", ()=>{
       if(state.saving) return;
 
@@ -1760,7 +1819,6 @@
       window.print();
     });
 
-    // ✅ Report modal actions
     $("btnCloseReport").addEventListener("click", closeReportModal);
     $("reportBackdrop").addEventListener("click", (e)=>{
       if(e.target === $("reportBackdrop")) closeReportModal();
@@ -1779,7 +1837,7 @@
     });
     $("btnApplyRecovered").addEventListener("click", ()=>{
       if(!lastRecovered || !lastRecovered.rowParams) return;
-      applyRecoveredToForm(lastRecovered.rowParams);
+      applyRecoveredToForm(lastRecovered.rowParams, lastRecovered.clientesInfo || null);
       $("apiHint").className = "ok";
       $("apiHint").textContent = "Registro aplicado al formulario ✅";
       closeRecoverModal();
