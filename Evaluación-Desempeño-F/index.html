@@ -132,7 +132,6 @@
     .ok{color:#9dffb6}
     .err{color:#ffb4b4}
 
-    /* ===== Campos de búsqueda resaltados ===== */
     .searchField label{
       color: rgba(234,240,255,.92);
       font-weight: 800;
@@ -156,7 +155,6 @@
     }
     .searchBadge .dot{background: rgba(74,163,255,.95);}
 
-    /* ===== Modal (general) ===== */
     .modal-backdrop{
       position:fixed; inset:0;
       background: rgba(0,0,0,.58);
@@ -215,7 +213,6 @@
     .tag-ok .dot{background: var(--ok);}
     .modal-body{padding:14px 16px 18px;}
 
-    /* ===== tablas ===== */
     .mini-table{
       width:100%;
       border-collapse:collapse;
@@ -275,7 +272,6 @@
       color: rgba(234,240,255,.92);
     }
 
-    /* ===== Modal Consulta (tabla) ===== */
     .lookup-grid{
       display:grid;
       grid-template-columns: repeat(4, 1fr);
@@ -328,7 +324,6 @@
       font-weight:750;
     }
 
-    /* ===== Reporte (para impresión) ===== */
     .print-area{margin-top:20px; display:none;}
     .report{
       background:#fff;
@@ -661,7 +656,6 @@
           </div>
         </div>
         <div class="modal-body">
-          <!-- ✅ NUEVO: Resumen flotante de llaves -->
           <div id="recoverKeyReport" style="margin-bottom:12px;"></div>
 
           <div id="recoverGeneral"></div>
@@ -747,7 +741,7 @@
   /************************************************************
    * 1) URL COMPLETA DEL APPS SCRIPT (/exec)
    ************************************************************/
-  const API_URL = "https://script.google.com/macros/s/AKfycbwFi2Ow5ypKosE0T_s3z-kvUTN1hesPTs2sp_lj8xfbomMZmDzRCpTnyzN-uMIFdGL8WQ/exec";
+  const API_URL = "https://script.google.com/macros/s/AKfycbyjKldUQsDoeD_Q8FzJEjncZ02OZso_sP3I4jVKmvV-5jJq39ew65OCQULrfI-HRK2j4w/exec";
 
   function assertApiUrl(){
     if(!API_URL || !/^https?:\/\//i.test(API_URL)){
@@ -755,7 +749,21 @@
     }
   }
 
-  // ✅ Hardening JSONP: cache buster + mensaje más útil
+  /************************************************************
+   * ✅ NUEVO: candidatos de URL (fallback anti-bloqueos)
+   * - Primero script.google.com
+   * - Luego script.googleusercontent.com (suele pasar mejor firewalls)
+   ************************************************************/
+  function getApiCandidates(){
+    const u = String(API_URL || "").trim();
+    const out = [u];
+    if(u.includes("script.google.com")){
+      out.push(u.replace("https://script.google.com", "https://script.googleusercontent.com"));
+    }
+    return Array.from(new Set(out.filter(Boolean)));
+  }
+
+  // ✅ Hardening JSONP + fallback multi-URL
   function jsonpRequest(url, params){
     return new Promise((resolve, reject) => {
       const cbName = "cb_" + Math.random().toString(36).slice(2);
@@ -772,7 +780,7 @@
 
       const timeout = setTimeout(() => {
         cleanup();
-        reject(new Error("Timeout JSONP (no llegó callback). Posible bloqueo de WebApp o URL incorrecta."));
+        reject(new Error("Timeout JSONP (no llegó callback). Posible WebApp no público o red bloqueando script.google.com"));
       }, 15000);
 
       function cleanup(){
@@ -788,14 +796,30 @@
 
       script.onerror = () => {
         cleanup();
-        reject(new Error("Error de red (JSONP). Revisa bloqueadores/Firewall o disponibilidad de script.google.com"));
+        reject(new Error("Error de red (JSONP). Bloqueador/Firewall o endpoint inaccesible."));
       };
 
       document.body.appendChild(script);
     });
   }
 
-  // ⚠️ Pega aquí tu ITEMS real (lo dejaste truncado)
+  // ✅ NUEVO: wrapper definitivo con fallback de dominio
+  async function jsonpRequestWithFallback(params){
+    assertApiUrl();
+    const candidates = getApiCandidates();
+    let lastErr = null;
+
+    for(const u of candidates){
+      try{
+        return await jsonpRequest(u, params);
+      }catch(e){
+        lastErr = e;
+      }
+    }
+    throw lastErr || new Error("No se pudo conectar por JSONP en ningún endpoint.");
+  }
+
+  // ⚠️ Pega aquí tu ITEMS real completo
   const ITEMS = [/* ... (SIN CAMBIOS: tu arreglo completo original) ... */];
 
   const state = { dirty:false, generated:false, answers:{}, saving:false };
@@ -1166,7 +1190,6 @@
       .replaceAll("'","&#039;");
   }
 
-  // ✅ NUEVO: mini reporte flotante de llaves dentro del modal Recuperar
   function renderKeyReport(no_personal, periodo, version, sourceHint){
     const box = document.createElement("div");
     box.className = "card";
@@ -1191,7 +1214,6 @@
     host.appendChild(box);
   }
 
-  // ✅ NUEVO: buildRecoverModal ahora acepta clientesInfo opcional
   function buildRecoverModal(rowParams, meta, clientesInfo){
     lastRecovered = { rowParams, meta, clientesInfo };
 
@@ -1216,7 +1238,6 @@
       ["Evaluación clientes (campo desempeño)", rowParams.evaluacion_clientes || ""],
     ];
 
-    // ✅ NUEVO: mostrar retroalimentación de Clientes si vino
     if(clientesInfo){
       generalRows.push(["Retroalimentación (Clientes)", clientesInfo.retroalimentacion || ""]);
       generalRows.push(["Nombre evaluador (Clientes)", clientesInfo.nombre_evaluador || ""]);
@@ -1285,7 +1306,6 @@
     openRecoverModal();
   }
 
-  // ✅ NUEVO: aplica recovered + clientesInfo al desempeño
   function applyRecoveredToForm(rowParams, clientesInfo){
     $("noPersonal").value = rowParams.no_personal || $("noPersonal").value;
     $("periodo").value = rowParams.periodo || $("periodo").value;
@@ -1305,12 +1325,10 @@
         $("comentariosColaborador2").value = m ? m[1].trim() : $("comentariosColaborador2").value;
       }
 
-      // ✅ si tu hoja autoevaluaciones ya tenía evaluacion_clientes, lo respeta
       if(rowParams.evaluacion_clientes){
         $("evaluacionClientes").value = rowParams.evaluacion_clientes;
       }
 
-      // ✅ NUEVO: si existe Clientes, lo mete aquí
       if(clientesInfo && clientesInfo.retroalimentacion){
         const head = (clientesInfo.nombre_evaluador ? `(${clientesInfo.nombre_evaluador}) ` : "");
         const composed = `${head}${clientesInfo.retroalimentacion}`.trim();
@@ -1336,7 +1354,6 @@
     setDirty(false);
   }
 
-  // ✅ Recuperación estándar
   async function recoverRecordExact(){
     if(state.saving) return;
 
@@ -1351,10 +1368,10 @@
       $("apiHint").className = "warn";
       $("apiHint").textContent = "Recuperando desde Google Sheets...";
 
-      // ✅ NUEVO: desempeño usa acción compuesta
       const action = (tipo === "desempeno") ? "recuperar_desempeno" : "recuperar";
 
-      const data = await jsonpRequest(API_URL, {
+      // ✅ CAMBIO: ahora usa fallback automático
+      const data = await jsonpRequestWithFallback({
         action,
         no_personal,
         periodo,
@@ -1374,7 +1391,6 @@
         throw new Error("Respuesta inválida del servidor (sin rowParams).");
       }
 
-      // ✅ NUEVO: clientesInfo (solo viene en recuperar_desempeno)
       const clientesInfo = data.clientes || null;
 
       buildRecoverModal(rowParams, {
@@ -1389,7 +1405,7 @@
       console.error(err);
       $("apiHint").className = "err";
       $("apiHint").textContent = "No se pudo recuperar: " + (err.message || err);
-      alert("No se pudo recuperar: " + (err.message || err));
+      alert("No se pudo recuperar: " + (err.message || err) + "\n\nTip: Si estás en red corporativa, prueba sin bloqueador o con otra red.");
     }finally{
       setBusy(false);
     }
@@ -1443,7 +1459,6 @@
         const pick = lastLookupResults[i];
         if(!pick || !pick.rowParams) return;
 
-        // En búsqueda simple no traemos Clientes (solo desempeño exacto lo trae)
         applyRecoveredToForm(pick.rowParams, null);
 
         $("apiHint").className = "ok";
@@ -1464,7 +1479,9 @@
     try{
       assertApiUrl();
       setLookupStatus("Buscando...", "warn");
-      const data = await jsonpRequest(API_URL, {
+
+      // ✅ CAMBIO: fallback automático
+      const data = await jsonpRequestWithFallback({
         action: "buscar",
         no_personal,
         nombre,
@@ -1549,6 +1566,7 @@
       tipo === "clientes" ? "Formulario evaluación clientes" :
       "Formulario de evaluación del desempeño";
 
+    // ✅ Autoevaluación: SIEMPRE muestra cuestionario completo + comentario
     $("autoComentariosBox").style.display = (tipo === "autoevaluacion") ? "block" : "none";
     $("desempenoCamposBox").style.display = (tipo === "desempeno") ? "block" : "none";
     $("clientesBox").style.display = (tipo === "clientes") ? "block" : "none";
@@ -1727,6 +1745,7 @@
 
       const body = toFormUrlEncoded(formPayload);
 
+      // ⚠️ Guardar sigue igual (POST no-cors)
       await fetch(API_URL, {
         method: "POST",
         mode: "no-cors",
