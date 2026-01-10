@@ -428,7 +428,7 @@
           <span id="stateText">Sin cambios</span>
         </div>
 
-        <!-- ✅ CAMBIO: orden del menú arriba derecha -> Nuevo, Guardar, Recuperar -->
+        <!-- ✅ orden solicitado -->
         <button class="btn ghost" id="btnNew" type="button">Nuevo</button>
         <button class="btn primary" id="btnSave" type="button">Guardar</button>
         <button class="btn" id="btnRecover" type="button">Recuperar</button>
@@ -447,10 +447,6 @@
           <div>
             <label>Tipo</label>
             <select id="tipoFormulario">
-              <!-- ✅ Orden solicitado:
-                   1) Autoevaluación
-                   2) Evaluación clientes
-                   3) Evaluación del desempeño -->
               <option value="autoevaluacion">Formulario de autoevaluación</option>
               <option value="clientes">Formulario evaluación clientes</option>
               <option value="desempeno" selected>Formulario de evaluación del desempeño</option>
@@ -508,7 +504,6 @@
         </div>
       </div>
 
-      <!-- ✅ CAMBIO: le agregamos id para poder ocultar esta tarjeta SOLO en clientes -->
       <div class="card" id="evalCard">
         <div class="section-title">
           <h3>Evaluación (1–5)</h3>
@@ -560,7 +555,6 @@
         </div>
       </div>
 
-      <!-- ✅ CAMBIO: clientesBox ahora tiene Retroalimentación + Nombre del evaluador -->
       <div class="card" id="clientesBox" style="display:none;">
         <h2>Formulario evaluación clientes</h2>
         <p>Después de los datos del colaborador, solo se solicita la retroalimentación.</p>
@@ -570,7 +564,6 @@
           <textarea id="retroalimentacion" placeholder="Escribe aquí la retroalimentación..."></textarea>
         </div>
 
-        <!-- ✅ NUEVO CAMPO: debajo de Retroalimentación -->
         <div style="margin-top:12px;">
           <label>Nombre del evaluador</label>
           <input id="nombreEvaluador" placeholder="Ej. María López" />
@@ -579,7 +572,7 @@
 
     </div>
 
-    <!-- ✅ Modal flotante: CONSULTA / BÚSQUEDA (NUEVO) -->
+    <!-- ✅ Modal Consulta -->
     <div class="modal-backdrop" id="lookupBackdrop" aria-hidden="true">
       <div class="modal" role="dialog" aria-modal="true" aria-labelledby="lookupTitle">
         <div class="modal-head">
@@ -650,7 +643,7 @@
       </div>
     </div>
 
-    <!-- ✅ Modal flotante: DETALLE RECUPERADO (se mantiene) -->
+    <!-- ✅ Modal Detalle Recuperado -->
     <div class="modal-backdrop" id="recoverBackdrop" aria-hidden="true">
       <div class="modal" role="dialog" aria-modal="true" aria-labelledby="recoverTitle">
         <div class="modal-head">
@@ -724,7 +717,7 @@
   /************************************************************
    * 1) URL COMPLETA DEL APPS SCRIPT (/exec)
    ************************************************************/
-  const API_URL = "https://script.google.com/macros/s/AKfycbwxmI9XJQXq3BFdDnew9wfD-M4pBdhywUsqKADdiSnjnJcvIAjUkJT7wf6l91eMwApTvw/exec";
+  const API_URL = "ttps://script.google.com/macros/s/AKfycbzCaWhIaMSfuMNNt7Y19KRW_kEmcG64fSSIF2I7Cxo3k73eDS90zwilZY10Vr66jUOC_g/exec";
 
   /************************************************************
    * 1.1) JSONP helper (para recuperar/buscar sin CORS)
@@ -1093,7 +1086,6 @@
     };
   }
 
-  // ✅ CAMBIO: soporte clientes -> retroalimentación + nombre evaluador
   function getExtraFields(){
     const tipo = $("tipoFormulario").value;
 
@@ -1281,9 +1273,6 @@
     state.answers[key] = (score>=1 && score<=5) ? score : null;
   }
 
-  // =======================
-  // Modal helpers (detalle)
-  // =======================
   let lastRecovered = null;
 
   function openRecoverModal(){
@@ -1295,9 +1284,6 @@
     $("recoverBackdrop").setAttribute("aria-hidden", "true");
   }
 
-  // =======================
-  // Modal helpers (consulta)
-  // =======================
   function openLookupModal(){
     $("lookupBackdrop").style.display = "flex";
     $("lookupBackdrop").setAttribute("aria-hidden", "false");
@@ -1331,7 +1317,6 @@
       ["Departamento", rowParams.departamento || ""],
       ["Fecha", rowParams.fecha || ""],
       ["Comentarios", rowParams.comentarios || ""],
-      // ✅ NUEVO: si tu sheet lo trae
       ["Nombre del evaluador", rowParams.nombre_evaluador || rowParams.evaluador || ""]
     ];
 
@@ -1417,11 +1402,9 @@
         $("comentariosColaborador2").value = m ? m[1].trim() : txt;
       }
     }else if($("tipoFormulario").value === "clientes"){
-      // ✅ CAMBIO: si el registro trae comentarios, lo ponemos como retroalimentación (si aplica)
       const r = $("retroalimentacion");
-      if(r) r.value = rowParams.comentarios || r.value;
+      if(r) r.value = rowParams.retroalimentacion || rowParams.comentarios || r.value;
 
-      // ✅ NUEVO: nombre evaluador si viene
       const ne = $("nombreEvaluador");
       if(ne) ne.value = rowParams.nombre_evaluador || rowParams.evaluador || ne.value;
     }
@@ -1438,9 +1421,6 @@
     setDirty(false);
   }
 
-  // =======================
-  // Recuperación exacta (3 keys)
-  // =======================
   async function recoverRecordExact(){
     if(state.saving) return;
 
@@ -1457,7 +1437,8 @@
         action: "recuperar",
         no_personal,
         periodo,
-        version
+        version,
+        tipo: $("tipoFormulario").value
       });
 
       if(!data || !data.found){
@@ -1490,9 +1471,6 @@
     }
   }
 
-  // =======================
-  // ✅ Consulta (tabla flotante) + selección
-  // =======================
   let lastLookupResults = [];
 
   function setLookupStatus(txt, kind){
@@ -1535,7 +1513,6 @@
       `;
     }).join("");
 
-    // bind actions
     tbody.querySelectorAll("button[data-use]").forEach(btn=>{
       btn.addEventListener("click", ()=>{
         const i = Number(btn.getAttribute("data-use"));
@@ -1566,7 +1543,8 @@
         nombre,
         periodo,
         version,
-        limit: "50"
+        limit: "50",
+        tipo: $("tipoFormulario").value
       });
 
       if(!data || data.ok === false){
@@ -1593,13 +1571,11 @@
   }
 
   function openLookupPrefilled(){
-    // prefill con lo que ya está en el form (para que sea “1 clic y buscar”)
     $("qNoPersonal").value = $("noPersonal").value.trim();
     $("qNombre").value = $("nombre").value.trim();
     $("qPeriodo").value = $("periodo").value.trim();
     $("qVersion").value = $("version").value.trim();
 
-    // reset visual
     $("chipCount").textContent = "0 resultados";
     $("chipNote").textContent = "";
     $("lookupResultsBody").innerHTML = `<tr><td colspan="8" class="small-muted">Sin resultados aún.</td></tr>`;
@@ -1608,16 +1584,13 @@
     openLookupModal();
   }
 
-  // ✅ CAMBIO: aplica/oculta resaltado + badge + botón Recuperar según tipo
   function applySearchUI(tipo){
     const isAuto = (tipo === "autoevaluacion");
     const isClientes = (tipo === "clientes");
 
-    // 1) Ocultar el badge en autoevaluación (se mantiene igual)
     const badgeWrap = $("searchBadgeWrap");
     if(badgeWrap) badgeWrap.style.display = isAuto ? "none" : "inline";
 
-    // 2) Resaltado de campos (solo en no-auto)
     const targets = ["fldNoPersonal", "fldPeriodo", "fldVersion"];
     targets.forEach(id=>{
       const el = $(id);
@@ -1629,19 +1602,16 @@
       }
     });
 
-    // 3) ✅ OCULTAR "RECUPERAR" EN AUTOEVALUACIÓN Y EN CLIENTES
     const btnRecover = $("btnRecover");
     if(btnRecover){
       btnRecover.style.display = (isAuto || isClientes) ? "none" : "";
     }
   }
 
-  // ✅ CAMBIO: en el menú arriba derecha, en "clientes" dejar SOLO Nuevo y Guardar
   function applyTopActionsUI(tipo){
     const isClientes = (tipo === "clientes");
     $("btnGenerate").style.display = isClientes ? "none" : "";
     $("btnPrint").style.display = isClientes ? "none" : "";
-    // btnRecover ya se oculta en applySearchUI (auto + clientes)
   }
 
   function applyTipoUI(){
@@ -1656,7 +1626,6 @@
     $("desempenoCamposBox").style.display = (tipo === "desempeno") ? "block" : "none";
     $("clientesBox").style.display = (tipo === "clientes") ? "block" : "none";
 
-    // ✅ CAMBIO: ocultar la tarjeta de evaluación completa cuando es clientes
     $("evalCard").style.display = (tipo === "clientes") ? "none" : "block";
 
     applySearchUI(tipo);
@@ -1680,7 +1649,6 @@
     $("proyeccion").value = "";
     $("comentariosColaborador2").value = "";
 
-    // ✅ CAMBIO: limpiar retroalimentación + nombre evaluador
     const r = $("retroalimentacion");
     if(r) r.value = "";
     const ne = $("nombreEvaluador");
@@ -1713,7 +1681,6 @@
       .join("&");
   }
 
-  // ✅ CAMBIO: clientes usa retroalimentación (y nombre evaluador) en "comentarios"
   function buildComentariosParaSheet(tipo, extra){
     if(tipo === "autoevaluacion"){
       return extra.comentarios_colaborador || "";
@@ -1736,7 +1703,6 @@
     return "";
   }
 
-  // ✅ CAMBIO: validación especial para clientes (solo header + retroalimentación + nombre evaluador)
   function validateAll(){
     const header = getHeaderData();
     const extra = getExtraFields();
@@ -1793,11 +1759,7 @@
     const header = v.header;
     const extra = v.extra;
 
-    // ✅ CAMBIO: para clientes no dependemos de selections (pero mantenemos keys vacías para no romper tu sheet)
-    const answersText = (header.tipo === "clientes")
-      ? flattenAnswersSelectedText() // envía todas las columnas de ítems en blanco (""), sin requerirlas
-      : flattenAnswersSelectedText();
-
+    const answersText = flattenAnswersSelectedText();
     const total = (header.tipo === "clientes") ? 0 : computeTotal();
 
     const respuestasJSON = JSON.stringify({
@@ -1819,7 +1781,6 @@
       fecha: header.fecha,
       ...answersText,
 
-      // ✅ CAMBIO: campos explícitos para clientes
       retroalimentacion: (header.tipo === "clientes") ? (extra.retroalimentacion || "") : "",
       nombre_evaluador: (header.tipo === "clientes") ? (extra.nombre_evaluador || "") : "",
 
@@ -1860,7 +1821,6 @@
       "noPersonal","nombre","posicion","departamento","periodo","version","fecha",
       "comentariosColaborador","justificacion","comentariosEvaluador","fortalezas",
       "oportunidades","proyeccion","comentariosColaborador2",
-      // ✅ CAMBIO: retroalimentación + nombre evaluador
       "retroalimentacion","nombreEvaluador"
     ].forEach(id=>{
       const el = $(id);
@@ -1880,19 +1840,15 @@
       clearForm();
     });
 
-    // ✅ RECUPERAR: si están las 3 keys -> exacto; si no -> abre consulta
     $("btnRecover").addEventListener("click", ()=>{
       const noP = $("noPersonal").value.trim();
       const per = $("periodo").value.trim();
       const ver = $("version").value.trim();
 
-      // si faltan keys, abre consulta (sin regañar 😄)
       if(!noP || !per || !ver){
         openLookupPrefilled();
         return;
       }
-
-      // con keys completas, hace recuperación exacta (y muestra detalle)
       recoverRecordExact();
     });
 
@@ -1930,7 +1886,6 @@
       window.print();
     });
 
-    // modal detalle
     $("btnCloseRecovered").addEventListener("click", closeRecoverModal);
     $("recoverBackdrop").addEventListener("click", (e)=>{
       if(e.target === $("recoverBackdrop")) closeRecoverModal();
@@ -1943,7 +1898,6 @@
       closeRecoverModal();
     });
 
-    // modal consulta
     $("btnCloseLookup").addEventListener("click", closeLookupModal);
     $("lookupBackdrop").addEventListener("click", (e)=>{
       if(e.target === $("lookupBackdrop")) closeLookupModal();
@@ -1958,7 +1912,6 @@
       setLookupStatus("Listo para buscar.", "warn");
     });
 
-    // Enter = buscar
     ["qNoPersonal","qNombre","qPeriodo","qVersion"].forEach(id=>{
       $(id).addEventListener("keydown", (e)=>{
         if(e.key === "Enter"){
