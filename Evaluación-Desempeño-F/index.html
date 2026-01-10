@@ -548,8 +548,9 @@
         </div>
 
         <div style="margin-top:12px;">
-          <label>Evaluación clientes</label>
+          <label>Evaluación clientes (autollenado desde hoja Clientes)</label>
           <textarea id="evaluacionClientes" placeholder="Evaluación clientes..."></textarea>
+          <div class="hint">Al recuperar (desempeño), se autocompleta con retroalimentación y nombre del evaluador (si existe).</div>
         </div>
       </div>
 
@@ -664,7 +665,7 @@
       </div>
     </div>
 
-    <!-- ✅ NUEVO: Modal Reporte Flotante -->
+    <!-- ✅ Modal Reporte Flotante -->
     <div class="modal-backdrop" id="reportBackdrop" aria-hidden="true">
       <div class="modal" role="dialog" aria-modal="true" aria-labelledby="reportTitleModal">
         <div class="modal-head">
@@ -741,7 +742,7 @@
   /************************************************************
    * 1) URL COMPLETA DEL APPS SCRIPT (/exec)
    ************************************************************/
-  const API_URL = "https://script.google.com/macros/s/AKfycbyjKldUQsDoeD_Q8FzJEjncZ02OZso_sP3I4jVKmvV-5jJq39ew65OCQULrfI-HRK2j4w/exec";
+  const API_URL = "https://script.google.com/macros/s/AKfycbyaqaLTqcI0XBKh81c1UiLxHFuFLiiy58SP8gcVr2YVSe8lgfclfxPLduthJYzLYoQn0Q/exec";
 
   function assertApiUrl(){
     if(!API_URL || !/^https?:\/\//i.test(API_URL)){
@@ -750,9 +751,7 @@
   }
 
   /************************************************************
-   * ✅ NUEVO: candidatos de URL (fallback anti-bloqueos)
-   * - Primero script.google.com
-   * - Luego script.googleusercontent.com (suele pasar mejor firewalls)
+   * ✅ Fallback anti-bloqueos (script.googleusercontent)
    ************************************************************/
   function getApiCandidates(){
     const u = String(API_URL || "").trim();
@@ -763,7 +762,6 @@
     return Array.from(new Set(out.filter(Boolean)));
   }
 
-  // ✅ Hardening JSONP + fallback multi-URL
   function jsonpRequest(url, params){
     return new Promise((resolve, reject) => {
       const cbName = "cb_" + Math.random().toString(36).slice(2);
@@ -780,8 +778,8 @@
 
       const timeout = setTimeout(() => {
         cleanup();
-        reject(new Error("Timeout JSONP (no llegó callback). Posible WebApp no público o red bloqueando script.google.com"));
-      }, 15000);
+        reject(new Error("Timeout JSONP (no llegó callback). WebApp no público o red bloqueando script.google.com"));
+      }, 18000);
 
       function cleanup(){
         clearTimeout(timeout);
@@ -789,10 +787,7 @@
         if(script && script.parentNode) script.parentNode.removeChild(script);
       }
 
-      window[cbName] = (data) => {
-        cleanup();
-        resolve(data);
-      };
+      window[cbName] = (data) => { cleanup(); resolve(data); };
 
       script.onerror = () => {
         cleanup();
@@ -803,7 +798,6 @@
     });
   }
 
-  // ✅ NUEVO: wrapper definitivo con fallback de dominio
   async function jsonpRequestWithFallback(params){
     assertApiUrl();
     const candidates = getApiCandidates();
@@ -819,8 +813,249 @@
     throw lastErr || new Error("No se pudo conectar por JSONP en ningún endpoint.");
   }
 
-  // ⚠️ Pega aquí tu ITEMS real completo
-  const ITEMS = [/* ... (SIN CAMBIOS: tu arreglo completo original) ... */];
+  /************************************************************
+   * ✅ ITEMS COMPLETO (19 ítems) — KEYS = Code.gs
+   ************************************************************/
+  const ITEMS = [
+    {
+      group: "1. Cumplimiento y Productividad",
+      items: [
+        {
+          key: "A_metas",
+          label: "A. Cumplimiento de Metas. Grado de logro",
+          rubric: [
+            "Cumple menos del 70% de lo establecido; la falta de avance afecta los resultados esperados.",
+            "Cumple 70–89% de lo establecido; presenta avances parciales o inconsistentes y requiere correcciones.",
+            "Cumple 90–100% de las metas planificadas con calidad y dentro del tiempo establecido.",
+            "Cumple 101–110% de las metas; entrega resultados adicionales o mejores de lo esperado.",
+            "Cumple más del 110% de forma sostenida; impacto significativo y calidad superior."
+          ]
+        },
+        {
+          key: "B_eficiencia",
+          label: "B. Eficiencia en el uso del tiempo, costos y recursos",
+          rubric: [
+            "Usa tiempo y recursos con errores graves que afectan la eficiencia.",
+            "Muestra uso inestable del tiempo y recursos; requiere evaluaciones y correcciones frecuentes.",
+            "Utiliza de manera adecuada el tiempo y los recursos, cumpliendo sin desperdicios significativos.",
+            "Optimiza tiempo y recursos, generando mejoras sin afectar la calidad del trabajo.",
+            "Maximiza la eficiencia de forma sostenida; mejora procesos y logra resultados superiores sin comprometer la calidad."
+          ]
+        },
+        {
+          key: "C_seguridad",
+          label: "C. Cumplimiento de normas de seguridad",
+          rubric: [
+            "Incumple normas de seguridad y genera riesgos constantes para sí y el equipo.",
+            "Cumple parcialmente las normas; requiere supervisión continua para evitar incidentes.",
+            "Cumple todas las normas y actúa de manera segura en su trabajo diario.",
+            "Se anticipa a riesgos, propone acciones preventivas y actúa con autonomía segura.",
+            "Promueve cultura de seguridad; motiva a otros y contribuye a mantener ambientes sin incidentes."
+          ]
+        },
+        {
+          key: "D_prioriza",
+          label: "D. Prioriza y organiza tareas adecuadamente",
+          rubric: [
+            "Desorganiza tareas; incumple plazos y afecta resultados importantes.",
+            "Organiza parcialmente; inconsistencias en prioridades y manejo del tiempo.",
+            "Gestiona tareas adecuadamente, cumple tiempos y mantiene orden en su trabajo.",
+            "Organiza y prioriza con eficiencia; anticipa necesidades y mejora tiempos de entrega.",
+            "Es referente en organización; redistribuye recursos, optimiza procesos y eleva la productividad del equipo."
+          ]
+        }
+      ]
+    },
+
+    {
+      group: "2. Calidad del Trabajo",
+      items: [
+        {
+          key: "A_exactitud",
+          label: "A. Exactitud y atención al detalle",
+          rubric: [
+            "Comete errores frecuentes y no identifica fallos evidentes; requiere supervisión constante.",
+            "Presenta errores recurrentes por falta de revisión; exactitud inconsistente y requiere correcciones frecuentes.",
+            "Realiza su trabajo con un nivel adecuado de precisión; puede cometer errores menores que no afectan resultados.",
+            "Mantiene atención al detalle constante; comete pocos errores y revisa su trabajo de forma proactiva.",
+            "Trabajo impecable; detecta errores propios y ajenos, propone mejoras y es referente en precisión."
+          ]
+        },
+        {
+          key: "B_estandares",
+          label: "B. Cumple con estándares de calidad",
+          rubric: [
+            "Menos del 70% de entregables cumplen estándares; resultados inaceptables.",
+            "70–89% cumplen estándares; requiere ajustes frecuentes.",
+            "100% de entregables cumplen estándares establecidos.",
+            "101–110%: entrega con calidad superior y consistente.",
+            "Más del 110%: supera ampliamente estándares y produce resultados sobresalientes."
+          ]
+        },
+        {
+          key: "C_entregas",
+          label: "C. Entregas a Tiempo (cumple con plazos establecidos)",
+          rubric: [
+            "Menos del 70% de entregas a tiempo; retrasos afectan el área.",
+            "70–89% a tiempo; desempeño irregular.",
+            "100% de entregas en plazos pactados.",
+            "101–110%: se anticipa, cumple tiempos y mantiene calidad.",
+            "Más del 110%: entrega antes, supera plazos con calidad y mejora eficiencia general."
+          ]
+        },
+        {
+          key: "D_errores",
+          label: "D. Manejo de errores y mejoras",
+          rubric: [
+            "No reconoce ni corrige errores; genera reincidencias graves.",
+            "Corrige parcialmente; mejora no constante, requiere supervisión.",
+            "Detecta y corrige errores básicos cuando se le solicita; cumple lo necesario.",
+            "Se anticipa a errores y propone soluciones preventivas que mejoran el proceso.",
+            "Asegura procesos libres de errores; implementa mejoras continuas y es referente en calidad."
+          ]
+        }
+      ]
+    },
+
+    {
+      group: "3. Competencias y Habilidades",
+      items: [
+        {
+          key: "A_conocimientos",
+          label: "A. Conocimientos técnicos del puesto",
+          rubric: [
+            "Conocimientos por debajo de lo esperado; no domina funciones básicas.",
+            "Gestiona parcialmente conocimientos; requiere apoyo frecuente.",
+            "Posee conocimiento técnico y funcional adecuado para el puesto.",
+            "Aplica conocimientos de manera confiable y constante.",
+            "Domina conocimientos avanzados y es referente técnico en el área."
+          ]
+        },
+        {
+          key: "B_clientes",
+          label: "B. Convincente respuesta técnica a clientes",
+          rubric: [
+            "Respuestas incorrectas/inconsistentes que generan desconfianza.",
+            "Respuestas incompletas o poco claras; afecta calidad del servicio.",
+            "Responde de forma adecuada y funcional, brindando confianza.",
+            "Respuestas claras, específicas y confiables de manera constante.",
+            "Respuestas sobresalientes y precisas; reconocido como referente por clientes y equipo."
+          ]
+        },
+        {
+          key: "C_problemas",
+          label: "C. Resolución de problemas",
+          rubric: [
+            "No logra resolver problemas; afecta procesos y resultados.",
+            "Resuelve parcialmente; requiere supervisión frecuente.",
+            "Resuelve problemas básicos de manera satisfactoria y funcional.",
+            "Resuelve problemas complejos con autonomía y confiabilidad.",
+            "Anticipa problemas y desarrolla soluciones preventivas y estratégicas."
+          ]
+        },
+        {
+          key: "D_iniciativa",
+          label: "D. Iniciativa y creatividad",
+          rubric: [
+            "No genera ideas ni propone mejoras.",
+            "Propone ideas poco útiles o de aplicación limitada.",
+            "Propone ideas funcionales y aplicables cuando es necesario.",
+            "Genera ideas prácticas que optimizan procesos y agregan valor.",
+            "Propone soluciones innovadoras con impacto positivo y sostenible."
+          ]
+        }
+      ]
+    },
+
+    {
+      group: "4. Actitud y Valores",
+      items: [
+        {
+          key: "A_responsabilidad",
+          label: "A. Responsabilidad y compromiso",
+          rubric: [
+            "Incumple compromisos y entrega resultados muy por debajo de lo esperado.",
+            "Cumple de forma irregular; requiere seguimiento constante.",
+            "Cumple responsabilidades de manera adecuada y confiable.",
+            "Cumple consistentemente; genera seguridad y aporta valor.",
+            "Inspira por su compromiso; es modelo de conducta para el equipo."
+          ]
+        },
+        {
+          key: "B_puntualidad",
+          label: "B. Puntualidad y asistencia",
+          rubric: [
+            "Ausencias injustificadas frecuentes; llegadas tardías recurrentes sin aviso.",
+            "Frecuencia de tardanza sin justificación clara; afecta la operación.",
+            "Asiste regularmente y cumple horarios; tardanzas justificadas sin reincidencia.",
+            "Puntual y asistencia confiable; comunica eventualidades oportunamente.",
+            "Puntualidad impecable; referente y se adapta a horarios especiales sin afectar desempeño."
+          ]
+        },
+        {
+          key: "C_equipo",
+          label: "C. Trabajo en equipo y cooperación",
+          rubric: [
+            "No coopera; genera conflictos y dificulta el trabajo del equipo.",
+            "Coopera parcialmente; actitud inestable.",
+            "Coopera cuando se le solicita, con resultados aceptables.",
+            "Colabora activamente y aporta de forma confiable.",
+            "Referente en equipo; promueve colaboración, sinergia y apoya a otros."
+          ]
+        },
+        {
+          key: "D_comunicacion",
+          label: "D. Comunicación efectiva",
+          rubric: [
+            "Comunicación confusa; genera malentendidos graves.",
+            "Comunicación incompleta/poco clara; requiere supervisión para asegurar entendimiento.",
+            "Comunica lo necesario de forma clara y suficiente.",
+            "Comunicación clara, precisa y constructiva; escucha activamente.",
+            "Comunicación influyente y estratégica; facilita acuerdos y motiva a otros."
+          ]
+        }
+      ]
+    },
+
+    {
+      group: "5. Desarrollo y Potencial",
+      items: [
+        {
+          key: "A_adaptacion",
+          label: "A. Adaptación al cambio",
+          rubric: [
+            "Resiste activamente al cambio; afecta procesos y equipos.",
+            "Se adapta parcialmente; con dificultad y resultados limitados.",
+            "Se adapta lo necesario para mantener desempeño adecuado.",
+            "Se adapta de forma autónoma y confiable a nuevas situaciones.",
+            "Referente en adaptación; motiva y guía a otros en procesos de cambio."
+          ]
+        },
+        {
+          key: "B_aprender",
+          label: "B. Disposición para aprender",
+          rubric: [
+            "No busca aprender; rechaza retroalimentación y capacitación.",
+            "Aprende solo lo obligatorio; mínima aplicación práctica.",
+            "Aprende lo necesario para mantener desempeño satisfactorio.",
+            "Busca aprender constantemente y aplica lo aprendido en el trabajo.",
+            "Aprendizaje continuo; comparte conocimientos y forma a otros."
+          ]
+        },
+        {
+          key: "C_liderazgo",
+          label: "C. Liderazgo",
+          rubric: [
+            "No coordina ni dirige; genera desorden y afecta resultados.",
+            "Lidera débilmente; bajo impacto en el equipo.",
+            "Lidera tareas básicas con resultados adecuados y funcionales.",
+            "Lidera con confianza, logrando resultados consistentes y estables.",
+            "Inspira con visión clara; desarrolla a otros, fortalece cohesión y se convierte en referente."
+          ]
+        }
+      ]
+    }
+  ];
 
   const state = { dirty:false, generated:false, answers:{}, saving:false };
   const $ = (id) => document.getElementById(id);
@@ -1101,7 +1336,7 @@
     $("rFecha").textContent = formatDateES(header.fecha);
 
     renderSeleccionEnReporte();
-    $("rTotal").textContent = String(total);
+    $("rTotal").textContent = String((header.tipo === "clientes") ? 0 : total);
 
     const comentarioColab =
       (header.tipo === "autoevaluacion")
@@ -1318,6 +1553,7 @@
 
     if($("tipoFormulario").value === "autoevaluacion"){
       $("comentariosColaborador").value = rowParams.comentarios || $("comentariosColaborador").value;
+
     }else if($("tipoFormulario").value === "desempeno"){
       const txt = String(rowParams.comentarios || "");
       if(txt){
@@ -1325,10 +1561,12 @@
         $("comentariosColaborador2").value = m ? m[1].trim() : $("comentariosColaborador2").value;
       }
 
+      // 1) Si ya venía evaluacion_clientes guardada en autoevaluaciones, úsala
       if(rowParams.evaluacion_clientes){
         $("evaluacionClientes").value = rowParams.evaluacion_clientes;
       }
 
+      // 2) Si existe en hoja Clientes, la construimos (NombreEvaluador + retroalimentacion)
       if(clientesInfo && clientesInfo.retroalimentacion){
         const head = (clientesInfo.nombre_evaluador ? `(${clientesInfo.nombre_evaluador}) ` : "");
         const composed = `${head}${clientesInfo.retroalimentacion}`.trim();
@@ -1370,7 +1608,6 @@
 
       const action = (tipo === "desempeno") ? "recuperar_desempeno" : "recuperar";
 
-      // ✅ CAMBIO: ahora usa fallback automático
       const data = await jsonpRequestWithFallback({
         action,
         no_personal,
@@ -1405,7 +1642,7 @@
       console.error(err);
       $("apiHint").className = "err";
       $("apiHint").textContent = "No se pudo recuperar: " + (err.message || err);
-      alert("No se pudo recuperar: " + (err.message || err) + "\n\nTip: Si estás en red corporativa, prueba sin bloqueador o con otra red.");
+      alert("No se pudo recuperar: " + (err.message || err) + "\n\nTip: WebApp debe estar público (Anyone) y la red no debe bloquear Google Scripts.");
     }finally{
       setBusy(false);
     }
@@ -1480,7 +1717,6 @@
       assertApiUrl();
       setLookupStatus("Buscando...", "warn");
 
-      // ✅ CAMBIO: fallback automático
       const data = await jsonpRequestWithFallback({
         action: "buscar",
         no_personal,
@@ -1566,7 +1802,6 @@
       tipo === "clientes" ? "Formulario evaluación clientes" :
       "Formulario de evaluación del desempeño";
 
-    // ✅ Autoevaluación: SIEMPRE muestra cuestionario completo + comentario
     $("autoComentariosBox").style.display = (tipo === "autoevaluacion") ? "block" : "none";
     $("desempenoCamposBox").style.display = (tipo === "desempeno") ? "block" : "none";
     $("clientesBox").style.display = (tipo === "clientes") ? "block" : "none";
@@ -1726,6 +1961,7 @@
       periodo: header.periodo,
       version: header.version,
       fecha: header.fecha,
+
       ...answersText,
 
       retroalimentacion: (header.tipo === "clientes") ? (extra.retroalimentacion || "") : "",
@@ -1745,7 +1981,6 @@
 
       const body = toFormUrlEncoded(formPayload);
 
-      // ⚠️ Guardar sigue igual (POST no-cors)
       await fetch(API_URL, {
         method: "POST",
         mode: "no-cors",
