@@ -716,8 +716,18 @@
 <script>
   /************************************************************
    * 1) URL COMPLETA DEL APPS SCRIPT (/exec)
+   * ✅ FIX: tenías "ttps" (sin h). Eso rompe todo.
    ************************************************************/
-  const API_URL = "ttps://script.google.com/macros/s/AKfycbzCaWhIaMSfuMNNt7Y19KRW_kEmcG64fSSIF2I7Cxo3k73eDS90zwilZY10Vr66jUOC_g/exec";
+  const API_URL = "https://script.google.com/macros/s/AKfycbzCRdsGnq8Wd7VVA4cF7E0LQKAFuDWiKM4RAeimCnoSJwpWTMVbDQjD3gay_Y1ViAz5wA/exec";
+
+  /************************************************************
+   * 1.0) Pequeña validación del endpoint (fail fast)
+   ************************************************************/
+  function assertApiUrl(){
+    if(!API_URL || !/^https?:\/\//i.test(API_URL)){
+      throw new Error("API_URL inválida. Verifica que empiece con https:// y termine en /exec");
+    }
+  }
 
   /************************************************************
    * 1.1) JSONP helper (para recuperar/buscar sin CORS)
@@ -1429,6 +1439,7 @@
     const version = $("version").value.trim();
 
     try{
+      assertApiUrl();
       setBusy(true);
       $("apiHint").className = "warn";
       $("apiHint").textContent = "Recuperando desde Google Sheets...";
@@ -1536,6 +1547,7 @@
     const version = $("qVersion").value.trim();
 
     try{
+      assertApiUrl();
       setLookupStatus("Buscando...", "warn");
       const data = await jsonpRequest(API_URL, {
         action: "buscar",
@@ -1789,6 +1801,7 @@
     };
 
     try{
+      assertApiUrl();
       setBusy(true);
       $("apiHint").className = "warn";
       $("apiHint").textContent = "Enviando a Google Sheets...";
@@ -1922,9 +1935,34 @@
     });
   }
 
+  /************************************************************
+   * ✅ EXTRA: fecha por defecto (hoy) al cargar si está vacía
+   ************************************************************/
+  function setDefaultToday(){
+    const f = $("fecha");
+    if(f && !f.value){
+      const d = new Date();
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth()+1).padStart(2,"0");
+      const dd = String(d.getDate()).padStart(2,"0");
+      f.value = `${yyyy}-${mm}-${dd}`;
+    }
+  }
+
+  /************************************************************
+   * ✅ EXTRA: advertencia al salir si hay cambios sin guardar
+   ************************************************************/
+  window.addEventListener("beforeunload", (e)=>{
+    if(state.dirty){
+      e.preventDefault();
+      e.returnValue = "";
+    }
+  });
+
   renderItems();
   applyTipoUI();
   bind();
+  setDefaultToday();
   setDirty(false);
 </script>
 </body>
