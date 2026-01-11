@@ -112,12 +112,12 @@
       .actions{justify-content:flex-end}
       .topbar{flex-wrap:wrap}
     }
-    label{display:block; font-size:12px; color:var(--muted); margin:0 0 6px}
-    input, select, textarea{
+      input, select, textarea{
       width:100%;
       padding:12px 12px;
       border-radius:14px;
-      border:1px solid rgba(255,255,255,.10);
+      border:1px solid rgba(74,163,255,.55);
+      box-shadow: 0 0 0 2px rgba(47,123,255,.18), 0 12px 30px rgba(47,123,255,.10);
       outline:none;
       color:var(--text);
       background: rgba(0,0,0,.25);
@@ -1375,7 +1375,7 @@
       $("rComentarios").textContent = "—";
     }
 
-    if((header.tipo === "desempeno" || header.tipo === "autoevaluacion") && extra.evaluacion_clientes){
+      if((header.tipo === "desempeno") && extra.evaluacion_clientes){
       $("rEvalClientesBlock").style.display = "block";
       $("rEvalClientes").textContent = extra.evaluacion_clientes;
     }else{
@@ -1383,12 +1383,11 @@
       $("rEvalClientes").textContent = "—";
     }
 
-    // ✅ Ahora el bloque de justificación aplica para desempeño Y autoevaluación
-    if(header.tipo === "desempeno" || header.tipo === "autoevaluacion"){
+      // ✅ Bloque de justificación: solo Desempeño
+    if(header.tipo === "desempeno"){
       const hasAny =
         (extra.justificacion || extra.comentarios_evaluador || extra.fortalezas ||
-         extra.oportunidades_mejora || extra.proyeccion_potencial || extra.necesidades_capacitacion ||
-         (header.tipo === "autoevaluacion" ? extra.comentarios_colaborador2 : false));
+         extra.oportunidades_mejora || extra.proyeccion_potencial || extra.necesidades_capacitacion);
 
       if(hasAny){
         $("rJustifBlock").style.display = "block";
@@ -1398,8 +1397,7 @@
           `Fortalezas: ${extra.fortalezas || "—"}`,
           `Oportunidades de mejora: ${extra.oportunidades_mejora || "—"}`,
           `Proyección y potencial: ${extra.proyeccion_potencial || "—"}`,
-          `Necesidades de capacitación: ${extra.necesidades_capacitacion || "—"}`,
-          (header.tipo === "autoevaluacion") ? `Comentarios del colaborador (extra): ${extra.comentarios_colaborador2 || "—"}` : ""
+          `Necesidades de capacitación: ${extra.necesidades_capacitacion || "—"}`
         ].filter(Boolean).join("\n\n");
         $("rJustifAll").textContent = txt;
       }else{
@@ -1840,11 +1838,12 @@
       }
     });
 
-    // ✅ FIX: Recuperar visible para Autoevaluación y Desempeño; oculto para Clientes
+      // ✅ Recuperar: solo visible en Desempeño
     const btnRecover = $("btnRecover");
     if(btnRecover){
-      btnRecover.style.display = (isClientes) ? "none" : "";
+      btnRecover.style.display = (tipo === "desempeno") ? "" : "none";
     }
+
   }
 
   function applyTopActionsUI(tipo){
@@ -1864,7 +1863,7 @@
     $("autoComentariosBox").style.display = (tipo === "autoevaluacion") ? "block" : "none";
 
     // ✅ Cambio clave: al iniciar (autoevaluación por defecto) también se muestran los campos realzados
-    $("desempenoCamposBox").style.display = (tipo === "desempeno" || tipo === "autoevaluacion") ? "block" : "none";
+    $("desempenoCamposBox").style.display = (tipo === "desempeno") ? "block" : "none";
 
     $("clientesBox").style.display = (tipo === "clientes") ? "block" : "none";
 
@@ -2047,8 +2046,8 @@
       retroalimentacion: (header.tipo === "clientes") ? (extra.retroalimentacion || "") : "",
       nombre_evaluador: (header.tipo === "clientes") ? (extra.nombre_evaluador || "") : "",
 
-      evaluacion_clientes: (header.tipo === "desempeno" || header.tipo === "autoevaluacion") ? (extra.evaluacion_clientes || "") : "",
-      necesidades_capacitacion: (header.tipo === "desempeno" || header.tipo === "autoevaluacion") ? (extra.necesidades_capacitacion || "") : "",
+      evaluacion_clientes: (header.tipo === "desempeno") ? (extra.evaluacion_clientes || "") : "",
+      necesidades_capacitacion: (header.tipo === "desempeno") ? (extra.necesidades_capacitacion || "") : "",
 
       respuestas_json: respuestasJSON,
       comentarios: buildComentariosParaSheet(header.tipo, extra)
