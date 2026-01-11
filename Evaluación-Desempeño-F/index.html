@@ -155,6 +155,31 @@
     }
     .searchBadge .dot{background: rgba(74,163,255,.95);}
 
+    /* ✅ Realce de campos solicitados */
+    .highlightField label{
+      color: rgba(234,240,255,.96);
+      font-weight: 900;
+      letter-spacing: .15px;
+    }
+    .highlightField textarea, .highlightField input{
+      border:1px solid rgba(74,163,255,.70);
+      box-shadow: 0 0 0 2px rgba(47,123,255,.18), 0 12px 30px rgba(47,123,255,.12);
+    }
+    .highlightBadge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:6px 10px;
+      border-radius:999px;
+      background:rgba(74,163,255,.14);
+      border:1px solid rgba(74,163,255,.30);
+      color:rgba(234,240,255,.92);
+      font-size:12px;
+      font-weight:900;
+      margin-top:10px;
+    }
+    .highlightBadge .dot{background: rgba(74,163,255,.95);}
+
     .modal-backdrop{
       position:fixed; inset:0;
       background: rgba(0,0,0,.58);
@@ -440,9 +465,9 @@
           <div>
             <label>Tipo</label>
             <select id="tipoFormulario">
-              <option value="autoevaluacion">Formulario de autoevaluación</option>
+              <option value="autoevaluacion" selected>Formulario de autoevaluación</option>
               <option value="clientes">Formulario evaluación clientes</option>
-              <option value="desempeno" selected>Formulario de evaluación del desempeño</option>
+              <option value="desempeno">Formulario de evaluación del desempeño</option>
             </select>
             <div class="hint">El guardado siempre va a Google Sheets (Web App de Apps Script).</div>
           </div>
@@ -517,37 +542,45 @@
         <h2>Justificación y comentarios</h2>
         <p>Completa los campos siguientes (según formato).</p>
 
-        <div style="margin-top:14px;">
+        <div class="highlightBadge"><span class="dot"></span>Campos realzados (inicio): Justificación • Comentarios • Fortalezas • Oportunidades • Proyección • Evaluación clientes • Necesidades de capacitación</div>
+
+        <div style="margin-top:14px;" class="highlightField">
           <label>Justificación calificaciones (1 - 6)</label>
           <textarea id="justificacion" placeholder="Describe la justificación de las calificaciones..."></textarea>
         </div>
 
-        <div style="margin-top:12px;">
+        <div style="margin-top:12px;" class="highlightField">
           <label>Comentarios del evaluador</label>
           <textarea id="comentariosEvaluador" placeholder="Comentarios del evaluador..."></textarea>
         </div>
 
-        <div style="margin-top:12px;">
+        <div style="margin-top:12px;" class="highlightField">
           <label>Fortalezas</label>
           <textarea id="fortalezas" placeholder="Fortalezas..."></textarea>
         </div>
 
-        <div style="margin-top:12px;">
+        <div style="margin-top:12px;" class="highlightField">
           <label>Oportunidades de mejora</label>
           <textarea id="oportunidades" placeholder="Oportunidades de mejora..."></textarea>
         </div>
 
-        <div style="margin-top:12px;">
+        <div style="margin-top:12px;" class="highlightField">
           <label>Proyección y potencial de desarrollo</label>
           <textarea id="proyeccion" placeholder="Proyección y potencial..."></textarea>
         </div>
 
-        <div style="margin-top:12px;">
+        <!-- ✅ Nuevo campo realzado -->
+        <div style="margin-top:12px;" class="highlightField">
+          <label>Necesidades de capacitación</label>
+          <textarea id="necesidadesCapacitacion" placeholder="Necesidades de capacitación..."></textarea>
+        </div>
+
+        <div style="margin-top:12px;" class="highlightField">
           <label>Comentarios del colaborador</label>
           <textarea id="comentariosColaborador2" placeholder="Comentarios del colaborador..."></textarea>
         </div>
 
-        <div style="margin-top:12px;">
+        <div style="margin-top:12px;" class="highlightField">
           <label>Evaluación clientes (autollenado desde hoja Clientes)</label>
           <textarea id="evaluacionClientes" placeholder="Evaluación clientes..."></textarea>
           <div class="hint">Al recuperar (desempeño), se autocompleta con retroalimentación y nombre del evaluador (si existe).</div>
@@ -730,7 +763,7 @@
         </div>
 
         <div class="block" id="rJustifBlock" style="display:none;">
-          <h2>Justificación y comentarios (evaluación del desempeño)</h2>
+          <h2>Justificación y comentarios</h2>
           <div class="box" id="rJustifAll">—</div>
         </div>
       </div>
@@ -742,7 +775,7 @@
   /************************************************************
    * 1) URL COMPLETA DEL APPS SCRIPT (/exec)
    ************************************************************/
-  const API_URL = "https://script.google.com/macros/s/AKfycbwaBK-3GtsCiiS6MxFmwfOC_UMLLVI18IJVLhoHrqBqtNKI8Dzni-WxF8enw6pkoI5ZHA/exec";
+  const API_URL = "https://script.google.com/macros/s/AKfycbx0pgOrkIdokbFWcQ4r6HHt6PamaU9dHhsleG4nyUdAtwY4bHrMoTnPS51NI-P20ndRBQ/exec";
 
   function assertApiUrl(){
     if(!API_URL || !/^https?:\/\//i.test(API_URL)){
@@ -814,7 +847,7 @@
   }
 
   /************************************************************
-   * ✅ ITEMS COMPLETO (19 ítems) — KEYS = Code.gs
+   * ✅ ITEMS COMPLETO (19 ítems) — KEYS = Look.gs
    ************************************************************/
   const ITEMS = [
     {
@@ -1165,8 +1198,20 @@
   function getExtraFields(){
     const tipo = $("tipoFormulario").value;
 
+    // ✅ Autoevaluación: mantiene comentarios como obligatorio,
+    // pero ahora también captura (opcionalmente) los campos realzados.
     if(tipo === "autoevaluacion"){
-      return { comentarios_colaborador: $("comentariosColaborador").value.trim() };
+      return {
+        comentarios_colaborador: $("comentariosColaborador").value.trim(),
+        justificacion: ($("justificacion")?.value || "").trim(),
+        comentarios_evaluador: ($("comentariosEvaluador")?.value || "").trim(),
+        fortalezas: ($("fortalezas")?.value || "").trim(),
+        oportunidades_mejora: ($("oportunidades")?.value || "").trim(),
+        proyeccion_potencial: ($("proyeccion")?.value || "").trim(),
+        necesidades_capacitacion: ($("necesidadesCapacitacion")?.value || "").trim(),
+        comentarios_colaborador2: ($("comentariosColaborador2")?.value || "").trim(),
+        evaluacion_clientes: ($("evaluacionClientes")?.value || "").trim()
+      };
     }
     if(tipo === "desempeno"){
       return {
@@ -1175,6 +1220,7 @@
         fortalezas: $("fortalezas").value.trim(),
         oportunidades_mejora: $("oportunidades").value.trim(),
         proyeccion_potencial: $("proyeccion").value.trim(),
+        necesidades_capacitacion: ($("necesidadesCapacitacion")?.value || "").trim(),
         comentarios_colaborador: $("comentariosColaborador2").value.trim(),
         evaluacion_clientes: ($("evaluacionClientes")?.value || "").trim()
       };
@@ -1329,7 +1375,7 @@
       $("rComentarios").textContent = "—";
     }
 
-    if(header.tipo === "desempeno" && extra.evaluacion_clientes){
+    if((header.tipo === "desempeno" || header.tipo === "autoevaluacion") && extra.evaluacion_clientes){
       $("rEvalClientesBlock").style.display = "block";
       $("rEvalClientes").textContent = extra.evaluacion_clientes;
     }else{
@@ -1337,16 +1383,29 @@
       $("rEvalClientes").textContent = "—";
     }
 
-    if(header.tipo === "desempeno"){
-      $("rJustifBlock").style.display = "block";
-      const txt = [
-        `Justificación calificaciones (1-6): ${extra.justificacion || "—"}`,
-        `Comentarios del evaluador: ${extra.comentarios_evaluador || "—"}`,
-        `Fortalezas: ${extra.fortalezas || "—"}`,
-        `Oportunidades de mejora: ${extra.oportunidades_mejora || "—"}`,
-        `Proyección y potencial: ${extra.proyeccion_potencial || "—"}`
-      ].join("\n\n");
-      $("rJustifAll").textContent = txt;
+    // ✅ Ahora el bloque de justificación aplica para desempeño Y autoevaluación
+    if(header.tipo === "desempeno" || header.tipo === "autoevaluacion"){
+      const hasAny =
+        (extra.justificacion || extra.comentarios_evaluador || extra.fortalezas ||
+         extra.oportunidades_mejora || extra.proyeccion_potencial || extra.necesidades_capacitacion ||
+         (header.tipo === "autoevaluacion" ? extra.comentarios_colaborador2 : false));
+
+      if(hasAny){
+        $("rJustifBlock").style.display = "block";
+        const txt = [
+          `Justificación calificaciones (1-6): ${extra.justificacion || "—"}`,
+          `Comentarios del evaluador: ${extra.comentarios_evaluador || "—"}`,
+          `Fortalezas: ${extra.fortalezas || "—"}`,
+          `Oportunidades de mejora: ${extra.oportunidades_mejora || "—"}`,
+          `Proyección y potencial: ${extra.proyeccion_potencial || "—"}`,
+          `Necesidades de capacitación: ${extra.necesidades_capacitacion || "—"}`,
+          (header.tipo === "autoevaluacion") ? `Comentarios del colaborador (extra): ${extra.comentarios_colaborador2 || "—"}` : ""
+        ].filter(Boolean).join("\n\n");
+        $("rJustifAll").textContent = txt;
+      }else{
+        $("rJustifBlock").style.display = "none";
+        $("rJustifAll").textContent = "—";
+      }
     }else{
       $("rJustifBlock").style.display = "none";
       $("rJustifAll").textContent = "—";
@@ -1447,6 +1506,7 @@
       ["Fecha", rowParams.fecha || ""],
       ["Comentarios", rowParams.comentarios || ""],
       ["Evaluación clientes (campo desempeño)", rowParams.evaluacion_clientes || ""],
+      ["Necesidades de capacitación", rowParams.necesidades_capacitacion || ""]
     ];
 
     if(clientesInfo){
@@ -1532,12 +1592,29 @@
     if(tipo === "autoevaluacion"){
       $("comentariosColaborador").value = rowParams.comentarios || $("comentariosColaborador").value;
 
+      // ✅ si existen columnas/campos, los aplicamos
+      if($("justificacion")) $("justificacion").value = rowParams.justificacion || $("justificacion").value;
+      if($("comentariosEvaluador")) $("comentariosEvaluador").value = rowParams.comentarios_evaluador || $("comentariosEvaluador").value;
+      if($("fortalezas")) $("fortalezas").value = rowParams.fortalezas || $("fortalezas").value;
+      if($("oportunidades")) $("oportunidades").value = rowParams.oportunidades_mejora || $("oportunidades").value;
+      if($("proyeccion")) $("proyeccion").value = rowParams.proyeccion_potencial || $("proyeccion").value;
+      if($("necesidadesCapacitacion")) $("necesidadesCapacitacion").value = rowParams.necesidades_capacitacion || $("necesidadesCapacitacion").value;
+      if($("comentariosColaborador2")) $("comentariosColaborador2").value = rowParams.comentarios_colaborador2 || $("comentariosColaborador2").value;
+      if($("evaluacionClientes")) $("evaluacionClientes").value = rowParams.evaluacion_clientes || $("evaluacionClientes").value;
+
     }else if(tipo === "desempeno"){
       const txt = String(rowParams.comentarios || "");
       if(txt){
         const m = txt.match(/Comentarios\s+colaborador:\s*([\s\S]*)$/i);
         $("comentariosColaborador2").value = m ? m[1].trim() : $("comentariosColaborador2").value;
       }
+
+      if(rowParams.justificacion) $("justificacion").value = rowParams.justificacion;
+      if(rowParams.comentarios_evaluador) $("comentariosEvaluador").value = rowParams.comentarios_evaluador;
+      if(rowParams.fortalezas) $("fortalezas").value = rowParams.fortalezas;
+      if(rowParams.oportunidades_mejora) $("oportunidades").value = rowParams.oportunidades_mejora;
+      if(rowParams.proyeccion_potencial) $("proyeccion").value = rowParams.proyeccion_potencial;
+      if(rowParams.necesidades_capacitacion) $("necesidadesCapacitacion").value = rowParams.necesidades_capacitacion;
 
       // 1) Si ya venía evaluacion_clientes guardada en autoevaluaciones, úsala
       if(rowParams.evaluacion_clientes){
@@ -1785,7 +1862,10 @@
       "Formulario de evaluación del desempeño";
 
     $("autoComentariosBox").style.display = (tipo === "autoevaluacion") ? "block" : "none";
-    $("desempenoCamposBox").style.display = (tipo === "desempeno") ? "block" : "none";
+
+    // ✅ Cambio clave: al iniciar (autoevaluación por defecto) también se muestran los campos realzados
+    $("desempenoCamposBox").style.display = (tipo === "desempeno" || tipo === "autoevaluacion") ? "block" : "none";
+
     $("clientesBox").style.display = (tipo === "clientes") ? "block" : "none";
 
     $("evalCard").style.display = (tipo === "clientes") ? "none" : "block";
@@ -1812,6 +1892,7 @@
     $("fortalezas").value = "";
     $("oportunidades").value = "";
     $("proyeccion").value = "";
+    $("necesidadesCapacitacion").value = "";
     $("comentariosColaborador2").value = "";
     $("evaluacionClientes").value = "";
 
@@ -1849,7 +1930,17 @@
 
   function buildComentariosParaSheet(tipo, extra){
     if(tipo === "autoevaluacion"){
-      return extra.comentarios_colaborador || "";
+      return [
+        extra.comentarios_colaborador ? `Comentarios colaborador: ${extra.comentarios_colaborador}` : "",
+        extra.justificacion ? `Justificación (1-6): ${extra.justificacion}` : "",
+        extra.comentarios_evaluador ? `Comentarios evaluador: ${extra.comentarios_evaluador}` : "",
+        extra.fortalezas ? `Fortalezas: ${extra.fortalezas}` : "",
+        extra.oportunidades_mejora ? `Oportunidades: ${extra.oportunidades_mejora}` : "",
+        extra.proyeccion_potencial ? `Proyección: ${extra.proyeccion_potencial}` : "",
+        extra.necesidades_capacitacion ? `Necesidades de capacitación: ${extra.necesidades_capacitacion}` : "",
+        extra.comentarios_colaborador2 ? `Comentarios colaborador (extra): ${extra.comentarios_colaborador2}` : "",
+        extra.evaluacion_clientes ? `Evaluación clientes: ${extra.evaluacion_clientes}` : ""
+      ].filter(Boolean).join("\n\n");
     }
     if(tipo === "desempeno"){
       return [
@@ -1857,6 +1948,7 @@
         extra.fortalezas ? `Fortalezas: ${extra.fortalezas}` : "",
         extra.oportunidades_mejora ? `Oportunidades: ${extra.oportunidades_mejora}` : "",
         extra.proyeccion_potencial ? `Proyección: ${extra.proyeccion_potencial}` : "",
+        extra.necesidades_capacitacion ? `Necesidades de capacitación: ${extra.necesidades_capacitacion}` : "",
         extra.comentarios_colaborador ? `Comentarios colaborador: ${extra.comentarios_colaborador}` : "",
         extra.evaluacion_clientes ? `Evaluación clientes: ${extra.evaluacion_clientes}` : ""
       ].filter(Boolean).join("\n\n");
@@ -1900,6 +1992,7 @@
 
     if(tipo === "autoevaluacion"){
       if(!extra.comentarios_colaborador) missing.push("Comentarios del colaborador");
+      // ✅ Los campos realzados en autoevaluación quedan opcionales (solo se muestran y se guardan si se llenan)
     }
     if(tipo === "desempeno"){
       if(!extra.justificacion) missing.push("Justificación calificaciones");
@@ -1908,6 +2001,8 @@
       if(!extra.oportunidades_mejora) missing.push("Oportunidades de mejora");
       if(!extra.proyeccion_potencial) missing.push("Proyección y potencial");
       if(!extra.comentarios_colaborador) missing.push("Comentarios del colaborador");
+      // ✅ No se marcó como obligatorio, solo se agregó y se guarda si se llena:
+      // if(!extra.necesidades_capacitacion) missing.push("Necesidades de capacitación");
     }
 
     return { ok: missing.length === 0, missing, header, extra };
@@ -1952,7 +2047,8 @@
       retroalimentacion: (header.tipo === "clientes") ? (extra.retroalimentacion || "") : "",
       nombre_evaluador: (header.tipo === "clientes") ? (extra.nombre_evaluador || "") : "",
 
-      evaluacion_clientes: (header.tipo === "desempeno") ? (extra.evaluacion_clientes || "") : "",
+      evaluacion_clientes: (header.tipo === "desempeno" || header.tipo === "autoevaluacion") ? (extra.evaluacion_clientes || "") : "",
+      necesidades_capacitacion: (header.tipo === "desempeno" || header.tipo === "autoevaluacion") ? (extra.necesidades_capacitacion || "") : "",
 
       respuestas_json: respuestasJSON,
       comentarios: buildComentariosParaSheet(header.tipo, extra)
@@ -1991,7 +2087,7 @@
     [
       "noPersonal","nombre","posicion","departamento","periodo","version","fecha",
       "comentariosColaborador","justificacion","comentariosEvaluador","fortalezas",
-      "oportunidades","proyeccion","comentariosColaborador2","evaluacionClientes",
+      "oportunidades","proyeccion","necesidadesCapacitacion","comentariosColaborador2","evaluacionClientes",
       "retroalimentacion","nombreEvaluador"
     ].forEach(id=>{
       const el = $(id);
