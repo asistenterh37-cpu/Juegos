@@ -742,7 +742,7 @@
   /************************************************************
    * 1) URL COMPLETA DEL APPS SCRIPT (/exec)
    ************************************************************/
-  const API_URL = "https://script.google.com/macros/s/AKfycbyaqaLTqcI0XBKh81c1UiLxHFuFLiiy58SP8gcVr2YVSe8lgfclfxPLduthJYzLYoQn0Q/exec";
+  const API_URL = "https://script.google.com/macros/s/AKfycbwaBK-3GtsCiiS6MxFmwfOC_UMLLVI18IJVLhoHrqBqtNKI8Dzni-WxF8enw6pkoI5ZHA/exec";
 
   function assertApiUrl(){
     if(!API_URL || !/^https?:\/\//i.test(API_URL)){
@@ -820,9 +820,7 @@
     {
       group: "1. Cumplimiento y Productividad",
       items: [
-        {
-          key: "A_metas",
-          label: "A. Cumplimiento de Metas. Grado de logro",
+        { key: "A_metas", label: "A. Cumplimiento de Metas. Grado de logro",
           rubric: [
             "Cumple menos del 70% de lo establecido; la falta de avance afecta los resultados esperados.",
             "Cumple 70–89% de lo establecido; presenta avances parciales o inconsistentes y requiere correcciones.",
@@ -831,9 +829,7 @@
             "Cumple más del 110% de forma sostenida; impacto significativo y calidad superior."
           ]
         },
-        {
-          key: "B_eficiencia",
-          label: "B. Eficiencia en el uso del tiempo, costos y recursos",
+        { key: "B_eficiencia", label: "B. Eficiencia en el uso del tiempo, costos y recursos",
           rubric: [
             "Usa tiempo y recursos con errores graves que afectan la eficiencia.",
             "Muestra uso inestable del tiempo y recursos; requiere evaluaciones y correcciones frecuentes.",
@@ -842,9 +838,7 @@
             "Maximiza la eficiencia de forma sostenida; mejora procesos y logra resultados superiores sin comprometer la calidad."
           ]
         },
-        {
-          key: "C_seguridad",
-          label: "C. Cumplimiento de normas de seguridad",
+        { key: "C_seguridad", label: "C. Cumplimiento de normas de seguridad",
           rubric: [
             "Incumple normas de seguridad y genera riesgos constantes para sí y el equipo.",
             "Cumple parcialmente las normas; requiere supervisión continua para evitar incidentes.",
@@ -853,9 +847,7 @@
             "Promueve cultura de seguridad; motiva a otros y contribuye a mantener ambientes sin incidentes."
           ]
         },
-        {
-          key: "D_prioriza",
-          label: "D. Prioriza y organiza tareas adecuadamente",
+        { key: "D_prioriza", label: "D. Prioriza y organiza tareas adecuadamente",
           rubric: [
             "Desorganiza tareas; incumple plazos y afecta resultados importantes.",
             "Organiza parcialmente; inconsistencias en prioridades y manejo del tiempo.",
@@ -866,13 +858,10 @@
         }
       ]
     },
-
     {
       group: "2. Calidad del Trabajo",
       items: [
-        {
-          key: "A_exactitud",
-          label: "A. Exactitud y atención al detalle",
+        { key: "A_exactitud", label: "A. Exactitud y atención al detalle",
           rubric: [
             "Comete errores frecuentes y no identifica fallos evidentes; requiere supervisión constante.",
             "Presenta errores recurrentes por falta de revisión; exactitud inconsistente y requiere correcciones frecuentes.",
@@ -881,9 +870,7 @@
             "Trabajo impecable; detecta errores propios y ajenos, propone mejoras y es referente en precisión."
           ]
         },
-        {
-          key: "B_estandares",
-          label: "B. Cumple con estándares de calidad",
+        { key: "B_estandares", label: "B. Cumple con estándares de calidad",
           rubric: [
             "Menos del 70% de entregables cumplen estándares; resultados inaceptables.",
             "70–89% cumplen estándares; requiere ajustes frecuentes.",
@@ -892,9 +879,7 @@
             "Más del 110%: supera ampliamente estándares y produce resultados sobresalientes."
           ]
         },
-        {
-          key: "C_entregas",
-          label: "C. Entregas a Tiempo (cumple con plazos establecidos)",
+        { key: "C_entregas", label: "C. Entregas a Tiempo (cumple con plazos establecidos)",
           rubric: [
             "Menos del 70% de entregas a tiempo; retrasos afectan el área.",
             "70–89% a tiempo; desempeño irregular.",
@@ -903,9 +888,7 @@
             "Más del 110%: entrega antes, supera plazos con calidad y mejora eficiencia general."
           ]
         },
-        {
-          key: "D_errores",
-          label: "D. Manejo de errores y mejoras",
+        { key: "D_errores", label: "D. Manejo de errores y mejoras",
           rubric: [
             "No reconoce ni corrige errores; genera reincidencias graves.",
             "Corrige parcialmente; mejora no constante, requiere supervisión.",
@@ -916,13 +899,10 @@
         }
       ]
     },
-
     {
       group: "3. Competencias y Habilidades",
       items: [
-        {
-          key: "A_conocimientos",
-          label: "A. Conocimientos técnicos del puesto",
+        { key: "A_conocimientos", label: "A. Conocimientos técnicos del puesto",
           rubric: [
             "Conocimientos por debajo de lo esperado; no domina funciones básicas.",
             "Gestiona parcialmente conocimientos; requiere apoyo frecuente.",
@@ -931,9 +911,7 @@
             "Domina conocimientos avanzados y es referente técnico en el área."
           ]
         },
-        {
-          key: "B_clientes",
-          label: "B. Convincente respuesta técnica a clientes",
+        { key: "B_clientes", label: "B. Convincente respuesta técnica a clientes",
           rubric: [
             "Respuestas incorrectas/inconsistentes que generan desconfianza.",
             "Respuestas incompletas o poco claras; afecta calidad del servicio.",
@@ -942,9 +920,7 @@
             "Respuestas sobresalientes y precisas; reconocido como referente por clientes y equipo."
           ]
         },
-        {
-          key: "C_problemas",
-          label: "C. Resolución de problemas",
+        { key: "C_problemas", label: "C. Resolución de problemas",
           rubric: [
             "No logra resolver problemas; afecta procesos y resultados.",
             "Resuelve parcialmente; requiere supervisión frecuente.",
@@ -953,9 +929,7 @@
             "Anticipa problemas y desarrolla soluciones preventivas y estratégicas."
           ]
         },
-        {
-          key: "D_iniciativa",
-          label: "D. Iniciativa y creatividad",
+        { key: "D_iniciativa", label: "D. Iniciativa y creatividad",
           rubric: [
             "No genera ideas ni propone mejoras.",
             "Propone ideas poco útiles o de aplicación limitada.",
@@ -966,13 +940,10 @@
         }
       ]
     },
-
     {
       group: "4. Actitud y Valores",
       items: [
-        {
-          key: "A_responsabilidad",
-          label: "A. Responsabilidad y compromiso",
+        { key: "A_responsabilidad", label: "A. Responsabilidad y compromiso",
           rubric: [
             "Incumple compromisos y entrega resultados muy por debajo de lo esperado.",
             "Cumple de forma irregular; requiere seguimiento constante.",
@@ -981,9 +952,7 @@
             "Inspira por su compromiso; es modelo de conducta para el equipo."
           ]
         },
-        {
-          key: "B_puntualidad",
-          label: "B. Puntualidad y asistencia",
+        { key: "B_puntualidad", label: "B. Puntualidad y asistencia",
           rubric: [
             "Ausencias injustificadas frecuentes; llegadas tardías recurrentes sin aviso.",
             "Frecuencia de tardanza sin justificación clara; afecta la operación.",
@@ -992,9 +961,7 @@
             "Puntualidad impecable; referente y se adapta a horarios especiales sin afectar desempeño."
           ]
         },
-        {
-          key: "C_equipo",
-          label: "C. Trabajo en equipo y cooperación",
+        { key: "C_equipo", label: "C. Trabajo en equipo y cooperación",
           rubric: [
             "No coopera; genera conflictos y dificulta el trabajo del equipo.",
             "Coopera parcialmente; actitud inestable.",
@@ -1003,9 +970,7 @@
             "Referente en equipo; promueve colaboración, sinergia y apoya a otros."
           ]
         },
-        {
-          key: "D_comunicacion",
-          label: "D. Comunicación efectiva",
+        { key: "D_comunicacion", label: "D. Comunicación efectiva",
           rubric: [
             "Comunicación confusa; genera malentendidos graves.",
             "Comunicación incompleta/poco clara; requiere supervisión para asegurar entendimiento.",
@@ -1016,13 +981,10 @@
         }
       ]
     },
-
     {
       group: "5. Desarrollo y Potencial",
       items: [
-        {
-          key: "A_adaptacion",
-          label: "A. Adaptación al cambio",
+        { key: "A_adaptacion", label: "A. Adaptación al cambio",
           rubric: [
             "Resiste activamente al cambio; afecta procesos y equipos.",
             "Se adapta parcialmente; con dificultad y resultados limitados.",
@@ -1031,9 +993,7 @@
             "Referente en adaptación; motiva y guía a otros en procesos de cambio."
           ]
         },
-        {
-          key: "B_aprender",
-          label: "B. Disposición para aprender",
+        { key: "B_aprender", label: "B. Disposición para aprender",
           rubric: [
             "No busca aprender; rechaza retroalimentación y capacitación.",
             "Aprende solo lo obligatorio; mínima aplicación práctica.",
@@ -1042,9 +1002,7 @@
             "Aprendizaje continuo; comparte conocimientos y forma a otros."
           ]
         },
-        {
-          key: "C_liderazgo",
-          label: "C. Liderazgo",
+        { key: "C_liderazgo", label: "C. Liderazgo",
           rubric: [
             "No coordina ni dirige; genera desorden y afecta resultados.",
             "Lidera débilmente; bajo impacto en el equipo.",
@@ -1103,6 +1061,7 @@
 
   function renderItems(){
     const container = $("itemsContainer");
+    if(!container) return;
     container.innerHTML = "";
 
     ITEMS.forEach(section => {
@@ -1156,6 +1115,12 @@
           sel.appendChild(o);
         }
 
+        // restaurar selección si ya existía
+        const saved = state.answers[it.key];
+        if(typeof saved === "number" && saved >= 1 && saved <= 5){
+          sel.value = String(saved);
+        }
+
         sel.addEventListener("change", () => {
           state.answers[it.key] = sel.value ? Number(sel.value) : null;
           setDirty(true);
@@ -1171,6 +1136,17 @@
 
       container.appendChild(sec);
     });
+  }
+
+  function ensureItemsVisibleIfNeeded(){
+    const tipo = $("tipoFormulario").value;
+    const need = (tipo === "autoevaluacion" || tipo === "desempeno");
+    const container = $("itemsContainer");
+    if(!need) return;
+    if(!container) return;
+    if(container.children.length === 0){
+      renderItems();
+    }
   }
 
   function getHeaderData(){
@@ -1551,10 +1527,12 @@
     $("departamento").value = rowParams.departamento || $("departamento").value;
     $("fecha").value = rowParams.fecha || $("fecha").value;
 
-    if($("tipoFormulario").value === "autoevaluacion"){
+    const tipo = $("tipoFormulario").value;
+
+    if(tipo === "autoevaluacion"){
       $("comentariosColaborador").value = rowParams.comentarios || $("comentariosColaborador").value;
 
-    }else if($("tipoFormulario").value === "desempeno"){
+    }else if(tipo === "desempeno"){
       const txt = String(rowParams.comentarios || "");
       if(txt){
         const m = txt.match(/Comentarios\s+colaborador:\s*([\s\S]*)$/i);
@@ -1573,13 +1551,16 @@
         if(composed) $("evaluacionClientes").value = composed;
       }
 
-    }else if($("tipoFormulario").value === "clientes"){
+    }else if(tipo === "clientes"){
       const r = $("retroalimentacion");
       if(r) r.value = rowParams.retroalimentacion || rowParams.comentarios || r.value;
 
       const ne = $("nombreEvaluador");
       if(ne) ne.value = rowParams.nombre_evaluador || rowParams.evaluador || ne.value;
     }
+
+    // asegurar items montados antes de setear selects
+    ensureItemsVisibleIfNeeded();
 
     ITEMS.forEach(sec => sec.items.forEach(it => {
       const raw = rowParams[it.key];
@@ -1782,9 +1763,10 @@
       }
     });
 
+    // ✅ FIX: Recuperar visible para Autoevaluación y Desempeño; oculto para Clientes
     const btnRecover = $("btnRecover");
     if(btnRecover){
-      btnRecover.style.display = (isAuto || isClientes) ? "none" : "";
+      btnRecover.style.display = (isClientes) ? "none" : "";
     }
   }
 
@@ -1807,6 +1789,9 @@
     $("clientesBox").style.display = (tipo === "clientes") ? "block" : "none";
 
     $("evalCard").style.display = (tipo === "clientes") ? "none" : "block";
+
+    // ✅ FIX: re-render si el contenedor está vacío y se debe ver
+    ensureItemsVisibleIfNeeded();
 
     applySearchUI(tipo);
     applyTopActionsUI(tipo);
@@ -2139,6 +2124,7 @@
     }
   });
 
+  // init
   renderItems();
   applyTipoUI();
   bind();
