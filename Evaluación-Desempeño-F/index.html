@@ -1869,66 +1869,66 @@ textarea{
     $("btnPrint").style.display = isClientes ? "none" : "";
   }
 
-  function applyTipoUI(){
-    const tipo = $("tipoFormulario").value;
+ function applyTipoUI(){
+  const tipo = $("tipoFormulario").value;
 
-    $("appTitle").textContent =
-      tipo === "autoevaluacion" ? "Formulario de autoevaluación" :
-      tipo === "clientes" ? "Formulario evaluación clientes" :
-      "Formulario de evaluación del desempeño";
+  $("appTitle").textContent =
+    tipo === "autoevaluacion" ? "Formulario de autoevaluación" :
+    tipo === "clientes" ? "Formulario evaluación clientes" :
+    "Formulario de evaluación del desempeño";
 
-    $("autoComentariosBox").style.display = (tipo === "autoevaluacion") ? "block" : "none";
+  $("autoComentariosBox").style.display = (tipo === "autoevaluacion") ? "block" : "none";
+  $("desempenoCamposBox").style.display = (tipo === "desempeno") ? "block" : "none";
+  $("clientesBox").style.display = (tipo === "clientes") ? "block" : "none";
+  $("evalCard").style.display = (tipo === "clientes") ? "none" : "block";
 
-    // ✅ Cambio clave: al iniciar (autoevaluación por defecto) también se muestran los campos realzados
-    $("desempenoCamposBox").style.display = (tipo === "desempeno") ? "block" : "none";
+  ensureItemsVisibleIfNeeded();
+  applySearchUI(tipo);
+  applyTopActionsUI(tipo);
 
-    $("clientesBox").style.display = (tipo === "clientes") ? "block" : "none";
+  // ✅ Fecha automática HOY si está vacía
+  setDefaultToday();
+}
 
-    $("evalCard").style.display = (tipo === "clientes") ? "none" : "block";
+ function clearForm(){
+  $("noPersonal").value = "";
+  $("nombre").value = "";
+  $("posicion").value = "";
+  $("departamento").value = "";
+  $("periodo").value = "";
+  $("version").value = "";
+  $("fecha").value = "";
 
-    // ✅ FIX: re-render si el contenedor está vacío y se debe ver
-    ensureItemsVisibleIfNeeded();
+  // ✅ Fecha automática HOY al limpiar
+  setDefaultToday();
 
-    applySearchUI(tipo);
-    applyTopActionsUI(tipo);
-  }
+  $("comentariosColaborador").value = "";
+  $("justificacion").value = "";
+  $("comentariosEvaluador").value = "";
+  $("fortalezas").value = "";
+  $("oportunidades").value = "";
+  $("proyeccion").value = "";
+  $("necesidadesCapacitacion").value = "";
+  $("comentariosColaborador2").value = "";
+  $("evaluacionClientes").value = "";
 
-  function clearForm(){
-    $("noPersonal").value = "";
-    $("nombre").value = "";
-    $("posicion").value = "";
-    $("departamento").value = "";
-    $("periodo").value = "";
-    $("version").value = "";
-    $("fecha").value = "";
+  const r = $("retroalimentacion");
+  if(r) r.value = "";
+  const ne = $("nombreEvaluador");
+  if(ne) ne.value = "";
 
-    $("comentariosColaborador").value = "";
-    $("justificacion").value = "";
-    $("comentariosEvaluador").value = "";
-    $("fortalezas").value = "";
-    $("oportunidades").value = "";
-    $("proyeccion").value = "";
-    $("necesidadesCapacitacion").value = "";
-    $("comentariosColaborador2").value = "";
-    $("evaluacionClientes").value = "";
+  state.answers = {};
+  ITEMS.forEach(sec=>sec.items.forEach(it=>{
+    const el = $("ans_"+it.key);
+    if(el) el.value = "";
+  }));
 
-    const r = $("retroalimentacion");
-    if(r) r.value = "";
-    const ne = $("nombreEvaluador");
-    if(ne) ne.value = "";
-
-    state.answers = {};
-    ITEMS.forEach(sec=>sec.items.forEach(it=>{
-      const el = $("ans_"+it.key);
-      if(el) el.value = "";
-    }));
-
-    $("printArea").style.display = "none";
-    state.generated = false;
-    setDirty(false);
-    $("apiHint").className = "warn";
-    $("apiHint").textContent = "Listo para enviar";
-  }
+  $("printArea").style.display = "none";
+  state.generated = false;
+  setDirty(false);
+  $("apiHint").className = "warn";
+  $("apiHint").textContent = "Listo para enviar";
+}
 
   function flattenAnswersSelectedText(){
     const out = {};
