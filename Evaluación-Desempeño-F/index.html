@@ -2350,12 +2350,14 @@ if(ne) ne.value = "";
     }
   });
 
-  // init
+ // init (más estable en GitHub Pages)
+window.addEventListener("DOMContentLoaded", () => {
   renderItems();
   applyTipoUI();
   bind();
   setDefaultToday();
   setDirty(false);
+});
 </script>
 </body>
 </html>
