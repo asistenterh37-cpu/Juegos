@@ -2151,125 +2151,127 @@ if(ne) ne.value = "";
     }
   }
 
-  function bind(){
-    [
-      "noPersonal","nombre","posicion","departamento","periodo","version","fecha",
-      "comentariosColaborador","justificacion","comentariosEvaluador","fortalezas",
-      "oportunidades","proyeccion","necesidadesCapacitacion","comentariosColaborador2","evaluacionClientes",
-      "retroalimentacion","nombreEvaluador"
-      "retroalimentacion","nombreEvaluador","nombreEvaluadorDesempeno"
-    ].forEach(id=>{
-      const el = $(id);
-      if(!el) return;
-      el.addEventListener("input", ()=> setDirty(true));
-      el.addEventListener("change", ()=> setDirty(true));
-    });
+ function bind(){
+  [
+    "noPersonal","nombre","posicion","departamento","periodo","version","fecha",
+    "comentariosColaborador","justificacion","comentariosEvaluador","fortalezas",
+    "oportunidades","proyeccion","necesidadesCapacitacion",
+    "comentariosColaborador2","evaluacionClientes",
+    "retroalimentacion","nombreEvaluador","nombreEvaluadorDesempeno"
+  ].forEach(id=>{
+    const el = $(id);
+    if(!el) return;
+    el.addEventListener("input", ()=> setDirty(true));
+    el.addEventListener("change", ()=> setDirty(true));
+  });
 
-    $("tipoFormulario").addEventListener("change", ()=>{
-      applyTipoUI();
-      setDirty(true);
-    });
+  $("tipoFormulario").addEventListener("change", ()=>{
+    applyTipoUI();
+    setDirty(true);
+  });
 
-    $("btnNew").addEventListener("click", ()=>{
-      if(state.saving) return;
-      if(state.dirty && !confirm("Hay cambios sin guardar. ¿Limpiar todo de todas formas?")) return;
-      clearForm();
-    });
+  $("btnNew").addEventListener("click", ()=>{
+    if(state.saving) return;
+    if(state.dirty && !confirm("Hay cambios sin guardar. ¿Limpiar todo de todas formas?")) return;
+    clearForm();
+  });
 
-    $("btnRecover").addEventListener("click", ()=>{
-      const noP = $("noPersonal").value.trim();
-      const per = $("periodo").value.trim();
-      const ver = $("version").value.trim();
+  $("btnRecover").addEventListener("click", ()=>{
+    const noP = $("noPersonal").value.trim();
+    const per = $("periodo").value.trim();
+    const ver = $("version").value.trim();
 
-      if(!noP || !per || !ver){
-        openLookupPrefilled();
-        return;
-      }
-      recoverRecordExact();
-    });
+    if(!noP || !per || !ver){
+      openLookupPrefilled();
+      return;
+    }
+    recoverRecordExact();
+  });
 
-    $("btnSave").addEventListener("click", saveToSheet);
+  $("btnSave").addEventListener("click", saveToSheet);
 
-    $("btnGenerate").addEventListener("click", ()=>{
-      if(state.saving) return;
+  $("btnGenerate").addEventListener("click", ()=>{
+    if(state.saving) return;
 
-      const v = validateAll();
-      if(!v.ok){
-        const unique = Array.from(new Set(v.missing));
-        alert("Para generar el reporte, completa todo:\n\n• " + unique.join("\n• "));
-        return;
-      }
+    const v = validateAll();
+    if(!v.ok){
+      const unique = Array.from(new Set(v.missing));
+      alert("Para generar el reporte, completa todo:\n\n• " + unique.join("\n• "));
+      return;
+    }
 
+    buildReport();
+    state.generated = true;
+    setDirty(true);
+    openReportModal();
+  });
+
+  $("btnPrint").addEventListener("click", ()=>{
+    if(state.saving) return;
+
+    const v = validateAll();
+    if(!v.ok){
+      const unique = Array.from(new Set(v.missing));
+      alert("Para imprimir/enviar a PDF, completa todo:\n\n• " + unique.join("\n• "));
+      return;
+    }
+
+    if(!state.generated){
       buildReport();
       state.generated = true;
-      setDirty(true);
-      openReportModal();
-    });
+    }
+    window.print();
+  });
 
-    $("btnPrint").addEventListener("click", ()=>{
-      if(state.saving) return;
+  $("btnCloseReport").addEventListener("click", closeReportModal);
+  $("reportBackdrop").addEventListener("click", (e)=>{
+    if(e.target === $("reportBackdrop")) closeReportModal();
+  });
+  $("btnPrintFromModal").addEventListener("click", ()=>{
+    if(!state.generated){
+      buildReport();
+      state.generated = true;
+    }
+    window.print();
+  });
 
-      const v = validateAll();
-      if(!v.ok){
-        const unique = Array.from(new Set(v.missing));
-        alert("Para imprimir/enviar a PDF, completa todo:\n\n• " + unique.join("\n• "));
-        return;
+  $("btnCloseRecovered").addEventListener("click", closeRecoverModal);
+  $("recoverBackdrop").addEventListener("click", (e)=>{
+    if(e.target === $("recoverBackdrop")) closeRecoverModal();
+  });
+  $("btnApplyRecovered").addEventListener("click", ()=>{
+    if(!lastRecovered || !lastRecovered.rowParams) return;
+    applyRecoveredToForm(lastRecovered.rowParams, lastRecovered.clientesInfo || null);
+    $("apiHint").className = "ok";
+    $("apiHint").textContent = "Registro aplicado al formulario ✅";
+    closeRecoverModal();
+  });
+
+  $("btnCloseLookup").addEventListener("click", closeLookupModal);
+  $("lookupBackdrop").addEventListener("click", (e)=>{
+    if(e.target === $("lookupBackdrop")) closeLookupModal();
+  });
+  $("btnSearch").addEventListener("click", searchRecords);
+  $("btnClearSearch").addEventListener("click", ()=>{
+    $("qNoPersonal").value = "";
+    $("qNombre").value = "";
+    $("qPeriodo").value = "";
+    $("qVersion").value = "";
+    renderLookupResults([]);
+    setLookupStatus("Listo para buscar.", "warn");
+  });
+
+  ["qNoPersonal","qNombre","qPeriodo","qVersion"].forEach(id=>{
+    const el = $(id);
+    if(!el) return;
+    el.addEventListener("keydown", (e)=>{
+      if(e.key === "Enter"){
+        e.preventDefault();
+        searchRecords();
       }
-
-      if(!state.generated){
-        buildReport();
-        state.generated = true;
-      }
-      window.print();
     });
-
-    $("btnCloseReport").addEventListener("click", closeReportModal);
-    $("reportBackdrop").addEventListener("click", (e)=>{
-      if(e.target === $("reportBackdrop")) closeReportModal();
-    });
-    $("btnPrintFromModal").addEventListener("click", ()=>{
-      if(!state.generated){
-        buildReport();
-        state.generated = true;
-      }
-      window.print();
-    });
-
-    $("btnCloseRecovered").addEventListener("click", closeRecoverModal);
-    $("recoverBackdrop").addEventListener("click", (e)=>{
-      if(e.target === $("recoverBackdrop")) closeRecoverModal();
-    });
-    $("btnApplyRecovered").addEventListener("click", ()=>{
-      if(!lastRecovered || !lastRecovered.rowParams) return;
-      applyRecoveredToForm(lastRecovered.rowParams, lastRecovered.clientesInfo || null);
-      $("apiHint").className = "ok";
-      $("apiHint").textContent = "Registro aplicado al formulario ✅";
-      closeRecoverModal();
-    });
-
-    $("btnCloseLookup").addEventListener("click", closeLookupModal);
-    $("lookupBackdrop").addEventListener("click", (e)=>{
-      if(e.target === $("lookupBackdrop")) closeLookupModal();
-    });
-    $("btnSearch").addEventListener("click", searchRecords);
-    $("btnClearSearch").addEventListener("click", ()=>{
-      $("qNoPersonal").value = "";
-      $("qNombre").value = "";
-      $("qPeriodo").value = "";
-      $("qVersion").value = "";
-      renderLookupResults([]);
-      setLookupStatus("Listo para buscar.", "warn");
-    });
-
-    ["qNoPersonal","qNombre","qPeriodo","qVersion"].forEach(id=>{
-      $(id).addEventListener("keydown", (e)=>{
-        if(e.key === "Enter"){
-          e.preventDefault();
-          searchRecords();
-        }
-      });
-    });
-  }
+  });
+}
 
   function setDefaultToday(){
     const f = $("fecha");
