@@ -1451,31 +1451,40 @@ function flattenAnswersSelectedText(){
       $("rEvalClientes").textContent = "—";
     }
 
-      // ✅ Bloque de justificación: solo Desempeño
-    if(header.tipo === "desempeno"){
-      const hasAny =
-        (extra.justificacion || extra.comentarios_evaluador || extra.fortalezas ||
-         extra.oportunidades_mejora || extra.proyeccion_potencial || extra.necesidades_capacitacion);
+    // ✅ Nombre del evaluador: solo Desempeño
+if(header.tipo === "desempeno" && extra.nombre_evaluador){
+  $("rNombreEvalBlock").style.display = "block";
+  $("rNombreEvaluadorDesempeno").textContent = extra.nombre_evaluador;
+}else{
+  $("rNombreEvalBlock").style.display = "none";
+  $("rNombreEvaluadorDesempeno").textContent = "—";
+}
 
-      if(hasAny){
-        $("rJustifBlock").style.display = "block";
-        const txt = [
-          `Justificación calificaciones (1-6): ${extra.justificacion || "—"}`,
-          `Comentarios del evaluador: ${extra.comentarios_evaluador || "—"}`,
-          `Fortalezas: ${extra.fortalezas || "—"}`,
-          `Oportunidades de mejora: ${extra.oportunidades_mejora || "—"}`,
-          `Proyección y potencial: ${extra.proyeccion_potencial || "—"}`,
-          `Necesidades de capacitación: ${extra.necesidades_capacitacion || "—"}`
-        ].filter(Boolean).join("\n\n");
-        $("rJustifAll").textContent = txt;
-      }else{
-        $("rJustifBlock").style.display = "none";
-        $("rJustifAll").textContent = "—";
-      }
-    }else{
-      $("rJustifBlock").style.display = "none";
-      $("rJustifAll").textContent = "—";
-    }
+// ✅ Bloque de justificación: solo Desempeño
+if(header.tipo === "desempeno"){
+  const hasAny =
+    (extra.justificacion || extra.comentarios_evaluador || extra.fortalezas ||
+     extra.oportunidades_mejora || extra.proyeccion_potencial || extra.necesidades_capacitacion);
+
+  if(hasAny){
+    $("rJustifBlock").style.display = "block";
+    const txt = [
+      `Justificación calificaciones (1-6): ${extra.justificacion || "—"}`,
+      `Comentarios del evaluador: ${extra.comentarios_evaluador || "—"}`,
+      `Fortalezas: ${extra.fortalezas || "—"}`,
+      `Oportunidades de mejora: ${extra.oportunidades_mejora || "—"}`,
+      `Proyección y potencial: ${extra.proyeccion_potencial || "—"}`,
+      `Necesidades de capacitación: ${extra.necesidades_capacitacion || "—"}`
+    ].filter(Boolean).join("\n\n");
+    $("rJustifAll").textContent = txt;
+  }else{
+    $("rJustifBlock").style.display = "none";
+    $("rJustifAll").textContent = "—";
+  }
+}else{
+  $("rJustifBlock").style.display = "none";
+  $("rJustifAll").textContent = "—";
+}
 
     $("printArea").style.display = "block";
   }
@@ -1571,6 +1580,7 @@ function flattenAnswersSelectedText(){
       ["Departamento", rowParams.departamento || ""],
       ["Fecha", rowParams.fecha || ""],
       ["Comentarios", rowParams.comentarios || ""],
+      ["Nombre del evaluador (desempeño)", rowParams.nombre_evaluador || ""],
       ["Evaluación clientes (campo desempeño)", rowParams.evaluacion_clientes || ""],
       ["Necesidades de capacitación", rowParams.necesidades_capacitacion || ""]
     ];
@@ -1677,6 +1687,10 @@ function flattenAnswersSelectedText(){
 
       if(rowParams.justificacion) $("justificacion").value = rowParams.justificacion;
       if(rowParams.comentarios_evaluador) $("comentariosEvaluador").value = rowParams.comentarios_evaluador;
+      // ✅ Nombre del evaluador (desempeño)
+if(rowParams.nombre_evaluador && $("nombreEvaluadorDesempeno")){
+  $("nombreEvaluadorDesempeno").value = rowParams.nombre_evaluador;
+}
       if(rowParams.fortalezas) $("fortalezas").value = rowParams.fortalezas;
       if(rowParams.oportunidades_mejora) $("oportunidades").value = rowParams.oportunidades_mejora;
       if(rowParams.proyeccion_potencial) $("proyeccion").value = rowParams.proyeccion_potencial;
@@ -1967,6 +1981,9 @@ function flattenAnswersSelectedText(){
   $("necesidadesCapacitacion").value = "";
   $("comentariosColaborador2").value = "";
   $("evaluacionClientes").value = "";
+    // ✅ Limpiar nombre del evaluador (CLIENTES)
+  const neCli = $("nombreEvaluador");
+  if(neCli) neCli.value = "";
 
   const r = $("retroalimentacion");
   if(r) r.value = "";
@@ -2006,17 +2023,18 @@ if(ne) ne.value = "";
         extra.evaluacion_clientes ? `Evaluación clientes: ${extra.evaluacion_clientes}` : ""
       ].filter(Boolean).join("\n\n");
     }
-    if(tipo === "desempeno"){
-      return [
-        extra.comentarios_evaluador ? `Comentarios evaluador: ${extra.comentarios_evaluador}` : "",
-        extra.fortalezas ? `Fortalezas: ${extra.fortalezas}` : "",
-        extra.oportunidades_mejora ? `Oportunidades: ${extra.oportunidades_mejora}` : "",
-        extra.proyeccion_potencial ? `Proyección: ${extra.proyeccion_potencial}` : "",
-        extra.necesidades_capacitacion ? `Necesidades de capacitación: ${extra.necesidades_capacitacion}` : "",
-        extra.comentarios_colaborador ? `Comentarios colaborador: ${extra.comentarios_colaborador}` : "",
-        extra.evaluacion_clientes ? `Evaluación clientes: ${extra.evaluacion_clientes}` : ""
-      ].filter(Boolean).join("\n\n");
-    }
+  if(tipo === "desempeno"){
+  return [
+    extra.nombre_evaluador ? `Nombre del evaluador: ${extra.nombre_evaluador}` : "",
+    extra.comentarios_evaluador ? `Comentarios evaluador: ${extra.comentarios_evaluador}` : "",
+    extra.fortalezas ? `Fortalezas: ${extra.fortalezas}` : "",
+    extra.oportunidades_mejora ? `Oportunidades: ${extra.oportunidades_mejora}` : "",
+    extra.proyeccion_potencial ? `Proyección: ${extra.proyeccion_potencial}` : "",
+    extra.necesidades_capacitacion ? `Necesidades de capacitación: ${extra.necesidades_capacitacion}` : "",
+    extra.comentarios_colaborador ? `Comentarios colaborador: ${extra.comentarios_colaborador}` : "",
+    extra.evaluacion_clientes ? `Evaluación clientes: ${extra.evaluacion_clientes}` : ""
+  ].filter(Boolean).join("\n\n");
+}
     if(tipo === "clientes"){
       return [
         extra.nombre_evaluador ? `Nombre del evaluador: ${extra.nombre_evaluador}` : "",
@@ -2109,7 +2127,10 @@ if(ne) ne.value = "";
       ...answersText,
 
       retroalimentacion: (header.tipo === "clientes") ? (extra.retroalimentacion || "") : "",
-      nombre_evaluador: (header.tipo === "clientes") ? (extra.nombre_evaluador || "") : "",
+      nombre_evaluador:
+  (header.tipo === "clientes") ? (extra.nombre_evaluador || "") :
+  (header.tipo === "desempeno") ? (extra.nombre_evaluador || "") :
+  "",
 
       evaluacion_clientes: (header.tipo === "desempeno") ? (extra.evaluacion_clientes || "") : "",
       necesidades_capacitacion: (header.tipo === "desempeno") ? (extra.necesidades_capacitacion || "") : "",
