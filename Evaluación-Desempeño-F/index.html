@@ -604,11 +604,7 @@ textarea{
         </div>
       </div>
       
-<!-- ✅ ÚLTIMO CAMPO (VISIBLE): Nombre del evaluador -->
-<div style="margin-top:12px;" class="highlightField">
-  <label>Nombre del evaluador</label>
-  <input id="nombreEvaluadorDesempeno" placeholder="Ej. Daniel Coello" />
-</div>
+     
 
       <div class="card" id="clientesBox" style="display:none;">
         <h2>Formulario evaluación clientes</h2>
@@ -624,6 +620,11 @@ textarea{
     comprensión de las necesidades del cliente y satisfacción general con el servicio recibido.
   </p>
   <textarea id="retroalimentacion" placeholder="Escribe aquí la retroalimentación..."></textarea>
+    <!-- ✅ SOLO DESEMPEÑO: Nombre del evaluador -->
+<div style="margin-top:12px;" class="highlightField">
+  <label>Nombre del evaluador</label>
+  <input id="nombreEvaluadorDesempeno" placeholder="Ej. Daniel Coello" />
+</div>         
 </div>
 
         <div style="margin-top:12px;">
@@ -2156,6 +2157,7 @@ if(ne) ne.value = "";
       "comentariosColaborador","justificacion","comentariosEvaluador","fortalezas",
       "oportunidades","proyeccion","necesidadesCapacitacion","comentariosColaborador2","evaluacionClientes",
       "retroalimentacion","nombreEvaluador"
+      "retroalimentacion","nombreEvaluador","nombreEvaluadorDesempeno"
     ].forEach(id=>{
       const el = $(id);
       if(!el) return;
