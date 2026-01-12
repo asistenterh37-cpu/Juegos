@@ -799,7 +799,7 @@ textarea{
   /************************************************************
    * 1) URL COMPLETA DEL APPS SCRIPT (/exec)
    ************************************************************/
-  const API_URL = "https://script.google.com/macros/s/AKfycbzm9_B54HToYvL8Jmy3IlHQowY9wnr-5HTGO8HNHD1miAUsWwLEKEsLz115qOrDz0B-Ww/exec";
+  const API_URL = "https://script.google.com/macros/s/AKfycbxYl_1STPxEI4O_Okc241tLx5k-zzXUntlLmkvANgH8fHqFRnGTDNovFMrD17Uo9zkg3A/exec";
 
   function assertApiUrl(){
     if(!API_URL || !/^https?:\/\//i.test(API_URL)){
@@ -1257,12 +1257,43 @@ function getApiCandidates(){
     return {};
   }
 
-  function computeTotal(){
-    const vals = Object.values(state.answers).filter(v => typeof v === "number");
-    if(!vals.length) return 0;
-    const avg = vals.reduce((a,b)=>a+b,0) / vals.length;
-    return +(avg * 20).toFixed(2);
-  }
+ function getScoreFromDOM(itKey){
+  const el = document.getElementById("ans_" + itKey);
+  if(!el) return null;
+  const v = String(el.value || "").trim();
+  if(!v) return null;
+  const n = Number(v);
+  return (Number.isFinite(n) && n >= 1 && n <= 5) ? n : null;
+}
+
+function computeTotal(){
+  // ✅ SIEMPRE calcula desde el DOM (no desde state.answers)
+  const vals = [];
+  ITEMS.forEach(sec => sec.items.forEach(it => {
+    const n = getScoreFromDOM(it.key);
+    if(typeof n === "number") vals.push(n);
+  }));
+  if(!vals.length) return 0;
+  const avg = vals.reduce((a,b)=>a+b,0) / vals.length;
+  return +(avg * 20).toFixed(2);
+}
+
+function flattenAnswersSelectedText(){
+  // ✅ SIEMPRE guarda TODOS los ítems, sin excepciones
+  const out = {};
+  ITEMS.forEach(sec => sec.items.forEach(it => {
+    const n = getScoreFromDOM(it.key);
+    if(typeof n === "number"){
+      const desc = (it.rubric && it.rubric[n-1]) ? it.rubric[n-1] : "";
+      out[it.key] = desc ? `${n} — ${desc}` : String(n);
+      state.answers[it.key] = n; // sincroniza estado
+    }else{
+      out[it.key] = "";
+      state.answers[it.key] = null;
+    }
+  }));
+  return out;
+}
 
   function formatDateES(yyyy_mm_dd){
     if(!yyyy_mm_dd) return "—";
