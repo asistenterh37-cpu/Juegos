@@ -1972,14 +1972,6 @@ function flattenAnswersSelectedText(){
   $("apiHint").textContent = "Listo para enviar";
 }
 
-  function flattenAnswersSelectedText(){
-    const out = {};
-    ITEMS.forEach(sec=>sec.items.forEach(it=>{
-      out[it.key] = getSelectedText(it.key) || "";
-    }));
-    return out;
-  }
-
   function toFormUrlEncoded(obj){
     return Object.keys(obj)
       .map(k => encodeURIComponent(k) + "=" + encodeURIComponent(obj[k] ?? ""))
