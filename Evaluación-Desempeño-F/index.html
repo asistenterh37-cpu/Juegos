@@ -571,6 +571,14 @@ textarea{
           <textarea id="comentariosEvaluador" placeholder="Comentarios del evaluador..."></textarea>
         </div>
 
+<div style="margin-top:12px;" class="highlightField">
+  <label>Nombre del evaluador</label>
+  <input
+    id="nombreEvaluadorDesempeno"
+    placeholder="Ej. Daniel Coello"
+  />
+</div>
+        
 <!-- ✅ Nombre del evaluador (manual, sin autollenado) -->
 <div style="margin-top:12px;" class="highlightField">
   <label>Nombre del evaluador</label>
@@ -808,7 +816,7 @@ textarea{
   /************************************************************
    * 1) URL COMPLETA DEL APPS SCRIPT (/exec)
    ************************************************************/
-  const API_URL = "https://script.google.com/macros/s/AKfycbyV6kePkAO7mLwFIT0gTPazMOPm4KN9PdeJP5h11oKyA3hRoH-j8aELVPcCTAZh1ML9/exec";
+  const API_URL = "https://script.google.com/macros/s/AKfycby8nH02GrzuoddAb3zha0dIQDckIpQ5aySZklduLqNX_xD5Zn-j3tJxZMhUzAl9zFIv-A/exec";
 
   function assertApiUrl(){
     if(!API_URL || !/^https?:\/\//i.test(API_URL)){
@@ -1249,6 +1257,7 @@ function getApiCandidates(){
       return {
         justificacion: $("justificacion").value.trim(),
         comentarios_evaluador: $("comentariosEvaluador").value.trim(),
+        nombre_evaluador: ($("nombreEvaluadorDesempeno")?.value || "").trim(), //
         fortalezas: $("fortalezas").value.trim(),
         oportunidades_mejora: $("oportunidades").value.trim(),
         proyeccion_potencial: $("proyeccion").value.trim(),
@@ -1965,8 +1974,8 @@ function flattenAnswersSelectedText(){
 
   const r = $("retroalimentacion");
   if(r) r.value = "";
-  const ne = $("nombreEvaluador");
-  if(ne) ne.value = "";
+ const ne = $("nombreEvaluadorDesempeno");
+if(ne) ne.value = "";
 
   state.answers = {};
   ITEMS.forEach(sec=>sec.items.forEach(it=>{
