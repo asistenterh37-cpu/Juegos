@@ -828,27 +828,79 @@ textarea{
  ************************************************************/
 function getApiCandidates(){
   const u = String(API_URL || "").trim();
-  return [u]; // un solo endpoint válido
+
+  // ✅ 1) Endpoint normal
+  const primary = u;
+
+  // ✅ 2) Fallback: mismo path pero en script.googleusercontent.com
+  // (En MUCHAS redes bloquean script.google.com pero dejan googleusercontent)
+  let fallback = u;
+  try{
+    const url = new URL(u);
+    if(url.hostname.includes("script.google.com")){
+      url.hostname = "script.googleusercontent.com";
+      fallback = url.toString();
+    }
+  }catch(_){}
+
+  // ✅ 3) (Opcional) Si tú algún día copias un endpoint alterno real, lo puedes agregar aquí
+  // const manualAlt = "";
+
+  const arr = [primary];
+  if(fallback && fallback !== primary) arr.push(fallback);
+  // if(manualAlt) arr.push(manualAlt);
+
+  return arr;
 }
-
   function jsonpRequest(url, params){
-    return new Promise((resolve, reject) => {
-      const cbName = "cb_" + Math.random().toString(36).slice(2);
-      const script = document.createElement("script");
-      script.async = true;
+  return new Promise((resolve, reject) => {
+    const cbName = "cb_" + Math.random().toString(36).slice(2);
 
-      const qs = new URLSearchParams({
-        ...params,
-        callback: cbName,
-        _ts: Date.now().toString()
-      }).toString();
+    const script = document.createElement("script");
+    script.async = true;
+    script.referrerPolicy = "no-referrer";
 
-      script.src = url + (url.includes("?") ? "&" : "?") + qs;
+    const qs = new URLSearchParams({
+      ...params,
+      callback: cbName,
+      _ts: Date.now().toString()
+    }).toString();
 
-      const timeout = setTimeout(() => {
-        cleanup();
-        reject(new Error("Timeout JSONP (no llegó callback). WebApp no público o red bloqueando script.google.com"));
-      }, 18000);
+    script.src = url + (url.includes("?") ? "&" : "?") + qs;
+
+    let done = false;
+
+    const timeout = setTimeout(() => {
+      if(done) return;
+      done = true;
+      cleanup();
+      reject(new Error("Timeout JSONP (no llegó callback). WebApp no pública o la red bloquea Google Scripts."));
+    }, 20000);
+
+    function cleanup(){
+      clearTimeout(timeout);
+      try{ delete window[cbName]; }catch(_){}
+      if(script && script.parentNode) script.parentNode.removeChild(script);
+    }
+
+    window[cbName] = (data) => {
+      if(done) return;
+      done = true;
+      cleanup();
+      resolve(data);
+    };
+
+    // ✅ Si el script se “carga” pero devuelve HTML (por permisos), NO hay callback y caerá por timeout.
+    script.onerror = () => {
+      if(done) return;
+      done = true;
+      cleanup();
+      reject(new Error("Error de red (JSONP). Bloqueador/Firewall/DNS o endpoint inaccesible."));
+    };
+
+    document.body.appendChild(script);
+  });
+}
 
       function cleanup(){
         clearTimeout(timeout);
@@ -1730,25 +1782,15 @@ if(rowParams.nombre_evaluador && $("nombreEvaluadorDesempeno")){
     setDirty(false);
   }
 
-  async function recoverRecordExact(){
-    if(state.saving) return;
-
-    const no_personal = $("noPersonal").value.trim();
-    const periodo = $("periodo").value.trim();
-    const version = $("version").value.trim();
-    const tipo = $("tipoFormulario").value;
-
-    try{
-      assertApiUrl();
-      setBusy(true);
-      $("apiHint").className = "warn";
-      $("apiHint").textContent = "Recuperando desde Google Sheets...";
-      // Diagnóstico rápido: ping
-      const ping = await jsonpRequestWithFallback({ action: "ping" });
-      if(!ping || ping.ok !== true){
-      throw new Error("Ping falló (WebApp inaccesible). Revisa deployment y permisos.");
+  // ✅ Ping suave (si falla, igual intentamos recuperar)
+try{
+  const ping = await jsonpRequestWithFallback({ action: "ping" });
+  if(!ping || ping.ok !== true){
+    console.warn("Ping no OK, continúo igual…", ping);
+  }
+}catch(e){
+  console.warn("Ping bloqueado, continúo igual…", e);
 }
-
       const action = (tipo === "desempeno") ? "recuperar_desempeno" : "recuperar";
 
       const data = await jsonpRequestWithFallback({
