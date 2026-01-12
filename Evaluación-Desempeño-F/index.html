@@ -799,7 +799,7 @@ textarea{
   /************************************************************
    * 1) URL COMPLETA DEL APPS SCRIPT (/exec)
    ************************************************************/
-  const API_URL = "https://script.google.com/macros/s/AKfycbx0pgOrkIdokbFWcQ4r6HHt6PamaU9dHhsleG4nyUdAtwY4bHrMoTnPS51NI-P20ndRBQ/exec";
+  const API_URL = "https://script.google.com/macros/s/AKfycbzm9_B54HToYvL8Jmy3IlHQowY9wnr-5HTGO8HNHD1miAUsWwLEKEsLz115qOrDz0B-Ww/exec";
 
   function assertApiUrl(){
     if(!API_URL || !/^https?:\/\//i.test(API_URL)){
@@ -808,16 +808,15 @@ textarea{
   }
 
   /************************************************************
-   * ✅ Fallback anti-bloqueos (script.googleusercontent)
-   ************************************************************/
-  function getApiCandidates(){
-    const u = String(API_URL || "").trim();
-    const out = [u];
-    if(u.includes("script.google.com")){
-      out.push(u.replace("https://script.google.com", "https://script.googleusercontent.com"));
-    }
-    return Array.from(new Set(out.filter(Boolean)));
-  }
+ * ✅ Candidates: NO inventar googleusercontent (WebApp no funciona así)
+ * Si tu red bloquea script.google.com, la solución real es:
+ * - usar otra red / quitar bloqueadores / permitir Google Scripts
+ * - o desplegar y usar el /exec correcto y público
+ ************************************************************/
+function getApiCandidates(){
+  const u = String(API_URL || "").trim();
+  return [u]; // un solo endpoint válido
+}
 
   function jsonpRequest(url, params){
     return new Promise((resolve, reject) => {
@@ -1685,6 +1684,11 @@ textarea{
       setBusy(true);
       $("apiHint").className = "warn";
       $("apiHint").textContent = "Recuperando desde Google Sheets...";
+      // Diagnóstico rápido: ping
+      const ping = await jsonpRequestWithFallback({ action: "ping" });
+      if(!ping || ping.ok !== true){
+      throw new Error("Ping falló (WebApp inaccesible). Revisa deployment y permisos.");
+}
 
       const action = (tipo === "desempeno") ? "recuperar_desempeno" : "recuperar";
 
