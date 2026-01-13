@@ -112,34 +112,34 @@
       .actions{justify-content:flex-end}
       .topbar{flex-wrap:wrap}
     }
-     input, select, textarea{
-  width:100%;
-  padding:12px 12px;
-  border-radius:14px;
-  border:1px solid rgba(74,163,255,.55);
-  box-shadow: 0 0 0 2px rgba(47,123,255,.18), 0 12px 30px rgba(47,123,255,.10);
-  outline:none;
-  color:var(--text);
-  background: rgba(0,0,0,.25);
-}
+    input, select, textarea{
+      width:100%;
+      padding:12px 12px;
+      border-radius:14px;
+      border:1px solid rgba(74,163,255,.55);
+      box-shadow: 0 0 0 2px rgba(47,123,255,.18), 0 12px 30px rgba(47,123,255,.10);
+      outline:none;
+      color:var(--text);
+      background: rgba(0,0,0,.25);
+    }
 
-/* ✅ Realzar flecha del SELECT (Tipo de formulario) */
-select{
-  appearance:none;
-  -webkit-appearance:none;
-  -moz-appearance:none;
-  padding-right:46px;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24'%3E%3Cpath fill='%234aa3ff' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
-  background-repeat:no-repeat;
-  background-position:right 14px center;
-  background-size:18px 18px;
-}
+    /* ✅ Realzar flecha del SELECT (Tipo de formulario) */
+    select{
+      appearance:none;
+      -webkit-appearance:none;
+      -moz-appearance:none;
+      padding-right:46px;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24'%3E%3Cpath fill='%234aa3ff' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+      background-repeat:no-repeat;
+      background-position:right 14px center;
+      background-size:18px 18px;
+    }
 
-textarea{
-  min-height:90px;
-  resize:vertical;
-}
- 
+    textarea{
+      min-height:90px;
+      resize:vertical;
+    }
+
     .section-title{display:flex; align-items:center; justify-content:space-between; margin:14px 0 8px;}
     .section-title h3{margin:0; font-size:16px}
     .muted{color:var(--muted)}
@@ -586,7 +586,6 @@ textarea{
           <textarea id="proyeccion" placeholder="Proyección y potencial..."></textarea>
         </div>
 
-        <!-- ✅ Nuevo campo realzado -->
         <div style="margin-top:12px;" class="highlightField">
           <label>Necesidades de capacitación</label>
           <textarea id="necesidadesCapacitacion" placeholder="Necesidades de capacitación..."></textarea>
@@ -602,30 +601,28 @@ textarea{
           <textarea id="evaluacionClientes" placeholder="Evaluación clientes..."></textarea>
           <div class="hint">Al recuperar (desempeño), se autocompleta con retroalimentación y nombre del evaluador (si existe).</div>
         </div>
-<!-- ✅ Nombre del evaluador (solo DESEMPEÑO) -->
-<div style="margin-top:12px;" class="highlightField">
-  <label>Nombre del evaluador</label>
-  <input id="nombreEvaluadorDesempeno" type="text" placeholder="Ej. Daniel Coello" />
-</div>        
+
+        <div style="margin-top:12px;" class="highlightField">
+          <label>Nombre del evaluador</label>
+          <input id="nombreEvaluadorDesempeno" type="text" placeholder="Ej. Daniel Coello" />
+        </div>
       </div>
-      
-     
 
       <div class="card" id="clientesBox" style="display:none;">
         <h2>Formulario evaluación clientes</h2>
         <p>Después de los datos del colaborador, solo se solicita la retroalimentación.</p>
 
-       <div style="margin-top:14px;">
-  <label>Retroalimentación</label>
-  <p class="muted" style="margin:6px 0 10px; line-height:1.45;">
-    Su retroalimentación podría ser orientada en algunos de estos aspectos: calidad del servicio o entregables,
-    cumplimiento de tiempos y compromisos, calidad de la comunicación, actitud y profesionalismo,
-    capacidad de resolución de problemas, valor agregado o proactividad en la atención,
-    nivel de relación de confianza construida, adaptabilidad y flexibilidad ante cambios o necesidades,
-    comprensión de las necesidades del cliente y satisfacción general con el servicio recibido.
-  </p>
-  <textarea id="retroalimentacion" placeholder="Escribe aquí la retroalimentación..."></textarea>
-</div>
+        <div style="margin-top:14px;">
+          <label>Retroalimentación</label>
+          <p class="muted" style="margin:6px 0 10px; line-height:1.45;">
+            Su retroalimentación podría ser orientada en algunos de estos aspectos: calidad del servicio o entregables,
+            cumplimiento de tiempos y compromisos, calidad de la comunicación, actitud y profesionalismo,
+            capacidad de resolución de problemas, valor agregado o proactividad en la atención,
+            nivel de relación de confianza construida, adaptabilidad y flexibilidad ante cambios o necesidades,
+            comprensión de las necesidades del cliente y satisfacción general con el servicio recibido.
+          </p>
+          <textarea id="retroalimentacion" placeholder="Escribe aquí la retroalimentación..."></textarea>
+        </div>
 
         <div style="margin-top:12px;">
           <label>Nombre del evaluador</label>
@@ -793,11 +790,10 @@ textarea{
           <div class="box" id="rEvalClientes">—</div>
         </div>
 
-<!-- ✅ ÚLTIMO CAMPO (REPORTE): Nombre del evaluador -->
-<div class="block" id="rNombreEvalBlock" style="display:none;">
-  <h2>Nombre del evaluador</h2>
-  <div class="box" id="rNombreEvaluadorDesempeno">—</div>
-</div>
+        <div class="block" id="rNombreEvalBlock" style="display:none;">
+          <h2>Nombre del evaluador</h2>
+          <div class="box" id="rNombreEvaluadorDesempeno">—</div>
+        </div>
 
         <div class="block" id="rJustifBlock" style="display:none;">
           <h2>Justificación y comentarios</h2>
@@ -821,69 +817,69 @@ textarea{
   }
 
   /************************************************************
- * ✅ Candidates: NO inventar googleusercontent (WebApp no funciona así)
- * Si tu red bloquea script.google.com, la solución real es:
- * - usar otra red / quitar bloqueadores / permitir Google Scripts
- * - o desplegar y usar el /exec correcto y público
- ************************************************************/
-function getApiCandidates(){
-  const u = String(API_URL || "").trim();
-  return [u];
-}
-  
+   * ✅ Candidates: NO inventar googleusercontent (WebApp no funciona así)
+   * Si tu red bloquea script.google.com, la solución real es:
+   * - usar otra red / quitar bloqueadores / permitir Google Scripts
+   * - o desplegar y usar el /exec correcto y público
+   ************************************************************/
+  function getApiCandidates(){
+    const u = String(API_URL || "").trim();
+    return [u];
+  }
+
   function jsonpRequest(url, params){
-  return new Promise((resolve, reject) => {
-    const cbName = "cb_" + Math.random().toString(36).slice(2);
+    return new Promise((resolve, reject) => {
+      const cbName = "cb_" + Math.random().toString(36).slice(2);
 
-    const script = document.createElement("script");
-    script.async = true;
-    
-    const qs = new URLSearchParams({
-      ...params,
-      callback: cbName,
-      _ts: Date.now().toString()
-    }).toString();
+      const script = document.createElement("script");
+      script.async = true;
 
-    script.src = url + (url.includes("?") ? "&" : "?") + qs;
+      const qs = new URLSearchParams({
+        ...params,
+        callback: cbName,
+        _ts: Date.now().toString()
+      }).toString();
 
-    let done = false;
+      script.src = url + (url.includes("?") ? "&" : "?") + qs;
 
-    const timeout = setTimeout(() => {
-      if(done) return;
-      done = true;
-      cleanup();
-      reject(new Error(
-        "Timeout JSONP (no llegó callback). WebApp no pública o la red bloquea Google Scripts."
-      ));
-    }, 30000);
+      let done = false;
 
-    function cleanup(){
-      clearTimeout(timeout);
-      try{ delete window[cbName]; }catch(_){}
-      if(script && script.parentNode){
-        script.parentNode.removeChild(script);
+      const timeout = setTimeout(() => {
+        if(done) return;
+        done = true;
+        cleanup();
+        reject(new Error(
+          "Timeout JSONP (no llegó callback). WebApp no pública o la red bloquea Google Scripts."
+        ));
+      }, 30000);
+
+      function cleanup(){
+        clearTimeout(timeout);
+        try{ delete window[cbName]; }catch(_){}
+        if(script && script.parentNode){
+          script.parentNode.removeChild(script);
+        }
       }
-    }
 
-    window[cbName] = (data) => {
-      if(done) return;
-      done = true;
-      cleanup();
-      resolve(data);
-    };
+      window[cbName] = (data) => {
+        if(done) return;
+        done = true;
+        cleanup();
+        resolve(data);
+      };
 
-    script.onerror = () => {
-      if(done) return;
-      done = true;
-      cleanup();
-      reject(new Error(
-        "Error de red (JSONP). Bloqueador/Firewall/DNS o endpoint inaccesible."
-      ));
-    };
+      script.onerror = () => {
+        if(done) return;
+        done = true;
+        cleanup();
+        reject(new Error(
+          "Error de red (JSONP). Bloqueador/Firewall/DNS o endpoint inaccesible."
+        ));
+      };
 
-    document.body.appendChild(script);
-  });
-}
+      document.body.appendChild(script);
+    });
+  }
 
   async function jsonpRequestWithFallback(params){
     assertApiUrl();
@@ -1202,7 +1198,6 @@ function getApiCandidates(){
           sel.appendChild(o);
         }
 
-        // restaurar selección si ya existía
         const saved = state.answers[it.key];
         if(typeof saved === "number" && saved >= 1 && saved <= 5){
           sel.value = String(saved);
@@ -1252,8 +1247,6 @@ function getApiCandidates(){
   function getExtraFields(){
     const tipo = $("tipoFormulario").value;
 
-    // ✅ Autoevaluación: mantiene comentarios como obligatorio,
-    // pero ahora también captura (opcionalmente) los campos realzados.
     if(tipo === "autoevaluacion"){
       return {
         comentarios_colaborador: $("comentariosColaborador").value.trim(),
@@ -1271,7 +1264,7 @@ function getApiCandidates(){
       return {
         justificacion: $("justificacion").value.trim(),
         comentarios_evaluador: $("comentariosEvaluador").value.trim(),
-        nombre_evaluador: ($("nombreEvaluadorDesempeno")?.value || "").trim(), //
+        nombre_evaluador: ($("nombreEvaluadorDesempeno")?.value || "").trim(),
         fortalezas: $("fortalezas").value.trim(),
         oportunidades_mejora: $("oportunidades").value.trim(),
         proyeccion_potencial: $("proyeccion").value.trim(),
@@ -1289,43 +1282,41 @@ function getApiCandidates(){
     return {};
   }
 
- function getScoreFromDOM(itKey){
-  const el = document.getElementById("ans_" + itKey);
-  if(!el) return null;
-  const v = String(el.value || "").trim();
-  if(!v) return null;
-  const n = Number(v);
-  return (Number.isFinite(n) && n >= 1 && n <= 5) ? n : null;
-}
+  function getScoreFromDOM(itKey){
+    const el = document.getElementById("ans_" + itKey);
+    if(!el) return null;
+    const v = String(el.value || "").trim();
+    if(!v) return null;
+    const n = Number(v);
+    return (Number.isFinite(n) && n >= 1 && n <= 5) ? n : null;
+  }
 
-function computeTotal(){
-  // ✅ SIEMPRE calcula desde el DOM (no desde state.answers)
-  const vals = [];
-  ITEMS.forEach(sec => sec.items.forEach(it => {
-    const n = getScoreFromDOM(it.key);
-    if(typeof n === "number") vals.push(n);
-  }));
-  if(!vals.length) return 0;
-  const avg = vals.reduce((a,b)=>a+b,0) / vals.length;
-  return +(avg * 20).toFixed(2);
-}
+  function computeTotal(){
+    const vals = [];
+    ITEMS.forEach(sec => sec.items.forEach(it => {
+      const n = getScoreFromDOM(it.key);
+      if(typeof n === "number") vals.push(n);
+    }));
+    if(!vals.length) return 0;
+    const avg = vals.reduce((a,b)=>a+b,0) / vals.length;
+    return +(avg * 20).toFixed(2);
+  }
 
-function flattenAnswersSelectedText(){
-  // ✅ SIEMPRE guarda TODOS los ítems, sin excepciones
-  const out = {};
-  ITEMS.forEach(sec => sec.items.forEach(it => {
-    const n = getScoreFromDOM(it.key);
-    if(typeof n === "number"){
-      const desc = (it.rubric && it.rubric[n-1]) ? it.rubric[n-1] : "";
-      out[it.key] = desc ? `${n} — ${desc}` : String(n);
-      state.answers[it.key] = n; // sincroniza estado
-    }else{
-      out[it.key] = "";
-      state.answers[it.key] = null;
-    }
-  }));
-  return out;
-}
+  function flattenAnswersSelectedText(){
+    const out = {};
+    ITEMS.forEach(sec => sec.items.forEach(it => {
+      const n = getScoreFromDOM(it.key);
+      if(typeof n === "number"){
+        const desc = (it.rubric && it.rubric[n-1]) ? it.rubric[n-1] : "";
+        out[it.key] = desc ? `${n} — ${desc}` : String(n);
+        state.answers[it.key] = n;
+      }else{
+        out[it.key] = "";
+        state.answers[it.key] = null;
+      }
+    }));
+    return out;
+  }
 
   function formatDateES(yyyy_mm_dd){
     if(!yyyy_mm_dd) return "—";
@@ -1408,14 +1399,12 @@ function flattenAnswersSelectedText(){
   }
 
   function openReportModal(){
-  // ✅ Evita duplicar IDs: copiamos HTML, no clonamos nodos con ids
-  $("reportHost").innerHTML = $("report").outerHTML;
+    $("reportHost").innerHTML = $("report").outerHTML;
+    $("reportBackdrop").style.display = "flex";
+    $("reportBackdrop").setAttribute("aria-hidden", "false");
+  }
 
-  $("reportBackdrop").style.display = "flex";
-  $("reportBackdrop").setAttribute("aria-hidden", "false");
-}
-
-    function closeReportModal(){
+  function closeReportModal(){
     $("reportBackdrop").style.display = "none";
     $("reportBackdrop").setAttribute("aria-hidden", "true");
   }
@@ -1460,7 +1449,7 @@ function flattenAnswersSelectedText(){
       $("rComentarios").textContent = "—";
     }
 
-      if((header.tipo === "desempeno") && extra.evaluacion_clientes){
+    if((header.tipo === "desempeno") && extra.evaluacion_clientes){
       $("rEvalClientesBlock").style.display = "block";
       $("rEvalClientes").textContent = extra.evaluacion_clientes;
     }else{
@@ -1468,40 +1457,38 @@ function flattenAnswersSelectedText(){
       $("rEvalClientes").textContent = "—";
     }
 
-    // ✅ Nombre del evaluador: solo Desempeño
-if(header.tipo === "desempeno" && extra.nombre_evaluador){
-  $("rNombreEvalBlock").style.display = "block";
-  $("rNombreEvaluadorDesempeno").textContent = extra.nombre_evaluador;
-}else{
-  $("rNombreEvalBlock").style.display = "none";
-  $("rNombreEvaluadorDesempeno").textContent = "—";
-}
+    if(header.tipo === "desempeno" && extra.nombre_evaluador){
+      $("rNombreEvalBlock").style.display = "block";
+      $("rNombreEvaluadorDesempeno").textContent = extra.nombre_evaluador;
+    }else{
+      $("rNombreEvalBlock").style.display = "none";
+      $("rNombreEvaluadorDesempeno").textContent = "—";
+    }
 
-// ✅ Bloque de justificación: solo Desempeño
-if(header.tipo === "desempeno"){
-  const hasAny =
-    (extra.justificacion || extra.comentarios_evaluador || extra.fortalezas ||
-     extra.oportunidades_mejora || extra.proyeccion_potencial || extra.necesidades_capacitacion);
+    if(header.tipo === "desempeno"){
+      const hasAny =
+        (extra.justificacion || extra.comentarios_evaluador || extra.fortalezas ||
+         extra.oportunidades_mejora || extra.proyeccion_potencial || extra.necesidades_capacitacion);
 
-  if(hasAny){
-    $("rJustifBlock").style.display = "block";
-    const txt = [
-      `Justificación calificaciones (1-6): ${extra.justificacion || "—"}`,
-      `Comentarios del evaluador: ${extra.comentarios_evaluador || "—"}`,
-      `Fortalezas: ${extra.fortalezas || "—"}`,
-      `Oportunidades de mejora: ${extra.oportunidades_mejora || "—"}`,
-      `Proyección y potencial: ${extra.proyeccion_potencial || "—"}`,
-      `Necesidades de capacitación: ${extra.necesidades_capacitacion || "—"}`
-    ].filter(Boolean).join("\n\n");
-    $("rJustifAll").textContent = txt;
-  }else{
-    $("rJustifBlock").style.display = "none";
-    $("rJustifAll").textContent = "—";
-  }
-}else{
-  $("rJustifBlock").style.display = "none";
-  $("rJustifAll").textContent = "—";
-}
+      if(hasAny){
+        $("rJustifBlock").style.display = "block";
+        const txt = [
+          `Justificación calificaciones (1-6): ${extra.justificacion || "—"}`,
+          `Comentarios del evaluador: ${extra.comentarios_evaluador || "—"}`,
+          `Fortalezas: ${extra.fortalezas || "—"}`,
+          `Oportunidades de mejora: ${extra.oportunidades_mejora || "—"}`,
+          `Proyección y potencial: ${extra.proyeccion_potencial || "—"}`,
+          `Necesidades de capacitación: ${extra.necesidades_capacitacion || "—"}`
+        ].filter(Boolean).join("\n\n");
+        $("rJustifAll").textContent = txt;
+      }else{
+        $("rJustifBlock").style.display = "none";
+        $("rJustifAll").textContent = "—";
+      }
+    }else{
+      $("rJustifBlock").style.display = "none";
+      $("rJustifAll").textContent = "—";
+    }
 
     $("printArea").style.display = "block";
   }
@@ -1524,67 +1511,68 @@ if(header.tipo === "desempeno"){
   }
 
   let lastRecovered = null;
-   async function recoverRecordExact(){
-  if(state.saving) return;
 
-  const tipo = $("tipoFormulario").value;
-  const no_personal = $("noPersonal").value.trim();
-  const periodo = $("periodo").value.trim();
-  const version = $("version").value.trim();
+  async function recoverRecordExact(){
+    if(state.saving) return;
 
-  if(!no_personal || !periodo || !version){
-    alert("Para recuperar, llena: No. de personal, Periodo y Versión.");
-    return;
-  }
+    const tipo = $("tipoFormulario").value;
+    const no_personal = $("noPersonal").value.trim();
+    const periodo = $("periodo").value.trim();
+    const version = $("version").value.trim();
 
-  try{
-    assertApiUrl();
-    setBusy(true);
-
-    $("apiHint").className = "warn";
-    $("apiHint").textContent = "Recuperando...";
-
-    const action = (tipo === "desempeno") ? "recuperar_desempeno" : "recuperar";
-
-    const data = await jsonpRequestWithFallback({
-      action,
-      no_personal,
-      periodo,
-      version,
-      tipo
-    });
-
-    if(!data || !data.found){
-      $("apiHint").className = "warn";
-      $("apiHint").textContent = "No se encontró registro con esos datos.";
-      alert("No se encontró registro con ese No. de personal, Periodo y Versión.");
+    if(!no_personal || !periodo || !version){
+      alert("Para recuperar, llena: No. de personal, Periodo y Versión.");
       return;
     }
 
-    const rowParams = data.rowParams || data.row || {};
-    if(!rowParams || typeof rowParams !== "object"){
-      throw new Error("Respuesta inválida del servidor (sin rowParams).");
+    try{
+      assertApiUrl();
+      setBusy(true);
+
+      $("apiHint").className = "warn";
+      $("apiHint").textContent = "Recuperando...";
+
+      const action = (tipo === "desempeno") ? "recuperar_desempeno" : "recuperar";
+
+      const data = await jsonpRequestWithFallback({
+        action,
+        no_personal,
+        periodo,
+        version,
+        tipo
+      });
+
+      if(!data || !data.found){
+        $("apiHint").className = "warn";
+        $("apiHint").textContent = "No se encontró registro con esos datos.";
+        alert("No se encontró registro con ese No. de personal, Periodo y Versión.");
+        return;
+      }
+
+      const rowParams = data.rowParams || data.row || {};
+      if(!rowParams || typeof rowParams !== "object"){
+        throw new Error("Respuesta inválida del servidor (sin rowParams).");
+      }
+
+      const clientesInfo = data.clientes || null;
+
+      buildRecoverModal(rowParams, {
+        no_personal, periodo, version,
+        rowNumber: data.rowNumber || ""
+      }, clientesInfo);
+
+      $("apiHint").className = "ok";
+      $("apiHint").textContent = "Registro encontrado ✅ (revisa y aplica)";
+
+    }catch(err){
+      console.error(err);
+      $("apiHint").className = "err";
+      $("apiHint").textContent = "No se pudo recuperar: " + (err.message || err);
+      alert("No se pudo recuperar: " + (err.message || err) + "\n\nTip: WebApp debe estar público (Anyone) y la red no debe bloquear Google Scripts.");
+    }finally{
+      setBusy(false);
     }
-
-    const clientesInfo = data.clientes || null;
-
-    buildRecoverModal(rowParams, {
-      no_personal, periodo, version,
-      rowNumber: data.rowNumber || ""
-    }, clientesInfo);
-
-    $("apiHint").className = "ok";
-    $("apiHint").textContent = "Registro encontrado ✅ (revisa y aplica)";
-
-  }catch(err){
-    console.error(err);
-    $("apiHint").className = "err";
-    $("apiHint").textContent = "No se pudo recuperar: " + (err.message || err);
-    alert("No se pudo recuperar: " + (err.message || err) + "\n\nTip: WebApp debe estar público (Anyone) y la red no debe bloquear Google Scripts.");
-  }finally{
-    setBusy(false);
   }
-}
 
   function openRecoverModal(){
     $("recoverBackdrop").style.display = "flex";
@@ -1626,10 +1614,10 @@ if(header.tipo === "desempeno"){
       <table class="mini-table" style="margin-top:10px;">
         <thead><tr><th class="col-k">Campo</th><th class="col-v">Valor</th></tr></thead>
         <tbody>
-  <tr><td class="col-k">No. personal</td><td class="col-v">${escapeHtml(no_personal || "—")}</td></tr>
-  <tr><td class="col-k">Periodo</td><td class="col-v">${escapeHtml(periodo || "—")}</td></tr>
-  <tr><td class="col-k">Versión</td><td class="col-v">${escapeHtml(version || "—")}</td></tr>
-</tbody>
+          <tr><td class="col-k">No. personal</td><td class="col-v">${escapeHtml(no_personal || "—")}</td></tr>
+          <tr><td class="col-k">Periodo</td><td class="col-v">${escapeHtml(periodo || "—")}</td></tr>
+          <tr><td class="col-k">Versión</td><td class="col-v">${escapeHtml(version || "—")}</td></tr>
+        </tbody>
       </table>
     `;
     const host = $("recoverKeyReport");
@@ -1638,10 +1626,11 @@ if(header.tipo === "desempeno"){
   }
 
   function buildRecoverModal(rowParams, meta, clientesInfo){
-function showDash(v){
-  const s = String(v ?? "").trim();
-  return s ? s : "—";
-}   
+    function showDash(v){
+      const s = String(v ?? "").trim();
+      return s ? s : "—";
+    }
+
     lastRecovered = { rowParams, meta, clientesInfo };
 
     $("recoverTitle").textContent = "Registro encontrado";
@@ -1654,23 +1643,23 @@ function showDash(v){
     );
 
     const generalRows = [
-  ["No. de personal", showDash(rowParams.no_personal || meta.no_personal)],
-  ["Periodo", showDash(rowParams.periodo || meta.periodo)],
-  ["Versión", showDash(rowParams.version || meta.version)],
-  ["Nombre", showDash(rowParams.nombre)],
-  ["Posición", showDash(rowParams.posicion)],
-  ["Departamento", showDash(rowParams.departamento)],
-  ["Fecha", showDash(rowParams.fecha)],
-  ["Comentarios", showDash(rowParams.comentarios)],
-  ["Nombre del evaluador (desempeño)", showDash(rowParams.nombre_evaluador)],
-  ["Evaluación clientes (campo desempeño)", showDash(rowParams.evaluacion_clientes)],
-  ["Necesidades de capacitación", showDash(rowParams.necesidades_capacitacion)]
-];
+      ["No. de personal", showDash(rowParams.no_personal || meta.no_personal)],
+      ["Periodo", showDash(rowParams.periodo || meta.periodo)],
+      ["Versión", showDash(rowParams.version || meta.version)],
+      ["Nombre", showDash(rowParams.nombre)],
+      ["Posición", showDash(rowParams.posicion)],
+      ["Departamento", showDash(rowParams.departamento)],
+      ["Fecha", showDash(rowParams.fecha)],
+      ["Comentarios", showDash(rowParams.comentarios)],
+      ["Nombre del evaluador (desempeño)", showDash(rowParams.nombre_evaluador)],
+      ["Evaluación clientes (campo desempeño)", showDash(rowParams.evaluacion_clientes)],
+      ["Necesidades de capacitación", showDash(rowParams.necesidades_capacitacion)]
+    ];
 
-if(clientesInfo){
-  generalRows.push(["Retroalimentación (Clientes)", showDash(clientesInfo.retroalimentacion)]);
-  generalRows.push(["Nombre evaluador (Clientes)", showDash(clientesInfo.nombre_evaluador)]);
-}
+    if(clientesInfo){
+      generalRows.push(["Retroalimentación (Clientes)", showDash(clientesInfo.retroalimentacion)]);
+      generalRows.push(["Nombre evaluador (Clientes)", showDash(clientesInfo.nombre_evaluador)]);
+    }
 
     const gen = document.createElement("table");
     gen.className = "mini-table";
@@ -1683,12 +1672,11 @@ if(clientesInfo){
       </thead>
       <tbody>
         ${generalRows.map(([k,v]) => `
-    ${generalRows.map(([k,v]) => `
-  <tr>
-    <td class="col-k">${escapeHtml(k)}</td>
-    <td class="col-v">${escapeHtml(String(v ?? ""))}</td>
-  </tr>
-`).join("")}  
+          <tr>
+            <td class="col-k">${escapeHtml(k)}</td>
+            <td class="col-v">${escapeHtml(String(v ?? ""))}</td>
+          </tr>
+        `).join("")}
       </tbody>
     `;
     $("recoverGeneral").innerHTML = "";
@@ -1721,10 +1709,10 @@ if(clientesInfo){
 
         const tr = document.createElement("tr");
         tr.innerHTML = `
-          <="it-col1"></td>
-          <="it-col2">${escapeHtml(item.label)}</td>
-          <="it-col3">${score ? String(score) : "—"}</td>
-          <="it-col4">${escapeHtml(raw)}</td>
+          <td class="it-col1">${escapeHtml(sec.group)}</td>
+          <td class="it-col2">${escapeHtml(item.label)}</td>
+          <td class="it-col3">${score ? String(score) : "—"}</td>
+          <td class="it-col4">${escapeHtml(raw)}</td>
         `;
         tbody.appendChild(tr);
       });
@@ -1751,7 +1739,6 @@ if(clientesInfo){
     if(tipo === "autoevaluacion"){
       $("comentariosColaborador").value = rowParams.comentarios || $("comentariosColaborador").value;
 
-      // ✅ si existen columnas/campos, los aplicamos
       if($("justificacion")) $("justificacion").value = rowParams.justificacion || $("justificacion").value;
       if($("comentariosEvaluador")) $("comentariosEvaluador").value = rowParams.comentarios_evaluador || $("comentariosEvaluador").value;
       if($("fortalezas")) $("fortalezas").value = rowParams.fortalezas || $("fortalezas").value;
@@ -1770,21 +1757,19 @@ if(clientesInfo){
 
       if(rowParams.justificacion) $("justificacion").value = rowParams.justificacion;
       if(rowParams.comentarios_evaluador) $("comentariosEvaluador").value = rowParams.comentarios_evaluador;
-      // ✅ Nombre del evaluador (desempeño)
-if(rowParams.nombre_evaluador && $("nombreEvaluadorDesempeno")){
-  $("nombreEvaluadorDesempeno").value = rowParams.nombre_evaluador;
-}
+
+      if(rowParams.nombre_evaluador && $("nombreEvaluadorDesempeno")){
+        $("nombreEvaluadorDesempeno").value = rowParams.nombre_evaluador;
+      }
       if(rowParams.fortalezas) $("fortalezas").value = rowParams.fortalezas;
       if(rowParams.oportunidades_mejora) $("oportunidades").value = rowParams.oportunidades_mejora;
       if(rowParams.proyeccion_potencial) $("proyeccion").value = rowParams.proyeccion_potencial;
       if(rowParams.necesidades_capacitacion) $("necesidadesCapacitacion").value = rowParams.necesidades_capacitacion;
 
-      // 1) Si ya venía evaluacion_clientes guardada en autoevaluaciones, úsala
       if(rowParams.evaluacion_clientes){
         $("evaluacionClientes").value = rowParams.evaluacion_clientes;
       }
 
-      // 2) Si existe en hoja Clientes, la construimos (NombreEvaluador + retroalimentacion)
       if(clientesInfo && clientesInfo.retroalimentacion){
         const head = (clientesInfo.nombre_evaluador ? `(${clientesInfo.nombre_evaluador}) ` : "");
         const composed = `${head}${clientesInfo.retroalimentacion}`.trim();
@@ -1799,11 +1784,15 @@ if(rowParams.nombre_evaluador && $("nombreEvaluadorDesempeno")){
       if(ne) ne.value = rowParams.nombre_evaluador || rowParams.evaluador || ne.value;
     }
 
-    // asegurar items montados antes de setear selects
     ensureItemsVisibleIfNeeded();
 
+    function showDash(v){
+      const s = String(v ?? "").trim();
+      return s ? s : "—";
+    }
+
     ITEMS.forEach(sec => sec.items.forEach(it => {
-      const raw = showDash(rowParams[item.key]);
+      const raw = showDash(rowParams[it.key]);
       const score = parseScoreFromCell(raw);
       setSelectValue(it.key, score);
     }));
@@ -1841,15 +1830,16 @@ if(rowParams.nombre_evaluador && $("nombreEvaluadorDesempeno")){
       const rp = r.rowParams || {};
       return `
         <tr>
-      <td class="r-col-act">
-  <button class="btn primary" type="button" data-use="${idx}" style="padding:8px 12px;">Usar</button>
-</td>
-<td class="r-col-row">${escapeHtml(String(meta.rowNumber ?? "—"))}</td>
-<td class="r-col-np">${escapeHtml(String(rp.no_personal ?? ""))}</td>
-...
-<td class="r-col-per">${escapeHtml(String(rp.periodo ?? ""))}</td>
-<td class="r-col-ver">${escapeHtml(String(rp.version ?? ""))}</td>
-<td class="r-col-fecha">${escapeHtml(String(rp.fecha ?? ""))}</td>
+          <td class="r-col-act">
+            <button class="btn primary" type="button" data-use="${idx}" style="padding:8px 12px;">Usar</button>
+          </td>
+          <td class="r-col-row">${escapeHtml(String(meta.rowNumber ?? "—"))}</td>
+          <td class="r-col-np">${escapeHtml(String(rp.no_personal ?? ""))}</td>
+          <td>${escapeHtml(String(rp.nombre ?? ""))}</td>
+          <td class="r-col-per">${escapeHtml(String(rp.periodo ?? ""))}</td>
+          <td class="r-col-ver">${escapeHtml(String(rp.version ?? ""))}</td>
+          <td class="r-col-fecha">${escapeHtml(String(rp.fecha ?? ""))}</td>
+          <td>${escapeHtml(String(rp.departamento ?? ""))}</td>
         </tr>
       `;
     }).join("");
@@ -1928,102 +1918,98 @@ if(rowParams.nombre_evaluador && $("nombreEvaluadorDesempeno")){
     openLookupModal();
   }
 
-function applySearchUI(tipo){
-  const isDes  = (tipo === "desempeno");
+  function applySearchUI(tipo){
+    const isDes  = (tipo === "desempeno");
 
-  // Badge: mostrar solo en desempeño
-  const badgeWrap = $("searchBadgeWrap");
-  if(badgeWrap) badgeWrap.style.display = (isDes) ? "inline" : "none";
+    const badgeWrap = $("searchBadgeWrap");
+    if(badgeWrap) badgeWrap.style.display = (isDes) ? "inline" : "none";
 
-  // Campos de búsqueda resaltados: solo en desempeño
-  const targets = ["fldNoPersonal", "fldPeriodo", "fldVersion"];
-  targets.forEach(id=>{
-    const el = $(id);
-    if(!el) return;
-    if(isDes) el.classList.add("searchField");
-    else el.classList.remove("searchField");
-  });
+    const targets = ["fldNoPersonal", "fldPeriodo", "fldVersion"];
+    targets.forEach(id=>{
+      const el = $(id);
+      if(!el) return;
+      if(isDes) el.classList.add("searchField");
+      else el.classList.remove("searchField");
+    });
 
-  // ✅ Recuperar / Consultar: SOLO desempeño
-  const btnRecover = $("btnRecover");
-  if(btnRecover){
-    btnRecover.style.display = (isDes) ? "" : "none";
+    const btnRecover = $("btnRecover");
+    if(btnRecover){
+      btnRecover.style.display = (isDes) ? "" : "none";
+    }
   }
-}
-  
+
   function applyTopActionsUI(tipo){
     const isClientes = (tipo === "clientes");
     $("btnGenerate").style.display = isClientes ? "none" : "";
     $("btnPrint").style.display = isClientes ? "none" : "";
   }
 
- function applyTipoUI(){
-  const tipo = $("tipoFormulario").value;
+  function applyTipoUI(){
+    const tipo = $("tipoFormulario").value;
 
-  $("appTitle").textContent =
-    tipo === "autoevaluacion" ? "Formulario de autoevaluación" :
-    tipo === "clientes" ? "Formulario evaluación clientes" :
-    "Formulario de evaluación del desempeño";
+    $("appTitle").textContent =
+      tipo === "autoevaluacion" ? "Formulario de autoevaluación" :
+      tipo === "clientes" ? "Formulario evaluación clientes" :
+      "Formulario de evaluación del desempeño";
 
-  $("autoComentariosBox").style.display = (tipo === "autoevaluacion") ? "block" : "none";
-  $("desempenoCamposBox").style.display = (tipo === "desempeno") ? "block" : "none";
-  $("clientesBox").style.display = (tipo === "clientes") ? "block" : "none";
-  $("evalCard").style.display = (tipo === "clientes") ? "none" : "block";
-  // ✅ Forzar render de items en autoevaluación y desempeño
-if(tipo !== "clientes"){
-  renderItems();
-}
-  
-  ensureItemsVisibleIfNeeded();
-  applySearchUI(tipo);
-  applyTopActionsUI(tipo);
+    $("autoComentariosBox").style.display = (tipo === "autoevaluacion") ? "block" : "none";
+    $("desempenoCamposBox").style.display = (tipo === "desempeno") ? "block" : "none";
+    $("clientesBox").style.display = (tipo === "clientes") ? "block" : "none";
+    $("evalCard").style.display = (tipo === "clientes") ? "none" : "block";
 
-  // ✅ Fecha automática HOY si está vacía
-  setDefaultToday();
-}
+    if(tipo !== "clientes"){
+      renderItems();
+    }
 
- function clearForm(){
-  $("noPersonal").value = "";
-  $("nombre").value = "";
-  $("posicion").value = "";
-  $("departamento").value = "";
-  $("periodo").value = "";
-  $("version").value = "";
-  $("fecha").value = "";
+    ensureItemsVisibleIfNeeded();
+    applySearchUI(tipo);
+    applyTopActionsUI(tipo);
 
-  // ✅ Fecha automática HOY al limpiar
-  setDefaultToday();
+    setDefaultToday();
+  }
 
-  $("comentariosColaborador").value = "";
-  $("justificacion").value = "";
-  $("comentariosEvaluador").value = "";
-  $("fortalezas").value = "";
-  $("oportunidades").value = "";
-  $("proyeccion").value = "";
-  $("necesidadesCapacitacion").value = "";
-  $("comentariosColaborador2").value = "";
-  $("evaluacionClientes").value = "";
-    // ✅ Limpiar nombre del evaluador (CLIENTES)
-  const neCli = $("nombreEvaluador");
-  if(neCli) neCli.value = "";
+  function clearForm(){
+    $("noPersonal").value = "";
+    $("nombre").value = "";
+    $("posicion").value = "";
+    $("departamento").value = "";
+    $("periodo").value = "";
+    $("version").value = "";
+    $("fecha").value = "";
 
-  const r = $("retroalimentacion");
-  if(r) r.value = "";
- const ne = $("nombreEvaluadorDesempeno");
-if(ne) ne.value = "";
+    setDefaultToday();
 
-  state.answers = {};
-  ITEMS.forEach(sec=>sec.items.forEach(it=>{
-    const el = $("ans_"+it.key);
-    if(el) el.value = "";
-  }));
+    $("comentariosColaborador").value = "";
+    $("justificacion").value = "";
+    $("comentariosEvaluador").value = "";
+    $("fortalezas").value = "";
+    $("oportunidades").value = "";
+    $("proyeccion").value = "";
+    $("necesidadesCapacitacion").value = "";
+    $("comentariosColaborador2").value = "";
+    $("evaluacionClientes").value = "";
 
-  $("printArea").style.display = "none";
-  state.generated = false;
-  setDirty(false);
-  $("apiHint").className = "warn";
-  $("apiHint").textContent = "Listo para enviar";
-}
+    const neCli = $("nombreEvaluador");
+    if(neCli) neCli.value = "";
+
+    const r = $("retroalimentacion");
+    if(r) r.value = "";
+
+    const ne = $("nombreEvaluadorDesempeno");
+    if(ne) ne.value = "";
+
+    state.answers = {};
+    ITEMS.forEach(sec=>sec.items.forEach(it=>{
+      const el = $("ans_"+it.key);
+      if(el) el.value = "";
+    }));
+
+    $("printArea").style.display = "none";
+    state.generated = false;
+    setDirty(false);
+    $("apiHint").className = "warn";
+    $("apiHint").textContent = "Listo para enviar";
+  }
 
   function toFormUrlEncoded(obj){
     return Object.keys(obj)
@@ -2045,18 +2031,18 @@ if(ne) ne.value = "";
         extra.evaluacion_clientes ? `Evaluación clientes: ${extra.evaluacion_clientes}` : ""
       ].filter(Boolean).join("\n\n");
     }
-  if(tipo === "desempeno"){
-  return [
-    extra.nombre_evaluador ? `Nombre del evaluador: ${extra.nombre_evaluador}` : "",
-    extra.comentarios_evaluador ? `Comentarios evaluador: ${extra.comentarios_evaluador}` : "",
-    extra.fortalezas ? `Fortalezas: ${extra.fortalezas}` : "",
-    extra.oportunidades_mejora ? `Oportunidades: ${extra.oportunidades_mejora}` : "",
-    extra.proyeccion_potencial ? `Proyección: ${extra.proyeccion_potencial}` : "",
-    extra.necesidades_capacitacion ? `Necesidades de capacitación: ${extra.necesidades_capacitacion}` : "",
-    extra.comentarios_colaborador ? `Comentarios colaborador: ${extra.comentarios_colaborador}` : "",
-    extra.evaluacion_clientes ? `Evaluación clientes: ${extra.evaluacion_clientes}` : ""
-  ].filter(Boolean).join("\n\n");
-}
+    if(tipo === "desempeno"){
+      return [
+        extra.nombre_evaluador ? `Nombre del evaluador: ${extra.nombre_evaluador}` : "",
+        extra.comentarios_evaluador ? `Comentarios evaluador: ${extra.comentarios_evaluador}` : "",
+        extra.fortalezas ? `Fortalezas: ${extra.fortalezas}` : "",
+        extra.oportunidades_mejora ? `Oportunidades: ${extra.oportunidades_mejora}` : "",
+        extra.proyeccion_potencial ? `Proyección: ${extra.proyeccion_potencial}` : "",
+        extra.necesidades_capacitacion ? `Necesidades de capacitación: ${extra.necesidades_capacitacion}` : "",
+        extra.comentarios_colaborador ? `Comentarios colaborador: ${extra.comentarios_colaborador}` : "",
+        extra.evaluacion_clientes ? `Evaluación clientes: ${extra.evaluacion_clientes}` : ""
+      ].filter(Boolean).join("\n\n");
+    }
     if(tipo === "clientes"){
       return [
         extra.nombre_evaluador ? `Nombre del evaluador: ${extra.nombre_evaluador}` : "",
@@ -2096,7 +2082,6 @@ if(ne) ne.value = "";
 
     if(tipo === "autoevaluacion"){
       if(!extra.comentarios_colaborador) missing.push("Comentarios del colaborador");
-      // ✅ Los campos realzados en autoevaluación quedan opcionales (solo se muestran y se guardan si se llenan)
     }
     if(tipo === "desempeno"){
       if(!extra.justificacion) missing.push("Justificación calificaciones");
@@ -2105,8 +2090,6 @@ if(ne) ne.value = "";
       if(!extra.oportunidades_mejora) missing.push("Oportunidades de mejora");
       if(!extra.proyeccion_potencial) missing.push("Proyección y potencial");
       if(!extra.comentarios_colaborador) missing.push("Comentarios del colaborador");
-      // ✅ No se marcó como obligatorio, solo se agregó y se guarda si se llena:
-      // if(!extra.necesidades_capacitacion) missing.push("Necesidades de capacitación");
     }
 
     return { ok: missing.length === 0, missing, header, extra };
@@ -2150,9 +2133,9 @@ if(ne) ne.value = "";
 
       retroalimentacion: (header.tipo === "clientes") ? (extra.retroalimentacion || "") : "",
       nombre_evaluador:
-  (header.tipo === "clientes") ? (extra.nombre_evaluador || "") :
-  (header.tipo === "desempeno") ? (extra.nombre_evaluador || "") :
-  "",
+        (header.tipo === "clientes") ? (extra.nombre_evaluador || "") :
+        (header.tipo === "desempeno") ? (extra.nombre_evaluador || "") :
+        "",
 
       evaluacion_clientes: (header.tipo === "desempeno") ? (extra.evaluacion_clientes || "") : "",
       necesidades_capacitacion: (header.tipo === "desempeno") ? (extra.necesidades_capacitacion || "") : "",
@@ -2181,172 +2164,165 @@ if(ne) ne.value = "";
       setDirty(false);
 
     }catch(err){
-    console.error(err);
+      console.error(err);
 
-    $("apiHint").className = "err";
-    $("apiHint").textContent = "No se pudo recuperar: " + (err.message || err);
+      $("apiHint").className = "err";
+      $("apiHint").textContent = "No se pudo recuperar: " + (err.message || err);
 
-    // ✅ Fallback definitivo: abrir consulta flotante para autollenar
-    openLookupPrefilled();
+      openLookupPrefilled();
 
-    // ✅ Debug útil: URL exacta que se intentó cargar (para probar en pestaña)
-    const tipo = $("tipoFormulario").value;
-    const action = (tipo === "desempeno") ? "recuperar_desempeno" : "recuperar";
-    const no_personal = $("noPersonal").value.trim();
-    const periodo = $("periodo").value.trim();
-    const version = $("version").value.trim();
-    const testUrl = API_URL + (API_URL.includes("?") ? "&" : "?") +
-      new URLSearchParams({
-        action, no_personal, periodo, version, tipo,
-        callback: "TEST",
-        _ts: Date.now().toString()
-      }).toString();
+      const tipo = $("tipoFormulario").value;
+      const action = (tipo === "desempeno") ? "recuperar_desempeno" : "recuperar";
+      const no_personal = $("noPersonal").value.trim();
+      const periodo = $("periodo").value.trim();
+      const version = $("version").value.trim();
+      const testUrl = API_URL + (API_URL.includes("?") ? "&" : "?") +
+        new URLSearchParams({
+          action, no_personal, periodo, version, tipo,
+          callback: "TEST",
+          _ts: Date.now().toString()
+        }).toString();
 
-    alert(
-      "No se pudo recuperar (JSONP).\n\n" +
-      "Se abrió la consulta para autollenar (recomendado).\n\n" +
-      "Prueba este URL en una pestaña para validar el WebApp:\n\n" +
-      testUrl + "\n\n" +
-      "Si te pide login o no devuelve datos, tu WebApp NO está público (Anyone) o no coincide el /exec."
-    );
+      alert(
+        "No se pudo recuperar (JSONP).\n\n" +
+        "Se abrió la consulta para autollenar (recomendado).\n\n" +
+        "Prueba este URL en una pestaña para validar el WebApp:\n\n" +
+        testUrl + "\n\n" +
+        "Si te pide login o no devuelve datos, tu WebApp NO está público (Anyone) o no coincide el /exec."
+      );
 
-  }finally{
-
+    }finally{
       setBusy(false);
     }
   }
 
- function bind(){
-  [
-    "noPersonal","nombre","posicion","departamento","periodo","version","fecha",
-    "comentariosColaborador","justificacion","comentariosEvaluador","fortalezas",
-    "oportunidades","proyeccion","necesidadesCapacitacion",
-    "comentariosColaborador2","evaluacionClientes",
-    "retroalimentacion","nombreEvaluador","nombreEvaluadorDesempeno"
-  ].forEach(id=>{
-    const el = $(id);
-    if(!el) return;
-    el.addEventListener("input", ()=> setDirty(true));
-    el.addEventListener("change", ()=> setDirty(true));
-  });
-
-  $("tipoFormulario").addEventListener("change", ()=>{
-    applyTipoUI();
-    setDirty(true);
-  });
-
-  $("btnNew").addEventListener("click", ()=>{
-    if(state.saving) return;
-    if(state.dirty && !confirm("Hay cambios sin guardar. ¿Limpiar todo de todas formas?")) return;
-    clearForm();
-  });
-
-   $("btnRecover").addEventListener("click", ()=>{
-  if(state.saving) return;
-
-  // ✅ Solo permitido en desempeño
-  if($("tipoFormulario").value !== "desempeno") return;
-
-  const noP = $("noPersonal").value.trim();
-  const per = $("periodo").value.trim();
-  const ver = $("version").value.trim();
-
-  // Si no llenan llaves, abre consulta flotante
-  if(!noP || !per || !ver){
-    openLookupPrefilled();
-    return;
-  }
-
-  // Si hay llaves completas, recuperación exacta
-  recoverRecordExact();
-});
-
-    // Si hay llaves completas, intenta recuperación exacta
-    recoverRecordExact();
-  });
-   
-  $("btnGenerate").addEventListener("click", ()=>{
-    if(state.saving) return;
-
-    const v = validateAll();
-    if(!v.ok){
-      const unique = Array.from(new Set(v.missing));
-      alert("Para generar el reporte, completa todo:\n\n• " + unique.join("\n• "));
-      return;
-    }
-
-    buildReport();
-    state.generated = true;
-    setDirty(true);
-    openReportModal();
-  });
-
-  $("btnPrint").addEventListener("click", ()=>{
-    if(state.saving) return;
-
-    const v = validateAll();
-    if(!v.ok){
-      const unique = Array.from(new Set(v.missing));
-      alert("Para imprimir/enviar a PDF, completa todo:\n\n• " + unique.join("\n• "));
-      return;
-    }
-
-    if(!state.generated){
-      buildReport();
-      state.generated = true;
-    }
-    window.print();
-  });
-
-  $("btnCloseReport").addEventListener("click", closeReportModal);
-  $("reportBackdrop").addEventListener("click", (e)=>{
-    if(e.target === $("reportBackdrop")) closeReportModal();
-  });
-  $("btnPrintFromModal").addEventListener("click", ()=>{
-    if(!state.generated){
-      buildReport();
-      state.generated = true;
-    }
-    window.print();
-  });
-
-  $("btnCloseRecovered").addEventListener("click", closeRecoverModal);
-  $("recoverBackdrop").addEventListener("click", (e)=>{
-    if(e.target === $("recoverBackdrop")) closeRecoverModal();
-  });
-  $("btnApplyRecovered").addEventListener("click", ()=>{
-    if(!lastRecovered || !lastRecovered.rowParams) return;
-    applyRecoveredToForm(lastRecovered.rowParams, lastRecovered.clientesInfo || null);
-    $("apiHint").className = "ok";
-    $("apiHint").textContent = "Registro aplicado al formulario ✅";
-    closeRecoverModal();
-  });
-
-  $("btnCloseLookup").addEventListener("click", closeLookupModal);
-  $("lookupBackdrop").addEventListener("click", (e)=>{
-    if(e.target === $("lookupBackdrop")) closeLookupModal();
-  });
-  $("btnSearch").addEventListener("click", searchRecords);
-  $("btnClearSearch").addEventListener("click", ()=>{
-    $("qNoPersonal").value = "";
-    $("qNombre").value = "";
-    $("qPeriodo").value = "";
-    $("qVersion").value = "";
-    renderLookupResults([]);
-    setLookupStatus("Listo para buscar.", "warn");
-  });
-
-  ["qNoPersonal","qNombre","qPeriodo","qVersion"].forEach(id=>{
-    const el = $(id);
-    if(!el) return;
-    el.addEventListener("keydown", (e)=>{
-      if(e.key === "Enter"){
-        e.preventDefault();
-        searchRecords();
-      }
+  function bind(){
+    [
+      "noPersonal","nombre","posicion","departamento","periodo","version","fecha",
+      "comentariosColaborador","justificacion","comentariosEvaluador","fortalezas",
+      "oportunidades","proyeccion","necesidadesCapacitacion",
+      "comentariosColaborador2","evaluacionClientes",
+      "retroalimentacion","nombreEvaluador","nombreEvaluadorDesempeno"
+    ].forEach(id=>{
+      const el = $(id);
+      if(!el) return;
+      el.addEventListener("input", ()=> setDirty(true));
+      el.addEventListener("change", ()=> setDirty(true));
     });
-  });
-}
+
+    $("tipoFormulario").addEventListener("change", ()=>{
+      applyTipoUI();
+      setDirty(true);
+    });
+
+    $("btnNew").addEventListener("click", ()=>{
+      if(state.saving) return;
+      if(state.dirty && !confirm("Hay cambios sin guardar. ¿Limpiar todo de todas formas?")) return;
+      clearForm();
+    });
+
+    // ✅ FIX: listener correcto sin cierres extra
+    $("btnRecover").addEventListener("click", ()=>{
+      if(state.saving) return;
+
+      if($("tipoFormulario").value !== "desempeno") return;
+
+      const noP = $("noPersonal").value.trim();
+      const per = $("periodo").value.trim();
+      const ver = $("version").value.trim();
+
+      if(!noP || !per || !ver){
+        openLookupPrefilled();
+        return;
+      }
+
+      recoverRecordExact();
+    });
+
+    $("btnGenerate").addEventListener("click", ()=>{
+      if(state.saving) return;
+
+      const v = validateAll();
+      if(!v.ok){
+        const unique = Array.from(new Set(v.missing));
+        alert("Para generar el reporte, completa todo:\n\n• " + unique.join("\n• "));
+        return;
+      }
+
+      buildReport();
+      state.generated = true;
+      setDirty(true);
+      openReportModal();
+    });
+
+    $("btnPrint").addEventListener("click", ()=>{
+      if(state.saving) return;
+
+      const v = validateAll();
+      if(!v.ok){
+        const unique = Array.from(new Set(v.missing));
+        alert("Para imprimir/enviar a PDF, completa todo:\n\n• " + unique.join("\n• "));
+        return;
+      }
+
+      if(!state.generated){
+        buildReport();
+        state.generated = true;
+      }
+      window.print();
+    });
+
+    $("btnSave").addEventListener("click", saveToSheet);
+
+    $("btnCloseReport").addEventListener("click", closeReportModal);
+    $("reportBackdrop").addEventListener("click", (e)=>{
+      if(e.target === $("reportBackdrop")) closeReportModal();
+    });
+    $("btnPrintFromModal").addEventListener("click", ()=>{
+      if(!state.generated){
+        buildReport();
+        state.generated = true;
+      }
+      window.print();
+    });
+
+    $("btnCloseRecovered").addEventListener("click", closeRecoverModal);
+    $("recoverBackdrop").addEventListener("click", (e)=>{
+      if(e.target === $("recoverBackdrop")) closeRecoverModal();
+    });
+    $("btnApplyRecovered").addEventListener("click", ()=>{
+      if(!lastRecovered || !lastRecovered.rowParams) return;
+      applyRecoveredToForm(lastRecovered.rowParams, lastRecovered.clientesInfo || null);
+      $("apiHint").className = "ok";
+      $("apiHint").textContent = "Registro aplicado al formulario ✅";
+      closeRecoverModal();
+    });
+
+    $("btnCloseLookup").addEventListener("click", closeLookupModal);
+    $("lookupBackdrop").addEventListener("click", (e)=>{
+      if(e.target === $("lookupBackdrop")) closeLookupModal();
+    });
+    $("btnSearch").addEventListener("click", searchRecords);
+    $("btnClearSearch").addEventListener("click", ()=>{
+      $("qNoPersonal").value = "";
+      $("qNombre").value = "";
+      $("qPeriodo").value = "";
+      $("qVersion").value = "";
+      renderLookupResults([]);
+      setLookupStatus("Listo para buscar.", "warn");
+    });
+
+    ["qNoPersonal","qNombre","qPeriodo","qVersion"].forEach(id=>{
+      const el = $(id);
+      if(!el) return;
+      el.addEventListener("keydown", (e)=>{
+        if(e.key === "Enter"){
+          e.preventDefault();
+          searchRecords();
+        }
+      });
+    });
+  }
 
   function setDefaultToday(){
     const f = $("fecha");
@@ -2366,54 +2342,43 @@ if(ne) ne.value = "";
     }
   });
 
- // init (más estable en GitHub Pages)
-function initApp(){
-  try{
-    // 1) UI base
-    applyTipoUI();
+  function initApp(){
+    try{
+      applyTipoUI();
+      renderItems();
+      bind();
+      setDefaultToday();
+      setDirty(false);
 
-    // 2) Items (forzado)
-    renderItems();
+      setTimeout(() => {
+        const c = $("itemsContainer");
+        if(c && c.children.length === 0 && $("tipoFormulario").value !== "clientes"){
+          renderItems();
+        }
+      }, 250);
 
-    // 3) Bind de eventos
-    bind();
-
-    // 4) Defaults
-    setDefaultToday();
-    setDirty(false);
-
-    // 5) Seguro extra: si por alguna razón quedó vacío, lo reintenta
-    setTimeout(() => {
+    }catch(err){
+      console.error("INIT ERROR:", err);
       const c = $("itemsContainer");
-      if(c && c.children.length === 0 && $("tipoFormulario").value !== "clientes"){
-        renderItems();
-      }
-    }, 250);
-
-  }catch(err){
-    console.error("INIT ERROR:", err);
-    const c = $("itemsContainer");
-    if(c){
-      c.innerHTML = `
-        <div class="card" style="background:rgba(0,0,0,.18); border:1px solid rgba(255,180,180,.35)">
-          <h3 style="margin:0 0 8px; color:#ffb4b4;">Error cargando los ítems</h3>
-          <div class="muted" style="font-size:12px;">
-            Revisa la consola (F12 → Console).<br>
-            <b>${String(err?.message || err)}</b>
+      if(c){
+        c.innerHTML = `
+          <div class="card" style="background:rgba(0,0,0,.18); border:1px solid rgba(255,180,180,.35)">
+            <h3 style="margin:0 0 8px; color:#ffb4b4;">Error cargando los ítems</h3>
+            <div class="muted" style="font-size:12px;">
+              Revisa la consola (F12 → Console).<br>
+              <b>${String(err?.message || err)}</b>
+            </div>
           </div>
-        </div>
-      `;
+        `;
+      }
     }
   }
-}
 
-// ✅ Corre siempre, aunque el script cargue tarde o temprano
-if(document.readyState === "loading"){
-  document.addEventListener("DOMContentLoaded", initApp);
-}else{
-  initApp();
-}
-
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", initApp);
+  }else{
+    initApp();
+  }
 </script>
 </body>
 </html>
