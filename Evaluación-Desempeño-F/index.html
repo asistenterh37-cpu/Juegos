@@ -1992,7 +1992,11 @@ if(rowParams.nombre_evaluador && $("nombreEvaluadorDesempeno")){
   $("desempenoCamposBox").style.display = (tipo === "desempeno") ? "block" : "none";
   $("clientesBox").style.display = (tipo === "clientes") ? "block" : "none";
   $("evalCard").style.display = (tipo === "clientes") ? "none" : "block";
-
+  // ✅ Forzar render de items en autoevaluación y desempeño
+if(tipo !== "clientes"){
+  renderItems();
+}
+  
   ensureItemsVisibleIfNeeded();
   applySearchUI(tipo);
   applyTopActionsUI(tipo);
@@ -2350,13 +2354,53 @@ if(ne) ne.value = "";
   });
 
  // init (más estable en GitHub Pages)
-window.addEventListener("DOMContentLoaded", () => {
-  renderItems();
-  applyTipoUI();
-  bind();
-  setDefaultToday();
-  setDirty(false);
-});
+function initApp(){
+  try{
+    // 1) UI base
+    applyTipoUI();
+
+    // 2) Items (forzado)
+    renderItems();
+
+    // 3) Bind de eventos
+    bind();
+
+    // 4) Defaults
+    setDefaultToday();
+    setDirty(false);
+
+    // 5) Seguro extra: si por alguna razón quedó vacío, lo reintenta
+    setTimeout(() => {
+      const c = $("itemsContainer");
+      if(c && c.children.length === 0 && $("tipoFormulario").value !== "clientes"){
+        renderItems();
+      }
+    }, 250);
+
+  }catch(err){
+    console.error("INIT ERROR:", err);
+    const c = $("itemsContainer");
+    if(c){
+      c.innerHTML = `
+        <div class="card" style="background:rgba(0,0,0,.18); border:1px solid rgba(255,180,180,.35)">
+          <h3 style="margin:0 0 8px; color:#ffb4b4;">Error cargando los ítems</h3>
+          <div class="muted" style="font-size:12px;">
+            Revisa la consola (F12 → Console).<br>
+            <b>${String(err?.message || err)}</b>
+          </div>
+        </div>
+      `;
+    }
+  }
+}
+
+// ✅ Corre siempre, aunque el script cargue tarde o temprano
+if(document.readyState === "loading"){
+  document.addEventListener("DOMContentLoaded", initApp);
+}else{
+  initApp();
+}
+
 </script>
 </body>
 </html>
