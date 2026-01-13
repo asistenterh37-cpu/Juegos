@@ -1926,22 +1926,30 @@ if(rowParams.nombre_evaluador && $("nombreEvaluadorDesempeno")){
     openLookupModal();
   }
 
-  function applySearchUI(tipo){
-  const badgeWrap = $("searchBadgeWrap");
-  if(badgeWrap) badgeWrap.style.display = "inline";
+ function applySearchUI(tipo){
+  const isAuto = (tipo === "autoevaluacion");
 
+  // Badge: solo NO autoevaluación
+  const badgeWrap = $("searchBadgeWrap");
+  if(badgeWrap) badgeWrap.style.display = isAuto ? "none" : "inline";
+
+  // Campos de búsqueda: solo NO autoevaluación
   const targets = ["fldNoPersonal", "fldPeriodo", "fldVersion"];
   targets.forEach(id=>{
     const el = $(id);
     if(!el) return;
-    el.classList.add("searchField");
+    if(isAuto){
+      el.classList.remove("searchField");
+    }else{
+      el.classList.add("searchField");
+    }
   });
 
   // ✅ Recuperar SOLO en autoevaluación
   const btnRecover = $("btnRecover");
-if(btnRecover){
-  btnRecover.style.display = isAuto ? "" : "none"; // SOLO autoevaluación
-}
+  if(btnRecover){
+    btnRecover.style.display = isAuto ? "" : "none";
+  }
 }
 
   function applyTopActionsUI(tipo){
@@ -2219,6 +2227,22 @@ if(ne) ne.value = "";
     }
     recoverRecordExact();
   });
+   $("btnRecover").addEventListener("click", ()=>{
+  // ✅ Seguridad extra: si por algo aparece, no hace nada fuera de autoevaluación
+  if($("tipoFormulario").value !== "autoevaluacion"){
+    return;
+  }
+
+  const noP = $("noPersonal").value.trim();
+  const per = $("periodo").value.trim();
+  const ver = $("version").value.trim();
+
+  if(!noP || !per || !ver){
+    openLookupPrefilled();
+    return;
+  }
+  recoverRecordExact();
+});
 
   $("btnSave").addEventListener("click", saveToSheet);
 
