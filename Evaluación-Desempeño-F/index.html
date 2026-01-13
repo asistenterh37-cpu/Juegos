@@ -908,23 +908,6 @@ function getApiCandidates(){
   });
 }
 
-      function cleanup(){
-        clearTimeout(timeout);
-        try{ if(window[cbName]) delete window[cbName]; }catch(_){}
-        if(script && script.parentNode) script.parentNode.removeChild(script);
-      }
-
-      window[cbName] = (data) => { cleanup(); resolve(data); };
-
-      script.onerror = () => {
-        cleanup();
-        reject(new Error("Error de red (JSONP). Bloqueador/Firewall o endpoint inaccesible."));
-      };
-
-      document.body.appendChild(script);
-    });
-  }
-
   async function jsonpRequestWithFallback(params){
     assertApiUrl();
     const candidates = getApiCandidates();
