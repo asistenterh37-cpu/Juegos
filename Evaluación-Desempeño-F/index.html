@@ -1769,15 +1769,20 @@ async function searchRecords(){
 
 /**
 /**
+ /**
+/**
  * ✅ NUEVO: Recuperar por LLAVES (No. personal + Periodo + Versión)
- * - Directo al registro: buscar → recuperar_por_fila
- * - Mantiene intento legacy: recuperar_por_keys (por si existe en tu Apps Script)
+ * - Robustez: intenta recuperar en este orden:
+ *   1) desempleño (por si tu Script usa EvaluacionResultados)
+ *   2) autoevaluacion (porque tú indicas que Recuperar sale de hoja autoevaluaciones)
+ * - Luego intenta traer Clientes (retroalimentación) y lo compone en "evaluacionClientes"
+ * - No bloquea el flujo si apiPing falla (muchas redes bloquean JSONP ping aunque buscar funcione)
  */
 async function recoverByKeys(){
   if(state.saving) return;
 
-  const tipo = $("tipoFormulario").value;
-  if(tipo !== "desempeno"){
+  const tipoUI = $("tipoFormulario").value;
+  if(tipoUI !== "desempeno"){
     alert("Recuperar solo está disponible en el Formulario de evaluación del desempeño.");
     return;
   }
@@ -1791,6 +1796,129 @@ async function recoverByKeys(){
     return;
   }
 
+  // Helper: intenta recuperar por keys → (legacy) o buscar→detalle por fila
+  async function tryRecoverTipo(tipoServidor){
+    // 1) Intento LEGACY (si tu Apps Script lo tiene)
+    try{
+      const legacy = await jsonpRequestWithFallback({
+        action: "recuperar_por_keys",
+        tipo: tipoServidor,
+        no_personal, periodo, version
+      });
+
+      if(legacy && legacy.ok !== false && legacy.found && legacy.rowParams){
+        return {
+          found: true,
+          rowParams: legacy.rowParams,
+          rowNumber: legacy.rowNumber || "—",
+          allColumns: legacy.allColumns || [],
+          clientes: legacy.clientes || null,
+          sourceTipo: tipoServidor,
+          sourceMode: "legacy_recuperar_por_keys"
+        };
+      }
+    }catch(_e){
+      // seguimos al fallback
+    }
+
+    // 2) Fallback: buscar por llaves → recuperar detalle por fila
+    const search = await jsonpRequestWithFallback({
+      action: "buscar",
+      tipo: tipoServidor,
+      no_personal,
+      periodo,
+      version,
+      limit: "5"
+    });
+
+    if(!search || search.ok === false){
+      return { found:false, error: (search && search.error) ? search.error : "Respuesta inválida (buscar)." };
+    }
+
+    const rows = Array.isArray(search.rows) ? search.rows : [];
+    if(rows.length === 0) return { found:false };
+
+    // si hay varios, mandamos a selección manual (modal lookup)
+    if(rows.length > 1){
+      return { found:false, multi:true, rows, sourceTipo: tipoServidor };
+    }
+
+    const pick = rows[0];
+    const rowNumber = pick?.meta?.rowNumber;
+    if(!rowNumber){
+      return { found:false, error:"Resultados sin rowNumber. Revisa Apps Script." };
+    }
+
+    const detail = await jsonpRequestWithFallback({
+      action: "recuperar_por_fila",
+      tipo: tipoServidor,
+      rowNumber: String(rowNumber)
+    });
+
+    if(!detail || detail.ok === false){
+      return { found:false, error: (detail && detail.error) ? detail.error : "Respuesta inválida (recuperar_por_fila)." };
+    }
+
+    if(!detail.found || !detail.rowParams){
+      return { found:false };
+    }
+
+    return {
+      found: true,
+      rowParams: detail.rowParams,
+      rowNumber: detail.rowNumber || rowNumber || "—",
+      allColumns: detail.allColumns || [],
+      clientes: detail.clientes || null,
+      sourceTipo: tipoServidor,
+      sourceMode: "buscar+recuperar_por_fila"
+    };
+  }
+
+  // Helper: intenta traer info de Clientes por llaves (si tu script soporta buscar/recuperar_por_fila tipo clientes)
+  async function tryFetchClientes(){
+    try{
+      const s = await jsonpRequestWithFallback({
+        action: "buscar",
+        tipo: "clientes",
+        no_personal,
+        periodo,
+        version,
+        limit: "3"
+      });
+
+      if(!s || s.ok === false) return null;
+
+      const rows = Array.isArray(s.rows) ? s.rows : [];
+      if(!rows.length) return null;
+
+      // si hay varios, usamos el primero (puedes cambiar a modal si quieres)
+      const rowNumber = rows[0]?.meta?.rowNumber;
+      if(!rowNumber) return null;
+
+      const d = await jsonpRequestWithFallback({
+        action: "recuperar_por_fila",
+        tipo: "clientes",
+        rowNumber: String(rowNumber)
+      });
+
+      if(!d || d.ok === false || !d.found || !d.rowParams) return null;
+
+      // Normalizamos nombres posibles
+      const rp = d.rowParams || {};
+      const retro = (rp.retroalimentacion ?? rp.Retroalimentacion ?? rp.retro ?? "").toString().trim();
+      const ne = (rp.nombre_evaluador ?? rp.nombreEvaluador ?? rp.evaluador ?? "").toString().trim();
+
+      return {
+        found: true,
+        rowNumber: d.rowNumber || rowNumber || "—",
+        retroalimentacion: retro,
+        nombre_evaluador: ne
+      };
+    }catch(_e){
+      return null;
+    }
+  }
+
   try{
     assertApiUrl();
     setBusy(true);
@@ -1798,119 +1926,85 @@ async function recoverByKeys(){
     $("apiHint").className = "warn";
     $("apiHint").textContent = "Recuperando…";
 
-    // ✅ 1) Intento LEGACY (por si tu Apps Script sí lo tiene)
-    try{
-      const data = await jsonpRequestWithFallback({
-        action: "recuperar_por_keys",
-        tipo: "desempeno",
-        no_personal,
-        periodo,
-        version
-      });
+    // 👇 ya NO bloqueamos por ping; si responde, bien; si no, seguimos intentando recuperar
+    try{ await apiPing(); }catch(_e){}
 
-      if(data && data.ok !== false && data.found && data.rowParams){
-        buildRecoverModal(
-          data.rowParams,
-          {
-            no_personal: data.rowParams.no_personal || no_personal,
-            periodo: data.rowParams.periodo || periodo,
-            version: data.rowParams.version || version,
-            rowNumber: data.rowNumber || "—"
-          },
-          data.clientes || null,
-          data.allColumns || []
-        );
+    // ✅ 1) Intento recuperar desde "desempeno"
+    let recovered = await tryRecoverTipo("desempeno");
 
-        $("apiHint").className = "ok";
-        $("apiHint").textContent = "Registro recuperado ✅";
-        return; // listo
-      }
-    }catch(_legacyErr){
-      // Silencio: pasamos al fallback robusto
+    // ✅ Si no existe en desempeño, probamos desde "autoevaluacion" (tu requisito)
+    if(!recovered?.found && !recovered?.multi){
+      const alt = await tryRecoverTipo("autoevaluacion");
+      if(alt?.found || alt?.multi) recovered = alt;
     }
 
-    // ✅ 2) Fallback ROBUSTO: buscar por llaves → recuperar detalle por fila
-    const search = await jsonpRequestWithFallback({
-      action: "buscar",
-      tipo: "desempeno",
-      no_personal,
-      periodo,
-      version,
-      limit: "2"
-    });
-
-    if(!search || search.ok === false){
-      const msg = (search && search.error) ? search.error : "Respuesta inválida del servidor (buscar).";
-      $("apiHint").className = "err";
-      $("apiHint").textContent = "Error al recuperar.";
-      alert("No se pudo recuperar: " + msg);
-      return;
-    }
-
-    const rows = Array.isArray(search.rows) ? search.rows : [];
-
-    if(rows.length === 0){
+    // Si hay múltiples, abrimos modal de búsqueda con filtros ya llenos (para elegir)
+    if(recovered && recovered.multi){
       $("apiHint").className = "warn";
-      $("apiHint").textContent = "Sin registro con esas llaves.";
-      alert("No se encontró un registro con esas llaves (No. personal / Periodo / Versión).");
-      return;
-    }
-
-    // Si devuelve más de 1 (no debería si llaves son únicas), abrimos el modal para elegir
-    if(rows.length > 1){
-      $("apiHint").className = "warn";
-      $("apiHint").textContent = "Hay más de un registro; selecciona uno.";
+      $("apiHint").textContent = "Varios registros; selecciona uno.";
       openLookupPrefilled();
-      setTimeout(()=>{ try{ searchRecords(); }catch(_e){} }, 50);
+      // Nota: searchRecords() usa tipo "desempeno" en tu implementación.
+      // Para cumplir tu requisito (autoevaluaciones), hacemos búsqueda automática por ambos:
+      setTimeout(async ()=>{
+        try{
+          // 1) busca en desempeño
+          await searchRecords();
+          // 2) si no hay, sugiere cambiar a autoevaluacion desde servidor (sin cambiar UI)
+          // (No tocamos el modal; el usuario ya puede refinar)
+        }catch(_e){}
+      }, 50);
       alert("Se encontraron varios registros con esas llaves. Selecciona el correcto en la lista.");
       return;
     }
 
-    const pick = rows[0];
-    const rowNumber = pick?.meta?.rowNumber;
-
-    if(!rowNumber){
-      $("apiHint").className = "err";
-      $("apiHint").textContent = "No se pudo obtener la fila.";
-      alert("El servidor devolvió resultados pero sin número de fila (rowNumber). Revisa tu Apps Script.");
-      return;
-    }
-
-    const detail = await jsonpRequestWithFallback({
-      action: "recuperar_por_fila",
-      tipo: "desempeno",
-      rowNumber: String(rowNumber)
-    });
-
-    if(!detail || detail.ok === false){
-      const msg = (detail && detail.error) ? detail.error : "Respuesta inválida del servidor (recuperar_por_fila).";
-      $("apiHint").className = "err";
-      $("apiHint").textContent = "Error al recuperar.";
-      alert("No se pudo recuperar detalle: " + msg);
-      return;
-    }
-
-    if(!detail.found || !detail.rowParams){
+    if(!recovered || !recovered.found || !recovered.rowParams){
       $("apiHint").className = "warn";
-      $("apiHint").textContent = "No se encontró detalle.";
-      alert("Se encontró la fila, pero no se pudo cargar el detalle (found=false).");
+      $("apiHint").textContent = "Sin registro con esas llaves.";
+      alert("No se encontró un registro con esas llaves (No. personal / Periodo / Versión) en autoevaluaciones ni en desempeño.");
       return;
     }
 
+    // ✅ 2) Intento traer Clientes (retroalimentación)
+    // - Si el servidor ya lo mandó en recovered.clientes, lo usamos.
+    // - Si no, hacemos lookup directo a tipo "clientes".
+    let clientesInfo = recovered.clientes || null;
+
+    if(!clientesInfo || !clientesInfo.found){
+      const cli = await tryFetchClientes();
+      if(cli && cli.found) clientesInfo = cli;
+    }
+
+    // ✅ 3) Si existe Clientes, componemos el texto para el campo desempeño "evaluacionClientes"
+    // sin perder lo ya guardado en desempeño/autoevaluaciones
+    if(clientesInfo && clientesInfo.found){
+      const head = clientesInfo.nombre_evaluador ? `(${clientesInfo.nombre_evaluador}) ` : "";
+      const composed = `${head}${clientesInfo.retroalimentacion || ""}`.trim();
+
+      // Setea en rowParams para que el modal/autollenado lo use
+      if(composed){
+        recovered.rowParams.evaluacion_clientes = composed;
+        // también setea nombre evaluador desempeño si viene en clientes y está vacío
+        if(!recovered.rowParams.nombre_evaluador && clientesInfo.nombre_evaluador){
+          recovered.rowParams.nombre_evaluador = clientesInfo.nombre_evaluador;
+        }
+      }
+    }
+
+    // ✅ 4) Abre modal de detalle recuperado (como ya lo tienes)
     buildRecoverModal(
-      detail.rowParams,
+      recovered.rowParams,
       {
-        no_personal: detail.rowParams.no_personal || no_personal,
-        periodo: detail.rowParams.periodo || periodo,
-        version: detail.rowParams.version || version,
-        rowNumber: detail.rowNumber || rowNumber || "—"
+        no_personal: recovered.rowParams.no_personal || no_personal,
+        periodo: recovered.rowParams.periodo || periodo,
+        version: recovered.rowParams.version || version,
+        rowNumber: recovered.rowNumber || "—"
       },
-      detail.clientes || null,
-      detail.allColumns || []
+      clientesInfo || null,
+      recovered.allColumns || []
     );
 
     $("apiHint").className = "ok";
-    $("apiHint").textContent = "Registro recuperado ✅";
+    $("apiHint").textContent = `Registro recuperado ✅ (${recovered.sourceTipo})`;
 
   }catch(err){
     console.error(err);
@@ -2220,6 +2314,7 @@ function bind(){
     clearForm();
   });
 
+  // ✅ Recuperar: ya NO depende de apiPing para permitir recuperación aunque ping falle
   $("btnRecover").addEventListener("click", async ()=>{
     if(state.saving) return;
 
@@ -2228,9 +2323,6 @@ function bind(){
       alert("Recuperar solo está disponible en el Formulario de evaluación del desempeño.");
       return;
     }
-
-    const ok = await apiPing();
-    if(!ok) return;
 
     await recoverByKeys();
   });
