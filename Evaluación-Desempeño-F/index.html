@@ -1768,11 +1768,12 @@ async function searchRecords(){
 }
 
 /**
+/**
  * ✅ NUEVO: Recuperar por LLAVES (No. personal + Periodo + Versión)
- * - Esto es lo que pediste: sin tabla de lista, directo al registro
+ * - Directo al registro: buscar → recuperar_por_fila
+ * - Mantiene intento legacy: recuperar_por_keys (por si existe en tu Apps Script)
  */
 async function recoverByKeys(){
-  async function recoverByKeys(){
   if(state.saving) return;
 
   const tipo = $("tipoFormulario").value;
@@ -1798,9 +1799,8 @@ async function recoverByKeys(){
     $("apiHint").textContent = "Recuperando…";
 
     // ✅ 1) Intento LEGACY (por si tu Apps Script sí lo tiene)
-    let data = null;
     try{
-      data = await jsonpRequestWithFallback({
+      const data = await jsonpRequestWithFallback({
         action: "recuperar_por_keys",
         tipo: "desempeno",
         no_personal,
@@ -1826,7 +1826,7 @@ async function recoverByKeys(){
         return; // listo
       }
     }catch(_legacyErr){
-      // Silencio: pasamos a fallback robusto
+      // Silencio: pasamos al fallback robusto
     }
 
     // ✅ 2) Fallback ROBUSTO: buscar por llaves → recuperar detalle por fila
@@ -1861,7 +1861,6 @@ async function recoverByKeys(){
       $("apiHint").className = "warn";
       $("apiHint").textContent = "Hay más de un registro; selecciona uno.";
       openLookupPrefilled();
-      // Opcional: auto-ejecutar búsqueda al abrir
       setTimeout(()=>{ try{ searchRecords(); }catch(_e){} }, 50);
       alert("Se encontraron varios registros con esas llaves. Selecciona el correcto en la lista.");
       return;
@@ -2221,10 +2220,6 @@ function bind(){
     clearForm();
   });
 
-  /**
-   * ✅ Recuperar (Desempeño) = por LLAVES del formulario principal
-   * (Ahora usa buscar → recuperar_por_fila como fallback robusto)
-   */
   $("btnRecover").addEventListener("click", async ()=>{
     if(state.saving) return;
 
