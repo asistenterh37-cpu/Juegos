@@ -1927,30 +1927,22 @@ if(rowParams.nombre_evaluador && $("nombreEvaluadorDesempeno")){
   }
 
   function applySearchUI(tipo){
-    const isAuto = (tipo === "autoevaluacion");
-    const isClientes = (tipo === "clientes");
+  const badgeWrap = $("searchBadgeWrap");
+  if(badgeWrap) badgeWrap.style.display = "inline";
 
-    const badgeWrap = $("searchBadgeWrap");
-    if(badgeWrap) badgeWrap.style.display = isAuto ? "none" : "inline";
+  const targets = ["fldNoPersonal", "fldPeriodo", "fldVersion"];
+  targets.forEach(id=>{
+    const el = $(id);
+    if(!el) return;
+    el.classList.add("searchField");
+  });
 
-    const targets = ["fldNoPersonal", "fldPeriodo", "fldVersion"];
-    targets.forEach(id=>{
-      const el = $(id);
-      if(!el) return;
-      if(isAuto){
-        el.classList.remove("searchField");
-      }else{
-        el.classList.add("searchField");
-      }
-    });
-
-    // ✅ Recuperar: solo visible en Desempeño (oculto en Autoevaluación y Clientes)
-    const btnRecover = $("btnRecover");
-    if(btnRecover){
-      btnRecover.style.display = (tipo === "desempeno") ? "" : "none";
-    }
-
-  }
+  // ✅ Recuperar SOLO en autoevaluación
+  const btnRecover = $("btnRecover");
+if(btnRecover){
+  btnRecover.style.display = isAuto ? "" : "none"; // SOLO autoevaluación
+}
+}
 
   function applyTopActionsUI(tipo){
     const isClientes = (tipo === "clientes");
@@ -2223,7 +2215,7 @@ if(ne) ne.value = "";
 
     if(!noP || !per || !ver){
       openLookupPrefilled();
-      return;
+      return;---
     }
     recoverRecordExact();
   });
