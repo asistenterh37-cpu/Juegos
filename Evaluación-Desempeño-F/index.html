@@ -812,7 +812,7 @@ textarea{
   /************************************************************
    * 1) URL COMPLETA DEL APPS SCRIPT (/exec)
    ************************************************************/
-  const API_URL = "https://script.google.com/macros/s/AKfycbwjMN0K1wu7iZnRQuAnNET7wv4cBP-19U2076X7bgVx1BXX1ObMjGkpti0-c4lAtuXUZw/exec";
+  const API_URL = "https://script.google.com/macros/s/AKfycbw98zI0DgcAkHYopOnK6iWLAldNXSF9H5dGS6FY3Jpo77R9DCr8qEgKXrRK29v28rKi3g/exec";
 
   function assertApiUrl(){
     if(!API_URL || !/^https?:\/\//i.test(API_URL)){
@@ -828,31 +828,9 @@ textarea{
  ************************************************************/
 function getApiCandidates(){
   const u = String(API_URL || "").trim();
-
-  // ✅ 1) Endpoint normal
-  const primary = u;
-
-  // ✅ 2) Fallback: mismo path pero en script.googleusercontent.com
-  // (En MUCHAS redes bloquean script.google.com pero dejan googleusercontent)
-  let fallback = u;
-  try{
-    const url = new URL(u);
-    if(url.hostname.includes("script.google.com")){
-      url.hostname = "script.googleusercontent.com";
-      fallback = url.toString();
-    }
-  }catch(_){}
-
-  // ✅ 3) (Opcional) Si tú algún día copias un endpoint alterno real, lo puedes agregar aquí
-  // const manualAlt = "";
-
-  const arr = [primary];
-  if(fallback && fallback !== primary) arr.push(fallback);
-  // if(manualAlt) arr.push(manualAlt);
-
-  return arr;
+  return [u];
 }
-
+  
   function jsonpRequest(url, params){
   return new Promise((resolve, reject) => {
     const cbName = "cb_" + Math.random().toString(36).slice(2);
