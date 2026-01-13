@@ -837,8 +837,7 @@ function getApiCandidates(){
 
     const script = document.createElement("script");
     script.async = true;
-    script.referrerPolicy = "no-referrer";
-
+    
     const qs = new URLSearchParams({
       ...params,
       callback: cbName,
@@ -856,7 +855,7 @@ function getApiCandidates(){
       reject(new Error(
         "Timeout JSONP (no llegó callback). WebApp no pública o la red bloquea Google Scripts."
       ));
-    }, 20000);
+    }, 30000);
 
     function cleanup(){
       clearTimeout(timeout);
@@ -2240,17 +2239,20 @@ if(ne) ne.value = "";
     clearForm();
   });
 
-  $("btnRecover").addEventListener("click", ()=>{
-    const noP = $("noPersonal").value.trim();
-    const per = $("periodo").value.trim();
-    const ver = $("version").value.trim();
+$("btnRecover").addEventListener("click", ()=>{
+  if(state.saving) return;
 
-    if(!noP || !per || !ver){
-      openLookupPrefilled();
-      return;---
-    }
-    recoverRecordExact();
-  });
+  const noP = $("noPersonal").value.trim();
+  const per = $("periodo").value.trim();
+  const ver = $("version").value.trim();
+
+  if(!noP || !per || !ver){
+    openLookupPrefilled();
+    return;
+  }
+
+  recoverRecordExact();
+});
  
 // ✅ Recuperar / Consultar (Autoevaluación + Desempeño)
   $("btnRecover").addEventListener("click", ()=>{
