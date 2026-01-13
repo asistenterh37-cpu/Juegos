@@ -466,7 +466,8 @@
         </div>
 
         <button class="btn primary" id="btnNew" type="button">Nuevo</button>
-        <button class="btn primary" id="btnRecover" type="button">Recuperar / Consultar</button>
+        <!-- ✅ CAMBIO: solo Recuperar -->
+        <button class="btn primary" id="btnRecover" type="button">Recuperar</button>
         <button class="btn primary" id="btnGenerate" type="button">Generar</button>
         <button class="btn primary" id="btnSave" type="button">Guardar</button>
         <button class="btn" id="btnPrint" type="button">Imprimir / Enviar a PDF</button>
@@ -632,13 +633,14 @@
 
     </div>
 
-    <!-- ✅ Modal Consulta -->
+    <!-- ✅ Modal Recuperar -->
     <div class="modal-backdrop" id="lookupBackdrop" aria-hidden="true">
       <div class="modal" role="dialog" aria-modal="true" aria-labelledby="lookupTitle">
         <div class="modal-head">
           <div>
-            <div class="modal-title" id="lookupTitle">Consulta de registros</div>
-            <div class="modal-sub" id="lookupSub">Busca por No. personal / Nombre / Periodo / Versión y selecciona una fila para autollenar.</div>
+            <!-- ✅ CAMBIO: título / subtítulo orientado a Recuperar -->
+            <div class="modal-title" id="lookupTitle">Recuperar registros</div>
+            <div class="modal-sub" id="lookupSub">Busca por No. personal / Nombre / Periodo / Versión y selecciona una fila para ver detalles.</div>
           </div>
           <div class="modal-actions">
             <button class="btn" id="btnCloseLookup" type="button">Cerrar</button>
@@ -703,7 +705,7 @@
       </div>
     </div>
 
-    <!-- ✅ Modal Detalle Recuperado -->
+    <!-- ✅ Modal Detalle Recuperado (con Autollenar / Cerrar) -->
     <div class="modal-backdrop" id="recoverBackdrop" aria-hidden="true">
       <div class="modal" role="dialog" aria-modal="true" aria-labelledby="recoverTitle">
         <div class="modal-head">
@@ -713,7 +715,8 @@
           </div>
           <div class="modal-actions">
             <div class="tag-ok"><span class="dot"></span>Registro</div>
-            <button class="btn primary" id="btnApplyRecovered" type="button">Aplicar al formulario</button>
+            <!-- ✅ CAMBIO: texto Autollenar -->
+            <button class="btn primary" id="btnApplyRecovered" type="button">Autollenar</button>
             <button class="btn" id="btnCloseRecovered" type="button">Cerrar</button>
           </div>
         </div>
@@ -812,9 +815,7 @@
   function normalizeApiUrl(u){
     let x = String(u || "").trim();
     if(!x) return "";
-    // Si pegaron /dev, lo convertimos a /exec para evitar dramas
     x = x.replace(/\/dev(\b|$)/i, "/exec");
-    // Quitar espacios / dobles slashes finales raros
     x = x.replace(/\s+/g, "");
     return x;
   }
@@ -830,15 +831,12 @@
     const base = normalizeApiUrl(API_URL);
     const out = [];
     if(base) out.push(base);
-    // Variante segura: mismo /exec pero sin parámetros previos (si alguien pegó con ?)
     if(base && base.includes("?")) out.push(base.split("?")[0]);
-    // Variante: agregar trailing ? (para ciertos proxys que rompen concatenación)
     if(base && !base.includes("?")) out.push(base);
     return Array.from(new Set(out));
   }
 
   function makeCallbackName(){
-    // Debe ser IDENTIFICADOR JS válido
     return "cb_" + Math.random().toString(36).slice(2);
   }
 
@@ -931,7 +929,7 @@
   /************************************************************
    * ✅ ITEMS COMPLETO (19 ítems) — KEYS = Look.gs
    ************************************************************/
-  const ITEMS = [
+  const ITEMS = [ /* (SIN CAMBIOS) ... */ 
     {
       group: "1. Cumplimiento y Productividad",
       items: [
@@ -1755,12 +1753,17 @@
       "rgba(234,240,255,.72)";
   }
 
+  /************************************************************
+   * ✅ CAMBIO CLAVE: resultados de recuperar
+   * - Quitamos “Usar rápido”
+   * - Solo “Seleccionar” => abre el modal detalle con Autollenar / Cerrar
+   ************************************************************/
   function renderLookupResults(rows){
     const tbody = $("lookupResultsBody");
     lastLookupResults = Array.isArray(rows) ? rows : [];
 
     $("chipCount").textContent = `${lastLookupResults.length} resultados`;
-    $("chipNote").textContent = lastLookupResults.length ? "Usa Ver para previsualizar, o Usar para autollenar." : "";
+    $("chipNote").textContent = lastLookupResults.length ? "Selecciona una fila para ver detalle y luego Autollenar." : "";
 
     if(!lastLookupResults.length){
       tbody.innerHTML = `<tr><td colspan="8" class="small-muted">Sin resultados.</td></tr>`;
@@ -1773,8 +1776,7 @@
       return `
         <tr>
           <td class="r-col-act">
-            <button class="btn" type="button" data-view="${idx}" style="padding:8px 12px;">Ver</button>
-            <button class="btn primary" type="button" data-use="${idx}" style="padding:8px 12px; margin-left:6px;">Usar</button>
+            <button class="btn primary" type="button" data-pick="${idx}" style="padding:8px 12px;">Seleccionar</button>
           </td>
           <td class="r-col-row">${escapeHtml(String(meta.rowNumber ?? "—"))}</td>
           <td class="r-col-np">${escapeHtml(String(rp.no_personal ?? ""))}</td>
@@ -1787,15 +1789,18 @@
       `;
     }).join("");
 
-    // Ver (trae detalle por fila: evita ambigüedad y asegura que el modal muestre lo exacto)
-    tbody.querySelectorAll("button[data-view]").forEach(btn=>{
+    tbody.querySelectorAll("button[data-pick]").forEach(btn=>{
       btn.addEventListener("click", async ()=>{
-        const i = Number(btn.getAttribute("data-view"));
+        const i = Number(btn.getAttribute("data-pick"));
         const pick = lastLookupResults[i];
         if(!pick || !pick.meta || !pick.meta.rowNumber) return;
 
         try{
           setLookupStatus("Cargando detalle…", "warn");
+
+          // ✅ IMPORTANTE: este action lo agregaremos en GS para traer:
+          // - fila exacta por rowNumber (autoevaluaciones o resultados según tu lógica final)
+          // - y SIEMPRE merge con Clientes (retroalimentación + nombre evaluador)
           const tipo = $("tipoFormulario").value;
           const data = await jsonpRequestWithFallback({
             action: "recuperar_por_fila",
@@ -1820,25 +1825,11 @@
           );
 
           setLookupStatus("Detalle cargado.", "ok");
+
         }catch(e){
           setLookupStatus("Error: " + (e.message || e), "err");
           alert("No se pudo abrir detalle: " + (e.message || e));
         }
-      });
-    });
-
-    // Usar (aplica lo que ya trae buscar — rápido)
-    tbody.querySelectorAll("button[data-use]").forEach(btn=>{
-      btn.addEventListener("click", ()=>{
-        const i = Number(btn.getAttribute("data-use"));
-        const pick = lastLookupResults[i];
-        if(!pick || !pick.rowParams) return;
-
-        applyRecoveredToForm(pick.rowParams, null);
-
-        $("apiHint").className = "ok";
-        $("apiHint").textContent = "Registro aplicado al formulario ✅";
-        closeLookupModal();
       });
     });
   }
@@ -1921,7 +1912,7 @@
       else el.classList.remove("searchField");
     });
 
-    // ✅ ahora Recuperar/Consultar funciona para todos (abre consulta)
+    // ✅ Recuperar siempre disponible
     const btnRecover = $("btnRecover");
     if(btnRecover){
       btnRecover.style.display = "";
@@ -2193,28 +2184,23 @@
       clearForm();
     });
 
-    // ✅ Recuperar/Consultar: SIEMPRE abre consulta flotante (funcional)
+    // ✅ Recuperar: abre modal de recuperar (búsqueda + selección + detalle + Autollenar/Cerrar)
     $("btnRecover").addEventListener("click", async ()=>{
       if(state.saving) return;
 
-      // Si no hay conexión, igual abre la consulta, pero avisamos.
       const ok = await apiPing();
-      if(!ok){
-        openLookupPrefilled();
-        return;
-      }
-
       openLookupPrefilled();
 
-      // “Auto-buscar” si ya vienen llaves llenas (comodidad)
+      // Auto-buscar si ya vienen llaves llenas (comodidad)
       const noP = $("qNoPersonal").value.trim();
       const per = $("qPeriodo").value.trim();
       const ver = $("qVersion").value.trim();
-      if(noP && per && ver){
+      if(ok && noP && per && ver){
         searchRecords();
       }
     });
 
+    // ✅ Generar: deja reporte flotante (ya lo hace)
     $("btnGenerate").addEventListener("click", ()=>{
       if(state.saving) return;
 
@@ -2270,8 +2256,9 @@
       if(!lastRecovered || !lastRecovered.rowParams) return;
       applyRecoveredToForm(lastRecovered.rowParams, lastRecovered.clientesInfo || null);
       $("apiHint").className = "ok";
-      $("apiHint").textContent = "Registro aplicado al formulario ✅";
+      $("apiHint").textContent = "Autollenado aplicado ✅";
       closeRecoverModal();
+      closeLookupModal();
     });
 
     $("btnCloseLookup").addEventListener("click", closeLookupModal);
@@ -2333,7 +2320,6 @@
         }
       }, 250);
 
-      // ✅ Ping al cargar (estado real)
       await apiPing();
 
     }catch(err){
