@@ -380,7 +380,7 @@
         </div>
         <button class="btn primary" id="btnNew" type="button">Nuevo</button>
 
-        <!-- ✅ CAMBIO CLAVE: Recuperar SOLO existe en Desempeño (se oculta con UI) -->
+        <!-- ✅ Recuperar SOLO existe en Desempeño -->
         <button class="btn primary" id="btnRecover" type="button" style="display:none;">Recuperar</button>
 
         <button class="btn primary" id="btnGenerate" type="button">Generar</button>
@@ -546,7 +546,7 @@
       </div>
     </div>
 
-    <!-- ✅ Modal Recuperar (SOLO se usa en Desempeño) -->
+    <!-- ✅ Modal Recuperar (queda, pero ahora Recuperar por llaves usa el modal de detalle) -->
     <div class="modal-backdrop" id="lookupBackdrop" aria-hidden="true">
       <div class="modal" role="dialog" aria-modal="true" aria-labelledby="lookupTitle">
         <div class="modal-head">
@@ -630,13 +630,21 @@
           </div>
           <div class="modal-actions">
             <div class="tag-ok"><span class="dot"></span>Registro</div>
-            <button class="btn primary" id="btnApplyRecovered" type="button">Autollenar</button>
+
+            <!-- ✅ 2 opciones Autollenar -->
+            <button class="btn primary" id="btnApplyRecovered" type="button">Autollenar todo</button>
+            <button class="btn" id="btnApplyRecoveredTexts" type="button">Autollenar solo textos</button>
+
             <button class="btn" id="btnCloseRecovered" type="button">Cerrar</button>
           </div>
         </div>
 
         <div class="modal-body">
           <div id="recoverKeyReport" style="margin-bottom:12px;"></div>
+
+          <!-- ✅ Tabla completa Encabezado/Valor -->
+          <div id="recoverAllCols" style="margin-bottom:12px;"></div>
+
           <div id="recoverGeneral"></div>
           <div id="recoverItems"></div>
         </div>
@@ -726,7 +734,7 @@
 /************************************************************
  * 1) URL COMPLETA DEL APPS SCRIPT (/exec)
  ************************************************************/
-const API_URL = "https://script.google.com/macros/s/AKfycbzXFwn-HnBIhNf0LWFFL2FQqXNOWnbWyvTlzeqoE8RZTyaD3VjyxYfw6mOWcAmOfkiZlA/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbxLx6JtBklUXmkIDwVAgnefH3t0RFFab34RZB-kEnrMytw6kbKZSgWrvfKP7M3tXHusIA/exec";
 
 function normalizeApiUrl(u){
   let x = String(u || "").trim();
@@ -1399,13 +1407,46 @@ function renderKeyReport(no_personal, periodo, version, sourceHint){
   host.appendChild(box);
 }
 
-function buildRecoverModal(rowParams, meta, clientesInfo){
+/** ✅ Tabla completa Encabezado/Valor (todas las columnas) */
+function renderAllColumnsTable(allColumns){
+  const host = $("recoverAllCols");
+  host.innerHTML = "";
+
+  const arr = Array.isArray(allColumns) ? allColumns : [];
+  if(!arr.length){
+    host.innerHTML = `<div class="small-muted">Sin datos de columnas para mostrar.</div>`;
+    return;
+  }
+
+  const box = document.createElement("div");
+  box.className = "card";
+  box.style.padding = "12px";
+  box.style.background = "rgba(0,0,0,.14)";
+
+  box.innerHTML = `
+    <div class="chip"><b>Datos recuperados (Encabezado / Valor)</b></div>
+    <table class="mini-table" style="margin-top:10px;">
+      <thead><tr><th class="col-k">Encabezado</th><th class="col-v">Valor</th></tr></thead>
+      <tbody>
+        ${arr.map(x => `
+          <tr>
+            <td class="col-k">${escapeHtml(String(x.header ?? ""))}</td>
+            <td class="col-v">${escapeHtml(String(x.value ?? ""))}</td>
+          </tr>
+        `).join("")}
+      </tbody>
+    </table>
+  `;
+  host.appendChild(box);
+}
+
+function buildRecoverModal(rowParams, meta, clientesInfo, allColumns){
   function showDash(v){
     const s = String(v ?? "").trim();
     return s ? s : "—";
   }
 
-  lastRecovered = { rowParams, meta, clientesInfo };
+  lastRecovered = { rowParams, meta, clientesInfo, allColumns };
 
   $("recoverTitle").textContent = "Registro encontrado";
   $("recoverSub").textContent = `Keys: ${meta.no_personal || "—"} / ${meta.periodo || "—"} / ${meta.version || "—"} • Fila: ${meta.rowNumber || "—"}`;
@@ -1418,6 +1459,8 @@ function buildRecoverModal(rowParams, meta, clientesInfo){
       ? `Resultados + Clientes (fila Clientes: ${clientesInfo.rowNumber || "—"})`
       : `Resultados (Clientes: sin registro)`
   );
+
+  renderAllColumnsTable(allColumns);
 
   const generalRows = [
     ["No. de personal", showDash(rowParams.no_personal || meta.no_personal)],
@@ -1498,8 +1541,7 @@ function buildRecoverModal(rowParams, meta, clientesInfo){
 }
 
 /**
- * ✅ Autollenar SOLO aplica a Desempeño (por tu regla)
- * (lo dejamos igual, pero el botón Recuperar ya solo aparece en desempeño)
+ * ✅ Autollenar TODO (encabezados + selects + textos)
  */
 function applyRecoveredToForm(rowParams, clientesInfo){
   $("noPersonal").value = rowParams.no_personal || $("noPersonal").value;
@@ -1510,7 +1552,6 @@ function applyRecoveredToForm(rowParams, clientesInfo){
   $("departamento").value = rowParams.departamento || $("departamento").value;
   $("fecha").value = rowParams.fecha || $("fecha").value;
 
-  // Forzamos tipo desempeño (regla de negocio)
   $("tipoFormulario").value = "desempeno";
   applyTipoUI();
 
@@ -1525,7 +1566,6 @@ function applyRecoveredToForm(rowParams, clientesInfo){
   if(rowParams.necesidades_capacitacion) $("necesidadesCapacitacion").value = rowParams.necesidades_capacitacion;
   if(rowParams.evaluacion_clientes) $("evaluacionClientes").value = rowParams.evaluacion_clientes;
 
-  // ✅ merge Clientes => compone “(Nombre) Retroalimentación”
   if(clientesInfo && clientesInfo.found){
     const head = clientesInfo.nombre_evaluador ? `(${clientesInfo.nombre_evaluador}) ` : "";
     const composed = `${head}${clientesInfo.retroalimentacion || ""}`.trim();
@@ -1549,6 +1589,46 @@ function applyRecoveredToForm(rowParams, clientesInfo){
   setDirty(false);
 }
 
+/**
+ * ✅ Autollenar SOLO TEXTOS (no toca selects)
+ */
+function applyRecoveredTextsOnly(rowParams, clientesInfo){
+  $("tipoFormulario").value = "desempeno";
+  applyTipoUI();
+
+  // Encabezados (por si quieres que también entren)
+  if(rowParams.no_personal) $("noPersonal").value = rowParams.no_personal;
+  if(rowParams.periodo) $("periodo").value = rowParams.periodo;
+  if(rowParams.version) $("version").value = rowParams.version;
+  if(rowParams.nombre) $("nombre").value = rowParams.nombre;
+  if(rowParams.posicion) $("posicion").value = rowParams.posicion;
+  if(rowParams.departamento) $("departamento").value = rowParams.departamento;
+  if(rowParams.fecha) $("fecha").value = rowParams.fecha;
+
+  // Textos desempeño
+  if(rowParams.justificacion) $("justificacion").value = rowParams.justificacion;
+  if(rowParams.comentarios_evaluador) $("comentariosEvaluador").value = rowParams.comentarios_evaluador;
+  if(rowParams.fortalezas) $("fortalezas").value = rowParams.fortalezas;
+  if(rowParams.oportunidades_mejora) $("oportunidades").value = rowParams.oportunidades_mejora;
+  if(rowParams.proyeccion_potencial) $("proyeccion").value = rowParams.proyeccion_potencial;
+  if(rowParams.necesidades_capacitacion) $("necesidadesCapacitacion").value = rowParams.necesidades_capacitacion;
+  if(rowParams.comentarios_colaborador) $("comentariosColaborador2").value = rowParams.comentarios_colaborador;
+  if(rowParams.nombre_evaluador && $("nombreEvaluadorDesempeno")) $("nombreEvaluadorDesempeno").value = rowParams.nombre_evaluador;
+
+  // Evaluación clientes: prioriza Clientes si existe (foto 3)
+  let evalCli = String(rowParams.evaluacion_clientes || "").trim();
+  if(clientesInfo && clientesInfo.found){
+    const head = clientesInfo.nombre_evaluador ? `(${clientesInfo.nombre_evaluador}) ` : "";
+    const composed = `${head}${clientesInfo.retroalimentacion || ""}`.trim();
+    if(composed) evalCli = composed;
+  }
+  if(evalCli) $("evaluacionClientes").value = evalCli;
+
+  $("printArea").style.display = "none";
+  state.generated = false;
+  setDirty(false);
+}
+
 let lastLookupResults = [];
 
 function setLookupStatus(txt, kind){
@@ -1561,10 +1641,7 @@ function setLookupStatus(txt, kind){
 }
 
 /**
- * ✅ CAMBIO CLAVE:
- * - Recuperar SOLO en desempeño
- * - Tabla muestra “Seleccionar”
- * - Seleccionar abre detalle (action=recuperar_por_fila) y luego Autollenar.
+ * Lista (queda igual)
  */
 function renderLookupResults(rows){
   const tbody = $("lookupResultsBody");
@@ -1606,7 +1683,6 @@ function renderLookupResults(rows){
       try{
         setLookupStatus("Cargando detalle…", "warn");
 
-        // ✅ Fijo: solo desempeño
         const data = await jsonpRequestWithFallback({
           action: "recuperar_por_fila",
           tipo: "desempeno",
@@ -1626,7 +1702,8 @@ function renderLookupResults(rows){
             version: data.rowParams.version || "",
             rowNumber: data.rowNumber || pick.meta.rowNumber || ""
           },
-          data.clientes || null
+          data.clientes || null,
+          data.allColumns || []
         );
 
         setLookupStatus("Detalle cargado.", "ok");
@@ -1641,7 +1718,6 @@ function renderLookupResults(rows){
 async function searchRecords(){
   if(state.saving) return;
 
-  // ✅ SOLO desempeño
   const tipo = $("tipoFormulario").value;
   if(tipo !== "desempeno"){
     alert("Recuperar solo está disponible en el Formulario de evaluación del desempeño.");
@@ -1691,8 +1767,84 @@ async function searchRecords(){
   }
 }
 
+/**
+ * ✅ NUEVO: Recuperar por LLAVES (No. personal + Periodo + Versión)
+ * - Esto es lo que pediste: sin tabla de lista, directo al registro
+ */
+async function recoverByKeys(){
+  if(state.saving) return;
+
+  const tipo = $("tipoFormulario").value;
+  if(tipo !== "desempeno"){
+    alert("Recuperar solo está disponible en el Formulario de evaluación del desempeño.");
+    return;
+  }
+
+  const no_personal = $("noPersonal").value.trim();
+  const periodo = $("periodo").value.trim();
+  const version = $("version").value.trim();
+
+  if(!no_personal || !periodo || !version){
+    alert("Para Recuperar, llena: No. de personal + Periodo + Versión.");
+    return;
+  }
+
+  try{
+    assertApiUrl();
+    setBusy(true);
+
+    $("apiHint").className = "warn";
+    $("apiHint").textContent = "Recuperando…";
+
+    const data = await jsonpRequestWithFallback({
+      action: "recuperar_por_keys",
+      tipo: "desempeno",
+      no_personal,
+      periodo,
+      version
+    });
+
+    if(!data || data.ok === false){
+      const msg = (data && data.error) ? data.error : "Respuesta inválida del servidor.";
+      $("apiHint").className = "err";
+      $("apiHint").textContent = "Error al recuperar.";
+      alert("No se pudo recuperar: " + msg);
+      return;
+    }
+
+    if(!data.found || !data.rowParams){
+      $("apiHint").className = "warn";
+      $("apiHint").textContent = "Sin registro con esas llaves.";
+      alert("No se encontró un registro con esas llaves (No. personal / Periodo / Versión).");
+      return;
+    }
+
+    buildRecoverModal(
+      data.rowParams,
+      {
+        no_personal: data.rowParams.no_personal || no_personal,
+        periodo: data.rowParams.periodo || periodo,
+        version: data.rowParams.version || version,
+        rowNumber: data.rowNumber || "—"
+      },
+      data.clientes || null,
+      data.allColumns || []
+    );
+
+    $("apiHint").className = "ok";
+    $("apiHint").textContent = "Registro recuperado ✅";
+
+  }catch(err){
+    console.error(err);
+    $("apiHint").className = "err";
+    $("apiHint").textContent = "No se pudo recuperar: " + (err.message || err);
+    alert("No se pudo recuperar.\n\n" + (err.message || err));
+  }finally{
+    setBusy(false);
+  }
+}
+
 function openLookupPrefilled(){
-  // ✅ SOLO desempeño
   $("qNoPersonal").value = $("noPersonal").value.trim();
   $("qNombre").value = $("nombre").value.trim();
   $("qPeriodo").value = $("periodo").value.trim();
@@ -1705,9 +1857,6 @@ function openLookupPrefilled(){
   openLookupModal();
 }
 
-/**
- * ✅ UI: Recuperar SOLO en desempeño + badge de búsqueda SOLO en desempeño
- */
 function applySearchUI(tipo){
   const isDes = (tipo === "desempeno");
   const badgeWrap = $("searchBadgeWrap");
@@ -1721,7 +1870,6 @@ function applySearchUI(tipo){
     else el.classList.remove("searchField");
   });
 
-  // ✅ SOLO desempeño
   const btnRecover = $("btnRecover");
   if(btnRecover){
     btnRecover.style.display = isDes ? "" : "none";
@@ -1929,7 +2077,6 @@ async function saveToSheet(){
     respuestas_json: respuestasJSON,
     comentarios: buildComentariosParaSheet(header.tipo, extra),
 
-    // extras desempeño
     justificacion: (header.tipo === "desempeno") ? (extra.justificacion || "") : (extra.justificacion || ""),
     comentarios_evaluador: (header.tipo === "desempeno") ? (extra.comentarios_evaluador || "") : (extra.comentarios_evaluador || ""),
     fortalezas: (header.tipo === "desempeno") ? (extra.fortalezas || "") : (extra.fortalezas || ""),
@@ -1995,7 +2142,10 @@ function bind(){
     clearForm();
   });
 
-  // ✅ Recuperar SOLO desempeño
+  /**
+   * ✅ CAMBIO CLAVE:
+   * Recuperar (Desempeño) = por LLAVES del formulario principal
+   */
   $("btnRecover").addEventListener("click", async ()=>{
     if(state.saving) return;
 
@@ -2006,15 +2156,9 @@ function bind(){
     }
 
     const ok = await apiPing();
-    openLookupPrefilled();
+    if(!ok) return;
 
-    // Auto-buscar si ya vienen llaves llenas
-    const noP = $("qNoPersonal").value.trim();
-    const per = $("qPeriodo").value.trim();
-    const ver = $("qVersion").value.trim();
-    if(ok && noP && per && ver){
-      searchRecords();
-    }
+    await recoverByKeys();
   });
 
   $("btnGenerate").addEventListener("click", ()=>{
@@ -2068,7 +2212,14 @@ function bind(){
     $("apiHint").className = "ok";
     $("apiHint").textContent = "Autollenado aplicado ✅";
     closeRecoverModal();
-    closeLookupModal();
+  });
+
+  $("btnApplyRecoveredTexts").addEventListener("click", ()=>{
+    if(!lastRecovered || !lastRecovered.rowParams) return;
+    applyRecoveredTextsOnly(lastRecovered.rowParams, lastRecovered.clientesInfo || null);
+    $("apiHint").className = "ok";
+    $("apiHint").textContent = "Autollenado (solo textos) ✅";
+    closeRecoverModal();
   });
 
   $("btnCloseLookup").addEventListener("click", closeLookupModal);
