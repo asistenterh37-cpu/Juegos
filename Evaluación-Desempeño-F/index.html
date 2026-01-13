@@ -1832,38 +1832,6 @@ if(rowParams.nombre_evaluador && $("nombreEvaluadorDesempeno")){
     setDirty(false);
   }
 
-      if(!data || !data.found){
-        $("apiHint").className = "warn";
-        $("apiHint").textContent = "No se encontró registro con esos datos.";
-        alert("No se encontró registro con ese No. de personal, Periodo y Versión.");
-        return;
-      }
-
-      const rowParams = data.rowParams || data.row || {};
-      if(!rowParams || typeof rowParams !== "object"){
-        throw new Error("Respuesta inválida del servidor (sin rowParams).");
-      }
-
-      const clientesInfo = data.clientes || null;
-
-      buildRecoverModal(rowParams, {
-        no_personal, periodo, version,
-        rowNumber: data.rowNumber || ""
-      }, clientesInfo);
-
-      $("apiHint").className = "ok";
-      $("apiHint").textContent = "Registro encontrado ✅ (revisa y aplica)";
-
-    }catch(err){
-      console.error(err);
-      $("apiHint").className = "err";
-      $("apiHint").textContent = "No se pudo recuperar: " + (err.message || err);
-      alert("No se pudo recuperar: " + (err.message || err) + "\n\nTip: WebApp debe estar público (Anyone) y la red no debe bloquear Google Scripts.");
-    }finally{
-      setBusy(false);
-    }
-  }
-
   let lastLookupResults = [];
 
   function setLookupStatus(txt, kind){
