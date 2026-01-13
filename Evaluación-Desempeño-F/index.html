@@ -29,9 +29,10 @@
     body{
       margin:0;
       font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
-      background: radial-gradient(1000px 700px at 30% -10%, rgba(47,123,255,.25), transparent 60%),
-                  radial-gradient(900px 650px at 70% 20%, rgba(124,58,237,.18), transparent 55%),
-                  linear-gradient(180deg, #040816, #02040b 60%);
+      background:
+        radial-gradient(1000px 700px at 30% -10%, rgba(47,123,255,.25), transparent 60%),
+        radial-gradient(900px 650px at 70% 20%, rgba(124,58,237,.18), transparent 55%),
+        linear-gradient(180deg, #040816, #02040b 60%);
       color:var(--text);
     }
     .wrap{max-width:1180px; margin:28px auto; padding:0 18px 80px}
@@ -41,28 +42,21 @@
       background: linear-gradient(180deg, rgba(255,255,255,.09), rgba(255,255,255,.05));
       border:1px solid var(--stroke);
       box-shadow: 0 12px 40px rgba(0,0,0,.35);
-      position:sticky; top:12px; z-index:20;
-      backdrop-filter: blur(10px);
+      position:sticky; top:12px; z-index:20; backdrop-filter: blur(10px);
       gap:14px;
     }
     .brand{display:flex; gap:12px; align-items:center;}
     .logo{
-      width:46px; height:46px; border-radius:14px;
-      display:grid; place-items:center;
+      width:46px; height:46px; border-radius:14px; display:grid; place-items:center;
       background: linear-gradient(135deg, rgba(47,123,255,.95), rgba(74,163,255,.85));
-      font-weight:800;
-      letter-spacing:.5px;
-      flex:0 0 auto;
+      font-weight:800; letter-spacing:.5px; flex:0 0 auto;
     }
     .titles h1{margin:0; font-size:20px}
     .titles p{margin:2px 0 0; font-size:13px; color:var(--muted)}
     .actions{display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:flex-end}
     .pill{
-      padding:8px 12px; border-radius:999px;
-      border:1px solid var(--stroke);
-      background:rgba(0,0,0,.22);
-      color:var(--muted);
-      font-size:12px;
+      padding:8px 12px; border-radius:999px; border:1px solid var(--stroke);
+      background:rgba(0,0,0,.22); color:var(--muted); font-size:12px;
       display:flex; gap:8px; align-items:center;
     }
     .dot{width:10px; height:10px; border-radius:50%;}
@@ -86,12 +80,7 @@
       box-shadow: 0 12px 26px rgba(47,123,255,.25);
     }
     .btn.ghost{background:transparent}
-    .grid{
-      display:grid;
-      grid-template-columns: 1fr;
-      gap:16px;
-      margin-top:16px;
-    }
+    .grid{display:grid; grid-template-columns: 1fr; gap:16px; margin-top:16px;}
     .card{
       border:1px solid var(--stroke);
       background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
@@ -112,6 +101,7 @@
       .actions{justify-content:flex-end}
       .topbar{flex-wrap:wrap}
     }
+
     input, select, textarea{
       width:100%;
       padding:12px 12px;
@@ -125,9 +115,7 @@
 
     /* ✅ Realzar flecha del SELECT (Tipo de formulario) */
     select{
-      appearance:none;
-      -webkit-appearance:none;
-      -moz-appearance:none;
+      appearance:none; -webkit-appearance:none; -moz-appearance:none;
       padding-right:46px;
       background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24'%3E%3Cpath fill='%234aa3ff' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
       background-repeat:no-repeat;
@@ -135,11 +123,7 @@
       background-size:18px 18px;
     }
 
-    textarea{
-      min-height:90px;
-      resize:vertical;
-    }
-
+    textarea{min-height:90px; resize:vertical;}
     .section-title{display:flex; align-items:center; justify-content:space-between; margin:14px 0 8px;}
     .section-title h3{margin:0; font-size:16px}
     .muted{color:var(--muted)}
@@ -149,50 +133,34 @@
     .ok{color:#9dffb6}
     .err{color:#ffb4b4}
 
-    .searchField label{
-      color: rgba(234,240,255,.92);
-      font-weight: 800;
-      letter-spacing: .2px;
-    }
+    .searchField label{ color: rgba(234,240,255,.92); font-weight: 800; letter-spacing: .2px; }
     .searchField input{
       border:1px solid rgba(74,163,255,.55);
       box-shadow: 0 0 0 2px rgba(47,123,255,.15), 0 12px 30px rgba(47,123,255,.10);
     }
     .searchBadge{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      padding:6px 10px;
-      border-radius:999px;
+      display:inline-flex; align-items:center; gap:8px;
+      padding:6px 10px; border-radius:999px;
       background:rgba(47,123,255,.18);
       border:1px solid rgba(74,163,255,.35);
       color:rgba(234,240,255,.90);
-      font-size:12px;
-      font-weight:750;
+      font-size:12px; font-weight:750;
     }
     .searchBadge .dot{background: rgba(74,163,255,.95);}
 
     /* ✅ Realce de campos solicitados */
-    .highlightField label{
-      color: rgba(234,240,255,.96);
-      font-weight: 900;
-      letter-spacing: .15px;
-    }
+    .highlightField label{ color: rgba(234,240,255,.96); font-weight: 900; letter-spacing: .15px; }
     .highlightField textarea, .highlightField input{
       border:1px solid rgba(74,163,255,.70);
       box-shadow: 0 0 0 2px rgba(47,123,255,.18), 0 12px 30px rgba(47,123,255,.12);
     }
     .highlightBadge{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      padding:6px 10px;
-      border-radius:999px;
+      display:inline-flex; align-items:center; gap:8px;
+      padding:6px 10px; border-radius:999px;
       background:rgba(74,163,255,.14);
       border:1px solid rgba(74,163,255,.30);
       color:rgba(234,240,255,.92);
-      font-size:12px;
-      font-weight:900;
+      font-size:12px; font-weight:900;
       margin-top:10px;
     }
     .highlightBadge .dot{background: rgba(74,163,255,.95);}
@@ -216,10 +184,7 @@
       backdrop-filter: blur(12px);
     }
     .modal-head{
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap:12px;
+      display:flex; align-items:flex-start; justify-content:space-between; gap:12px;
       padding:16px 16px 10px;
       border-bottom:1px solid rgba(255,255,255,.10);
       position:sticky; top:0;
@@ -227,34 +192,20 @@
       backdrop-filter: blur(10px);
       z-index:2;
     }
-    .modal-title{
-      margin:0;
-      font-size:16px;
-      font-weight:900;
-    }
-    .modal-sub{
-      margin:6px 0 0;
-      color:var(--muted);
-      font-size:12px;
-    }
-    .modal-actions{
-      display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:flex-end;
-    }
+    .modal-title{ margin:0; font-size:16px; font-weight:900; }
+    .modal-sub{ margin:6px 0 0; color:var(--muted); font-size:12px; }
+    .modal-actions{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:flex-end; }
     .tag-ok{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      padding:8px 12px;
-      border-radius:999px;
+      display:inline-flex; align-items:center; gap:8px;
+      padding:8px 12px; border-radius:999px;
       border:1px solid rgba(255,255,255,.10);
       background: rgba(0,0,0,.20);
       color: rgba(234,240,255,.90);
-      font-size:12px;
-      font-weight:800;
+      font-size:12px; font-weight:800;
     }
     .tag-ok .dot{background: var(--ok);}
-    .modal-body{padding:14px 16px 18px;}
 
+    .modal-body{padding:14px 16px 18px;}
     .mini-table{
       width:100%;
       border-collapse:collapse;
@@ -314,18 +265,9 @@
       color: rgba(234,240,255,.92);
     }
 
-    .lookup-grid{
-      display:grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap:10px;
-      margin-top:10px;
-    }
-    @media (max-width: 980px){
-      .lookup-grid{grid-template-columns: 1fr}
-    }
-    .lookup-actions{
-      display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:12px;
-    }
+    .lookup-grid{ display:grid; grid-template-columns: repeat(4, 1fr); gap:10px; margin-top:10px; }
+    @media (max-width: 980px){ .lookup-grid{grid-template-columns: 1fr} }
+    .lookup-actions{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:12px; }
     .small-muted{font-size:12px; color:var(--muted)}
     .results-wrap{margin-top:14px;}
     .results-table{
@@ -358,7 +300,8 @@
     .r-col-fecha{width:130px;}
     .chip{
       display:inline-flex; align-items:center; gap:6px;
-      padding:4px 8px; border-radius:999px;
+      padding:4px 8px;
+      border-radius:999px;
       border:1px solid rgba(255,255,255,.12);
       background: rgba(0,0,0,.18);
       font-size:12px;
@@ -381,47 +324,17 @@
     .report-head h1{margin:0; font-size:32px; letter-spacing:.2px;}
     .report-head .small{font-size:12px; color:var(--p-sub); text-align:right;}
     .report-sub{margin:0 0 14px; color:var(--p-sub)}
-    .report-kv{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:10px;
-      margin-bottom:10px;
-    }
+    .report-kv{display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:10px;}
     .kv-row{display:grid; grid-template-columns: 1fr 1fr; gap:10px;}
-    .kv{
-      border:1px solid var(--p-border);
-      padding:10px 12px;
-      border-radius:12px;
-    }
+    .kv{border:1px solid var(--p-border); padding:10px 12px; border-radius:12px;}
     .kv .k{font-size:11px; color:#666; margin-bottom:3px}
     .kv .v{font-size:13px; font-weight:650}
 
     .rubric-wrap{margin-top:14px;}
-    .rubric-title{
-      margin:0 0 6px;
-      font-size:15px;
-      color:var(--p-ink);
-      font-weight:800;
-    }
-    .sel-table{
-      width:100%;
-      border-collapse:collapse;
-      table-layout:fixed;
-      border:1px solid var(--p-border);
-    }
-    .sel-table th, .sel-table td{
-      border:1px solid var(--p-border);
-      padding:8px 8px;
-      vertical-align:top;
-      font-size:11px;
-      word-wrap:break-word;
-    }
-    .sel-table th{
-      background:var(--p-gray);
-      text-align:left;
-      font-weight:800;
-      font-size:11px;
-    }
+    .rubric-title{margin:0 0 6px; font-size:15px; color:var(--p-ink); font-weight:800;}
+    .sel-table{width:100%; border-collapse:collapse; table-layout:fixed; border:1px solid var(--p-border);}
+    .sel-table th, .sel-table td{border:1px solid var(--p-border); padding:8px 8px; vertical-align:top; font-size:11px; word-wrap:break-word;}
+    .sel-table th{background:var(--p-gray); text-align:left; font-weight:800; font-size:11px;}
     .col-item{width:32%; font-weight:700;}
     .col-score{width:10%; text-align:center; font-weight:800;}
     .col-desc{width:auto;}
@@ -459,15 +372,17 @@
           <p>Escala 1–5 • Guardado en Google Sheets • Reporte PDF (solo opción seleccionada)</p>
         </div>
       </div>
+
       <div class="actions">
         <div class="pill" title="Estado">
           <span class="dot" id="stateDot" style="background: var(--ok)"></span>
           <span id="stateText">Sin cambios</span>
         </div>
-
         <button class="btn primary" id="btnNew" type="button">Nuevo</button>
-        <!-- ✅ CAMBIO: solo Recuperar -->
-        <button class="btn primary" id="btnRecover" type="button">Recuperar</button>
+
+        <!-- ✅ CAMBIO CLAVE: Recuperar SOLO existe en Desempeño (se oculta con UI) -->
+        <button class="btn primary" id="btnRecover" type="button" style="display:none;">Recuperar</button>
+
         <button class="btn primary" id="btnGenerate" type="button">Generar</button>
         <button class="btn primary" id="btnSave" type="button">Guardar</button>
         <button class="btn" id="btnPrint" type="button">Imprimir / Enviar a PDF</button>
@@ -479,6 +394,7 @@
       <div class="card">
         <h2>Tipo de formulario</h2>
         <p>Selecciona el tipo para mostrar/ocultar campos automáticamente.</p>
+
         <div class="form-grid" style="grid-template-columns: 1fr;">
           <div>
             <label>Tipo</label>
@@ -497,7 +413,7 @@
         <p>
           Completa la información y selecciona una opción (1–5) para cada ítem.
           &nbsp;&nbsp;
-          <span id="searchBadgeWrap">
+          <span id="searchBadgeWrap" style="display:none;">
             <span class="searchBadge"><span class="dot"></span>Campos de búsqueda: No. personal • Periodo • Versión</span>
           </span>
         </p>
@@ -515,7 +431,6 @@
             <label>Posición</label>
             <input id="posicion" placeholder="Ej. Analista" />
           </div>
-
           <div>
             <label>Departamento</label>
             <input id="departamento" placeholder="Ej. Contabilidad" />
@@ -528,16 +443,13 @@
             <label>Versión</label>
             <input id="version" placeholder="Ej. 1" />
           </div>
-
           <div>
             <label>Fecha</label>
             <input id="fecha" type="date" />
           </div>
         </div>
 
-        <div class="hint">
-          Estado API: <span id="apiHint" class="warn">Verificando conexión…</span>
-        </div>
+        <div class="hint">Estado API: <span id="apiHint" class="warn">Verificando conexión…</span></div>
       </div>
 
       <div class="card" id="evalCard">
@@ -545,7 +457,6 @@
           <h3>Evaluación (1–5)</h3>
           <span class="muted">Selecciona una opción por ítem</span>
         </div>
-
         <div id="itemsContainer"></div>
 
         <div id="autoComentariosBox" style="display:none; margin-top:14px;">
@@ -560,7 +471,10 @@
         <h2>Justificación y comentarios</h2>
         <p>Completa los campos siguientes (según formato).</p>
 
-        <div class="highlightBadge"><span class="dot"></span>Campos realzados (inicio): Justificación • Comentarios • Fortalezas • Oportunidades • Proyección • Evaluación clientes • Necesidades de capacitación</div>
+        <div class="highlightBadge">
+          <span class="dot"></span>
+          Campos realzados (inicio): Justificación • Comentarios • Fortalezas • Oportunidades • Proyección • Evaluación clientes • Necesidades de capacitación
+        </div>
 
         <div style="margin-top:14px;" class="highlightField">
           <label>Justificación calificaciones (1 - 6)</label>
@@ -630,16 +544,14 @@
           <input id="nombreEvaluador" placeholder="Ej. María López" />
         </div>
       </div>
-
     </div>
 
-    <!-- ✅ Modal Recuperar -->
+    <!-- ✅ Modal Recuperar (SOLO se usa en Desempeño) -->
     <div class="modal-backdrop" id="lookupBackdrop" aria-hidden="true">
       <div class="modal" role="dialog" aria-modal="true" aria-labelledby="lookupTitle">
         <div class="modal-head">
           <div>
-            <!-- ✅ CAMBIO: título / subtítulo orientado a Recuperar -->
-            <div class="modal-title" id="lookupTitle">Recuperar registros</div>
+            <div class="modal-title" id="lookupTitle">Recuperar registros (Desempeño)</div>
             <div class="modal-sub" id="lookupSub">Busca por No. personal / Nombre / Periodo / Versión y selecciona una fila para ver detalles.</div>
           </div>
           <div class="modal-actions">
@@ -673,7 +585,11 @@
               <button class="btn" id="btnClearSearch" type="button">Limpiar</button>
               <span class="small-muted" id="lookupStatus">Listo para buscar.</span>
             </div>
-            <div class="hint">Tip: si llenas No. personal + Periodo + Versión, la búsqueda queda “quirúrgica”. Si no, te devuelve una lista (máx. 50).</div>
+
+            <div class="hint">
+              Tip: si llenas No. personal + Periodo + Versión, la búsqueda queda “quirúrgica”.
+              Si no, te devuelve una lista (máx. 50).
+            </div>
           </div>
 
           <div class="results-wrap">
@@ -700,12 +616,11 @@
               </tbody>
             </table>
           </div>
-
         </div>
       </div>
     </div>
 
-    <!-- ✅ Modal Detalle Recuperado (con Autollenar / Cerrar) -->
+    <!-- ✅ Modal Detalle Recuperado (Autollenar / Cerrar) -->
     <div class="modal-backdrop" id="recoverBackdrop" aria-hidden="true">
       <div class="modal" role="dialog" aria-modal="true" aria-labelledby="recoverTitle">
         <div class="modal-head">
@@ -715,11 +630,11 @@
           </div>
           <div class="modal-actions">
             <div class="tag-ok"><span class="dot"></span>Registro</div>
-            <!-- ✅ CAMBIO: texto Autollenar -->
             <button class="btn primary" id="btnApplyRecovered" type="button">Autollenar</button>
             <button class="btn" id="btnCloseRecovered" type="button">Cerrar</button>
           </div>
         </div>
+
         <div class="modal-body">
           <div id="recoverKeyReport" style="margin-bottom:12px;"></div>
           <div id="recoverGeneral"></div>
@@ -741,6 +656,7 @@
             <button class="btn primary" id="btnPrintFromModal" type="button">Imprimir / Enviar a PDF</button>
           </div>
         </div>
+
         <div class="modal-body">
           <div id="reportHost"></div>
         </div>
@@ -807,1545 +723,1438 @@
   </div>
 
 <script>
-  /************************************************************
-   * 1) URL COMPLETA DEL APPS SCRIPT (/exec)
-   ************************************************************/
-  const API_URL = "https://script.google.com/macros/s/AKfycbw98zI0DgcAkHYopOnK6iWLAldNXSF9H5dGS6FY3Jpo77R9DCr8qEgKXrRK29v28rKi3g/exec";
+/************************************************************
+ * 1) URL COMPLETA DEL APPS SCRIPT (/exec)
+ ************************************************************/
+const API_URL = "https://script.google.com/macros/s/AKfycbzXFwn-HnBIhNf0LWFFL2FQqXNOWnbWyvTlzeqoE8RZTyaD3VjyxYfw6mOWcAmOfkiZlA/exec";
 
-  function normalizeApiUrl(u){
-    let x = String(u || "").trim();
-    if(!x) return "";
-    x = x.replace(/\/dev(\b|$)/i, "/exec");
-    x = x.replace(/\s+/g, "");
-    return x;
+function normalizeApiUrl(u){
+  let x = String(u || "").trim();
+  if(!x) return "";
+  x = x.replace(/\/dev(\b|$)/i, "/exec");
+  x = x.replace(/\s+/g, "");
+  return x;
+}
+function assertApiUrl(){
+  const u = normalizeApiUrl(API_URL);
+  if(!u || !/^https?:\/\//i.test(u) || !/\/exec(\?|$)/i.test(u)){
+    throw new Error("API_URL inválida. Debe iniciar con https:// y terminar en /exec");
   }
+}
+function getApiCandidates(){
+  const base = normalizeApiUrl(API_URL);
+  const out = [];
+  if(base) out.push(base);
+  if(base && base.includes("?")) out.push(base.split("?")[0]);
+  if(base && !base.includes("?")) out.push(base);
+  return Array.from(new Set(out));
+}
+function makeCallbackName(){ return "cb_" + Math.random().toString(36).slice(2); }
 
-  function assertApiUrl(){
-    const u = normalizeApiUrl(API_URL);
-    if(!u || !/^https?:\/\//i.test(u) || !/\/exec(\?|$)/i.test(u)){
-      throw new Error("API_URL inválida. Debe iniciar con https:// y terminar en /exec");
+function jsonpRequest(url, params){
+  return new Promise((resolve, reject) => {
+    const cbName = makeCallbackName();
+    const script = document.createElement("script");
+    script.async = true;
+
+    const qs = new URLSearchParams({ ...params, callback: cbName, _ts: Date.now().toString() }).toString();
+    const src = url + (url.includes("?") ? "&" : "?") + qs;
+    script.src = src;
+
+    let done = false;
+    const timeout = setTimeout(() => {
+      if(done) return;
+      done = true;
+      cleanup();
+      reject(new Error("Timeout JSONP (no llegó callback). WebApp no pública (Anyone) o respuesta no ejecutable."));
+    }, 25000);
+
+    function cleanup(){
+      clearTimeout(timeout);
+      try{ delete window[cbName]; }catch(_){}
+      if(script && script.parentNode){ script.parentNode.removeChild(script); }
     }
-  }
-
-  function getApiCandidates(){
-    const base = normalizeApiUrl(API_URL);
-    const out = [];
-    if(base) out.push(base);
-    if(base && base.includes("?")) out.push(base.split("?")[0]);
-    if(base && !base.includes("?")) out.push(base);
-    return Array.from(new Set(out));
-  }
-
-  function makeCallbackName(){
-    return "cb_" + Math.random().toString(36).slice(2);
-  }
-
-  function jsonpRequest(url, params){
-    return new Promise((resolve, reject) => {
-      const cbName = makeCallbackName();
-      const script = document.createElement("script");
-      script.async = true;
-
-      const qs = new URLSearchParams({
-        ...params,
-        callback: cbName,
-        _ts: Date.now().toString()
-      }).toString();
-
-      const src = url + (url.includes("?") ? "&" : "?") + qs;
-      script.src = src;
-
-      let done = false;
-      const timeout = setTimeout(() => {
-        if(done) return;
-        done = true;
-        cleanup();
-        reject(new Error(
-          "Timeout JSONP (no llegó callback). WebApp no pública (Anyone) o respuesta no ejecutable."
-        ));
-      }, 25000);
-
-      function cleanup(){
-        clearTimeout(timeout);
-        try{ delete window[cbName]; }catch(_){}
-        if(script && script.parentNode){
-          script.parentNode.removeChild(script);
-        }
-      }
-
-      window[cbName] = (data) => {
-        if(done) return;
-        done = true;
-        cleanup();
-        resolve(data);
-      };
-
-      script.onerror = () => {
-        if(done) return;
-        done = true;
-        cleanup();
-        reject(new Error(
-          "Error de red (JSONP). Bloqueador/Firewall/DNS o endpoint inaccesible."
-        ));
-      };
-
-      document.body.appendChild(script);
-    });
-  }
-
-  async function jsonpRequestWithFallback(params){
-    assertApiUrl();
-    const candidates = getApiCandidates();
-    let lastErr = null;
-
-    for(const u of candidates){
-      try{
-        return await jsonpRequest(u, params);
-      }catch(e){
-        lastErr = e;
-      }
-    }
-    throw lastErr || new Error("No se pudo conectar por JSONP en ningún endpoint.");
-  }
-
-  async function apiPing(){
+    window[cbName] = (data) => {
+      if(done) return;
+      done = true;
+      cleanup();
+      resolve(data);
+    };
+    script.onerror = () => {
+      if(done) return;
+      done = true;
+      cleanup();
+      reject(new Error("Error de red (JSONP). Bloqueador/Firewall/DNS o endpoint inaccesible."));
+    };
+    document.body.appendChild(script);
+  });
+}
+async function jsonpRequestWithFallback(params){
+  assertApiUrl();
+  const candidates = getApiCandidates();
+  let lastErr = null;
+  for(const u of candidates){
     try{
-      const r = await jsonpRequestWithFallback({ action:"ping" });
-      if(r && r.ok){
-        $("apiHint").className = "ok";
-        $("apiHint").textContent = "Conectado ✅";
-        return true;
-      }
-      $("apiHint").className = "warn";
-      $("apiHint").textContent = "API respondió, pero sin OK (revisa deploy).";
-      return false;
+      return await jsonpRequest(u, params);
     }catch(e){
-      $("apiHint").className = "err";
-      $("apiHint").textContent = "Sin conexión al WebApp (bloqueo o deploy).";
-      return false;
+      lastErr = e;
     }
   }
-
-  /************************************************************
-   * ✅ ITEMS COMPLETO (19 ítems) — KEYS = Look.gs
-   ************************************************************/
-  const ITEMS = [ /* (SIN CAMBIOS) ... */ 
-    {
-      group: "1. Cumplimiento y Productividad",
-      items: [
-        { key: "A_metas", label: "A. Cumplimiento de Metas. Grado de logro",
-          rubric: [
-            "Cumple menos del 70% de lo establecido; la falta de avance afecta los resultados esperados.",
-            "Cumple 70–89% de lo establecido; presenta avances parciales o inconsistentes y requiere correcciones.",
-            "Cumple 90–100% de las metas planificadas con calidad y dentro del tiempo establecido.",
-            "Cumple 101–110% de las metas; entrega resultados adicionales o mejores de lo esperado.",
-            "Cumple más del 110% de forma sostenida; impacto significativo y calidad superior."
-          ]
-        },
-        { key: "B_eficiencia", label: "B. Eficiencia en el uso del tiempo, costos y recursos",
-          rubric: [
-            "Usa tiempo y recursos con errores graves que afectan la eficiencia.",
-            "Muestra uso inestable del tiempo y recursos; requiere evaluaciones y correcciones frecuentes.",
-            "Utiliza de manera adecuada el tiempo y los recursos, cumpliendo sin desperdicios significativos.",
-            "Optimiza tiempo y recursos, generando mejoras sin afectar la calidad del trabajo.",
-            "Maximiza la eficiencia de forma sostenida; mejora procesos y logra resultados superiores sin comprometer la calidad."
-          ]
-        },
-        { key: "C_seguridad", label: "C. Cumplimiento de normas de seguridad",
-          rubric: [
-            "Incumple normas de seguridad y genera riesgos constantes para sí y el equipo.",
-            "Cumple parcialmente las normas; requiere supervisión continua para evitar incidentes.",
-            "Cumple todas las normas y actúa de manera segura en su trabajo diario.",
-            "Se anticipa a riesgos, propone acciones preventivas y actúa con autonomía segura.",
-            "Promueve cultura de seguridad; motiva a otros y contribuye a mantener ambientes sin incidentes."
-          ]
-        },
-        { key: "D_prioriza", label: "D. Prioriza y organiza tareas adecuadamente",
-          rubric: [
-            "Desorganiza tareas; incumple plazos y afecta resultados importantes.",
-            "Organiza parcialmente; inconsistencias en prioridades y manejo del tiempo.",
-            "Gestiona tareas adecuadamente, cumple tiempos y mantiene orden en su trabajo.",
-            "Organiza y prioriza con eficiencia; anticipa necesidades y mejora tiempos de entrega.",
-            "Es referente en organización; redistribuye recursos, optimiza procesos y eleva la productividad del equipo."
-          ]
-        }
-      ]
-    },
-    {
-      group: "2. Calidad del Trabajo",
-      items: [
-        { key: "A_exactitud", label: "A. Exactitud y atención al detalle",
-          rubric: [
-            "Comete errores frecuentes y no identifica fallos evidentes; requiere supervisión constante.",
-            "Presenta errores recurrentes por falta de revisión; exactitud inconsistente y requiere correcciones frecuentes.",
-            "Realiza su trabajo con un nivel adecuado de precisión; puede cometer errores menores que no afectan resultados.",
-            "Mantiene atención al detalle constante; comete pocos errores y revisa su trabajo de forma proactiva.",
-            "Trabajo impecable; detecta errores propios y ajenos, propone mejoras y es referente en precisión."
-          ]
-        },
-        { key: "B_estandares", label: "B. Cumple con estándares de calidad",
-          rubric: [
-            "Menos del 70% de entregables cumplen estándares; resultados inaceptables.",
-            "70–89% cumplen estándares; requiere ajustes frecuentes.",
-            "100% de entregables cumplen estándares establecidos.",
-            "101–110%: entrega con calidad superior y consistente.",
-            "Más del 110%: supera ampliamente estándares y produce resultados sobresalientes."
-          ]
-        },
-        { key: "C_entregas", label: "C. Entregas a Tiempo (cumple con plazos establecidos)",
-          rubric: [
-            "Menos del 70% de entregas a tiempo; retrasos afectan el área.",
-            "70–89% a tiempo; desempeño irregular.",
-            "100% de entregas en plazos pactados.",
-            "101–110%: se anticipa, cumple tiempos y mantiene calidad.",
-            "Más del 110%: entrega antes, supera plazos con calidad y mejora eficiencia general."
-          ]
-        },
-        { key: "D_errores", label: "D. Manejo de errores y mejoras",
-          rubric: [
-            "No reconoce ni corrige errores; genera reincidencias graves.",
-            "Corrige parcialmente; mejora no constante, requiere supervisión.",
-            "Detecta y corrige errores básicos cuando se le solicita; cumple lo necesario.",
-            "Se anticipa a errores y propone soluciones preventivas que mejoran el proceso.",
-            "Asegura procesos libres de errores; implementa mejoras continuas y es referente en calidad."
-          ]
-        }
-      ]
-    },
-    {
-      group: "3. Competencias y Habilidades",
-      items: [
-        { key: "A_conocimientos", label: "A. Conocimientos técnicos del puesto",
-          rubric: [
-            "Conocimientos por debajo de lo esperado; no domina funciones básicas.",
-            "Gestiona parcialmente conocimientos; requiere apoyo frecuente.",
-            "Posee conocimiento técnico y funcional adecuado para el puesto.",
-            "Aplica conocimientos de manera confiable y constante.",
-            "Domina conocimientos avanzados y es referente técnico en el área."
-          ]
-        },
-        { key: "B_clientes", label: "B. Convincente respuesta técnica a clientes",
-          rubric: [
-            "Respuestas incorrectas/inconsistentes que generan desconfianza.",
-            "Respuestas incompletas o poco claras; afecta calidad del servicio.",
-            "Responde de forma adecuada y funcional, brindando confianza.",
-            "Respuestas claras, específicas y confiables de manera constante.",
-            "Respuestas sobresalientes y precisas; reconocido como referente por clientes y equipo."
-          ]
-        },
-        { key: "C_problemas", label: "C. Resolución de problemas",
-          rubric: [
-            "No logra resolver problemas; afecta procesos y resultados.",
-            "Resuelve parcialmente; requiere supervisión frecuente.",
-            "Resuelve problemas básicos de manera satisfactoria y funcional.",
-            "Resuelve problemas complejos con autonomía y confiabilidad.",
-            "Anticipa problemas y desarrolla soluciones preventivas y estratégicas."
-          ]
-        },
-        { key: "D_iniciativa", label: "D. Iniciativa y creatividad",
-          rubric: [
-            "No genera ideas ni propone mejoras.",
-            "Propone ideas poco útiles o de aplicación limitada.",
-            "Propone ideas funcionales y aplicables cuando es necesario.",
-            "Genera ideas prácticas que optimizan procesos y agregan valor.",
-            "Propone soluciones innovadoras con impacto positivo y sostenible."
-          ]
-        }
-      ]
-    },
-    {
-      group: "4. Actitud y Valores",
-      items: [
-        { key: "A_responsabilidad", label: "A. Responsabilidad y compromiso",
-          rubric: [
-            "Incumple compromisos y entrega resultados muy por debajo de lo esperado.",
-            "Cumple de forma irregular; requiere seguimiento constante.",
-            "Cumple responsabilidades de manera adecuada y confiable.",
-            "Cumple consistentemente; genera seguridad y aporta valor.",
-            "Inspira por su compromiso; es modelo de conducta para el equipo."
-          ]
-        },
-        { key: "B_puntualidad", label: "B. Puntualidad y asistencia",
-          rubric: [
-            "Ausencias injustificadas frecuentes; llegadas tardías recurrentes sin aviso.",
-            "Frecuencia de tardanza sin justificación clara; afecta la operación.",
-            "Asiste regularmente y cumple horarios; tardanzas justificadas sin reincidencia.",
-            "Puntual y asistencia confiable; comunica eventualidades oportunamente.",
-            "Puntualidad impecable; referente y se adapta a horarios especiales sin afectar desempeño."
-          ]
-        },
-        { key: "C_equipo", label: "C. Trabajo en equipo y cooperación",
-          rubric: [
-            "No coopera; genera conflictos y dificulta el trabajo del equipo.",
-            "Coopera parcialmente; actitud inestable.",
-            "Coopera cuando se le solicita, con resultados aceptables.",
-            "Colabora activamente y aporta de forma confiable.",
-            "Referente en equipo; promueve colaboración, sinergia y apoya a otros."
-          ]
-        },
-        { key: "D_comunicacion", label: "D. Comunicación efectiva",
-          rubric: [
-            "Comunicación confusa; genera malentendidos graves.",
-            "Comunicación incompleta/poco clara; requiere supervisión para asegurar entendimiento.",
-            "Comunica lo necesario de forma clara y suficiente.",
-            "Comunicación clara, precisa y constructiva; escucha activamente.",
-            "Comunicación influyente y estratégica; facilita acuerdos y motiva a otros."
-          ]
-        }
-      ]
-    },
-    {
-      group: "5. Desarrollo y Potencial",
-      items: [
-        { key: "A_adaptacion", label: "A. Adaptación al cambio",
-          rubric: [
-            "Resiste activamente al cambio; afecta procesos y equipos.",
-            "Se adapta parcialmente; con dificultad y resultados limitados.",
-            "Se adapta lo necesario para mantener desempeño adecuado.",
-            "Se adapta de forma autónoma y confiable a nuevas situaciones.",
-            "Referente en adaptación; motiva y guía a otros en procesos de cambio."
-          ]
-        },
-        { key: "B_aprender", label: "B. Disposición para aprender",
-          rubric: [
-            "No busca aprender; rechaza retroalimentación y capacitación.",
-            "Aprende solo lo obligatorio; mínima aplicación práctica.",
-            "Aprende lo necesario para mantener desempeño satisfactorio.",
-            "Busca aprender constantemente y aplica lo aprendido en el trabajo.",
-            "Aprendizaje continuo; comparte conocimientos y forma a otros."
-          ]
-        },
-        { key: "C_liderazgo", label: "C. Liderazgo",
-          rubric: [
-            "No coordina ni dirige; genera desorden y afecta resultados.",
-            "Lidera débilmente; bajo impacto en el equipo.",
-            "Lidera tareas básicas con resultados adecuados y funcionales.",
-            "Lidera con confianza, logrando resultados consistentes y estables.",
-            "Inspira con visión clara; desarrolla a otros, fortalece cohesión y se convierte en referente."
-          ]
-        }
-      ]
+  throw lastErr || new Error("No se pudo conectar por JSONP en ningún endpoint.");
+}
+async function apiPing(){
+  try{
+    const r = await jsonpRequestWithFallback({ action:"ping" });
+    if(r && r.ok){
+      $("apiHint").className = "ok";
+      $("apiHint").textContent = "Conectado ✅";
+      return true;
     }
-  ];
-
-  const state = { dirty:false, generated:false, answers:{}, saving:false };
-  const $ = (id) => document.getElementById(id);
-
-  function setDirty(v){
-    state.dirty = v;
-    const dot = $("stateDot");
-    const text = $("stateText");
-    if(v){
-      dot.style.background = "var(--warn)";
-      text.textContent = "Cambios sin guardar";
-    }else{
-      dot.style.background = "var(--ok)";
-      text.textContent = "Sin cambios";
-    }
+    $("apiHint").className = "warn";
+    $("apiHint").textContent = "API respondió, pero sin OK (revisa deploy).";
+    return false;
+  }catch(e){
+    $("apiHint").className = "err";
+    $("apiHint").textContent = "Sin conexión al WebApp (bloqueo o deploy).";
+    return false;
   }
+}
 
-  function setBusy(isBusy){
-    state.saving = isBusy;
-    $("btnSave").disabled = isBusy;
-    $("btnGenerate").disabled = isBusy;
-    $("btnPrint").disabled = isBusy;
-    $("btnNew").disabled = isBusy;
-    $("btnRecover").disabled = isBusy;
-    $("tipoFormulario").disabled = isBusy;
+/************************************************************
+ * ✅ ITEMS COMPLETO (19 ítems) — KEYS = Look.gs
+ ************************************************************/
+const ITEMS = [
+  { group: "1. Cumplimiento y Productividad", items: [
+    { key: "A_metas", label: "A. Cumplimiento de Metas. Grado de logro", rubric: [
+      "Cumple menos del 70% de lo establecido; la falta de avance afecta los resultados esperados.",
+      "Cumple 70–89% de lo establecido; presenta avances parciales o inconsistentes y requiere correcciones.",
+      "Cumple 90–100% de las metas planificadas con calidad y dentro del tiempo establecido.",
+      "Cumple 101–110% de las metas; entrega resultados adicionales o mejores de lo esperado.",
+      "Cumple más del 110% de forma sostenida; impacto significativo y calidad superior."
+    ]},
+    { key: "B_eficiencia", label: "B. Eficiencia en el uso del tiempo, costos y recursos", rubric: [
+      "Usa tiempo y recursos con errores graves que afectan la eficiencia.",
+      "Muestra uso inestable del tiempo y recursos; requiere evaluaciones y correcciones frecuentes.",
+      "Utiliza de manera adecuada el tiempo y los recursos, cumpliendo sin desperdicios significativos.",
+      "Optimiza tiempo y recursos, generando mejoras sin afectar la calidad del trabajo.",
+      "Maximiza la eficiencia de forma sostenida; mejora procesos y logra resultados superiores sin comprometer la calidad."
+    ]},
+    { key: "C_seguridad", label: "C. Cumplimiento de normas de seguridad", rubric: [
+      "Incumple normas de seguridad y genera riesgos constantes para sí y el equipo.",
+      "Cumple parcialmente las normas; requiere supervisión continua para evitar incidentes.",
+      "Cumple todas las normas y actúa de manera segura en su trabajo diario.",
+      "Se anticipa a riesgos, propone acciones preventivas y actúa con autonomía segura.",
+      "Promueve cultura de seguridad; motiva a otros y contribuye a mantener ambientes sin incidentes."
+    ]},
+    { key: "D_prioriza", label: "D. Prioriza y organiza tareas adecuadamente", rubric: [
+      "Desorganiza tareas; incumple plazos y afecta resultados importantes.",
+      "Organiza parcialmente; inconsistencias en prioridades y manejo del tiempo.",
+      "Gestiona tareas adecuadamente, cumple tiempos y mantiene orden en su trabajo.",
+      "Organiza y prioriza con eficiencia; anticipa necesidades y mejora tiempos de entrega.",
+      "Es referente en organización; redistribuye recursos, optimiza procesos y eleva la productividad del equipo."
+    ]}
+  ]},
+  { group: "2. Calidad del Trabajo", items: [
+    { key: "A_exactitud", label: "A. Exactitud y atención al detalle", rubric: [
+      "Comete errores frecuentes y no identifica fallos evidentes; requiere supervisión constante.",
+      "Presenta errores recurrentes por falta de revisión; exactitud inconsistente y requiere correcciones frecuentes.",
+      "Realiza su trabajo con un nivel adecuado de precisión; puede cometer errores menores que no afectan resultados.",
+      "Mantiene atención al detalle constante; comete pocos errores y revisa su trabajo de forma proactiva.",
+      "Trabajo impecable; detecta errores propios y ajenos, propone mejoras y es referente en precisión."
+    ]},
+    { key: "B_estandares", label: "B. Cumple con estándares de calidad", rubric: [
+      "Menos del 70% de entregables cumplen estándares; resultados inaceptables.",
+      "70–89% cumplen estándares; requiere ajustes frecuentes.",
+      "100% de entregables cumplen estándares establecidos.",
+      "101–110%: entrega con calidad superior y consistente.",
+      "Más del 110%: supera ampliamente estándares y produce resultados sobresalientes."
+    ]},
+    { key: "C_entregas", label: "C. Entregas a Tiempo (cumple con plazos establecidos)", rubric: [
+      "Menos del 70% de entregas a tiempo; retrasos afectan el área.",
+      "70–89% a tiempo; desempeño irregular.",
+      "100% de entregas en plazos pactados.",
+      "101–110%: se anticipa, cumple tiempos y mantiene calidad.",
+      "Más del 110%: entrega antes, supera plazos con calidad y mejora eficiencia general."
+    ]},
+    { key: "D_errores", label: "D. Manejo de errores y mejoras", rubric: [
+      "No reconoce ni corrige errores; genera reincidencias graves.",
+      "Corrige parcialmente; mejora no constante, requiere supervisión.",
+      "Detecta y corrige errores básicos cuando se le solicita; cumple lo necesario.",
+      "Se anticipa a errores y propone soluciones preventivas que mejoran el proceso.",
+      "Asegura procesos libres de errores; implementa mejoras continuas y es referente en calidad."
+    ]}
+  ]},
+  { group: "3. Competencias y Habilidades", items: [
+    { key: "A_conocimientos", label: "A. Conocimientos técnicos del puesto", rubric: [
+      "Conocimientos por debajo de lo esperado; no domina funciones básicas.",
+      "Gestiona parcialmente conocimientos; requiere apoyo frecuente.",
+      "Posee conocimiento técnico y funcional adecuado para el puesto.",
+      "Aplica conocimientos de manera confiable y constante.",
+      "Domina conocimientos avanzados y es referente técnico en el área."
+    ]},
+    { key: "B_clientes", label: "B. Convincente respuesta técnica a clientes", rubric: [
+      "Respuestas incorrectas/inconsistentes que generan desconfianza.",
+      "Respuestas incompletas o poco claras; afecta calidad del servicio.",
+      "Responde de forma adecuada y funcional, brindando confianza.",
+      "Respuestas claras, específicas y confiables de manera constante.",
+      "Respuestas sobresalientes y precisas; reconocido como referente por clientes y equipo."
+    ]},
+    { key: "C_problemas", label: "C. Resolución de problemas", rubric: [
+      "No logra resolver problemas; afecta procesos y resultados.",
+      "Resuelve parcialmente; requiere supervisión frecuente.",
+      "Resuelve problemas básicos de manera satisfactoria y funcional.",
+      "Resuelve problemas complejos con autonomía y confiabilidad.",
+      "Anticipa problemas y desarrolla soluciones preventivas y estratégicas."
+    ]},
+    { key: "D_iniciativa", label: "D. Iniciativa y creatividad", rubric: [
+      "No genera ideas ni propone mejoras.",
+      "Propone ideas poco útiles o de aplicación limitada.",
+      "Propone ideas funcionales y aplicables cuando es necesario.",
+      "Genera ideas prácticas que optimizan procesos y agregan valor.",
+      "Propone soluciones innovadoras con impacto positivo y sostenible."
+    ]}
+  ]},
+  { group: "4. Actitud y Valores", items: [
+    { key: "A_responsabilidad", label: "A. Responsabilidad y compromiso", rubric: [
+      "Incumple compromisos y entrega resultados muy por debajo de lo esperado.",
+      "Cumple de forma irregular; requiere seguimiento constante.",
+      "Cumple responsabilidades de manera adecuada y confiable.",
+      "Cumple consistentemente; genera seguridad y aporta valor.",
+      "Inspira por su compromiso; es modelo de conducta para el equipo."
+    ]},
+    { key: "B_puntualidad", label: "B. Puntualidad y asistencia", rubric: [
+      "Ausencias injustificadas frecuentes; llegadas tardías recurrentes sin aviso.",
+      "Frecuencia de tardanza sin justificación clara; afecta la operación.",
+      "Asiste regularmente y cumple horarios; tardanzas justificadas sin reincidencia.",
+      "Puntual y asistencia confiable; comunica eventualidades oportunamente.",
+      "Puntualidad impecable; referente y se adapta a horarios especiales sin afectar desempeño."
+    ]},
+    { key: "C_equipo", label: "C. Trabajo en equipo y cooperación", rubric: [
+      "No coopera; genera conflictos y dificulta el trabajo del equipo.",
+      "Coopera parcialmente; actitud inestable.",
+      "Coopera cuando se le solicita, con resultados aceptables.",
+      "Colabora activamente y aporta de forma confiable.",
+      "Referente en equipo; promueve colaboración, sinergia y apoya a otros."
+    ]},
+    { key: "D_comunicacion", label: "D. Comunicación efectiva", rubric: [
+      "Comunicación confusa; genera malentendidos graves.",
+      "Comunicación incompleta/poco clara; requiere supervisión para asegurar entendimiento.",
+      "Comunica lo necesario de forma clara y suficiente.",
+      "Comunicación clara, precisa y constructiva; escucha activamente.",
+      "Comunicación influyente y estratégica; facilita acuerdos y motiva a otros."
+    ]}
+  ]},
+  { group: "5. Desarrollo y Potencial", items: [
+    { key: "A_adaptacion", label: "A. Adaptación al cambio", rubric: [
+      "Resiste activamente al cambio; afecta procesos y equipos.",
+      "Se adapta parcialmente; con dificultad y resultados limitados.",
+      "Se adapta lo necesario para mantener desempeño adecuado.",
+      "Se adapta de forma autónoma y confiable a nuevas situaciones.",
+      "Referente en adaptación; motiva y guía a otros en procesos de cambio."
+    ]},
+    { key: "B_aprender", label: "B. Disposición para aprender", rubric: [
+      "No busca aprender; rechaza retroalimentación y capacitación.",
+      "Aprende solo lo obligatorio; mínima aplicación práctica.",
+      "Aprende lo necesario para mantener desempeño satisfactorio.",
+      "Busca aprender constantemente y aplica lo aprendido en el trabajo.",
+      "Aprendizaje continuo; comparte conocimientos y forma a otros."
+    ]},
+    { key: "C_liderazgo", label: "C. Liderazgo", rubric: [
+      "No coordina ni dirige; genera desorden y afecta resultados.",
+      "Lidera débilmente; bajo impacto en el equipo.",
+      "Lidera tareas básicas con resultados adecuados y funcionales.",
+      "Lidera con confianza, logrando resultados consistentes y estables.",
+      "Inspira con visión clara; desarrolla a otros, fortalece cohesión y se convierte en referente."
+    ]}
+  ]}
+];
+
+const state = { dirty:false, generated:false, answers:{}, saving:false };
+const $ = (id) => document.getElementById(id);
+
+function setDirty(v){
+  state.dirty = v;
+  const dot = $("stateDot");
+  const text = $("stateText");
+  if(v){
+    dot.style.background = "var(--warn)";
+    text.textContent = "Cambios sin guardar";
+  }else{
+    dot.style.background = "var(--ok)";
+    text.textContent = "Sin cambios";
   }
+}
+function setBusy(isBusy){
+  state.saving = isBusy;
+  $("btnSave").disabled = isBusy;
+  $("btnGenerate").disabled = isBusy;
+  $("btnPrint").disabled = isBusy;
+  $("btnNew").disabled = isBusy;
+  $("btnRecover").disabled = isBusy;
+  $("tipoFormulario").disabled = isBusy;
+}
 
-  function findItemByKey(key){
-    for(const sec of ITEMS){
-      for(const it of sec.items){
-        if(it.key === key) return it;
+function renderItems(){
+  const container = $("itemsContainer");
+  if(!container) return;
+  container.innerHTML = "";
+
+  ITEMS.forEach(section => {
+    const sec = document.createElement("div");
+    sec.className = "card";
+    sec.style.background = "rgba(0,0,0,.10)";
+    sec.style.border = "1px dashed rgba(255,255,255,.10)";
+    sec.style.marginTop = "14px";
+
+    const h = document.createElement("h3");
+    h.textContent = section.group;
+    h.style.margin = "0 0 10px";
+    sec.appendChild(h);
+
+    section.items.forEach(it => {
+      const row = document.createElement("div");
+      row.style.display = "grid";
+      row.style.gridTemplateColumns = "1.3fr .9fr";
+      row.style.gap = "12px";
+      row.style.padding = "10px 0";
+      row.style.borderTop = "1px solid rgba(255,255,255,.08)";
+
+      const left = document.createElement("div");
+      const title = document.createElement("div");
+      title.style.fontWeight = "800";
+      title.textContent = it.label;
+      const sub = document.createElement("div");
+      sub.className = "muted";
+      sub.style.fontSize = "12px";
+      sub.textContent = "Selecciona 1–5 según la rúbrica.";
+      left.appendChild(title);
+      left.appendChild(sub);
+
+      const right = document.createElement("div");
+      const lab = document.createElement("label");
+      lab.textContent = "Puntaje (1–5)";
+
+      const sel = document.createElement("select");
+      sel.id = "ans_" + it.key;
+
+      const opt0 = document.createElement("option");
+      opt0.value = "";
+      opt0.textContent = "Seleccionar...";
+      sel.appendChild(opt0);
+
+      for(let v=1; v<=5; v++){
+        const o = document.createElement("option");
+        o.value = String(v);
+        const full = (it.rubric && it.rubric[v-1]) ? it.rubric[v-1] : "";
+        o.textContent = full ? `${v} — ${full}` : `${v}`;
+        sel.appendChild(o);
       }
-    }
-    return null;
-  }
 
-  function renderItems(){
-    const container = $("itemsContainer");
-    if(!container) return;
-    container.innerHTML = "";
-
-    ITEMS.forEach(section => {
-      const sec = document.createElement("div");
-      sec.className = "card";
-      sec.style.background = "rgba(0,0,0,.10)";
-      sec.style.border = "1px dashed rgba(255,255,255,.10)";
-      sec.style.marginTop = "14px";
-
-      const h = document.createElement("h3");
-      h.textContent = section.group;
-      h.style.margin = "0 0 10px";
-      sec.appendChild(h);
-
-      section.items.forEach(it => {
-        const row = document.createElement("div");
-        row.style.display = "grid";
-        row.style.gridTemplateColumns = "1.3fr .9fr";
-        row.style.gap = "12px";
-        row.style.padding = "10px 0";
-        row.style.borderTop = "1px solid rgba(255,255,255,.08)";
-
-        const left = document.createElement("div");
-        const title = document.createElement("div");
-        title.style.fontWeight = "800";
-        title.textContent = it.label;
-        const sub = document.createElement("div");
-        sub.className = "muted";
-        sub.style.fontSize = "12px";
-        sub.textContent = "Selecciona 1–5 según la rúbrica.";
-        left.appendChild(title);
-        left.appendChild(sub);
-
-        const right = document.createElement("div");
-        const lab = document.createElement("label");
-        lab.textContent = "Puntaje (1–5)";
-
-        const sel = document.createElement("select");
-        sel.id = "ans_" + it.key;
-
-        const opt0 = document.createElement("option");
-        opt0.value = "";
-        opt0.textContent = "Seleccionar...";
-        sel.appendChild(opt0);
-
-        for(let v=1; v<=5; v++){
-          const o = document.createElement("option");
-          o.value = String(v);
-          const full = (it.rubric && it.rubric[v-1]) ? it.rubric[v-1] : "";
-          o.textContent = full ? `${v} — ${full}` : `${v}`;
-          sel.appendChild(o);
-        }
-
-        const saved = state.answers[it.key];
-        if(typeof saved === "number" && saved >= 1 && saved <= 5){
-          sel.value = String(saved);
-        }
-
-        sel.addEventListener("change", () => {
-          state.answers[it.key] = sel.value ? Number(sel.value) : null;
-          setDirty(true);
-        });
-
-        right.appendChild(lab);
-        right.appendChild(sel);
-
-        row.appendChild(left);
-        row.appendChild(right);
-        sec.appendChild(row);
+      const saved = state.answers[it.key];
+      if(typeof saved === "number" && saved >= 1 && saved <= 5){
+        sel.value = String(saved);
+      }
+      sel.addEventListener("change", () => {
+        state.answers[it.key] = sel.value ? Number(sel.value) : null;
+        setDirty(true);
       });
 
-      container.appendChild(sec);
+      right.appendChild(lab);
+      right.appendChild(sel);
+
+      row.appendChild(left);
+      row.appendChild(right);
+      sec.appendChild(row);
     });
-  }
 
-  function ensureItemsVisibleIfNeeded(){
-    const tipo = $("tipoFormulario").value;
-    const need = (tipo === "autoevaluacion" || tipo === "desempeno");
-    const container = $("itemsContainer");
-    if(!need) return;
-    if(!container) return;
-    if(container.children.length === 0){
-      renderItems();
-    }
-  }
+    container.appendChild(sec);
+  });
+}
 
-  function getHeaderData(){
+function ensureItemsVisibleIfNeeded(){
+  const tipo = $("tipoFormulario").value;
+  const need = (tipo === "autoevaluacion" || tipo === "desempeno");
+  const container = $("itemsContainer");
+  if(!need || !container) return;
+  if(container.children.length === 0) renderItems();
+}
+
+function getHeaderData(){
+  return {
+    tipo: $("tipoFormulario").value,
+    no_personal: $("noPersonal").value.trim(),
+    nombre: $("nombre").value.trim(),
+    posicion: $("posicion").value.trim(),
+    departamento: $("departamento").value.trim(),
+    periodo: $("periodo").value.trim(),
+    version: $("version").value.trim(),
+    fecha: $("fecha").value
+  };
+}
+
+function getExtraFields(){
+  const tipo = $("tipoFormulario").value;
+
+  if(tipo === "autoevaluacion"){
     return {
-      tipo: $("tipoFormulario").value,
-      no_personal: $("noPersonal").value.trim(),
-      nombre: $("nombre").value.trim(),
-      posicion: $("posicion").value.trim(),
-      departamento: $("departamento").value.trim(),
-      periodo: $("periodo").value.trim(),
-      version: $("version").value.trim(),
-      fecha: $("fecha").value
+      comentarios_colaborador: $("comentariosColaborador").value.trim(),
+      justificacion: ($("justificacion")?.value || "").trim(),
+      comentarios_evaluador: ($("comentariosEvaluador")?.value || "").trim(),
+      fortalezas: ($("fortalezas")?.value || "").trim(),
+      oportunidades_mejora: ($("oportunidades")?.value || "").trim(),
+      proyeccion_potencial: ($("proyeccion")?.value || "").trim(),
+      necesidades_capacitacion: ($("necesidadesCapacitacion")?.value || "").trim(),
+      comentarios_colaborador2: ($("comentariosColaborador2")?.value || "").trim(),
+      evaluacion_clientes: ($("evaluacionClientes")?.value || "").trim()
     };
   }
 
-  function getExtraFields(){
-    const tipo = $("tipoFormulario").value;
-
-    if(tipo === "autoevaluacion"){
-      return {
-        comentarios_colaborador: $("comentariosColaborador").value.trim(),
-        justificacion: ($("justificacion")?.value || "").trim(),
-        comentarios_evaluador: ($("comentariosEvaluador")?.value || "").trim(),
-        fortalezas: ($("fortalezas")?.value || "").trim(),
-        oportunidades_mejora: ($("oportunidades")?.value || "").trim(),
-        proyeccion_potencial: ($("proyeccion")?.value || "").trim(),
-        necesidades_capacitacion: ($("necesidadesCapacitacion")?.value || "").trim(),
-        comentarios_colaborador2: ($("comentariosColaborador2")?.value || "").trim(),
-        evaluacion_clientes: ($("evaluacionClientes")?.value || "").trim()
-      };
-    }
-    if(tipo === "desempeno"){
-      return {
-        justificacion: $("justificacion").value.trim(),
-        comentarios_evaluador: $("comentariosEvaluador").value.trim(),
-        nombre_evaluador: ($("nombreEvaluadorDesempeno")?.value || "").trim(),
-        fortalezas: $("fortalezas").value.trim(),
-        oportunidades_mejora: $("oportunidades").value.trim(),
-        proyeccion_potencial: $("proyeccion").value.trim(),
-        necesidades_capacitacion: ($("necesidadesCapacitacion")?.value || "").trim(),
-        comentarios_colaborador: $("comentariosColaborador2").value.trim(),
-        evaluacion_clientes: ($("evaluacionClientes")?.value || "").trim()
-      };
-    }
-    if(tipo === "clientes"){
-      return {
-        retroalimentacion: ($("retroalimentacion")?.value || "").trim(),
-        nombre_evaluador: ($("nombreEvaluador")?.value || "").trim()
-      };
-    }
-    return {};
+  if(tipo === "desempeno"){
+    return {
+      justificacion: $("justificacion").value.trim(),
+      comentarios_evaluador: $("comentariosEvaluador").value.trim(),
+      nombre_evaluador: ($("nombreEvaluadorDesempeno")?.value || "").trim(),
+      fortalezas: $("fortalezas").value.trim(),
+      oportunidades_mejora: $("oportunidades").value.trim(),
+      proyeccion_potencial: $("proyeccion").value.trim(),
+      necesidades_capacitacion: ($("necesidadesCapacitacion")?.value || "").trim(),
+      comentarios_colaborador: $("comentariosColaborador2").value.trim(),
+      evaluacion_clientes: ($("evaluacionClientes")?.value || "").trim()
+    };
   }
 
-  function getScoreFromDOM(itKey){
-    const el = document.getElementById("ans_" + itKey);
-    if(!el) return null;
-    const v = String(el.value || "").trim();
-    if(!v) return null;
-    const n = Number(v);
-    return (Number.isFinite(n) && n >= 1 && n <= 5) ? n : null;
+  if(tipo === "clientes"){
+    return {
+      retroalimentacion: ($("retroalimentacion")?.value || "").trim(),
+      nombre_evaluador: ($("nombreEvaluador")?.value || "").trim()
+    };
   }
 
-  function computeTotal(){
-    const vals = [];
-    ITEMS.forEach(sec => sec.items.forEach(it => {
-      const n = getScoreFromDOM(it.key);
-      if(typeof n === "number") vals.push(n);
-    }));
-    if(!vals.length) return 0;
-    const avg = vals.reduce((a,b)=>a+b,0) / vals.length;
-    return +(avg * 20).toFixed(2);
-  }
+  return {};
+}
 
-  function flattenAnswersSelectedText(){
-    const out = {};
-    ITEMS.forEach(sec => sec.items.forEach(it => {
-      const n = getScoreFromDOM(it.key);
-      if(typeof n === "number"){
-        const desc = (it.rubric && it.rubric[n-1]) ? it.rubric[n-1] : "";
-        out[it.key] = desc ? `${n} — ${desc}` : String(n);
-        state.answers[it.key] = n;
+function getScoreFromDOM(itKey){
+  const el = document.getElementById("ans_" + itKey);
+  if(!el) return null;
+  const v = String(el.value || "").trim();
+  if(!v) return null;
+  const n = Number(v);
+  return (Number.isFinite(n) && n >= 1 && n <= 5) ? n : null;
+}
+function computeTotal(){
+  const vals = [];
+  ITEMS.forEach(sec => sec.items.forEach(it => {
+    const n = getScoreFromDOM(it.key);
+    if(typeof n === "number") vals.push(n);
+  }));
+  if(!vals.length) return 0;
+  const avg = vals.reduce((a,b)=>a+b,0) / vals.length;
+  return +(avg * 20).toFixed(2);
+}
+function flattenAnswersSelectedText(){
+  const out = {};
+  ITEMS.forEach(sec => sec.items.forEach(it => {
+    const n = getScoreFromDOM(it.key);
+    if(typeof n === "number"){
+      const desc = (it.rubric && it.rubric[n-1]) ? it.rubric[n-1] : "";
+      out[it.key] = desc ? `${n} — ${desc}` : String(n);
+      state.answers[it.key] = n;
+    }else{
+      out[it.key] = "";
+      state.answers[it.key] = null;
+    }
+  }));
+  return out;
+}
+function formatDateES(yyyy_mm_dd){
+  if(!yyyy_mm_dd) return "—";
+  const [y,m,d] = yyyy_mm_dd.split("-").map(n=>parseInt(n,10));
+  if(!y || !m || !d) return yyyy_mm_dd;
+  const dt = new Date(y, m-1, d);
+  return dt.toLocaleDateString("es-HN");
+}
+
+function renderSeleccionEnReporte(){
+  const host = $("rRubricas");
+  host.innerHTML = "";
+
+  ITEMS.forEach(sec => {
+    const wrap = document.createElement("div");
+    wrap.className = "rubric-wrap";
+
+    const title = document.createElement("div");
+    title.className = "rubric-title";
+    title.textContent = sec.group;
+    wrap.appendChild(title);
+
+    const table = document.createElement("table");
+    table.className = "sel-table";
+
+    const thead = document.createElement("thead");
+    const trh = document.createElement("tr");
+
+    const thItem = document.createElement("th");
+    thItem.className = "col-item";
+    thItem.textContent = "Ítem";
+    trh.appendChild(thItem);
+
+    const thScore = document.createElement("th");
+    thScore.className = "col-score";
+    thScore.textContent = "Puntaje";
+    trh.appendChild(thScore);
+
+    const thDesc = document.createElement("th");
+    thDesc.className = "col-desc";
+    thDesc.textContent = "Opción seleccionada";
+    trh.appendChild(thDesc);
+
+    thead.appendChild(trh);
+    table.appendChild(thead);
+
+    const tbody = document.createElement("tbody");
+    sec.items.forEach(it => {
+      const v = state.answers[it.key];
+      const tr = document.createElement("tr");
+
+      const tdItem = document.createElement("td");
+      tdItem.className = "col-item";
+      tdItem.textContent = it.label;
+      tr.appendChild(tdItem);
+
+      const tdScore = document.createElement("td");
+      tdScore.className = "col-score";
+      tdScore.textContent = (typeof v === "number") ? String(v) : "—";
+      tr.appendChild(tdScore);
+
+      const tdDesc = document.createElement("td");
+      tdDesc.className = "col-desc";
+      if(typeof v === "number" && it.rubric && it.rubric[v-1]){
+        tdDesc.textContent = `${v} — ${it.rubric[v-1]}`;
       }else{
-        out[it.key] = "";
-        state.answers[it.key] = null;
+        tdDesc.innerHTML = `<span class="muted-print">Sin selección</span>`;
       }
-    }));
-    return out;
-  }
+      tr.appendChild(tdDesc);
 
-  function formatDateES(yyyy_mm_dd){
-    if(!yyyy_mm_dd) return "—";
-    const [y,m,d] = yyyy_mm_dd.split("-").map(n=>parseInt(n,10));
-    if(!y || !m || !d) return yyyy_mm_dd;
-    const dt = new Date(y, m-1, d);
-    return dt.toLocaleDateString("es-HN");
-  }
-
-  function renderSeleccionEnReporte(){
-    const host = $("rRubricas");
-    host.innerHTML = "";
-
-    ITEMS.forEach(sec => {
-      const wrap = document.createElement("div");
-      wrap.className = "rubric-wrap";
-
-      const title = document.createElement("div");
-      title.className = "rubric-title";
-      title.textContent = sec.group;
-      wrap.appendChild(title);
-
-      const table = document.createElement("table");
-      table.className = "sel-table";
-
-      const thead = document.createElement("thead");
-      const trh = document.createElement("tr");
-
-      const thItem = document.createElement("th");
-      thItem.className = "col-item";
-      thItem.textContent = "Ítem";
-      trh.appendChild(thItem);
-
-      const thScore = document.createElement("th");
-      thScore.className = "col-score";
-      thScore.textContent = "Puntaje";
-      trh.appendChild(thScore);
-
-      const thDesc = document.createElement("th");
-      thDesc.className = "col-desc";
-      thDesc.textContent = "Opción seleccionada";
-      trh.appendChild(thDesc);
-
-      thead.appendChild(trh);
-      table.appendChild(thead);
-
-      const tbody = document.createElement("tbody");
-
-      sec.items.forEach(it => {
-        const v = state.answers[it.key];
-        const tr = document.createElement("tr");
-
-        const tdItem = document.createElement("td");
-        tdItem.className = "col-item";
-        tdItem.textContent = it.label;
-        tr.appendChild(tdItem);
-
-        const tdScore = document.createElement("td");
-        tdScore.className = "col-score";
-        tdScore.textContent = (typeof v === "number") ? String(v) : "—";
-        tr.appendChild(tdScore);
-
-        const tdDesc = document.createElement("td");
-        tdDesc.className = "col-desc";
-        if(typeof v === "number" && it.rubric && it.rubric[v-1]){
-          tdDesc.textContent = `${v} — ${it.rubric[v-1]}`;
-        }else{
-          tdDesc.innerHTML = `<span class="muted-print">Sin selección</span>`;
-        }
-        tr.appendChild(tdDesc);
-
-        tbody.appendChild(tr);
-      });
-
-      table.appendChild(tbody);
-      wrap.appendChild(table);
-
-      host.appendChild(wrap);
+      tbody.appendChild(tr);
     });
+
+    table.appendChild(tbody);
+    wrap.appendChild(table);
+    host.appendChild(wrap);
+  });
+}
+
+function openReportModal(){
+  $("reportHost").innerHTML = $("report").outerHTML;
+  $("reportBackdrop").style.display = "flex";
+  $("reportBackdrop").setAttribute("aria-hidden", "false");
+}
+function closeReportModal(){
+  $("reportBackdrop").style.display = "none";
+  $("reportBackdrop").setAttribute("aria-hidden", "true");
+}
+
+function buildReport(){
+  const header = getHeaderData();
+  const extra = getExtraFields();
+  const total = computeTotal();
+
+  $("rTitle").textContent =
+    (header.tipo === "autoevaluacion") ? "Autoevaluación del desempeño" :
+    (header.tipo === "clientes") ? "Formulario evaluación clientes" :
+    "Evaluación del desempeño";
+
+  $("rGenerated").textContent = new Date().toLocaleString();
+  $("rNoPersonal").textContent = header.no_personal || "—";
+  $("rNombre").textContent = header.nombre || "—";
+  $("rPosicion").textContent = header.posicion || "—";
+  $("rDepartamento").textContent = header.departamento || "—";
+  $("rPeriodo").textContent = header.periodo || "—";
+  $("rVersion").textContent = header.version || "—";
+  $("rFecha").textContent = formatDateES(header.fecha);
+
+  renderSeleccionEnReporte();
+
+  $("rTotal").textContent = String((header.tipo === "clientes") ? 0 : total);
+
+  const comentarioColab =
+    (header.tipo === "autoevaluacion") ? (extra.comentarios_colaborador || "") :
+    (header.tipo === "desempeno") ? (extra.comentarios_colaborador || "") : "";
+
+  if(comentarioColab){
+    $("rComentariosBlock").style.display = "block";
+    $("rComentarios").textContent = comentarioColab;
+  }else{
+    $("rComentariosBlock").style.display = "none";
+    $("rComentarios").textContent = "—";
   }
 
-  function openReportModal(){
-    $("reportHost").innerHTML = $("report").outerHTML;
-    $("reportBackdrop").style.display = "flex";
-    $("reportBackdrop").setAttribute("aria-hidden", "false");
+  if((header.tipo === "desempeno") && extra.evaluacion_clientes){
+    $("rEvalClientesBlock").style.display = "block";
+    $("rEvalClientes").textContent = extra.evaluacion_clientes;
+  }else{
+    $("rEvalClientesBlock").style.display = "none";
+    $("rEvalClientes").textContent = "—";
   }
 
-  function closeReportModal(){
-    $("reportBackdrop").style.display = "none";
-    $("reportBackdrop").setAttribute("aria-hidden", "true");
+  if(header.tipo === "desempeno" && extra.nombre_evaluador){
+    $("rNombreEvalBlock").style.display = "block";
+    $("rNombreEvaluadorDesempeno").textContent = extra.nombre_evaluador;
+  }else{
+    $("rNombreEvalBlock").style.display = "none";
+    $("rNombreEvaluadorDesempeno").textContent = "—";
   }
 
-  function buildReport(){
-    const header = getHeaderData();
-    const extra = getExtraFields();
-    const total = computeTotal();
-
-    $("rTitle").textContent =
-      (header.tipo === "autoevaluacion")
-        ? "Autoevaluación del desempeño"
-        : (header.tipo === "clientes")
-          ? "Formulario evaluación clientes"
-          : "Evaluación del desempeño";
-
-    $("rGenerated").textContent = new Date().toLocaleString();
-
-    $("rNoPersonal").textContent = header.no_personal || "—";
-    $("rNombre").textContent = header.nombre || "—";
-    $("rPosicion").textContent = header.posicion || "—";
-    $("rDepartamento").textContent = header.departamento || "—";
-    $("rPeriodo").textContent = header.periodo || "—";
-    $("rVersion").textContent = header.version || "—";
-    $("rFecha").textContent = formatDateES(header.fecha);
-
-    renderSeleccionEnReporte();
-    $("rTotal").textContent = String((header.tipo === "clientes") ? 0 : total);
-
-    const comentarioColab =
-      (header.tipo === "autoevaluacion")
-        ? (extra.comentarios_colaborador || "")
-        : (header.tipo === "desempeno")
-          ? (extra.comentarios_colaborador || "")
-          : "";
-
-    if(comentarioColab){
-      $("rComentariosBlock").style.display = "block";
-      $("rComentarios").textContent = comentarioColab;
-    }else{
-      $("rComentariosBlock").style.display = "none";
-      $("rComentarios").textContent = "—";
-    }
-
-    if((header.tipo === "desempeno") && extra.evaluacion_clientes){
-      $("rEvalClientesBlock").style.display = "block";
-      $("rEvalClientes").textContent = extra.evaluacion_clientes;
-    }else{
-      $("rEvalClientesBlock").style.display = "none";
-      $("rEvalClientes").textContent = "—";
-    }
-
-    if(header.tipo === "desempeno" && extra.nombre_evaluador){
-      $("rNombreEvalBlock").style.display = "block";
-      $("rNombreEvaluadorDesempeno").textContent = extra.nombre_evaluador;
-    }else{
-      $("rNombreEvalBlock").style.display = "none";
-      $("rNombreEvaluadorDesempeno").textContent = "—";
-    }
-
-    if(header.tipo === "desempeno"){
-      const hasAny =
-        (extra.justificacion || extra.comentarios_evaluador || extra.fortalezas ||
-         extra.oportunidades_mejora || extra.proyeccion_potencial || extra.necesidades_capacitacion);
-
-      if(hasAny){
-        $("rJustifBlock").style.display = "block";
-        const txt = [
-          `Justificación calificaciones (1-6): ${extra.justificacion || "—"}`,
-          `Comentarios del evaluador: ${extra.comentarios_evaluador || "—"}`,
-          `Fortalezas: ${extra.fortalezas || "—"}`,
-          `Oportunidades de mejora: ${extra.oportunidades_mejora || "—"}`,
-          `Proyección y potencial: ${extra.proyeccion_potencial || "—"}`,
-          `Necesidades de capacitación: ${extra.necesidades_capacitacion || "—"}`
-        ].filter(Boolean).join("\n\n");
-        $("rJustifAll").textContent = txt;
-      }else{
-        $("rJustifBlock").style.display = "none";
-        $("rJustifAll").textContent = "—";
-      }
+  if(header.tipo === "desempeno"){
+    const hasAny = (extra.justificacion || extra.comentarios_evaluador || extra.fortalezas || extra.oportunidades_mejora || extra.proyeccion_potencial || extra.necesidades_capacitacion);
+    if(hasAny){
+      $("rJustifBlock").style.display = "block";
+      const txt = [
+        `Justificación calificaciones (1-6): ${extra.justificacion || "—"}`,
+        `Comentarios del evaluador: ${extra.comentarios_evaluador || "—"}`,
+        `Fortalezas: ${extra.fortalezas || "—"}`,
+        `Oportunidades de mejora: ${extra.oportunidades_mejora || "—"}`,
+        `Proyección y potencial: ${extra.proyeccion_potencial || "—"}`,
+        `Necesidades de capacitación: ${extra.necesidades_capacitacion || "—"}`
+      ].filter(Boolean).join("\n\n");
+      $("rJustifAll").textContent = txt;
     }else{
       $("rJustifBlock").style.display = "none";
       $("rJustifAll").textContent = "—";
     }
-
-    $("printArea").style.display = "block";
+  }else{
+    $("rJustifBlock").style.display = "none";
+    $("rJustifAll").textContent = "—";
   }
 
-  function parseScoreFromCell(val){
-    const s = String(val || "").trim();
-    if(!s) return null;
-    const m = s.match(/^([1-5])\s*(?:[—-]|$)/);
-    if(m) return Number(m[1]);
-    const n = Number(s);
-    if(Number.isFinite(n) && n>=1 && n<=5) return n;
-    return null;
-  }
+  $("printArea").style.display = "block";
+}
 
-  function setSelectValue(key, score){
-    const el = $("ans_" + key);
-    if(!el) return;
-    el.value = (score>=1 && score<=5) ? String(score) : "";
-    state.answers[key] = (score>=1 && score<=5) ? score : null;
-  }
+function parseScoreFromCell(val){
+  const s = String(val || "").trim();
+  if(!s) return null;
+  const m = s.match(/^([1-5])\s*(?:[—-]|$)/);
+  if(m) return Number(m[1]);
+  const n = Number(s);
+  if(Number.isFinite(n) && n>=1 && n<=5) return n;
+  return null;
+}
+function setSelectValue(key, score){
+  const el = $("ans_" + key);
+  if(!el) return;
+  el.value = (score>=1 && score<=5) ? String(score) : "";
+  state.answers[key] = (score>=1 && score<=5) ? score : null;
+}
 
-  let lastRecovered = null;
+let lastRecovered = null;
 
-  function openRecoverModal(){
-    $("recoverBackdrop").style.display = "flex";
-    $("recoverBackdrop").setAttribute("aria-hidden", "false");
-  }
-  function closeRecoverModal(){
-    $("recoverBackdrop").style.display = "none";
-    $("recoverBackdrop").setAttribute("aria-hidden", "true");
-  }
+function openRecoverModal(){
+  $("recoverBackdrop").style.display = "flex";
+  $("recoverBackdrop").setAttribute("aria-hidden", "false");
+}
+function closeRecoverModal(){
+  $("recoverBackdrop").style.display = "none";
+  $("recoverBackdrop").setAttribute("aria-hidden", "true");
+}
+function openLookupModal(){
+  $("lookupBackdrop").style.display = "flex";
+  $("lookupBackdrop").setAttribute("aria-hidden", "false");
+}
+function closeLookupModal(){
+  $("lookupBackdrop").style.display = "none";
+  $("lookupBackdrop").setAttribute("aria-hidden", "true");
+}
 
-  function openLookupModal(){
-    $("lookupBackdrop").style.display = "flex";
-    $("lookupBackdrop").setAttribute("aria-hidden", "false");
-  }
-  function closeLookupModal(){
-    $("lookupBackdrop").style.display = "none";
-    $("lookupBackdrop").setAttribute("aria-hidden", "true");
-  }
+function escapeHtml(s){
+  return String(s ?? "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
 
-  function escapeHtml(s){
-    return String(s ?? "")
-      .replaceAll("&","&amp;")
-      .replaceAll("<","&lt;")
-      .replaceAll(">","&gt;")
-      .replaceAll('"',"&quot;")
-      .replaceAll("'","&#039;");
-  }
+function renderKeyReport(no_personal, periodo, version, sourceHint){
+  const box = document.createElement("div");
+  box.className = "card";
+  box.style.padding = "12px";
+  box.style.background = "rgba(0,0,0,.14)";
 
-  function renderKeyReport(no_personal, periodo, version, sourceHint){
-    const box = document.createElement("div");
-    box.className = "card";
-    box.style.padding = "12px";
-    box.style.background = "rgba(0,0,0,.14)";
-    box.innerHTML = `
-      <div style="display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; align-items:center;">
-        <div class="chip"><b>Reporte (llaves)</b></div>
-        <div class="small-muted">${escapeHtml(sourceHint || "")}</div>
-      </div>
-      <table class="mini-table" style="margin-top:10px;">
-        <thead><tr><th class="col-k">Campo</th><th class="col-v">Valor</th></tr></thead>
-        <tbody>
-          <tr><td class="col-k">No. personal</td><td class="col-v">${escapeHtml(no_personal || "—")}</td></tr>
-          <tr><td class="col-k">Periodo</td><td class="col-v">${escapeHtml(periodo || "—")}</td></tr>
-          <tr><td class="col-k">Versión</td><td class="col-v">${escapeHtml(version || "—")}</td></tr>
-        </tbody>
-      </table>
-    `;
-    const host = $("recoverKeyReport");
-    host.innerHTML = "";
-    host.appendChild(box);
-  }
-
-  function buildRecoverModal(rowParams, meta, clientesInfo){
-    function showDash(v){
-      const s = String(v ?? "").trim();
-      return s ? s : "—";
-    }
-
-    lastRecovered = { rowParams, meta, clientesInfo };
-
-    $("recoverTitle").textContent = "Registro encontrado";
-    $("recoverSub").textContent = `Keys: ${meta.no_personal || "—"} / ${meta.periodo || "—"} / ${meta.version || "—"} • Fila: ${meta.rowNumber || "—"}`;
-
-    renderKeyReport(meta.no_personal, meta.periodo, meta.version,
-      (clientesInfo && clientesInfo.found)
-        ? `Resultados + Clientes (fila Clientes: ${clientesInfo.rowNumber || "—"})`
-        : `Resultados (Clientes: sin registro)`
-    );
-
-    const generalRows = [
-      ["No. de personal", showDash(rowParams.no_personal || meta.no_personal)],
-      ["Periodo", showDash(rowParams.periodo || meta.periodo)],
-      ["Versión", showDash(rowParams.version || meta.version)],
-      ["Nombre", showDash(rowParams.nombre)],
-      ["Posición", showDash(rowParams.posicion)],
-      ["Departamento", showDash(rowParams.departamento)],
-      ["Fecha", showDash(rowParams.fecha)],
-      ["Comentarios", showDash(rowParams.comentarios)],
-      ["Nombre del evaluador (desempeño)", showDash(rowParams.nombre_evaluador)],
-      ["Evaluación clientes (campo desempeño)", showDash(rowParams.evaluacion_clientes)],
-      ["Necesidades de capacitación", showDash(rowParams.necesidades_capacitacion)]
-    ];
-
-    if(clientesInfo){
-      generalRows.push(["Retroalimentación (Clientes)", showDash(clientesInfo.retroalimentacion)]);
-      generalRows.push(["Nombre evaluador (Clientes)", showDash(clientesInfo.nombre_evaluador)]);
-    }
-
-    const gen = document.createElement("table");
-    gen.className = "mini-table";
-    gen.innerHTML = `
-      <thead>
-        <tr>
-          <th class="col-k">Campo</th>
-          <th class="col-v">Valor (Sheets)</th>
-        </tr>
-      </thead>
+  box.innerHTML = `
+    <div style="display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; align-items:center;">
+      <div class="chip"><b>Reporte (llaves)</b></div>
+      <div class="small-muted">${escapeHtml(sourceHint || "")}</div>
+    </div>
+    <table class="mini-table" style="margin-top:10px;">
+      <thead><tr><th class="col-k">Campo</th><th class="col-v">Valor</th></tr></thead>
       <tbody>
-        ${generalRows.map(([k,v]) => `
-          <tr>
-            <td class="col-k">${escapeHtml(k)}</td>
-            <td class="col-v">${escapeHtml(String(v ?? ""))}</td>
-          </tr>
-        `).join("")}
+        <tr><td class="col-k">No. personal</td><td class="col-v">${escapeHtml(no_personal || "—")}</td></tr>
+        <tr><td class="col-k">Periodo</td><td class="col-v">${escapeHtml(periodo || "—")}</td></tr>
+        <tr><td class="col-k">Versión</td><td class="col-v">${escapeHtml(version || "—")}</td></tr>
       </tbody>
-    `;
-    $("recoverGeneral").innerHTML = "";
-    $("recoverGeneral").appendChild(gen);
+    </table>
+  `;
+  const host = $("recoverKeyReport");
+  host.innerHTML = "";
+  host.appendChild(box);
+}
 
-    const it = document.createElement("table");
-    it.className = "items-table";
-    it.innerHTML = `
-      <thead>
+function buildRecoverModal(rowParams, meta, clientesInfo){
+  function showDash(v){
+    const s = String(v ?? "").trim();
+    return s ? s : "—";
+  }
+
+  lastRecovered = { rowParams, meta, clientesInfo };
+
+  $("recoverTitle").textContent = "Registro encontrado";
+  $("recoverSub").textContent = `Keys: ${meta.no_personal || "—"} / ${meta.periodo || "—"} / ${meta.version || "—"} • Fila: ${meta.rowNumber || "—"}`;
+
+  renderKeyReport(
+    meta.no_personal,
+    meta.periodo,
+    meta.version,
+    (clientesInfo && clientesInfo.found)
+      ? `Resultados + Clientes (fila Clientes: ${clientesInfo.rowNumber || "—"})`
+      : `Resultados (Clientes: sin registro)`
+  );
+
+  const generalRows = [
+    ["No. de personal", showDash(rowParams.no_personal || meta.no_personal)],
+    ["Periodo", showDash(rowParams.periodo || meta.periodo)],
+    ["Versión", showDash(rowParams.version || meta.version)],
+    ["Nombre", showDash(rowParams.nombre)],
+    ["Posición", showDash(rowParams.posicion)],
+    ["Departamento", showDash(rowParams.departamento)],
+    ["Fecha", showDash(rowParams.fecha)],
+    ["Comentarios", showDash(rowParams.comentarios)],
+    ["Nombre del evaluador (desempeño)", showDash(rowParams.nombre_evaluador)],
+    ["Evaluación clientes (campo desempeño)", showDash(rowParams.evaluacion_clientes)],
+    ["Necesidades de capacitación", showDash(rowParams.necesidades_capacitacion)]
+  ];
+
+  if(clientesInfo){
+    generalRows.push(["Retroalimentación (Clientes)", showDash(clientesInfo.retroalimentacion)]);
+    generalRows.push(["Nombre evaluador (Clientes)", showDash(clientesInfo.nombre_evaluador)]);
+  }
+
+  const gen = document.createElement("table");
+  gen.className = "mini-table";
+  gen.innerHTML = `
+    <thead>
+      <tr><th class="col-k">Campo</th><th class="col-v">Valor (Sheets)</th></tr>
+    </thead>
+    <tbody>
+      ${generalRows.map(([k,v]) => `
         <tr>
-          <th class="it-col1">Grupo</th>
-          <th class="it-col2">Ítem</th>
-          <th class="it-col3">Puntaje</th>
-          <th class="it-col4">Texto guardado (rúbrica / opción)</th>
+          <td class="col-k">${escapeHtml(k)}</td>
+          <td class="col-v">${escapeHtml(String(v ?? ""))}</td>
         </tr>
-      </thead>
-      <tbody id="recoverItemsBody"></tbody>
+      `).join("")}
+    </tbody>
+  `;
+  $("recoverGeneral").innerHTML = "";
+  $("recoverGeneral").appendChild(gen);
+
+  const it = document.createElement("table");
+  it.className = "items-table";
+  it.innerHTML = `
+    <thead>
+      <tr>
+        <th class="it-col1">Grupo</th>
+        <th class="it-col2">Ítem</th>
+        <th class="it-col3">Puntaje</th>
+        <th class="it-col4">Texto guardado (rúbrica / opción)</th>
+      </tr>
+    </thead>
+    <tbody id="recoverItemsBody"></tbody>
+  `;
+  const tbody = it.querySelector("#recoverItemsBody");
+
+  ITEMS.forEach(sec => {
+    const trg = document.createElement("tr");
+    trg.className = "group-row";
+    trg.innerHTML = `<td colspan="4">${escapeHtml(sec.group)}</td>`;
+    tbody.appendChild(trg);
+
+    sec.items.forEach(item => {
+      const raw = rowParams[item.key] ?? "";
+      const score = parseScoreFromCell(raw);
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td class="it-col1">${escapeHtml(sec.group)}</td>
+        <td class="it-col2">${escapeHtml(item.label)}</td>
+        <td class="it-col3">${score ? String(score) : "—"}</td>
+        <td class="it-col4">${escapeHtml(raw)}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  });
+
+  $("recoverItems").innerHTML = "";
+  $("recoverItems").appendChild(it);
+
+  openRecoverModal();
+}
+
+/**
+ * ✅ Autollenar SOLO aplica a Desempeño (por tu regla)
+ * (lo dejamos igual, pero el botón Recuperar ya solo aparece en desempeño)
+ */
+function applyRecoveredToForm(rowParams, clientesInfo){
+  $("noPersonal").value = rowParams.no_personal || $("noPersonal").value;
+  $("periodo").value = rowParams.periodo || $("periodo").value;
+  $("version").value = rowParams.version || $("version").value;
+  $("nombre").value = rowParams.nombre || $("nombre").value;
+  $("posicion").value = rowParams.posicion || $("posicion").value;
+  $("departamento").value = rowParams.departamento || $("departamento").value;
+  $("fecha").value = rowParams.fecha || $("fecha").value;
+
+  // Forzamos tipo desempeño (regla de negocio)
+  $("tipoFormulario").value = "desempeno";
+  applyTipoUI();
+
+  if(rowParams.justificacion) $("justificacion").value = rowParams.justificacion;
+  if(rowParams.comentarios_evaluador) $("comentariosEvaluador").value = rowParams.comentarios_evaluador;
+  if(rowParams.nombre_evaluador && $("nombreEvaluadorDesempeno")){
+    $("nombreEvaluadorDesempeno").value = rowParams.nombre_evaluador;
+  }
+  if(rowParams.fortalezas) $("fortalezas").value = rowParams.fortalezas;
+  if(rowParams.oportunidades_mejora) $("oportunidades").value = rowParams.oportunidades_mejora;
+  if(rowParams.proyeccion_potencial) $("proyeccion").value = rowParams.proyeccion_potencial;
+  if(rowParams.necesidades_capacitacion) $("necesidadesCapacitacion").value = rowParams.necesidades_capacitacion;
+  if(rowParams.evaluacion_clientes) $("evaluacionClientes").value = rowParams.evaluacion_clientes;
+
+  // ✅ merge Clientes => compone “(Nombre) Retroalimentación”
+  if(clientesInfo && clientesInfo.found){
+    const head = clientesInfo.nombre_evaluador ? `(${clientesInfo.nombre_evaluador}) ` : "";
+    const composed = `${head}${clientesInfo.retroalimentacion || ""}`.trim();
+    if(composed) $("evaluacionClientes").value = composed;
+  }
+
+  ensureItemsVisibleIfNeeded();
+
+  function showDash(v){
+    const s = String(v ?? "").trim();
+    return s ? s : "";
+  }
+  ITEMS.forEach(sec => sec.items.forEach(it => {
+    const raw = showDash(rowParams[it.key]);
+    const score = parseScoreFromCell(raw);
+    setSelectValue(it.key, score);
+  }));
+
+  $("printArea").style.display = "none";
+  state.generated = false;
+  setDirty(false);
+}
+
+let lastLookupResults = [];
+
+function setLookupStatus(txt, kind){
+  const el = $("lookupStatus");
+  el.textContent = txt;
+  el.style.color =
+    (kind === "ok") ? "rgba(157,255,182,.95)" :
+    (kind === "err") ? "rgba(255,180,180,.95)" :
+    "rgba(234,240,255,.72)";
+}
+
+/**
+ * ✅ CAMBIO CLAVE:
+ * - Recuperar SOLO en desempeño
+ * - Tabla muestra “Seleccionar”
+ * - Seleccionar abre detalle (action=recuperar_por_fila) y luego Autollenar.
+ */
+function renderLookupResults(rows){
+  const tbody = $("lookupResultsBody");
+  lastLookupResults = Array.isArray(rows) ? rows : [];
+
+  $("chipCount").textContent = `${lastLookupResults.length} resultados`;
+  $("chipNote").textContent = lastLookupResults.length ? "Selecciona una fila para ver detalle y luego Autollenar." : "";
+
+  if(!lastLookupResults.length){
+    tbody.innerHTML = `<tr><td colspan="8" class="small-muted">Sin resultados.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = lastLookupResults.map((r, idx) => {
+    const meta = r.meta || {};
+    const rp = r.rowParams || {};
+    return `
+      <tr>
+        <td class="r-col-act">
+          <button class="btn primary" type="button" data-pick="${idx}" style="padding:8px 12px;">Seleccionar</button>
+        </td>
+        <td class="r-col-row">${escapeHtml(String(meta.rowNumber ?? "—"))}</td>
+        <td class="r-col-np">${escapeHtml(String(rp.no_personal ?? ""))}</td>
+        <td>${escapeHtml(String(rp.nombre ?? ""))}</td>
+        <td class="r-col-per">${escapeHtml(String(rp.periodo ?? ""))}</td>
+        <td class="r-col-ver">${escapeHtml(String(rp.version ?? ""))}</td>
+        <td class="r-col-fecha">${escapeHtml(String(rp.fecha ?? ""))}</td>
+        <td>${escapeHtml(String(rp.departamento ?? ""))}</td>
+      </tr>
     `;
-    const tbody = it.querySelector("#recoverItemsBody");
+  }).join("");
 
-    ITEMS.forEach(sec => {
-      const trg = document.createElement("tr");
-      trg.className = "group-row";
-      trg.innerHTML = `<td colspan="4">${escapeHtml(sec.group)}</td>`;
-      tbody.appendChild(trg);
+  tbody.querySelectorAll("button[data-pick]").forEach(btn=>{
+    btn.addEventListener("click", async ()=>{
+      const i = Number(btn.getAttribute("data-pick"));
+      const pick = lastLookupResults[i];
+      if(!pick || !pick.meta || !pick.meta.rowNumber) return;
 
-      sec.items.forEach(item => {
-        const raw = rowParams[item.key] ?? "";
-        const score = parseScoreFromCell(raw);
+      try{
+        setLookupStatus("Cargando detalle…", "warn");
 
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td class="it-col1">${escapeHtml(sec.group)}</td>
-          <td class="it-col2">${escapeHtml(item.label)}</td>
-          <td class="it-col3">${score ? String(score) : "—"}</td>
-          <td class="it-col4">${escapeHtml(raw)}</td>
-        `;
-        tbody.appendChild(tr);
-      });
+        // ✅ Fijo: solo desempeño
+        const data = await jsonpRequestWithFallback({
+          action: "recuperar_por_fila",
+          tipo: "desempeno",
+          rowNumber: String(pick.meta.rowNumber)
+        });
+
+        if(!data || !data.found || !data.rowParams){
+          setLookupStatus("No se pudo abrir detalle.", "err");
+          return;
+        }
+
+        buildRecoverModal(
+          data.rowParams,
+          {
+            no_personal: data.rowParams.no_personal || "",
+            periodo: data.rowParams.periodo || "",
+            version: data.rowParams.version || "",
+            rowNumber: data.rowNumber || pick.meta.rowNumber || ""
+          },
+          data.clientes || null
+        );
+
+        setLookupStatus("Detalle cargado.", "ok");
+      }catch(e){
+        setLookupStatus("Error: " + (e.message || e), "err");
+        alert("No se pudo abrir detalle: " + (e.message || e));
+      }
+    });
+  });
+}
+
+async function searchRecords(){
+  if(state.saving) return;
+
+  // ✅ SOLO desempeño
+  const tipo = $("tipoFormulario").value;
+  if(tipo !== "desempeno"){
+    alert("Recuperar solo está disponible en el Formulario de evaluación del desempeño.");
+    return;
+  }
+
+  const no_personal = $("qNoPersonal").value.trim();
+  const nombre = $("qNombre").value.trim();
+  const periodo = $("qPeriodo").value.trim();
+  const version = $("qVersion").value.trim();
+
+  try{
+    assertApiUrl();
+    setLookupStatus("Buscando...", "warn");
+
+    const data = await jsonpRequestWithFallback({
+      action: "buscar",
+      tipo: "desempeno",
+      no_personal, nombre, periodo, version,
+      limit: "50"
     });
 
-    $("recoverItems").innerHTML = "";
-    $("recoverItems").appendChild(it);
-
-    openRecoverModal();
-  }
-
-  function applyRecoveredToForm(rowParams, clientesInfo){
-    $("noPersonal").value = rowParams.no_personal || $("noPersonal").value;
-    $("periodo").value = rowParams.periodo || $("periodo").value;
-    $("version").value = rowParams.version || $("version").value;
-
-    $("nombre").value = rowParams.nombre || $("nombre").value;
-    $("posicion").value = rowParams.posicion || $("posicion").value;
-    $("departamento").value = rowParams.departamento || $("departamento").value;
-    $("fecha").value = rowParams.fecha || $("fecha").value;
-
-    const tipo = $("tipoFormulario").value;
-
-    if(tipo === "autoevaluacion"){
-      $("comentariosColaborador").value = rowParams.comentarios || $("comentariosColaborador").value;
-    }else if(tipo === "desempeno"){
-      if(rowParams.justificacion) $("justificacion").value = rowParams.justificacion;
-      if(rowParams.comentarios_evaluador) $("comentariosEvaluador").value = rowParams.comentarios_evaluador;
-
-      if(rowParams.nombre_evaluador && $("nombreEvaluadorDesempeno")){
-        $("nombreEvaluadorDesempeno").value = rowParams.nombre_evaluador;
-      }
-      if(rowParams.fortalezas) $("fortalezas").value = rowParams.fortalezas;
-      if(rowParams.oportunidades_mejora) $("oportunidades").value = rowParams.oportunidades_mejora;
-      if(rowParams.proyeccion_potencial) $("proyeccion").value = rowParams.proyeccion_potencial;
-      if(rowParams.necesidades_capacitacion) $("necesidadesCapacitacion").value = rowParams.necesidades_capacitacion;
-
-      if(rowParams.evaluacion_clientes){
-        $("evaluacionClientes").value = rowParams.evaluacion_clientes;
-      }
-      if(clientesInfo && clientesInfo.retroalimentacion){
-        const head = (clientesInfo.nombre_evaluador ? `(${clientesInfo.nombre_evaluador}) ` : "");
-        const composed = `${head}${clientesInfo.retroalimentacion}`.trim();
-        if(composed) $("evaluacionClientes").value = composed;
-      }
-    }else if(tipo === "clientes"){
-      const r = $("retroalimentacion");
-      if(r) r.value = rowParams.retroalimentacion || rowParams.comentarios || r.value;
-      const ne = $("nombreEvaluador");
-      if(ne) ne.value = rowParams.nombre_evaluador || rowParams.evaluador || ne.value;
-    }
-
-    ensureItemsVisibleIfNeeded();
-
-    function showDash(v){
-      const s = String(v ?? "").trim();
-      return s ? s : "—";
-    }
-
-    ITEMS.forEach(sec => sec.items.forEach(it => {
-      const raw = showDash(rowParams[it.key]);
-      const score = parseScoreFromCell(raw);
-      setSelectValue(it.key, score);
-    }));
-
-    $("printArea").style.display = "none";
-    state.generated = false;
-    setDirty(false);
-  }
-
-  let lastLookupResults = [];
-
-  function setLookupStatus(txt, kind){
-    const el = $("lookupStatus");
-    el.textContent = txt;
-    el.style.color =
-      kind === "ok" ? "rgba(157,255,182,.95)" :
-      kind === "err" ? "rgba(255,180,180,.95)" :
-      "rgba(234,240,255,.72)";
-  }
-
-  /************************************************************
-   * ✅ CAMBIO CLAVE: resultados de recuperar
-   * - Quitamos “Usar rápido”
-   * - Solo “Seleccionar” => abre el modal detalle con Autollenar / Cerrar
-   ************************************************************/
-  function renderLookupResults(rows){
-    const tbody = $("lookupResultsBody");
-    lastLookupResults = Array.isArray(rows) ? rows : [];
-
-    $("chipCount").textContent = `${lastLookupResults.length} resultados`;
-    $("chipNote").textContent = lastLookupResults.length ? "Selecciona una fila para ver detalle y luego Autollenar." : "";
-
-    if(!lastLookupResults.length){
-      tbody.innerHTML = `<tr><td colspan="8" class="small-muted">Sin resultados.</td></tr>`;
+    if(!data || data.ok === false){
+      const msg = (data && data.error) ? data.error : "Respuesta inválida del servidor.";
+      setLookupStatus("Error: " + msg, "err");
+      renderLookupResults([]);
       return;
     }
 
-    tbody.innerHTML = lastLookupResults.map((r, idx) => {
-      const meta = r.meta || {};
-      const rp = r.rowParams || {};
-      return `
-        <tr>
-          <td class="r-col-act">
-            <button class="btn primary" type="button" data-pick="${idx}" style="padding:8px 12px;">Seleccionar</button>
-          </td>
-          <td class="r-col-row">${escapeHtml(String(meta.rowNumber ?? "—"))}</td>
-          <td class="r-col-np">${escapeHtml(String(rp.no_personal ?? ""))}</td>
-          <td>${escapeHtml(String(rp.nombre ?? ""))}</td>
-          <td class="r-col-per">${escapeHtml(String(rp.periodo ?? ""))}</td>
-          <td class="r-col-ver">${escapeHtml(String(rp.version ?? ""))}</td>
-          <td class="r-col-fecha">${escapeHtml(String(rp.fecha ?? ""))}</td>
-          <td>${escapeHtml(String(rp.departamento ?? ""))}</td>
-        </tr>
-      `;
-    }).join("");
+    const rows = data.rows || [];
+    renderLookupResults(rows);
 
-    tbody.querySelectorAll("button[data-pick]").forEach(btn=>{
-      btn.addEventListener("click", async ()=>{
-        const i = Number(btn.getAttribute("data-pick"));
-        const pick = lastLookupResults[i];
-        if(!pick || !pick.meta || !pick.meta.rowNumber) return;
+    if(!rows.length){
+      setLookupStatus("Sin resultados con esos filtros.", "warn");
+    }else{
+      setLookupStatus(`Listo. ${rows.length} resultado(s).`, "ok");
+    }
+  }catch(err){
+    console.error(err);
+    setLookupStatus("Error: " + (err.message || err), "err");
+    renderLookupResults([]);
+    alert(
+      "No se pudo consultar.\n\n" +
+      (err.message || err) + "\n\n" +
+      "Tip real: el WebApp debe estar desplegado como 'Anyone' y tu red/extensión no debe bloquear script.google.com."
+    );
+  }
+}
 
-        try{
-          setLookupStatus("Cargando detalle…", "warn");
+function openLookupPrefilled(){
+  // ✅ SOLO desempeño
+  $("qNoPersonal").value = $("noPersonal").value.trim();
+  $("qNombre").value = $("nombre").value.trim();
+  $("qPeriodo").value = $("periodo").value.trim();
+  $("qVersion").value = $("version").value.trim();
 
-          // ✅ IMPORTANTE: este action lo agregaremos en GS para traer:
-          // - fila exacta por rowNumber (autoevaluaciones o resultados según tu lógica final)
-          // - y SIEMPRE merge con Clientes (retroalimentación + nombre evaluador)
-          const tipo = $("tipoFormulario").value;
-          const data = await jsonpRequestWithFallback({
-            action: "recuperar_por_fila",
-            tipo,
-            rowNumber: String(pick.meta.rowNumber)
-          });
+  $("chipCount").textContent = "0 resultados";
+  $("chipNote").textContent = "";
+  $("lookupResultsBody").innerHTML = `<tr><td colspan="8" class="small-muted">Sin resultados aún.</td></tr>`;
+  setLookupStatus("Listo para buscar.", "warn");
+  openLookupModal();
+}
 
-          if(!data || !data.found || !data.rowParams){
-            setLookupStatus("No se pudo abrir detalle.", "err");
-            return;
-          }
+/**
+ * ✅ UI: Recuperar SOLO en desempeño + badge de búsqueda SOLO en desempeño
+ */
+function applySearchUI(tipo){
+  const isDes = (tipo === "desempeno");
+  const badgeWrap = $("searchBadgeWrap");
+  if(badgeWrap) badgeWrap.style.display = isDes ? "inline" : "none";
 
-          buildRecoverModal(
-            data.rowParams,
-            {
-              no_personal: data.rowParams.no_personal || "",
-              periodo: data.rowParams.periodo || "",
-              version: data.rowParams.version || "",
-              rowNumber: data.rowNumber || pick.meta.rowNumber || ""
-            },
-            data.clientes || null
-          );
+  const targets = ["fldNoPersonal", "fldPeriodo", "fldVersion"];
+  targets.forEach(id=>{
+    const el = $(id);
+    if(!el) return;
+    if(isDes) el.classList.add("searchField");
+    else el.classList.remove("searchField");
+  });
 
-          setLookupStatus("Detalle cargado.", "ok");
+  // ✅ SOLO desempeño
+  const btnRecover = $("btnRecover");
+  if(btnRecover){
+    btnRecover.style.display = isDes ? "" : "none";
+  }
+}
+function applyTopActionsUI(tipo){
+  const isClientes = (tipo === "clientes");
+  $("btnGenerate").style.display = isClientes ? "none" : "";
+  $("btnPrint").style.display = isClientes ? "none" : "";
+}
 
-        }catch(e){
-          setLookupStatus("Error: " + (e.message || e), "err");
-          alert("No se pudo abrir detalle: " + (e.message || e));
-        }
-      });
-    });
+function applyTipoUI(){
+  const tipo = $("tipoFormulario").value;
+
+  $("appTitle").textContent =
+    tipo === "autoevaluacion" ? "Formulario de autoevaluación" :
+    tipo === "clientes" ? "Formulario evaluación clientes" :
+    "Formulario de evaluación del desempeño";
+
+  $("autoComentariosBox").style.display = (tipo === "autoevaluacion") ? "block" : "none";
+  $("desempenoCamposBox").style.display = (tipo === "desempeno") ? "block" : "none";
+  $("clientesBox").style.display = (tipo === "clientes") ? "block" : "none";
+  $("evalCard").style.display = (tipo === "clientes") ? "none" : "block";
+
+  if(tipo !== "clientes"){
+    renderItems();
+  }
+  ensureItemsVisibleIfNeeded();
+  applySearchUI(tipo);
+  applyTopActionsUI(tipo);
+  setDefaultToday();
+}
+
+function clearForm(){
+  $("noPersonal").value = "";
+  $("nombre").value = "";
+  $("posicion").value = "";
+  $("departamento").value = "";
+  $("periodo").value = "";
+  $("version").value = "";
+  $("fecha").value = "";
+  setDefaultToday();
+
+  $("comentariosColaborador").value = "";
+  $("justificacion").value = "";
+  $("comentariosEvaluador").value = "";
+  $("fortalezas").value = "";
+  $("oportunidades").value = "";
+  $("proyeccion").value = "";
+  $("necesidadesCapacitacion").value = "";
+  $("comentariosColaborador2").value = "";
+  $("evaluacionClientes").value = "";
+
+  const neCli = $("nombreEvaluador");
+  if(neCli) neCli.value = "";
+  const r = $("retroalimentacion");
+  if(r) r.value = "";
+  const ne = $("nombreEvaluadorDesempeno");
+  if(ne) ne.value = "";
+
+  state.answers = {};
+  ITEMS.forEach(sec => sec.items.forEach(it=>{
+    const el = $("ans_"+it.key);
+    if(el) el.value = "";
+  }));
+
+  $("printArea").style.display = "none";
+  state.generated = false;
+  setDirty(false);
+
+  $("apiHint").className = "warn";
+  $("apiHint").textContent = "Listo para enviar";
+}
+
+function toFormUrlEncoded(obj){
+  return Object.keys(obj)
+    .map(k => encodeURIComponent(k) + "=" + encodeURIComponent(obj[k] ?? ""))
+    .join("&");
+}
+
+function buildComentariosParaSheet(tipo, extra){
+  if(tipo === "autoevaluacion"){
+    return [
+      extra.comentarios_colaborador ? `Comentarios colaborador: ${extra.comentarios_colaborador}` : "",
+      extra.justificacion ? `Justificación (1-6): ${extra.justificacion}` : "",
+      extra.comentarios_evaluador ? `Comentarios evaluador: ${extra.comentarios_evaluador}` : "",
+      extra.fortalezas ? `Fortalezas: ${extra.fortalezas}` : "",
+      extra.oportunidades_mejora ? `Oportunidades: ${extra.oportunidades_mejora}` : "",
+      extra.proyeccion_potencial ? `Proyección: ${extra.proyeccion_potencial}` : "",
+      extra.necesidades_capacitacion ? `Necesidades de capacitación: ${extra.necesidades_capacitacion}` : "",
+      extra.comentarios_colaborador2 ? `Comentarios colaborador (extra): ${extra.comentarios_colaborador2}` : "",
+      extra.evaluacion_clientes ? `Evaluación clientes: ${extra.evaluacion_clientes}` : ""
+    ].filter(Boolean).join("\n\n");
   }
 
-  async function searchRecords(){
-    if(state.saving) return;
-
-    const no_personal = $("qNoPersonal").value.trim();
-    const nombre = $("qNombre").value.trim();
-    const periodo = $("qPeriodo").value.trim();
-    const version = $("qVersion").value.trim();
-
-    try{
-      assertApiUrl();
-      setLookupStatus("Buscando...", "warn");
-
-      const data = await jsonpRequestWithFallback({
-        action: "buscar",
-        no_personal,
-        nombre,
-        periodo,
-        version,
-        limit: "50",
-        tipo: $("tipoFormulario").value
-      });
-
-      if(!data || data.ok === false){
-        const msg = (data && data.error) ? data.error : "Respuesta inválida del servidor.";
-        setLookupStatus("Error: " + msg, "err");
-        renderLookupResults([]);
-        return;
-      }
-
-      const rows = data.rows || [];
-      renderLookupResults(rows);
-
-      if(!rows.length){
-        setLookupStatus("Sin resultados con esos filtros.", "warn");
-      }else{
-        setLookupStatus(`Listo. ${rows.length} resultado(s).`, "ok");
-      }
-
-    }catch(err){
-      console.error(err);
-      setLookupStatus("Error: " + (err.message || err), "err");
-      renderLookupResults([]);
-      alert(
-        "No se pudo consultar.\n\n" +
-        (err.message || err) + "\n\n" +
-        "Tip real: el WebApp debe estar desplegado como 'Anyone' y tu red/extensión no debe bloquear script.google.com."
-      );
-    }
+  if(tipo === "desempeno"){
+    return [
+      extra.nombre_evaluador ? `Nombre del evaluador: ${extra.nombre_evaluador}` : "",
+      extra.comentarios_evaluador ? `Comentarios evaluador: ${extra.comentarios_evaluador}` : "",
+      extra.fortalezas ? `Fortalezas: ${extra.fortalezas}` : "",
+      extra.oportunidades_mejora ? `Oportunidades: ${extra.oportunidades_mejora}` : "",
+      extra.proyeccion_potencial ? `Proyección: ${extra.proyeccion_potencial}` : "",
+      extra.necesidades_capacitacion ? `Necesidades de capacitación: ${extra.necesidades_capacitacion}` : "",
+      extra.comentarios_colaborador ? `Comentarios colaborador: ${extra.comentarios_colaborador}` : "",
+      extra.evaluacion_clientes ? `Evaluación clientes: ${extra.evaluacion_clientes}` : ""
+    ].filter(Boolean).join("\n\n");
   }
 
-  function openLookupPrefilled(){
-    $("qNoPersonal").value = $("noPersonal").value.trim();
-    $("qNombre").value = $("nombre").value.trim();
-    $("qPeriodo").value = $("periodo").value.trim();
-    $("qVersion").value = $("version").value.trim();
-
-    $("chipCount").textContent = "0 resultados";
-    $("chipNote").textContent = "";
-    $("lookupResultsBody").innerHTML = `<tr><td colspan="8" class="small-muted">Sin resultados aún.</td></tr>`;
-    setLookupStatus("Listo para buscar.", "warn");
-
-    openLookupModal();
+  if(tipo === "clientes"){
+    return [
+      extra.nombre_evaluador ? `Nombre del evaluador: ${extra.nombre_evaluador}` : "",
+      extra.retroalimentacion ? `${extra.retroalimentacion}` : ""
+    ].filter(Boolean).join("\n\n");
   }
+  return "";
+}
 
-  function applySearchUI(tipo){
-    const isDes  = (tipo === "desempeno");
+function validateAll(){
+  const header = getHeaderData();
+  const extra = getExtraFields();
+  const tipo = header.tipo;
+  const missing = [];
 
-    const badgeWrap = $("searchBadgeWrap");
-    if(badgeWrap) badgeWrap.style.display = (isDes) ? "inline" : "none";
+  if(!header.no_personal) missing.push("No. de personal");
+  if(!header.nombre) missing.push("Nombre");
+  if(!header.posicion) missing.push("Posición");
+  if(!header.departamento) missing.push("Departamento");
+  if(!header.periodo) missing.push("Periodo");
+  if(!header.version) missing.push("Versión");
+  if(!header.fecha) missing.push("Fecha");
 
-    const targets = ["fldNoPersonal", "fldPeriodo", "fldVersion"];
-    targets.forEach(id=>{
-      const el = $(id);
-      if(!el) return;
-      if(isDes) el.classList.add("searchField");
-      else el.classList.remove("searchField");
-    });
-
-    // ✅ Recuperar siempre disponible
-    const btnRecover = $("btnRecover");
-    if(btnRecover){
-      btnRecover.style.display = "";
-    }
-  }
-
-  function applyTopActionsUI(tipo){
-    const isClientes = (tipo === "clientes");
-    $("btnGenerate").style.display = isClientes ? "none" : "";
-    $("btnPrint").style.display = isClientes ? "none" : "";
-  }
-
-  function applyTipoUI(){
-    const tipo = $("tipoFormulario").value;
-
-    $("appTitle").textContent =
-      tipo === "autoevaluacion" ? "Formulario de autoevaluación" :
-      tipo === "clientes" ? "Formulario evaluación clientes" :
-      "Formulario de evaluación del desempeño";
-
-    $("autoComentariosBox").style.display = (tipo === "autoevaluacion") ? "block" : "none";
-    $("desempenoCamposBox").style.display = (tipo === "desempeno") ? "block" : "none";
-    $("clientesBox").style.display = (tipo === "clientes") ? "block" : "none";
-    $("evalCard").style.display = (tipo === "clientes") ? "none" : "block";
-
-    if(tipo !== "clientes"){
-      renderItems();
-    }
-
-    ensureItemsVisibleIfNeeded();
-    applySearchUI(tipo);
-    applyTopActionsUI(tipo);
-
-    setDefaultToday();
-  }
-
-  function clearForm(){
-    $("noPersonal").value = "";
-    $("nombre").value = "";
-    $("posicion").value = "";
-    $("departamento").value = "";
-    $("periodo").value = "";
-    $("version").value = "";
-    $("fecha").value = "";
-
-    setDefaultToday();
-
-    $("comentariosColaborador").value = "";
-    $("justificacion").value = "";
-    $("comentariosEvaluador").value = "";
-    $("fortalezas").value = "";
-    $("oportunidades").value = "";
-    $("proyeccion").value = "";
-    $("necesidadesCapacitacion").value = "";
-    $("comentariosColaborador2").value = "";
-    $("evaluacionClientes").value = "";
-
-    const neCli = $("nombreEvaluador");
-    if(neCli) neCli.value = "";
-
-    const r = $("retroalimentacion");
-    if(r) r.value = "";
-
-    const ne = $("nombreEvaluadorDesempeno");
-    if(ne) ne.value = "";
-
-    state.answers = {};
-    ITEMS.forEach(sec=>sec.items.forEach(it=>{
-      const el = $("ans_"+it.key);
-      if(el) el.value = "";
-    }));
-
-    $("printArea").style.display = "none";
-    state.generated = false;
-    setDirty(false);
-    $("apiHint").className = "warn";
-    $("apiHint").textContent = "Listo para enviar";
-  }
-
-  function toFormUrlEncoded(obj){
-    return Object.keys(obj)
-      .map(k => encodeURIComponent(k) + "=" + encodeURIComponent(obj[k] ?? ""))
-      .join("&");
-  }
-
-  function buildComentariosParaSheet(tipo, extra){
-    if(tipo === "autoevaluacion"){
-      return [
-        extra.comentarios_colaborador ? `Comentarios colaborador: ${extra.comentarios_colaborador}` : "",
-        extra.justificacion ? `Justificación (1-6): ${extra.justificacion}` : "",
-        extra.comentarios_evaluador ? `Comentarios evaluador: ${extra.comentarios_evaluador}` : "",
-        extra.fortalezas ? `Fortalezas: ${extra.fortalezas}` : "",
-        extra.oportunidades_mejora ? `Oportunidades: ${extra.oportunidades_mejora}` : "",
-        extra.proyeccion_potencial ? `Proyección: ${extra.proyeccion_potencial}` : "",
-        extra.necesidades_capacitacion ? `Necesidades de capacitación: ${extra.necesidades_capacitacion}` : "",
-        extra.comentarios_colaborador2 ? `Comentarios colaborador (extra): ${extra.comentarios_colaborador2}` : "",
-        extra.evaluacion_clientes ? `Evaluación clientes: ${extra.evaluacion_clientes}` : ""
-      ].filter(Boolean).join("\n\n");
-    }
-    if(tipo === "desempeno"){
-      return [
-        extra.nombre_evaluador ? `Nombre del evaluador: ${extra.nombre_evaluador}` : "",
-        extra.comentarios_evaluador ? `Comentarios evaluador: ${extra.comentarios_evaluador}` : "",
-        extra.fortalezas ? `Fortalezas: ${extra.fortalezas}` : "",
-        extra.oportunidades_mejora ? `Oportunidades: ${extra.oportunidades_mejora}` : "",
-        extra.proyeccion_potencial ? `Proyección: ${extra.proyeccion_potencial}` : "",
-        extra.necesidades_capacitacion ? `Necesidades de capacitación: ${extra.necesidades_capacitacion}` : "",
-        extra.comentarios_colaborador ? `Comentarios colaborador: ${extra.comentarios_colaborador}` : "",
-        extra.evaluacion_clientes ? `Evaluación clientes: ${extra.evaluacion_clientes}` : ""
-      ].filter(Boolean).join("\n\n");
-    }
-    if(tipo === "clientes"){
-      return [
-        extra.nombre_evaluador ? `Nombre del evaluador: ${extra.nombre_evaluador}` : "",
-        extra.retroalimentacion ? extra.retroalimentacion : ""
-      ].filter(Boolean).join("\n\n");
-    }
-    return "";
-  }
-
-  function validateAll(){
-    const header = getHeaderData();
-    const extra = getExtraFields();
-    const tipo = header.tipo;
-
-    const missing = [];
-
-    if(!header.no_personal) missing.push("No. de personal");
-    if(!header.nombre) missing.push("Nombre");
-    if(!header.posicion) missing.push("Posición");
-    if(!header.departamento) missing.push("Departamento");
-    if(!header.periodo) missing.push("Periodo");
-    if(!header.version) missing.push("Versión");
-    if(!header.fecha) missing.push("Fecha");
-
-    if(tipo === "clientes"){
-      if(!extra.retroalimentacion) missing.push("Retroalimentación");
-      if(!extra.nombre_evaluador) missing.push("Nombre del evaluador");
-      return { ok: missing.length === 0, missing, header, extra };
-    }
-
-    ITEMS.forEach(sec => sec.items.forEach(it => {
-      const v = state.answers[it.key];
-      if(!(typeof v === "number" && v >= 1 && v <= 5)){
-        missing.push(it.label);
-      }
-    }));
-
-    if(tipo === "autoevaluacion"){
-      if(!extra.comentarios_colaborador) missing.push("Comentarios del colaborador");
-    }
-    if(tipo === "desempeno"){
-      if(!extra.justificacion) missing.push("Justificación calificaciones");
-      if(!extra.comentarios_evaluador) missing.push("Comentarios del evaluador");
-      if(!extra.fortalezas) missing.push("Fortalezas");
-      if(!extra.oportunidades_mejora) missing.push("Oportunidades de mejora");
-      if(!extra.proyeccion_potencial) missing.push("Proyección y potencial");
-      if(!extra.comentarios_colaborador) missing.push("Comentarios del colaborador");
-    }
-
+  if(tipo === "clientes"){
+    if(!extra.retroalimentacion) missing.push("Retroalimentación");
+    if(!extra.nombre_evaluador) missing.push("Nombre del evaluador");
     return { ok: missing.length === 0, missing, header, extra };
   }
 
-  async function saveToSheet(){
+  ITEMS.forEach(sec => sec.items.forEach(it => {
+    const v = state.answers[it.key];
+    if(!(typeof v === "number" && v >= 1 && v <= 5)){
+      missing.push(it.label);
+    }
+  }));
+
+  if(tipo === "autoevaluacion"){
+    if(!extra.comentarios_colaborador) missing.push("Comentarios del colaborador");
+  }
+
+  if(tipo === "desempeno"){
+    if(!extra.justificacion) missing.push("Justificación calificaciones");
+    if(!extra.comentarios_evaluador) missing.push("Comentarios del evaluador");
+    if(!extra.fortalezas) missing.push("Fortalezas");
+    if(!extra.oportunidades_mejora) missing.push("Oportunidades de mejora");
+    if(!extra.proyeccion_potencial) missing.push("Proyección y potencial");
+    if(!extra.comentarios_colaborador) missing.push("Comentarios del colaborador");
+  }
+
+  return { ok: missing.length === 0, missing, header, extra };
+}
+
+async function saveToSheet(){
+  if(state.saving) return;
+
+  const v = validateAll();
+  if(!v.ok){
+    const unique = Array.from(new Set(v.missing));
+    alert("Faltan campos/selecciones:\n\n• " + unique.join("\n• "));
+    return;
+  }
+
+  const header = v.header;
+  const extra = v.extra;
+
+  const answersText = flattenAnswersSelectedText();
+  const total = (header.tipo === "clientes") ? 0 : computeTotal();
+
+  const respuestasJSON = JSON.stringify({
+    header,
+    answers: answersText,
+    extra,
+    puntaje_total: total,
+    creado_en: new Date().toISOString()
+  });
+
+  const formPayload = {
+    tipo: header.tipo,
+    no_personal: header.no_personal,
+    nombre: header.nombre,
+    posicion: header.posicion,
+    departamento: header.departamento,
+    periodo: header.periodo,
+    version: header.version,
+    fecha: header.fecha,
+
+    ...answersText,
+
+    retroalimentacion: (header.tipo === "clientes") ? (extra.retroalimentacion || "") : "",
+    nombre_evaluador:
+      (header.tipo === "clientes") ? (extra.nombre_evaluador || "") :
+      (header.tipo === "desempeno") ? (extra.nombre_evaluador || "") : "",
+
+    evaluacion_clientes: (header.tipo === "desempeno") ? (extra.evaluacion_clientes || "") : "",
+    necesidades_capacitacion: (header.tipo === "desempeno") ? (extra.necesidades_capacitacion || "") : "",
+
+    respuestas_json: respuestasJSON,
+    comentarios: buildComentariosParaSheet(header.tipo, extra),
+
+    // extras desempeño
+    justificacion: (header.tipo === "desempeno") ? (extra.justificacion || "") : (extra.justificacion || ""),
+    comentarios_evaluador: (header.tipo === "desempeno") ? (extra.comentarios_evaluador || "") : (extra.comentarios_evaluador || ""),
+    fortalezas: (header.tipo === "desempeno") ? (extra.fortalezas || "") : (extra.fortalezas || ""),
+    oportunidades_mejora: (header.tipo === "desempeno") ? (extra.oportunidades_mejora || "") : (extra.oportunidades_mejora || ""),
+    proyeccion_potencial: (header.tipo === "desempeno") ? (extra.proyeccion_potencial || "") : (extra.proyeccion_potencial || "")
+  };
+
+  try{
+    assertApiUrl();
+    setBusy(true);
+
+    $("apiHint").className = "warn";
+    $("apiHint").textContent = "Enviando a Google Sheets...";
+
+    const body = toFormUrlEncoded(formPayload);
+    await fetch(normalizeApiUrl(API_URL), {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+      body
+    });
+
+    $("apiHint").className = "ok";
+    $("apiHint").textContent = "Enviado a Google Sheets ✅";
+    setDirty(false);
+  }catch(err){
+    console.error(err);
+    $("apiHint").className = "err";
+    $("apiHint").textContent = "No se pudo guardar: " + (err.message || err);
+
+    alert(
+      "No se pudo guardar.\n\n" +
+      (err.message || err) + "\n\n" +
+      "Si el guardado funciona pero el recuperar no, revisa deploy público y bloqueo de red."
+    );
+  }finally{
+    setBusy(false);
+  }
+}
+
+function bind(){
+  [
+    "noPersonal","nombre","posicion","departamento","periodo","version","fecha",
+    "comentariosColaborador","justificacion","comentariosEvaluador","fortalezas",
+    "oportunidades","proyeccion","necesidadesCapacitacion",
+    "comentariosColaborador2","evaluacionClientes",
+    "retroalimentacion","nombreEvaluador","nombreEvaluadorDesempeno"
+  ].forEach(id=>{
+    const el = $(id);
+    if(!el) return;
+    el.addEventListener("input", ()=> setDirty(true));
+    el.addEventListener("change", ()=> setDirty(true));
+  });
+
+  $("tipoFormulario").addEventListener("change", ()=>{
+    applyTipoUI();
+    setDirty(true);
+  });
+
+  $("btnNew").addEventListener("click", ()=>{
+    if(state.saving) return;
+    if(state.dirty && !confirm("Hay cambios sin guardar. ¿Limpiar todo de todas formas?")) return;
+    clearForm();
+  });
+
+  // ✅ Recuperar SOLO desempeño
+  $("btnRecover").addEventListener("click", async ()=>{
     if(state.saving) return;
 
-    const v = validateAll();
-    if(!v.ok){
-      const unique = Array.from(new Set(v.missing));
-      alert("Faltan campos/selecciones:\n\n• " + unique.join("\n• "));
+    const tipo = $("tipoFormulario").value;
+    if(tipo !== "desempeno"){
+      alert("Recuperar solo está disponible en el Formulario de evaluación del desempeño.");
       return;
     }
 
-    const header = v.header;
-    const extra = v.extra;
+    const ok = await apiPing();
+    openLookupPrefilled();
 
-    const answersText = flattenAnswersSelectedText();
-    const total = (header.tipo === "clientes") ? 0 : computeTotal();
-
-    const respuestasJSON = JSON.stringify({
-      header,
-      answers: answersText,
-      extra,
-      puntaje_total: total,
-      creado_en: new Date().toISOString()
-    });
-
-    const formPayload = {
-      tipo: header.tipo,
-      no_personal: header.no_personal,
-      nombre: header.nombre,
-      posicion: header.posicion,
-      departamento: header.departamento,
-      periodo: header.periodo,
-      version: header.version,
-      fecha: header.fecha,
-
-      ...answersText,
-
-      retroalimentacion: (header.tipo === "clientes") ? (extra.retroalimentacion || "") : "",
-      nombre_evaluador:
-        (header.tipo === "clientes") ? (extra.nombre_evaluador || "") :
-        (header.tipo === "desempeno") ? (extra.nombre_evaluador || "") :
-        "",
-
-      evaluacion_clientes: (header.tipo === "desempeno") ? (extra.evaluacion_clientes || "") : "",
-      necesidades_capacitacion: (header.tipo === "desempeno") ? (extra.necesidades_capacitacion || "") : "",
-
-      respuestas_json: respuestasJSON,
-      comentarios: buildComentariosParaSheet(header.tipo, extra)
-    };
-
-    try{
-      assertApiUrl();
-      setBusy(true);
-      $("apiHint").className = "warn";
-      $("apiHint").textContent = "Enviando a Google Sheets...";
-
-      const body = toFormUrlEncoded(formPayload);
-
-      await fetch(normalizeApiUrl(API_URL), {
-        method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
-        body
-      });
-
-      $("apiHint").className = "ok";
-      $("apiHint").textContent = "Enviado a Google Sheets ✅";
-      setDirty(false);
-
-    }catch(err){
-      console.error(err);
-      $("apiHint").className = "err";
-      $("apiHint").textContent = "No se pudo guardar: " + (err.message || err);
-
-      alert(
-        "No se pudo guardar.\n\n" +
-        (err.message || err) + "\n\n" +
-        "Si el guardado funciona pero el recuperar no, revisa deploy público y bloqueo de red."
-      );
-    }finally{
-      setBusy(false);
-    }
-  }
-
-  function bind(){
-    [
-      "noPersonal","nombre","posicion","departamento","periodo","version","fecha",
-      "comentariosColaborador","justificacion","comentariosEvaluador","fortalezas",
-      "oportunidades","proyeccion","necesidadesCapacitacion",
-      "comentariosColaborador2","evaluacionClientes",
-      "retroalimentacion","nombreEvaluador","nombreEvaluadorDesempeno"
-    ].forEach(id=>{
-      const el = $(id);
-      if(!el) return;
-      el.addEventListener("input", ()=> setDirty(true));
-      el.addEventListener("change", ()=> setDirty(true));
-    });
-
-    $("tipoFormulario").addEventListener("change", ()=>{
-      applyTipoUI();
-      setDirty(true);
-    });
-
-    $("btnNew").addEventListener("click", ()=>{
-      if(state.saving) return;
-      if(state.dirty && !confirm("Hay cambios sin guardar. ¿Limpiar todo de todas formas?")) return;
-      clearForm();
-    });
-
-    // ✅ Recuperar: abre modal de recuperar (búsqueda + selección + detalle + Autollenar/Cerrar)
-    $("btnRecover").addEventListener("click", async ()=>{
-      if(state.saving) return;
-
-      const ok = await apiPing();
-      openLookupPrefilled();
-
-      // Auto-buscar si ya vienen llaves llenas (comodidad)
-      const noP = $("qNoPersonal").value.trim();
-      const per = $("qPeriodo").value.trim();
-      const ver = $("qVersion").value.trim();
-      if(ok && noP && per && ver){
-        searchRecords();
-      }
-    });
-
-    // ✅ Generar: deja reporte flotante (ya lo hace)
-    $("btnGenerate").addEventListener("click", ()=>{
-      if(state.saving) return;
-
-      const v = validateAll();
-      if(!v.ok){
-        const unique = Array.from(new Set(v.missing));
-        alert("Para generar el reporte, completa todo:\n\n• " + unique.join("\n• "));
-        return;
-      }
-
-      buildReport();
-      state.generated = true;
-      setDirty(true);
-      openReportModal();
-    });
-
-    $("btnPrint").addEventListener("click", ()=>{
-      if(state.saving) return;
-
-      const v = validateAll();
-      if(!v.ok){
-        const unique = Array.from(new Set(v.missing));
-        alert("Para imprimir/enviar a PDF, completa todo:\n\n• " + unique.join("\n• "));
-        return;
-      }
-
-      if(!state.generated){
-        buildReport();
-        state.generated = true;
-      }
-      window.print();
-    });
-
-    $("btnSave").addEventListener("click", saveToSheet);
-
-    $("btnCloseReport").addEventListener("click", closeReportModal);
-    $("reportBackdrop").addEventListener("click", (e)=>{
-      if(e.target === $("reportBackdrop")) closeReportModal();
-    });
-    $("btnPrintFromModal").addEventListener("click", ()=>{
-      if(!state.generated){
-        buildReport();
-        state.generated = true;
-      }
-      window.print();
-    });
-
-    $("btnCloseRecovered").addEventListener("click", closeRecoverModal);
-    $("recoverBackdrop").addEventListener("click", (e)=>{
-      if(e.target === $("recoverBackdrop")) closeRecoverModal();
-    });
-    $("btnApplyRecovered").addEventListener("click", ()=>{
-      if(!lastRecovered || !lastRecovered.rowParams) return;
-      applyRecoveredToForm(lastRecovered.rowParams, lastRecovered.clientesInfo || null);
-      $("apiHint").className = "ok";
-      $("apiHint").textContent = "Autollenado aplicado ✅";
-      closeRecoverModal();
-      closeLookupModal();
-    });
-
-    $("btnCloseLookup").addEventListener("click", closeLookupModal);
-    $("lookupBackdrop").addEventListener("click", (e)=>{
-      if(e.target === $("lookupBackdrop")) closeLookupModal();
-    });
-    $("btnSearch").addEventListener("click", searchRecords);
-    $("btnClearSearch").addEventListener("click", ()=>{
-      $("qNoPersonal").value = "";
-      $("qNombre").value = "";
-      $("qPeriodo").value = "";
-      $("qVersion").value = "";
-      renderLookupResults([]);
-      setLookupStatus("Listo para buscar.", "warn");
-    });
-
-    ["qNoPersonal","qNombre","qPeriodo","qVersion"].forEach(id=>{
-      const el = $(id);
-      if(!el) return;
-      el.addEventListener("keydown", (e)=>{
-        if(e.key === "Enter"){
-          e.preventDefault();
-          searchRecords();
-        }
-      });
-    });
-  }
-
-  function setDefaultToday(){
-    const f = $("fecha");
-    if(f && !f.value){
-      const d = new Date();
-      const yyyy = d.getFullYear();
-      const mm = String(d.getMonth()+1).padStart(2,"0");
-      const dd = String(d.getDate()).padStart(2,"0");
-      f.value = `${yyyy}-${mm}-${dd}`;
-    }
-  }
-
-  window.addEventListener("beforeunload", (e)=>{
-    if(state.dirty){
-      e.preventDefault();
-      e.returnValue = "";
+    // Auto-buscar si ya vienen llaves llenas
+    const noP = $("qNoPersonal").value.trim();
+    const per = $("qPeriodo").value.trim();
+    const ver = $("qVersion").value.trim();
+    if(ok && noP && per && ver){
+      searchRecords();
     }
   });
 
-  async function initApp(){
-    try{
-      applyTipoUI();
-      renderItems();
-      bind();
-      setDefaultToday();
-      setDirty(false);
-
-      setTimeout(() => {
-        const c = $("itemsContainer");
-        if(c && c.children.length === 0 && $("tipoFormulario").value !== "clientes"){
-          renderItems();
-        }
-      }, 250);
-
-      await apiPing();
-
-    }catch(err){
-      console.error("INIT ERROR:", err);
-      const c = $("itemsContainer");
-      if(c){
-        c.innerHTML = `
-          <div class="card" style="background:rgba(0,0,0,.18); border:1px solid rgba(255,180,180,.35)">
-            <h3 style="margin:0 0 8px; color:#ffb4b4;">Error cargando los ítems</h3>
-            <div class="muted" style="font-size:12px;">
-              Revisa la consola (F12 → Console).<br>
-              <b>${String(err?.message || err)}</b>
-            </div>
-          </div>
-        `;
-      }
-      $("apiHint").className = "err";
-      $("apiHint").textContent = "Error inicializando.";
+  $("btnGenerate").addEventListener("click", ()=>{
+    if(state.saving) return;
+    const v = validateAll();
+    if(!v.ok){
+      const unique = Array.from(new Set(v.missing));
+      alert("Para generar el reporte, completa todo:\n\n• " + unique.join("\n• "));
+      return;
     }
-  }
+    buildReport();
+    state.generated = true;
+    setDirty(true);
+    openReportModal();
+  });
 
-  if(document.readyState === "loading"){
-    document.addEventListener("DOMContentLoaded", initApp);
-  }else{
-    initApp();
+  $("btnPrint").addEventListener("click", ()=>{
+    if(state.saving) return;
+    const v = validateAll();
+    if(!v.ok){
+      const unique = Array.from(new Set(v.missing));
+      alert("Para imprimir/enviar a PDF, completa todo:\n\n• " + unique.join("\n• "));
+      return;
+    }
+    if(!state.generated){
+      buildReport();
+      state.generated = true;
+    }
+    window.print();
+  });
+
+  $("btnSave").addEventListener("click", saveToSheet);
+
+  $("btnCloseReport").addEventListener("click", closeReportModal);
+  $("reportBackdrop").addEventListener("click", (e)=>{ if(e.target === $("reportBackdrop")) closeReportModal(); });
+
+  $("btnPrintFromModal").addEventListener("click", ()=>{
+    if(!state.generated){
+      buildReport();
+      state.generated = true;
+    }
+    window.print();
+  });
+
+  $("btnCloseRecovered").addEventListener("click", closeRecoverModal);
+  $("recoverBackdrop").addEventListener("click", (e)=>{ if(e.target === $("recoverBackdrop")) closeRecoverModal(); });
+
+  $("btnApplyRecovered").addEventListener("click", ()=>{
+    if(!lastRecovered || !lastRecovered.rowParams) return;
+    applyRecoveredToForm(lastRecovered.rowParams, lastRecovered.clientesInfo || null);
+    $("apiHint").className = "ok";
+    $("apiHint").textContent = "Autollenado aplicado ✅";
+    closeRecoverModal();
+    closeLookupModal();
+  });
+
+  $("btnCloseLookup").addEventListener("click", closeLookupModal);
+  $("lookupBackdrop").addEventListener("click", (e)=>{ if(e.target === $("lookupBackdrop")) closeLookupModal(); });
+
+  $("btnSearch").addEventListener("click", searchRecords);
+
+  $("btnClearSearch").addEventListener("click", ()=>{
+    $("qNoPersonal").value = "";
+    $("qNombre").value = "";
+    $("qPeriodo").value = "";
+    $("qVersion").value = "";
+    renderLookupResults([]);
+    setLookupStatus("Listo para buscar.", "warn");
+  });
+
+  ["qNoPersonal","qNombre","qPeriodo","qVersion"].forEach(id=>{
+    const el = $(id);
+    if(!el) return;
+    el.addEventListener("keydown", (e)=>{
+      if(e.key === "Enter"){
+        e.preventDefault();
+        searchRecords();
+      }
+    });
+  });
+}
+
+function setDefaultToday(){
+  const f = $("fecha");
+  if(f && !f.value){
+    const d = new Date();
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth()+1).padStart(2,"0");
+    const dd = String(d.getDate()).padStart(2,"0");
+    f.value = `${yyyy}-${mm}-${dd}`;
   }
+}
+
+window.addEventListener("beforeunload", (e)=>{
+  if(state.dirty){
+    e.preventDefault();
+    e.returnValue = "";
+  }
+});
+
+async function initApp(){
+  try{
+    applyTipoUI();
+    renderItems();
+    bind();
+    setDefaultToday();
+    setDirty(false);
+
+    setTimeout(() => {
+      const c = $("itemsContainer");
+      if(c && c.children.length === 0 && $("tipoFormulario").value !== "clientes"){
+        renderItems();
+      }
+    }, 250);
+
+    await apiPing();
+  }catch(err){
+    console.error("INIT ERROR:", err);
+    const c = $("itemsContainer");
+    if(c){
+      c.innerHTML = `
+        <div class="card" style="background:rgba(0,0,0,.18); border:1px solid rgba(255,180,180,.35)">
+          <h3 style="margin:0 0 8px; color:#ffb4b4;">Error cargando los ítems</h3>
+          <div class="muted" style="font-size:12px;">
+            Revisa la consola (F12 → Console).<br>
+            <b>${String(err?.message || err)}</b>
+          </div>
+        </div>
+      `;
+    }
+    $("apiHint").className = "err";
+    $("apiHint").textContent = "Error inicializando.";
+  }
+}
+
+if(document.readyState === "loading"){
+  document.addEventListener("DOMContentLoaded", initApp);
+}else{
+  initApp();
+}
 </script>
 </body>
 </html>
