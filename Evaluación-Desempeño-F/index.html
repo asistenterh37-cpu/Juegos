@@ -1626,10 +1626,10 @@ if(header.tipo === "desempeno"){
       <table class="mini-table" style="margin-top:10px;">
         <thead><tr><th class="col-k">Campo</th><th class="col-v">Valor</th></tr></thead>
         <tbody>
-          <tr><="col-k">No. personal</td><="col-v">${escapeHtml(no_personal || "—")}</td></tr>
-          <tr><="col-k">Periodo</td><="col-v">${escapeHtml(periodo || "—")}</td></tr>
-          <tr><="col-k">Versión</td><="col-v">${escapeHtml(version || "—")}</td></tr>
-        </tbody>
+  <tr><td class="col-k">No. personal</td><td class="col-v">${escapeHtml(no_personal || "—")}</td></tr>
+  <tr><td class="col-k">Periodo</td><td class="col-v">${escapeHtml(periodo || "—")}</td></tr>
+  <tr><td class="col-k">Versión</td><td class="col-v">${escapeHtml(version || "—")}</td></tr>
+</tbody>
       </table>
     `;
     const host = $("recoverKeyReport");
@@ -1683,11 +1683,12 @@ if(clientesInfo){
       </thead>
       <tbody>
         ${generalRows.map(([k,v]) => `
-          <tr>
-            <="col-k">${escapeHtml(k)}</td>
-            <="col-v">${escapeHtml(String(v ?? ""))}</td>
-          </tr>
-        `).join("")}
+    ${generalRows.map(([k,v]) => `
+  <tr>
+    <td class="col-k">${escapeHtml(k)}</td>
+    <td class="col-v">${escapeHtml(String(v ?? ""))}</td>
+  </tr>
+`).join("")}  
       </tbody>
     `;
     $("recoverGeneral").innerHTML = "";
@@ -1840,16 +1841,15 @@ if(rowParams.nombre_evaluador && $("nombreEvaluadorDesempeno")){
       const rp = r.rowParams || {};
       return `
         <tr>
-          <="r-col-act">
-            <button class="btn primary" type="button" data-use="${idx}" style="padding:8px 12px;">Usar</button>
-          </td>
-          <="r-col-row">${escapeHtml(String(meta.rowNumber ?? "—"))}</td>
-          <="r-col-np">${escapeHtml(String(rp.no_personal ?? ""))}</td>
-          <td>${escapeHtml(String(rp.nombre ?? ""))}</td>
-          <="r-col-per">${escapeHtml(String(rp.periodo ?? ""))}</td>
-          <="r-col-ver">${escapeHtml(String(rp.version ?? ""))}</td>
-          <="r-col-fecha">${escapeHtml(String(rp.fecha ?? ""))}</td>
-          <td>${escapeHtml(String(rp.departamento ?? ""))}</td>
+      <td class="r-col-act">
+  <button class="btn primary" type="button" data-use="${idx}" style="padding:8px 12px;">Usar</button>
+</td>
+<td class="r-col-row">${escapeHtml(String(meta.rowNumber ?? "—"))}</td>
+<td class="r-col-np">${escapeHtml(String(rp.no_personal ?? ""))}</td>
+...
+<td class="r-col-per">${escapeHtml(String(rp.periodo ?? ""))}</td>
+<td class="r-col-ver">${escapeHtml(String(rp.version ?? ""))}</td>
+<td class="r-col-fecha">${escapeHtml(String(rp.fecha ?? ""))}</td>
         </tr>
       `;
     }).join("");
