@@ -1772,6 +1772,7 @@ async function searchRecords(){
  * - Esto es lo que pediste: sin tabla de lista, directo al registro
  */
 async function recoverByKeys(){
+  async function recoverByKeys(){
   if(state.saving) return;
 
   const tipo = $("tipoFormulario").value;
@@ -1796,39 +1797,117 @@ async function recoverByKeys(){
     $("apiHint").className = "warn";
     $("apiHint").textContent = "Recuperando…";
 
-    const data = await jsonpRequestWithFallback({
-      action: "recuperar_por_keys",
+    // ✅ 1) Intento LEGACY (por si tu Apps Script sí lo tiene)
+    let data = null;
+    try{
+      data = await jsonpRequestWithFallback({
+        action: "recuperar_por_keys",
+        tipo: "desempeno",
+        no_personal,
+        periodo,
+        version
+      });
+
+      if(data && data.ok !== false && data.found && data.rowParams){
+        buildRecoverModal(
+          data.rowParams,
+          {
+            no_personal: data.rowParams.no_personal || no_personal,
+            periodo: data.rowParams.periodo || periodo,
+            version: data.rowParams.version || version,
+            rowNumber: data.rowNumber || "—"
+          },
+          data.clientes || null,
+          data.allColumns || []
+        );
+
+        $("apiHint").className = "ok";
+        $("apiHint").textContent = "Registro recuperado ✅";
+        return; // listo
+      }
+    }catch(_legacyErr){
+      // Silencio: pasamos a fallback robusto
+    }
+
+    // ✅ 2) Fallback ROBUSTO: buscar por llaves → recuperar detalle por fila
+    const search = await jsonpRequestWithFallback({
+      action: "buscar",
       tipo: "desempeno",
       no_personal,
       periodo,
-      version
+      version,
+      limit: "2"
     });
 
-    if(!data || data.ok === false){
-      const msg = (data && data.error) ? data.error : "Respuesta inválida del servidor.";
+    if(!search || search.ok === false){
+      const msg = (search && search.error) ? search.error : "Respuesta inválida del servidor (buscar).";
       $("apiHint").className = "err";
       $("apiHint").textContent = "Error al recuperar.";
       alert("No se pudo recuperar: " + msg);
       return;
     }
 
-    if(!data.found || !data.rowParams){
+    const rows = Array.isArray(search.rows) ? search.rows : [];
+
+    if(rows.length === 0){
       $("apiHint").className = "warn";
       $("apiHint").textContent = "Sin registro con esas llaves.";
       alert("No se encontró un registro con esas llaves (No. personal / Periodo / Versión).");
       return;
     }
 
+    // Si devuelve más de 1 (no debería si llaves son únicas), abrimos el modal para elegir
+    if(rows.length > 1){
+      $("apiHint").className = "warn";
+      $("apiHint").textContent = "Hay más de un registro; selecciona uno.";
+      openLookupPrefilled();
+      // Opcional: auto-ejecutar búsqueda al abrir
+      setTimeout(()=>{ try{ searchRecords(); }catch(_e){} }, 50);
+      alert("Se encontraron varios registros con esas llaves. Selecciona el correcto en la lista.");
+      return;
+    }
+
+    const pick = rows[0];
+    const rowNumber = pick?.meta?.rowNumber;
+
+    if(!rowNumber){
+      $("apiHint").className = "err";
+      $("apiHint").textContent = "No se pudo obtener la fila.";
+      alert("El servidor devolvió resultados pero sin número de fila (rowNumber). Revisa tu Apps Script.");
+      return;
+    }
+
+    const detail = await jsonpRequestWithFallback({
+      action: "recuperar_por_fila",
+      tipo: "desempeno",
+      rowNumber: String(rowNumber)
+    });
+
+    if(!detail || detail.ok === false){
+      const msg = (detail && detail.error) ? detail.error : "Respuesta inválida del servidor (recuperar_por_fila).";
+      $("apiHint").className = "err";
+      $("apiHint").textContent = "Error al recuperar.";
+      alert("No se pudo recuperar detalle: " + msg);
+      return;
+    }
+
+    if(!detail.found || !detail.rowParams){
+      $("apiHint").className = "warn";
+      $("apiHint").textContent = "No se encontró detalle.";
+      alert("Se encontró la fila, pero no se pudo cargar el detalle (found=false).");
+      return;
+    }
+
     buildRecoverModal(
-      data.rowParams,
+      detail.rowParams,
       {
-        no_personal: data.rowParams.no_personal || no_personal,
-        periodo: data.rowParams.periodo || periodo,
-        version: data.rowParams.version || version,
-        rowNumber: data.rowNumber || "—"
+        no_personal: detail.rowParams.no_personal || no_personal,
+        periodo: detail.rowParams.periodo || periodo,
+        version: detail.rowParams.version || version,
+        rowNumber: detail.rowNumber || rowNumber || "—"
       },
-      data.clientes || null,
-      data.allColumns || []
+      detail.clientes || null,
+      detail.allColumns || []
     );
 
     $("apiHint").className = "ok";
@@ -2143,8 +2222,8 @@ function bind(){
   });
 
   /**
-   * ✅ CAMBIO CLAVE:
-   * Recuperar (Desempeño) = por LLAVES del formulario principal
+   * ✅ Recuperar (Desempeño) = por LLAVES del formulario principal
+   * (Ahora usa buscar → recuperar_por_fila como fallback robusto)
    */
   $("btnRecover").addEventListener("click", async ()=>{
     if(state.saving) return;
