@@ -1626,9 +1626,9 @@ if(header.tipo === "desempeno"){
       <table class="mini-table" style="margin-top:10px;">
         <thead><tr><th class="col-k">Campo</th><th class="col-v">Valor</th></tr></thead>
         <tbody>
-          <tr><td class="col-k">No. personal</td><td class="col-v">${escapeHtml(no_personal || "—")}</td></tr>
-          <tr><td class="col-k">Periodo</td><td class="col-v">${escapeHtml(periodo || "—")}</td></tr>
-          <tr><td class="col-k">Versión</td><td class="col-v">${escapeHtml(version || "—")}</td></tr>
+          <tr><="col-k">No. personal</td><="col-v">${escapeHtml(no_personal || "—")}</td></tr>
+          <tr><="col-k">Periodo</td><="col-v">${escapeHtml(periodo || "—")}</td></tr>
+          <tr><="col-k">Versión</td><="col-v">${escapeHtml(version || "—")}</td></tr>
         </tbody>
       </table>
     `;
@@ -1638,6 +1638,10 @@ if(header.tipo === "desempeno"){
   }
 
   function buildRecoverModal(rowParams, meta, clientesInfo){
+function showDash(v){
+  const s = String(v ?? "").trim();
+  return s ? s : "—";
+}   
     lastRecovered = { rowParams, meta, clientesInfo };
 
     $("recoverTitle").textContent = "Registro encontrado";
@@ -1650,23 +1654,23 @@ if(header.tipo === "desempeno"){
     );
 
     const generalRows = [
-      ["No. de personal", rowParams.no_personal || meta.no_personal || ""],
-      ["Periodo", rowParams.periodo || meta.periodo || ""],
-      ["Versión", rowParams.version || meta.version || ""],
-      ["Nombre", rowParams.nombre || ""],
-      ["Posición", rowParams.posicion || ""],
-      ["Departamento", rowParams.departamento || ""],
-      ["Fecha", rowParams.fecha || ""],
-      ["Comentarios", rowParams.comentarios || ""],
-      ["Nombre del evaluador (desempeño)", rowParams.nombre_evaluador || ""],
-      ["Evaluación clientes (campo desempeño)", rowParams.evaluacion_clientes || ""],
-      ["Necesidades de capacitación", rowParams.necesidades_capacitacion || ""]
-    ];
+  ["No. de personal", showDash(rowParams.no_personal || meta.no_personal)],
+  ["Periodo", showDash(rowParams.periodo || meta.periodo)],
+  ["Versión", showDash(rowParams.version || meta.version)],
+  ["Nombre", showDash(rowParams.nombre)],
+  ["Posición", showDash(rowParams.posicion)],
+  ["Departamento", showDash(rowParams.departamento)],
+  ["Fecha", showDash(rowParams.fecha)],
+  ["Comentarios", showDash(rowParams.comentarios)],
+  ["Nombre del evaluador (desempeño)", showDash(rowParams.nombre_evaluador)],
+  ["Evaluación clientes (campo desempeño)", showDash(rowParams.evaluacion_clientes)],
+  ["Necesidades de capacitación", showDash(rowParams.necesidades_capacitacion)]
+];
 
-    if(clientesInfo){
-      generalRows.push(["Retroalimentación (Clientes)", clientesInfo.retroalimentacion || ""]);
-      generalRows.push(["Nombre evaluador (Clientes)", clientesInfo.nombre_evaluador || ""]);
-    }
+if(clientesInfo){
+  generalRows.push(["Retroalimentación (Clientes)", showDash(clientesInfo.retroalimentacion)]);
+  generalRows.push(["Nombre evaluador (Clientes)", showDash(clientesInfo.nombre_evaluador)]);
+}
 
     const gen = document.createElement("table");
     gen.className = "mini-table";
@@ -1680,8 +1684,8 @@ if(header.tipo === "desempeno"){
       <tbody>
         ${generalRows.map(([k,v]) => `
           <tr>
-            <td class="col-k">${escapeHtml(k)}</td>
-            <td class="col-v">${escapeHtml(String(v ?? ""))}</td>
+            <="col-k">${escapeHtml(k)}</td>
+            <="col-v">${escapeHtml(String(v ?? ""))}</td>
           </tr>
         `).join("")}
       </tbody>
@@ -1716,10 +1720,10 @@ if(header.tipo === "desempeno"){
 
         const tr = document.createElement("tr");
         tr.innerHTML = `
-          <td class="it-col1"></td>
-          <td class="it-col2">${escapeHtml(item.label)}</td>
-          <td class="it-col3">${score ? String(score) : "—"}</td>
-          <td class="it-col4">${escapeHtml(String(raw ?? ""))}</td>
+          <="it-col1"></td>
+          <="it-col2">${escapeHtml(item.label)}</td>
+          <="it-col3">${score ? String(score) : "—"}</td>
+          <="it-col4">${escapeHtml(raw)}</td>
         `;
         tbody.appendChild(tr);
       });
@@ -1798,7 +1802,7 @@ if(rowParams.nombre_evaluador && $("nombreEvaluadorDesempeno")){
     ensureItemsVisibleIfNeeded();
 
     ITEMS.forEach(sec => sec.items.forEach(it => {
-      const raw = rowParams[it.key];
+      const raw = showDash(rowParams[item.key]);
       const score = parseScoreFromCell(raw);
       setSelectValue(it.key, score);
     }));
@@ -1836,15 +1840,15 @@ if(rowParams.nombre_evaluador && $("nombreEvaluadorDesempeno")){
       const rp = r.rowParams || {};
       return `
         <tr>
-          <td class="r-col-act">
+          <="r-col-act">
             <button class="btn primary" type="button" data-use="${idx}" style="padding:8px 12px;">Usar</button>
           </td>
-          <td class="r-col-row">${escapeHtml(String(meta.rowNumber ?? "—"))}</td>
-          <td class="r-col-np">${escapeHtml(String(rp.no_personal ?? ""))}</td>
+          <="r-col-row">${escapeHtml(String(meta.rowNumber ?? "—"))}</td>
+          <="r-col-np">${escapeHtml(String(rp.no_personal ?? ""))}</td>
           <td>${escapeHtml(String(rp.nombre ?? ""))}</td>
-          <td class="r-col-per">${escapeHtml(String(rp.periodo ?? ""))}</td>
-          <td class="r-col-ver">${escapeHtml(String(rp.version ?? ""))}</td>
-          <td class="r-col-fecha">${escapeHtml(String(rp.fecha ?? ""))}</td>
+          <="r-col-per">${escapeHtml(String(rp.periodo ?? ""))}</td>
+          <="r-col-ver">${escapeHtml(String(rp.version ?? ""))}</td>
+          <="r-col-fecha">${escapeHtml(String(rp.fecha ?? ""))}</td>
           <td>${escapeHtml(String(rp.departamento ?? ""))}</td>
         </tr>
       `;
