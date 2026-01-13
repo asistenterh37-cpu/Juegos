@@ -466,7 +466,7 @@ textarea{
         </div>
 
         <button class="btn primary" id="btnNew" type="button">Nuevo</button>
-        <button class="btn primary" id="btnRecover" type="button">Recuperar</button>
+        <button class="btn primary" id="btnRecover" type="button">Recuperar / Consultar</button>
         <button class="btn primary" id="btnGenerate" type="button">Generar</button>
         <button class="btn primary" id="btnSave" type="button">Guardar</button>
         <button class="btn" id="btnPrint" type="button">Imprimir / Enviar a PDF</button>
@@ -1409,15 +1409,15 @@ function flattenAnswersSelectedText(){
   }
 
   function openReportModal(){
-    $("reportHost").innerHTML = "";
-    const clone = $("report").cloneNode(true);
-    clone.id = "reportClone";
-    $("reportHost").appendChild(clone);
+  // ✅ Evita duplicar IDs: copiamos HTML, no clonamos nodos con ids
+  $("reportHost").innerHTML = $("report").outerHTML;
 
-    $("reportBackdrop").style.display = "flex";
-    $("reportBackdrop").setAttribute("aria-hidden", "false");
-  }
-  function closeReportModal(){
+  $("reportBackdrop").style.display = "flex";
+  $("reportBackdrop").setAttribute("aria-hidden", "false");
+}
+
+  functio
+    n closeReportModal(){
     $("reportBackdrop").style.display = "none";
     $("reportBackdrop").setAttribute("aria-hidden", "true");
   }
@@ -1926,32 +1926,31 @@ if(rowParams.nombre_evaluador && $("nombreEvaluadorDesempeno")){
     openLookupModal();
   }
 
- function applySearchUI(tipo){
+function applySearchUI(tipo){
   const isAuto = (tipo === "autoevaluacion");
+  const isDes  = (tipo === "desempeno");
+  const isCli  = (tipo === "clientes");
 
-  // Badge: solo NO autoevaluación
+  // Badge: mostrar en desempeño (llaves) y ocultar en autoevaluación/clientes
   const badgeWrap = $("searchBadgeWrap");
-  if(badgeWrap) badgeWrap.style.display = isAuto ? "none" : "inline";
+  if(badgeWrap) badgeWrap.style.display = (isDes) ? "inline" : "none";
 
-  // Campos de búsqueda: solo NO autoevaluación
+  // Campos de búsqueda resaltados: solo en desempeño
   const targets = ["fldNoPersonal", "fldPeriodo", "fldVersion"];
   targets.forEach(id=>{
     const el = $(id);
     if(!el) return;
-    if(isAuto){
-      el.classList.remove("searchField");
-    }else{
-      el.classList.add("searchField");
-    }
+    if(isDes) el.classList.add("searchField");
+    else el.classList.remove("searchField");
   });
 
-  // ✅ Recuperar SOLO en autoevaluación
+  // ✅ Recuperar visible en Autoevaluación + Desempeño (oculto en Clientes)
   const btnRecover = $("btnRecover");
   if(btnRecover){
-    btnRecover.style.display = isAuto ? "" : "none";
+    btnRecover.style.display = (isAuto || isDes) ? "" : "none";
   }
 }
-
+  
   function applyTopActionsUI(tipo){
     const isClientes = (tipo === "clientes");
     $("btnGenerate").style.display = isClientes ? "none" : "";
@@ -2182,11 +2181,37 @@ if(ne) ne.value = "";
       setDirty(false);
 
     }catch(err){
-      console.error(err);
-      $("apiHint").className = "err";
-      $("apiHint").textContent = "Error al guardar: " + (err.message || err);
-      alert("Error al guardar en Google Sheets: " + (err.message || err));
-    }finally{
+    console.error(err);
+
+    $("apiHint").className = "err";
+    $("apiHint").textContent = "No se pudo recuperar: " + (err.message || err);
+
+    // ✅ Fallback definitivo: abrir consulta flotante para autollenar
+    openLookupPrefilled();
+
+    // ✅ Debug útil: URL exacta que se intentó cargar (para probar en pestaña)
+    const tipo = $("tipoFormulario").value;
+    const action = (tipo === "desempeno") ? "recuperar_desempeno" : "recuperar";
+    const no_personal = $("noPersonal").value.trim();
+    const periodo = $("periodo").value.trim();
+    const version = $("version").value.trim();
+    const testUrl = API_URL + (API_URL.includes("?") ? "&" : "?") +
+      new URLSearchParams({
+        action, no_personal, periodo, version, tipo,
+        callback: "TEST",
+        _ts: Date.now().toString()
+      }).toString();
+
+    alert(
+      "No se pudo recuperar (JSONP).\n\n" +
+      "Se abrió la consulta para autollenar (recomendado).\n\n" +
+      "Prueba este URL en una pestaña para validar el WebApp:\n\n" +
+      testUrl + "\n\n" +
+      "Si te pide login o no devuelve datos, tu WebApp NO está público (Anyone) o no coincide el /exec."
+    );
+
+  }finally{
+
       setBusy(false);
     }
   }
@@ -2227,25 +2252,27 @@ if(ne) ne.value = "";
     }
     recoverRecordExact();
   });
-   $("btnRecover").addEventListener("click", ()=>{
-  // ✅ Seguridad extra: si por algo aparece, no hace nada fuera de autoevaluación
-  if($("tipoFormulario").value !== "autoevaluacion"){
-    return;
-  }
+ 
+// ✅ Recuperar / Consultar (Autoevaluación + Desempeño)
+  $("btnRecover").addEventListener("click", ()=>{
+    if(state.saving) return;
 
-  const noP = $("noPersonal").value.trim();
-  const per = $("periodo").value.trim();
-  const ver = $("version").value.trim();
+    const tipo = $("tipoFormulario").value;
 
-  if(!noP || !per || !ver){
-    openLookupPrefilled();
-    return;
-  }
-  recoverRecordExact();
-});
+    // Si no llenan llaves, abre la consulta flotante (autollenar)
+    const noP = $("noPersonal").value.trim();
+    const per = $("periodo").value.trim();
+    const ver = $("version").value.trim();
 
-  $("btnSave").addEventListener("click", saveToSheet);
+    if(!noP || !per || !ver){
+      openLookupPrefilled();
+      return;
+    }
 
+    // Si hay llaves completas, intenta recuperación exacta
+    recoverRecordExact();
+  });
+   
   $("btnGenerate").addEventListener("click", ()=>{
     if(state.saving) return;
 
