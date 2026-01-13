@@ -1548,6 +1548,67 @@ if(header.tipo === "desempeno"){
   }
 
   let lastRecovered = null;
+   async function recoverRecordExact(){
+  if(state.saving) return;
+
+  const tipo = $("tipoFormulario").value;
+  const no_personal = $("noPersonal").value.trim();
+  const periodo = $("periodo").value.trim();
+  const version = $("version").value.trim();
+
+  if(!no_personal || !periodo || !version){
+    alert("Para recuperar, llena: No. de personal, Periodo y Versión.");
+    return;
+  }
+
+  try{
+    assertApiUrl();
+    setBusy(true);
+
+    $("apiHint").className = "warn";
+    $("apiHint").textContent = "Recuperando...";
+
+    const action = (tipo === "desempeno") ? "recuperar_desempeno" : "recuperar";
+
+    const data = await jsonpRequestWithFallback({
+      action,
+      no_personal,
+      periodo,
+      version,
+      tipo
+    });
+
+    if(!data || !data.found){
+      $("apiHint").className = "warn";
+      $("apiHint").textContent = "No se encontró registro con esos datos.";
+      alert("No se encontró registro con ese No. de personal, Periodo y Versión.");
+      return;
+    }
+
+    const rowParams = data.rowParams || data.row || {};
+    if(!rowParams || typeof rowParams !== "object"){
+      throw new Error("Respuesta inválida del servidor (sin rowParams).");
+    }
+
+    const clientesInfo = data.clientes || null;
+
+    buildRecoverModal(rowParams, {
+      no_personal, periodo, version,
+      rowNumber: data.rowNumber || ""
+    }, clientesInfo);
+
+    $("apiHint").className = "ok";
+    $("apiHint").textContent = "Registro encontrado ✅ (revisa y aplica)";
+
+  }catch(err){
+    console.error(err);
+    $("apiHint").className = "err";
+    $("apiHint").textContent = "No se pudo recuperar: " + (err.message || err);
+    alert("No se pudo recuperar: " + (err.message || err) + "\n\nTip: WebApp debe estar público (Anyone) y la red no debe bloquear Google Scripts.");
+  }finally{
+    setBusy(false);
+  }
+}
 
   function openRecoverModal(){
     $("recoverBackdrop").style.display = "flex";
@@ -1770,21 +1831,6 @@ if(rowParams.nombre_evaluador && $("nombreEvaluadorDesempeno")){
     state.generated = false;
     setDirty(false);
   }
-
-  // ✅ Ping suave (si falla, igual intentamos recuperar)
-
-}catch(e){
-  console.warn("Ping bloqueado, continúo igual…", e);
-}
-      const action = (tipo === "desempeno") ? "recuperar_desempeno" : "recuperar";
-
-      const data = await jsonpRequestWithFallback({
-        action,
-        no_personal,
-        periodo,
-        version,
-        tipo
-      });
 
       if(!data || !data.found){
         $("apiHint").className = "warn";
