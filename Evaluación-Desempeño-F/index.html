@@ -1925,11 +1925,9 @@ if(rowParams.nombre_evaluador && $("nombreEvaluadorDesempeno")){
   }
 
 function applySearchUI(tipo){
-  const isAuto = (tipo === "autoevaluacion");
   const isDes  = (tipo === "desempeno");
-  const isCli  = (tipo === "clientes");
 
-  // Badge: mostrar en desempeño (llaves) y ocultar en autoevaluación/clientes
+  // Badge: mostrar solo en desempeño
   const badgeWrap = $("searchBadgeWrap");
   if(badgeWrap) badgeWrap.style.display = (isDes) ? "inline" : "none";
 
@@ -1942,10 +1940,10 @@ function applySearchUI(tipo){
     else el.classList.remove("searchField");
   });
 
-  // ✅ Recuperar visible en Autoevaluación + Desempeño (oculto en Clientes)
+  // ✅ Recuperar / Consultar: SOLO desempeño
   const btnRecover = $("btnRecover");
   if(btnRecover){
-    btnRecover.style.display = (isAuto || isDes) ? "" : "none";
+    btnRecover.style.display = (isDes) ? "" : "none";
   }
 }
   
@@ -2239,36 +2237,25 @@ if(ne) ne.value = "";
     clearForm();
   });
 
-$("btnRecover").addEventListener("click", ()=>{
+   $("btnRecover").addEventListener("click", ()=>{
   if(state.saving) return;
+
+  // ✅ Solo permitido en desempeño
+  if($("tipoFormulario").value !== "desempeno") return;
 
   const noP = $("noPersonal").value.trim();
   const per = $("periodo").value.trim();
   const ver = $("version").value.trim();
 
+  // Si no llenan llaves, abre consulta flotante
   if(!noP || !per || !ver){
     openLookupPrefilled();
     return;
   }
 
+  // Si hay llaves completas, recuperación exacta
   recoverRecordExact();
 });
- 
-// ✅ Recuperar / Consultar (Autoevaluación + Desempeño)
-  $("btnRecover").addEventListener("click", ()=>{
-    if(state.saving) return;
-
-    const tipo = $("tipoFormulario").value;
-
-    // Si no llenan llaves, abre la consulta flotante (autollenar)
-    const noP = $("noPersonal").value.trim();
-    const per = $("periodo").value.trim();
-    const ver = $("version").value.trim();
-
-    if(!noP || !per || !ver){
-      openLookupPrefilled();
-      return;
-    }
 
     // Si hay llaves completas, intenta recuperación exacta
     recoverRecordExact();
