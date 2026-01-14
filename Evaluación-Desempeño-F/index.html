@@ -731,10 +731,12 @@
   </div>
 
 <script>
+<!-- ✅ CAMBIOS DESDE AQUÍ (reemplaza TODO el <script> hasta el final del HTML) -->
+<script>
 /************************************************************
  * 1) URL COMPLETA DEL APPS SCRIPT (/exec)
  ************************************************************/
-const API_URL = "https://script.google.com/macros/s/AKfycbzNBz1QL2svLAQwHtUJEU9OwjkHa9jXQlZoeSI9X8Gna4HwyJ9iQy7D2pDq_aCQpNiZLw/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbwE7SJrXvo0c-qGSRTY1D6_OAo81jgOhWorPGFSdLTWw91zP2fbrDHfXKYL7F-yXhiXug/exec";
 
 function normalizeApiUrl(u){
   let x = String(u || "").trim();
@@ -757,8 +759,9 @@ function getApiCandidates(){
   if(base && !base.includes("?")) out.push(base);
   return Array.from(new Set(out));
 }
-function makeCallbackName(){ return "cb_" + Math.random().toString(36).slice(2); }
-
+function makeCallbackName(){
+  return "cb_" + Math.random().toString(36).slice(2);
+}
 function jsonpRequest(url, params){
   return new Promise((resolve, reject) => {
     const cbName = makeCallbackName();
@@ -780,20 +783,23 @@ function jsonpRequest(url, params){
     function cleanup(){
       clearTimeout(timeout);
       try{ delete window[cbName]; }catch(_){}
-      if(script && script.parentNode){ script.parentNode.removeChild(script); }
+      if(script && script.parentNode) script.parentNode.removeChild(script);
     }
+
     window[cbName] = (data) => {
       if(done) return;
       done = true;
       cleanup();
       resolve(data);
     };
+
     script.onerror = () => {
       if(done) return;
       done = true;
       cleanup();
       reject(new Error("Error de red (JSONP). Bloqueador/Firewall/DNS o endpoint inaccesible."));
     };
+
     document.body.appendChild(script);
   });
 }
@@ -802,11 +808,8 @@ async function jsonpRequestWithFallback(params){
   const candidates = getApiCandidates();
   let lastErr = null;
   for(const u of candidates){
-    try{
-      return await jsonpRequest(u, params);
-    }catch(e){
-      lastErr = e;
-    }
+    try{ return await jsonpRequest(u, params); }
+    catch(e){ lastErr = e; }
   }
   throw lastErr || new Error("No se pudo conectar por JSONP en ningún endpoint.");
 }
@@ -1062,6 +1065,7 @@ function renderItems(){
       if(typeof saved === "number" && saved >= 1 && saved <= 5){
         sel.value = String(saved);
       }
+
       sel.addEventListener("change", () => {
         state.answers[it.key] = sel.value ? Number(sel.value) : null;
         setDirty(true);
@@ -1149,6 +1153,7 @@ function getScoreFromDOM(itKey){
   const n = Number(v);
   return (Number.isFinite(n) && n >= 1 && n <= 5) ? n : null;
 }
+
 function computeTotal(){
   const vals = [];
   ITEMS.forEach(sec => sec.items.forEach(it => {
@@ -1159,6 +1164,7 @@ function computeTotal(){
   const avg = vals.reduce((a,b)=>a+b,0) / vals.length;
   return +(avg * 20).toFixed(2);
 }
+
 function flattenAnswersSelectedText(){
   const out = {};
   ITEMS.forEach(sec => sec.items.forEach(it => {
@@ -1174,6 +1180,7 @@ function flattenAnswersSelectedText(){
   }));
   return out;
 }
+
 function formatDateES(yyyy_mm_dd){
   if(!yyyy_mm_dd) return "—";
   const [y,m,d] = yyyy_mm_dd.split("-").map(n=>parseInt(n,10));
@@ -1185,11 +1192,9 @@ function formatDateES(yyyy_mm_dd){
 function renderSeleccionEnReporte(){
   const host = $("rRubricas");
   host.innerHTML = "";
-
   ITEMS.forEach(sec => {
     const wrap = document.createElement("div");
     wrap.className = "rubric-wrap";
-
     const title = document.createElement("div");
     title.className = "rubric-title";
     title.textContent = sec.group;
@@ -1200,22 +1205,7 @@ function renderSeleccionEnReporte(){
 
     const thead = document.createElement("thead");
     const trh = document.createElement("tr");
-
-    const thItem = document.createElement("th");
-    thItem.className = "col-item";
-    thItem.textContent = "Ítem";
-    trh.appendChild(thItem);
-
-    const thScore = document.createElement("th");
-    thScore.className = "col-score";
-    thScore.textContent = "Puntaje";
-    trh.appendChild(thScore);
-
-    const thDesc = document.createElement("th");
-    thDesc.className = "col-desc";
-    thDesc.textContent = "Opción seleccionada";
-    trh.appendChild(thDesc);
-
+    trh.innerHTML = `<th class="col-item">Ítem</th><th class="col-score">Puntaje</th><th class="col-desc">Opción seleccionada</th>`;
     thead.appendChild(trh);
     table.appendChild(thead);
 
@@ -1227,12 +1217,10 @@ function renderSeleccionEnReporte(){
       const tdItem = document.createElement("td");
       tdItem.className = "col-item";
       tdItem.textContent = it.label;
-      tr.appendChild(tdItem);
 
       const tdScore = document.createElement("td");
       tdScore.className = "col-score";
       tdScore.textContent = (typeof v === "number") ? String(v) : "—";
-      tr.appendChild(tdScore);
 
       const tdDesc = document.createElement("td");
       tdDesc.className = "col-desc";
@@ -1241,8 +1229,10 @@ function renderSeleccionEnReporte(){
       }else{
         tdDesc.innerHTML = `<span class="muted-print">Sin selección</span>`;
       }
-      tr.appendChild(tdDesc);
 
+      tr.appendChild(tdItem);
+      tr.appendChild(tdScore);
+      tr.appendChild(tdDesc);
       tbody.appendChild(tr);
     });
 
@@ -1282,7 +1272,6 @@ function buildReport(){
   $("rFecha").textContent = formatDateES(header.fecha);
 
   renderSeleccionEnReporte();
-
   $("rTotal").textContent = String((header.tipo === "clientes") ? 0 : total);
 
   const comentarioColab =
@@ -1324,7 +1313,7 @@ function buildReport(){
         `Oportunidades de mejora: ${extra.oportunidades_mejora || "—"}`,
         `Proyección y potencial: ${extra.proyeccion_potencial || "—"}`,
         `Necesidades de capacitación: ${extra.necesidades_capacitacion || "—"}`
-      ].filter(Boolean).join("\n\n");
+      ].join("\n\n");
       $("rJustifAll").textContent = txt;
     }else{
       $("rJustifBlock").style.display = "none";
@@ -1347,6 +1336,7 @@ function parseScoreFromCell(val){
   if(Number.isFinite(n) && n>=1 && n<=5) return n;
   return null;
 }
+
 function setSelectValue(key, score){
   const el = $("ans_" + key);
   if(!el) return;
@@ -1354,6 +1344,9 @@ function setSelectValue(key, score){
   state.answers[key] = (score>=1 && score<=5) ? score : null;
 }
 
+/************************************************************
+ * ✅ MODALES / RECUPERACIÓN
+ ************************************************************/
 let lastRecovered = null;
 
 function openRecoverModal(){
@@ -1387,7 +1380,6 @@ function renderKeyReport(no_personal, periodo, version, sourceHint){
   box.className = "card";
   box.style.padding = "12px";
   box.style.background = "rgba(0,0,0,.14)";
-
   box.innerHTML = `
     <div style="display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; align-items:center;">
       <div class="chip"><b>Reporte (llaves)</b></div>
@@ -1411,18 +1403,15 @@ function renderKeyReport(no_personal, periodo, version, sourceHint){
 function renderAllColumnsTable(allColumns){
   const host = $("recoverAllCols");
   host.innerHTML = "";
-
   const arr = Array.isArray(allColumns) ? allColumns : [];
   if(!arr.length){
     host.innerHTML = `<div class="small-muted">Sin datos de columnas para mostrar.</div>`;
     return;
   }
-
   const box = document.createElement("div");
   box.className = "card";
   box.style.padding = "12px";
   box.style.background = "rgba(0,0,0,.14)";
-
   box.innerHTML = `
     <div class="chip"><b>Datos recuperados (Encabezado / Valor)</b></div>
     <table class="mini-table" style="margin-top:10px;">
@@ -1440,6 +1429,12 @@ function renderAllColumnsTable(allColumns){
   host.appendChild(box);
 }
 
+/**
+ * ✅ Reglas del negocio:
+ * - Recuperar usa AUTOEVALUACIONES (hoja autoevaluaciones) por NoPersonal+Periodo+Version
+ * - Además trae CLIENTES (retroalimentacion + nombre_evaluador) por esas mismas llaves
+ * - La tabla (modal) muestra todo y permite: Autollenar todo / Autollenar solo textos
+ */
 function buildRecoverModal(rowParams, meta, clientesInfo, allColumns){
   function showDash(v){
     const s = String(v ?? "").trim();
@@ -1451,15 +1446,11 @@ function buildRecoverModal(rowParams, meta, clientesInfo, allColumns){
   $("recoverTitle").textContent = "Registro encontrado";
   $("recoverSub").textContent = `Keys: ${meta.no_personal || "—"} / ${meta.periodo || "—"} / ${meta.version || "—"} • Fila: ${meta.rowNumber || "—"}`;
 
-  renderKeyReport(
-    meta.no_personal,
-    meta.periodo,
-    meta.version,
-    (clientesInfo && clientesInfo.found)
-      ? `Resultados + Clientes (fila Clientes: ${clientesInfo.rowNumber || "—"})`
-      : `Resultados (Clientes: sin registro)`
-  );
+  const hint = (clientesInfo && clientesInfo.found)
+    ? `Autoevaluaciones + Clientes (fila Clientes: ${clientesInfo.rowNumber || "—"})`
+    : `Autoevaluaciones (Clientes: sin registro)`;
 
+  renderKeyReport(meta.no_personal, meta.periodo, meta.version, hint);
   renderAllColumnsTable(allColumns);
 
   const generalRows = [
@@ -1470,10 +1461,15 @@ function buildRecoverModal(rowParams, meta, clientesInfo, allColumns){
     ["Posición", showDash(rowParams.posicion)],
     ["Departamento", showDash(rowParams.departamento)],
     ["Fecha", showDash(rowParams.fecha)],
-    ["Comentarios", showDash(rowParams.comentarios)],
-    ["Nombre del evaluador (desempeño)", showDash(rowParams.nombre_evaluador)],
+    ["Comentarios (auto)", showDash(rowParams.comentarios)],
+    ["Justificación", showDash(rowParams.justificacion)],
+    ["Comentarios del evaluador", showDash(rowParams.comentarios_evaluador)],
+    ["Fortalezas", showDash(rowParams.fortalezas)],
+    ["Oportunidades", showDash(rowParams.oportunidades_mejora)],
+    ["Proyección", showDash(rowParams.proyeccion_potencial)],
+    ["Necesidades de capacitación", showDash(rowParams.necesidades_capacitacion)],
     ["Evaluación clientes (campo desempeño)", showDash(rowParams.evaluacion_clientes)],
-    ["Necesidades de capacitación", showDash(rowParams.necesidades_capacitacion)]
+    ["Nombre del evaluador (desempeño)", showDash(rowParams.nombre_evaluador)]
   ];
 
   if(clientesInfo){
@@ -1512,8 +1508,8 @@ function buildRecoverModal(rowParams, meta, clientesInfo, allColumns){
     </thead>
     <tbody id="recoverItemsBody"></tbody>
   `;
-  const tbody = it.querySelector("#recoverItemsBody");
 
+  const tbody = it.querySelector("#recoverItemsBody");
   ITEMS.forEach(sec => {
     const trg = document.createElement("tr");
     trg.className = "group-row";
@@ -1540,10 +1536,9 @@ function buildRecoverModal(rowParams, meta, clientesInfo, allColumns){
   openRecoverModal();
 }
 
-/**
- * ✅ Autollenar TODO (encabezados + selects + textos)
- */
+/** ✅ Autollenar TODO (encabezados + selects + textos) */
 function applyRecoveredToForm(rowParams, clientesInfo){
+  // Encabezados
   $("noPersonal").value = rowParams.no_personal || $("noPersonal").value;
   $("periodo").value = rowParams.periodo || $("periodo").value;
   $("version").value = rowParams.version || $("version").value;
@@ -1552,34 +1547,35 @@ function applyRecoveredToForm(rowParams, clientesInfo){
   $("departamento").value = rowParams.departamento || $("departamento").value;
   $("fecha").value = rowParams.fecha || $("fecha").value;
 
+  // Cambia UI a desempeño (porque el botón Recuperar existe ahí)
   $("tipoFormulario").value = "desempeno";
   applyTipoUI();
 
+  // Textos desempeño
   if(rowParams.justificacion) $("justificacion").value = rowParams.justificacion;
   if(rowParams.comentarios_evaluador) $("comentariosEvaluador").value = rowParams.comentarios_evaluador;
-  if(rowParams.nombre_evaluador && $("nombreEvaluadorDesempeno")){
-    $("nombreEvaluadorDesempeno").value = rowParams.nombre_evaluador;
-  }
+  if(rowParams.nombre_evaluador && $("nombreEvaluadorDesempeno")) $("nombreEvaluadorDesempeno").value = rowParams.nombre_evaluador;
   if(rowParams.fortalezas) $("fortalezas").value = rowParams.fortalezas;
   if(rowParams.oportunidades_mejora) $("oportunidades").value = rowParams.oportunidades_mejora;
   if(rowParams.proyeccion_potencial) $("proyeccion").value = rowParams.proyeccion_potencial;
   if(rowParams.necesidades_capacitacion) $("necesidadesCapacitacion").value = rowParams.necesidades_capacitacion;
-  if(rowParams.evaluacion_clientes) $("evaluacionClientes").value = rowParams.evaluacion_clientes;
 
+  // Evaluación clientes: prioridad a Clientes (retroalimentación)
+  let evalCli = String(rowParams.evaluacion_clientes || "").trim();
   if(clientesInfo && clientesInfo.found){
     const head = clientesInfo.nombre_evaluador ? `(${clientesInfo.nombre_evaluador}) ` : "";
     const composed = `${head}${clientesInfo.retroalimentacion || ""}`.trim();
-    if(composed) $("evaluacionClientes").value = composed;
+    if(composed) evalCli = composed;
+    if(!$("nombreEvaluadorDesempeno").value && clientesInfo.nombre_evaluador){
+      $("nombreEvaluadorDesempeno").value = clientesInfo.nombre_evaluador;
+    }
   }
+  if(evalCli) $("evaluacionClientes").value = evalCli;
 
+  // Items (selects)
   ensureItemsVisibleIfNeeded();
-
-  function showDash(v){
-    const s = String(v ?? "").trim();
-    return s ? s : "";
-  }
   ITEMS.forEach(sec => sec.items.forEach(it => {
-    const raw = showDash(rowParams[it.key]);
+    const raw = String(rowParams[it.key] ?? "").trim();
     const score = parseScoreFromCell(raw);
     setSelectValue(it.key, score);
   }));
@@ -1589,14 +1585,12 @@ function applyRecoveredToForm(rowParams, clientesInfo){
   setDirty(false);
 }
 
-/**
- * ✅ Autollenar SOLO TEXTOS (no toca selects)
- */
+/** ✅ Autollenar SOLO TEXTOS (no toca selects) */
 function applyRecoveredTextsOnly(rowParams, clientesInfo){
   $("tipoFormulario").value = "desempeno";
   applyTipoUI();
 
-  // Encabezados (por si quieres que también entren)
+  // Encabezados
   if(rowParams.no_personal) $("noPersonal").value = rowParams.no_personal;
   if(rowParams.periodo) $("periodo").value = rowParams.periodo;
   if(rowParams.version) $("version").value = rowParams.version;
@@ -1612,15 +1606,17 @@ function applyRecoveredTextsOnly(rowParams, clientesInfo){
   if(rowParams.oportunidades_mejora) $("oportunidades").value = rowParams.oportunidades_mejora;
   if(rowParams.proyeccion_potencial) $("proyeccion").value = rowParams.proyeccion_potencial;
   if(rowParams.necesidades_capacitacion) $("necesidadesCapacitacion").value = rowParams.necesidades_capacitacion;
-  if(rowParams.comentarios_colaborador) $("comentariosColaborador2").value = rowParams.comentarios_colaborador;
   if(rowParams.nombre_evaluador && $("nombreEvaluadorDesempeno")) $("nombreEvaluadorDesempeno").value = rowParams.nombre_evaluador;
 
-  // Evaluación clientes: prioriza Clientes si existe (foto 3)
+  // Evaluación clientes: prioridad a Clientes
   let evalCli = String(rowParams.evaluacion_clientes || "").trim();
   if(clientesInfo && clientesInfo.found){
     const head = clientesInfo.nombre_evaluador ? `(${clientesInfo.nombre_evaluador}) ` : "";
     const composed = `${head}${clientesInfo.retroalimentacion || ""}`.trim();
     if(composed) evalCli = composed;
+    if(!$("nombreEvaluadorDesempeno").value && clientesInfo.nombre_evaluador){
+      $("nombreEvaluadorDesempeno").value = clientesInfo.nombre_evaluador;
+    }
   }
   if(evalCli) $("evaluacionClientes").value = evalCli;
 
@@ -1629,8 +1625,10 @@ function applyRecoveredTextsOnly(rowParams, clientesInfo){
   setDirty(false);
 }
 
+/************************************************************
+ * ✅ LOOKUP MODAL (LISTA) — ahora busca en AUTOEVALUACIONES
+ ************************************************************/
 let lastLookupResults = [];
-
 function setLookupStatus(txt, kind){
   const el = $("lookupStatus");
   el.textContent = txt;
@@ -1640,13 +1638,9 @@ function setLookupStatus(txt, kind){
     "rgba(234,240,255,.72)";
 }
 
-/**
- * Lista (queda igual)
- */
 function renderLookupResults(rows){
   const tbody = $("lookupResultsBody");
   lastLookupResults = Array.isArray(rows) ? rows : [];
-
   $("chipCount").textContent = `${lastLookupResults.length} resultados`;
   $("chipNote").textContent = lastLookupResults.length ? "Selecciona una fila para ver detalle y luego Autollenar." : "";
 
@@ -1683,9 +1677,10 @@ function renderLookupResults(rows){
       try{
         setLookupStatus("Cargando detalle…", "warn");
 
+        // ✅ detalle SIEMPRE desde autoevaluaciones
         const data = await jsonpRequestWithFallback({
           action: "recuperar_por_fila",
-          tipo: "desempeno",
+          tipo: "autoevaluacion",
           rowNumber: String(pick.meta.rowNumber)
         });
 
@@ -1717,9 +1712,8 @@ function renderLookupResults(rows){
 
 async function searchRecords(){
   if(state.saving) return;
-
-  const tipoUI = $("tipoFormulario").value;
-  if(tipoUI !== "desempeno"){
+  const tipo = $("tipoFormulario").value;
+  if(tipo !== "desempeno"){
     alert("Recuperar solo está disponible en el Formulario de evaluación del desempeño.");
     return;
   }
@@ -1733,11 +1727,13 @@ async function searchRecords(){
     assertApiUrl();
     setLookupStatus("Buscando en autoevaluaciones...", "warn");
 
-    // ✅ AHORA BUSCA EN autoevaluaciones (como pides)
     const data = await jsonpRequestWithFallback({
       action: "buscar",
       tipo: "autoevaluacion",
-      no_personal, nombre, periodo, version,
+      no_personal,
+      nombre,
+      periodo,
+      version,
       limit: "50"
     });
 
@@ -1752,7 +1748,7 @@ async function searchRecords(){
     renderLookupResults(rows);
 
     if(!rows.length){
-      setLookupStatus("Sin resultados con esos filtros (autoevaluaciones).", "warn");
+      setLookupStatus("Sin resultados con esos filtros.", "warn");
     }else{
       setLookupStatus(`Listo. ${rows.length} resultado(s).`, "ok");
     }
@@ -1761,100 +1757,18 @@ async function searchRecords(){
     setLookupStatus("Error: " + (err.message || err), "err");
     renderLookupResults([]);
     alert(
-      "No se pudo consultar.\n\n" +
-      (err.message || err) + "\n\n" +
+      "No se pudo consultar.\n\n" + (err.message || err) + "\n\n" +
       "Tip real: el WebApp debe estar desplegado como 'Anyone' y tu red/extensión no debe bloquear script.google.com."
     );
   }
 }
 
-/**
- * ✅ Ajuste: el listado ahora puede venir de autoevaluaciones o desempeño,
- * por eso usamos meta.tipo al seleccionar.
- */
-function renderLookupResults(rows){
-  const tbody = $("lookupResultsBody");
-  lastLookupResults = Array.isArray(rows) ? rows : [];
-
-  $("chipCount").textContent = `${lastLookupResults.length} resultados`;
-  $("chipNote").textContent = lastLookupResults.length ? "Selecciona una fila para ver detalle y luego Autollenar." : "";
-
-  if(!lastLookupResults.length){
-    tbody.innerHTML = `<tr><td colspan="8" class="small-muted">Sin resultados.</td></tr>`;
-    return;
-  }
-
-  tbody.innerHTML = lastLookupResults.map((r, idx) => {
-    const meta = r.meta || {};
-    const rp = r.rowParams || {};
-    const src = meta.sheetName ? ` (${meta.sheetName})` : "";
-    return `
-      <tr>
-        <td class="r-col-act">
-          <button class="btn primary" type="button" data-pick="${idx}" style="padding:8px 12px;">Seleccionar</button>
-        </td>
-        <td class="r-col-row">${escapeHtml(String(meta.rowNumber ?? "—"))}</td>
-        <td class="r-col-np">${escapeHtml(String(rp.no_personal ?? ""))}</td>
-        <td>${escapeHtml(String(rp.nombre ?? ""))}${escapeHtml(src)}</td>
-        <td class="r-col-per">${escapeHtml(String(rp.periodo ?? ""))}</td>
-        <td class="r-col-ver">${escapeHtml(String(rp.version ?? ""))}</td>
-        <td class="r-col-fecha">${escapeHtml(String(rp.fecha ?? ""))}</td>
-        <td>${escapeHtml(String(rp.departamento ?? ""))}</td>
-      </tr>
-    `;
-  }).join("");
-
-  tbody.querySelectorAll("button[data-pick]").forEach(btn=>{
-    btn.addEventListener("click", async ()=>{
-      const i = Number(btn.getAttribute("data-pick"));
-      const pick = lastLookupResults[i];
-      if(!pick || !pick.meta || !pick.meta.rowNumber) return;
-
-      try{
-        setLookupStatus("Cargando detalle…", "warn");
-
-        const tipoServidor = (pick.meta && pick.meta.tipo) ? String(pick.meta.tipo) : "autoevaluacion";
-
-        const data = await jsonpRequestWithFallback({
-          action: "recuperar_por_fila",
-          tipo: tipoServidor,              // ✅ ahora respeta el tipo
-          rowNumber: String(pick.meta.rowNumber)
-        });
-
-        if(!data || !data.found || !data.rowParams){
-          setLookupStatus("No se pudo abrir detalle.", "err");
-          return;
-        }
-
-        buildRecoverModal(
-          data.rowParams,
-          {
-            no_personal: data.rowParams.no_personal || "",
-            periodo: data.rowParams.periodo || "",
-            version: data.rowParams.version || "",
-            rowNumber: data.rowNumber || pick.meta.rowNumber || ""
-          },
-          data.clientes || null,
-          data.allColumns || []
-        );
-
-        setLookupStatus("Detalle cargado.", "ok");
-      }catch(e){
-        setLookupStatus("Error: " + (e.message || e), "err");
-        alert("No se pudo abrir detalle: " + (e.message || e));
-      }
-    });
-  });
-}
-
-/**
- * ✅ NUEVO DEFINITIVO:
- * Recuperar (Desempeño) por llaves:
- * - 1) Autoevaluaciones (principal)
- * - 2) Clientes (retroalimentación)
- * - 3) Si no hay autoevaluación, intenta EvaluacionResultados (fallback)
- * Devuelve y muestra la tabla + autollenado.
- */
+/************************************************************
+ * ✅ RECUPERAR (DEFINITIVO) POR LLAVES:
+ * - Busca EXACTO en hoja autoevaluaciones (No personal + Periodo + Version)
+ * - Trae Clientes retroalimentación por las mismas llaves
+ * - Muestra tabla (modal) + botones autollenado
+ ************************************************************/
 async function recoverByKeys(){
   if(state.saving) return;
 
@@ -1876,58 +1790,70 @@ async function recoverByKeys(){
   try{
     assertApiUrl();
     setBusy(true);
-
     $("apiHint").className = "warn";
-    $("apiHint").textContent = "Recuperando (autoevaluaciones + clientes)…";
+    $("apiHint").textContent = "Recuperando…";
 
-    // ✅ Acción nueva del WebApp (GS): una sola llamada y listo
-    const data = await jsonpRequestWithFallback({
-      action: "recuperar_desempeno_por_keys",
+    // No bloqueamos por ping (redes bloquean JSONP)
+    try{ await apiPing(); }catch(_e){}
+
+    // 1) Recuperar EXACTO autoevaluaciones
+    const exact = await jsonpRequestWithFallback({
+      action: "recuperar_por_keys",
+      tipo: "autoevaluacion",
       no_personal,
       periodo,
       version
     });
 
-    if(!data || data.ok === false){
-      const msg = (data && data.error) ? data.error : "Respuesta inválida del servidor.";
+    // Si no existe exacto: abre modal lista ya prellenado para buscar/seleccionar
+    if(!exact || exact.ok === false){
+      const msg = exact?.error || "Respuesta inválida recuperando por llaves.";
       $("apiHint").className = "err";
-      $("apiHint").textContent = "No se pudo recuperar: " + msg;
-      alert("No se pudo recuperar.\n\n" + msg);
+      $("apiHint").textContent = msg;
+      alert(msg);
       return;
     }
 
-    // ✅ Si hay múltiples, abrimos modal de listado y cargamos filas ahí
-    if(data.multi && Array.isArray(data.rows) && data.rows.length){
-      openLookupPrefilled();
-      renderLookupResults(data.rows);
-      setLookupStatus(`Hay ${data.rows.length} coincidencias. Selecciona la correcta.`, "warn");
-      $("apiHint").className = "warn";
-      $("apiHint").textContent = "Varios registros; selecciona uno.";
-      return;
-    }
-
-    if(!data.found || !data.rowParams){
+    if(!exact.found){
       $("apiHint").className = "warn";
       $("apiHint").textContent = "Sin registro con esas llaves.";
-      alert("No se encontró un registro con esas llaves en autoevaluaciones (ni en el fallback).");
+      // abre modal lookup con filtros ya puestos (para que el usuario revise)
+      openLookupPrefilled();
+      // auto dispara búsqueda (lista)
+      setTimeout(() => { try{ searchRecords(); }catch(_e){} }, 50);
       return;
     }
 
-    // ✅ Abre el modal con tabla Encabezado/Valor + detalle (como ya lo tenías)
+    // 2) Clientes (si el server ya lo incluye, lo usamos)
+    let clientesInfo = exact.clientes || null;
+
+    // 3) Componer evaluación clientes al campo desempeño
+    if(clientesInfo && clientesInfo.found){
+      const head = clientesInfo.nombre_evaluador ? `(${clientesInfo.nombre_evaluador}) ` : "";
+      const composed = `${head}${clientesInfo.retroalimentacion || ""}`.trim();
+      if(composed){
+        exact.rowParams.evaluacion_clientes = composed;
+        if(!exact.rowParams.nombre_evaluador && clientesInfo.nombre_evaluador){
+          exact.rowParams.nombre_evaluador = clientesInfo.nombre_evaluador;
+        }
+      }
+    }
+
+    // 4) Mostrar modal detalle + autollenar
     buildRecoverModal(
-      data.rowParams,
+      exact.rowParams,
       {
-        no_personal: data.rowParams.no_personal || no_personal,
-        periodo: data.rowParams.periodo || periodo,
-        version: data.rowParams.version || version,
-        rowNumber: data.rowNumber || "—"
+        no_personal: exact.rowParams.no_personal || no_personal,
+        periodo: exact.rowParams.periodo || periodo,
+        version: exact.rowParams.version || version,
+        rowNumber: exact.rowNumber || "—"
       },
-      data.clientes || null,
-      data.allColumns || []
+      clientesInfo || null,
+      exact.allColumns || []
     );
 
     $("apiHint").className = "ok";
-    $("apiHint").textContent = `Registro recuperado ✅ (${data.sourceSheet || "autoevaluaciones"})`;
+    $("apiHint").textContent = "Registro recuperado ✅ (autoevaluaciones)";
 
   }catch(err){
     console.error(err);
@@ -1944,7 +1870,6 @@ function openLookupPrefilled(){
   $("qNombre").value = $("nombre").value.trim();
   $("qPeriodo").value = $("periodo").value.trim();
   $("qVersion").value = $("version").value.trim();
-
   $("chipCount").textContent = "0 resultados";
   $("chipNote").textContent = "";
   $("lookupResultsBody").innerHTML = `<tr><td colspan="8" class="small-muted">Sin resultados aún.</td></tr>`;
@@ -1952,7 +1877,265 @@ function openLookupPrefilled(){
   openLookupModal();
 }
 
-/* ====== lo demás queda igual (bind/initApp/etc), SOLO ojo: btnRecover ya llama recoverByKeys ====== */
+/************************************************************
+ * ✅ UI: tipo / acciones / validación / guardado
+ ************************************************************/
+function applySearchUI(tipo){
+  const isDes = (tipo === "desempeno");
+  const badgeWrap = $("searchBadgeWrap");
+  if(badgeWrap) badgeWrap.style.display = isDes ? "inline" : "none";
+  ["fldNoPersonal","fldPeriodo","fldVersion"].forEach(id=>{
+    const el = $(id);
+    if(!el) return;
+    if(isDes) el.classList.add("searchField");
+    else el.classList.remove("searchField");
+  });
+  const btnRecover = $("btnRecover");
+  if(btnRecover) btnRecover.style.display = isDes ? "" : "none";
+}
+function applyTopActionsUI(tipo){
+  const isClientes = (tipo === "clientes");
+  $("btnGenerate").style.display = isClientes ? "none" : "";
+  $("btnPrint").style.display = isClientes ? "none" : "";
+}
+
+function applyTipoUI(){
+  const tipo = $("tipoFormulario").value;
+
+  $("appTitle").textContent =
+    (tipo === "autoevaluacion") ? "Formulario de autoevaluación" :
+    (tipo === "clientes") ? "Formulario evaluación clientes" :
+    "Formulario de evaluación del desempeño";
+
+  $("autoComentariosBox").style.display = (tipo === "autoevaluacion") ? "block" : "none";
+  $("desempenoCamposBox").style.display = (tipo === "desempeno") ? "block" : "none";
+  $("clientesBox").style.display = (tipo === "clientes") ? "block" : "none";
+  $("evalCard").style.display = (tipo === "clientes") ? "none" : "block";
+
+  if(tipo !== "clientes") renderItems();
+  ensureItemsVisibleIfNeeded();
+  applySearchUI(tipo);
+  applyTopActionsUI(tipo);
+  setDefaultToday();
+}
+
+function clearForm(){
+  $("noPersonal").value = "";
+  $("nombre").value = "";
+  $("posicion").value = "";
+  $("departamento").value = "";
+  $("periodo").value = "";
+  $("version").value = "";
+  $("fecha").value = "";
+  setDefaultToday();
+
+  $("comentariosColaborador").value = "";
+  $("justificacion").value = "";
+  $("comentariosEvaluador").value = "";
+  $("fortalezas").value = "";
+  $("oportunidades").value = "";
+  $("proyeccion").value = "";
+  $("necesidadesCapacitacion").value = "";
+  $("comentariosColaborador2").value = "";
+  $("evaluacionClientes").value = "";
+
+  const neCli = $("nombreEvaluador");
+  if(neCli) neCli.value = "";
+  const r = $("retroalimentacion");
+  if(r) r.value = "";
+  const ne = $("nombreEvaluadorDesempeno");
+  if(ne) ne.value = "";
+
+  state.answers = {};
+  ITEMS.forEach(sec => sec.items.forEach(it=>{
+    const el = $("ans_"+it.key);
+    if(el) el.value = "";
+  }));
+
+  $("printArea").style.display = "none";
+  state.generated = false;
+  setDirty(false);
+
+  $("apiHint").className = "warn";
+  $("apiHint").textContent = "Listo para enviar";
+}
+
+function toFormUrlEncoded(obj){
+  return Object.keys(obj)
+    .map(k => encodeURIComponent(k) + "=" + encodeURIComponent(obj[k] ?? ""))
+    .join("&");
+}
+
+function buildComentariosParaSheet(tipo, extra){
+  if(tipo === "autoevaluacion"){
+    return [
+      extra.comentarios_colaborador ? `Comentarios colaborador: ${extra.comentarios_colaborador}` : "",
+      extra.justificacion ? `Justificación (1-6): ${extra.justificacion}` : "",
+      extra.comentarios_evaluador ? `Comentarios evaluador: ${extra.comentarios_evaluador}` : "",
+      extra.fortalezas ? `Fortalezas: ${extra.fortalezas}` : "",
+      extra.oportunidades_mejora ? `Oportunidades: ${extra.oportunidades_mejora}` : "",
+      extra.proyeccion_potencial ? `Proyección: ${extra.proyeccion_potencial}` : "",
+      extra.necesidades_capacitacion ? `Necesidades de capacitación: ${extra.necesidades_capacitacion}` : "",
+      extra.comentarios_colaborador2 ? `Comentarios colaborador (extra): ${extra.comentarios_colaborador2}` : "",
+      extra.evaluacion_clientes ? `Evaluación clientes: ${extra.evaluacion_clientes}` : ""
+    ].filter(Boolean).join("\n\n");
+  }
+
+  if(tipo === "desempeno"){
+    return [
+      extra.nombre_evaluador ? `Nombre del evaluador: ${extra.nombre_evaluador}` : "",
+      extra.comentarios_evaluador ? `Comentarios evaluador: ${extra.comentarios_evaluador}` : "",
+      extra.fortalezas ? `Fortalezas: ${extra.fortalezas}` : "",
+      extra.oportunidades_mejora ? `Oportunidades: ${extra.oportunidades_mejora}` : "",
+      extra.proyeccion_potencial ? `Proyección: ${extra.proyeccion_potencial}` : "",
+      extra.necesidades_capacitacion ? `Necesidades de capacitación: ${extra.necesidades_capacitacion}` : "",
+      extra.comentarios_colaborador ? `Comentarios colaborador: ${extra.comentarios_colaborador}` : "",
+      extra.evaluacion_clientes ? `Evaluación clientes: ${extra.evaluacion_clientes}` : ""
+    ].filter(Boolean).join("\n\n");
+  }
+
+  if(tipo === "clientes"){
+    return [
+      extra.nombre_evaluador ? `Nombre del evaluador: ${extra.nombre_evaluador}` : "",
+      extra.retroalimentacion ? `${extra.retroalimentacion}` : ""
+    ].filter(Boolean).join("\n\n");
+  }
+
+  return "";
+}
+
+function validateAll(){
+  const header = getHeaderData();
+  const extra = getExtraFields();
+  const tipo = header.tipo;
+  const missing = [];
+
+  // Campos base (SIEMPRE)
+  if(!header.no_personal) missing.push("No. de personal");
+  if(!header.nombre) missing.push("Nombre");
+  if(!header.posicion) missing.push("Posición");
+  if(!header.departamento) missing.push("Departamento");
+  if(!header.periodo) missing.push("Periodo");
+  if(!header.version) missing.push("Versión");
+  if(!header.fecha) missing.push("Fecha");
+
+  if(tipo === "clientes"){
+    if(!extra.retroalimentacion) missing.push("Retroalimentación");
+    if(!extra.nombre_evaluador) missing.push("Nombre del evaluador");
+    return { ok: missing.length === 0, missing, header, extra };
+  }
+
+  // Items 1–5 (SIEMPRE para autoevaluación y desempeño)
+  ITEMS.forEach(sec => sec.items.forEach(it => {
+    const v = state.answers[it.key];
+    if(!(typeof v === "number" && v >= 1 && v <= 5)){
+      missing.push(it.label);
+    }
+  }));
+
+  if(tipo === "autoevaluacion"){
+    if(!extra.comentarios_colaborador) missing.push("Comentarios del colaborador");
+  }
+
+  if(tipo === "desempeno"){
+    // Campos desempeño (NO los quito)
+    if(!extra.justificacion) missing.push("Justificación calificaciones");
+    if(!extra.comentarios_evaluador) missing.push("Comentarios del evaluador");
+    if(!extra.fortalezas) missing.push("Fortalezas");
+    if(!extra.oportunidades_mejora) missing.push("Oportunidades de mejora");
+    if(!extra.proyeccion_potencial) missing.push("Proyección y potencial");
+    if(!extra.comentarios_colaborador) missing.push("Comentarios del colaborador");
+  }
+
+  return { ok: missing.length === 0, missing, header, extra };
+}
+
+async function saveToSheet(){
+  if(state.saving) return;
+
+  const v = validateAll();
+  if(!v.ok){
+    const unique = Array.from(new Set(v.missing));
+    alert("Faltan campos/selecciones:\n\n• " + unique.join("\n• "));
+    return;
+  }
+
+  const header = v.header;
+  const extra = v.extra;
+  const answersText = flattenAnswersSelectedText();
+  const total = (header.tipo === "clientes") ? 0 : computeTotal();
+
+  const respuestasJSON = JSON.stringify({
+    header,
+    answers: answersText,
+    extra,
+    puntaje_total: total,
+    creado_en: new Date().toISOString()
+  });
+
+  const formPayload = {
+    tipo: header.tipo,
+    no_personal: header.no_personal,
+    nombre: header.nombre,
+    posicion: header.posicion,
+    departamento: header.departamento,
+    periodo: header.periodo,
+    version: header.version,
+    fecha: header.fecha,
+
+    // Items
+    ...answersText,
+
+    // Clientes (solo si tipo=clientes)
+    retroalimentacion: (header.tipo === "clientes") ? (extra.retroalimentacion || "") : "",
+    nombre_evaluador: (header.tipo === "clientes") ? (extra.nombre_evaluador || "")
+      : (header.tipo === "desempeno") ? (extra.nombre_evaluador || "")
+      : "",
+
+    // Desempeño
+    evaluacion_clientes: (header.tipo === "desempeno") ? (extra.evaluacion_clientes || "") : "",
+    necesidades_capacitacion: (header.tipo === "desempeno") ? (extra.necesidades_capacitacion || "") : "",
+
+    respuestas_json: respuestasJSON,
+    comentarios: buildComentariosParaSheet(header.tipo, extra),
+
+    // Textos “en columnas” (si existen)
+    justificacion: (extra.justificacion || ""),
+    comentarios_evaluador: (extra.comentarios_evaluador || ""),
+    fortalezas: (extra.fortalezas || ""),
+    oportunidades_mejora: (extra.oportunidades_mejora || ""),
+    proyeccion_potencial: (extra.proyeccion_potencial || "")
+  };
+
+  try{
+    assertApiUrl();
+    setBusy(true);
+    $("apiHint").className = "warn";
+    $("apiHint").textContent = "Enviando a Google Sheets...";
+
+    const body = toFormUrlEncoded(formPayload);
+    await fetch(normalizeApiUrl(API_URL), {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+      body
+    });
+
+    $("apiHint").className = "ok";
+    $("apiHint").textContent = "Enviado a Google Sheets ✅";
+    setDirty(false);
+  }catch(err){
+    console.error(err);
+    $("apiHint").className = "err";
+    $("apiHint").textContent = "No se pudo guardar: " + (err.message || err);
+    alert(
+      "No se pudo guardar.\n\n" + (err.message || err) + "\n\n" +
+      "Si el guardado funciona pero Recuperar no, revisa deploy público y bloqueo de red."
+    );
+  }finally{
+    setBusy(false);
+  }
+}
 
 function bind(){
   [
@@ -1979,10 +2162,9 @@ function bind(){
     clearForm();
   });
 
-  // ✅ Recuperar: definitivo (autoevaluaciones + clientes + fallback)
+  // ✅ Recuperar DEFINITIVO por llaves (auto) + clientes
   $("btnRecover").addEventListener("click", async ()=>{
     if(state.saving) return;
-
     const tipo = $("tipoFormulario").value;
     if(tipo !== "desempeno"){
       alert("Recuperar solo está disponible en el Formulario de evaluación del desempeño.");
@@ -2023,8 +2205,9 @@ function bind(){
   $("btnSave").addEventListener("click", saveToSheet);
 
   $("btnCloseReport").addEventListener("click", closeReportModal);
-  $("reportBackdrop").addEventListener("click", (e)=>{ if(e.target === $("reportBackdrop")) closeReportModal(); });
-
+  $("reportBackdrop").addEventListener("click", (e)=>{
+    if(e.target === $("reportBackdrop")) closeReportModal();
+  });
   $("btnPrintFromModal").addEventListener("click", ()=>{
     if(!state.generated){
       buildReport();
@@ -2034,7 +2217,9 @@ function bind(){
   });
 
   $("btnCloseRecovered").addEventListener("click", closeRecoverModal);
-  $("recoverBackdrop").addEventListener("click", (e)=>{ if(e.target === $("recoverBackdrop")) closeRecoverModal(); });
+  $("recoverBackdrop").addEventListener("click", (e)=>{
+    if(e.target === $("recoverBackdrop")) closeRecoverModal();
+  });
 
   $("btnApplyRecovered").addEventListener("click", ()=>{
     if(!lastRecovered || !lastRecovered.rowParams) return;
@@ -2052,11 +2237,13 @@ function bind(){
     closeRecoverModal();
   });
 
+  // Lookup modal
   $("btnCloseLookup").addEventListener("click", closeLookupModal);
-  $("lookupBackdrop").addEventListener("click", (e)=>{ if(e.target === $("lookupBackdrop")) closeLookupModal(); });
+  $("lookupBackdrop").addEventListener("click", (e)=>{
+    if(e.target === $("lookupBackdrop")) closeLookupModal();
+  });
 
   $("btnSearch").addEventListener("click", searchRecords);
-
   $("btnClearSearch").addEventListener("click", ()=>{
     $("qNoPersonal").value = "";
     $("qNombre").value = "";
@@ -2077,6 +2264,24 @@ function bind(){
     });
   });
 }
+
+function setDefaultToday(){
+  const f = $("fecha");
+  if(f && !f.value){
+    const d = new Date();
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth()+1).padStart(2,"0");
+    const dd = String(d.getDate()).padStart(2,"0");
+    f.value = `${yyyy}-${mm}-${dd}`;
+  }
+}
+
+window.addEventListener("beforeunload", (e)=>{
+  if(state.dirty){
+    e.preventDefault();
+    e.returnValue = "";
+  }
+});
 
 async function initApp(){
   try{
@@ -2103,7 +2308,7 @@ async function initApp(){
           <h3 style="margin:0 0 8px; color:#ffb4b4;">Error cargando los ítems</h3>
           <div class="muted" style="font-size:12px;">
             Revisa la consola (F12 → Console).<br>
-            <b>${String(err?.message || err)}</b>
+            <b>${escapeHtml(String(err?.message || err))}</b>
           </div>
         </div>
       `;
@@ -2121,3 +2326,5 @@ if(document.readyState === "loading"){
 </script>
 </body>
 </html>
+
+ 
