@@ -1605,9 +1605,6 @@ function buildRecoverModal(rowParams, meta, clientesInfo, allColumns){
 
   // ---- Resumen general ----
   const generalRows = [];
-  pushUnique(generalRows, "No. de personal", showDash(rowParams.no_personal || meta.no_personal));
-  pushUnique(generalRows, "Periodo", showDash(rowParams.periodo || meta.periodo));
-  pushUnique(generalRows, "Versión", showDash(rowParams.version || meta.version));
   pushUnique(generalRows, "Nombre", showDash(rowParams.nombre));
   pushUnique(generalRows, "Posición", showDash(rowParams.posicion));
   pushUnique(generalRows, "Departamento", showDash(rowParams.departamento));
