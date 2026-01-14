@@ -731,8 +731,13 @@
   </div>
 
 <script>
-<!-- ✅ CAMBIOS DESDE AQUÍ (reemplaza TODO el <script> hasta el final del HTML) -->
-<script>
+/************************************************************
+ * ✅ FIX CRÍTICO:
+ * - Eliminado <script> anidado (tenías <script> dentro de otro <script>)
+ * - Eliminado comentario HTML <!-- ... --> dentro del script
+ *   (eso también puede romper el JS)
+ ************************************************************/
+
 /************************************************************
  * 1) URL COMPLETA DEL APPS SCRIPT (/exec)
  ************************************************************/
@@ -1399,7 +1404,6 @@ function renderKeyReport(no_personal, periodo, version, sourceHint){
   host.appendChild(box);
 }
 
-/** ✅ Tabla completa Encabezado/Valor (todas las columnas) */
 function renderAllColumnsTable(allColumns){
   const host = $("recoverAllCols");
   host.innerHTML = "";
@@ -1429,12 +1433,6 @@ function renderAllColumnsTable(allColumns){
   host.appendChild(box);
 }
 
-/**
- * ✅ Reglas del negocio:
- * - Recuperar usa AUTOEVALUACIONES (hoja autoevaluaciones) por NoPersonal+Periodo+Version
- * - Además trae CLIENTES (retroalimentacion + nombre_evaluador) por esas mismas llaves
- * - La tabla (modal) muestra todo y permite: Autollenar todo / Autollenar solo textos
- */
 function buildRecoverModal(rowParams, meta, clientesInfo, allColumns){
   function showDash(v){
     const s = String(v ?? "").trim();
@@ -1536,9 +1534,7 @@ function buildRecoverModal(rowParams, meta, clientesInfo, allColumns){
   openRecoverModal();
 }
 
-/** ✅ Autollenar TODO (encabezados + selects + textos) */
 function applyRecoveredToForm(rowParams, clientesInfo){
-  // Encabezados
   $("noPersonal").value = rowParams.no_personal || $("noPersonal").value;
   $("periodo").value = rowParams.periodo || $("periodo").value;
   $("version").value = rowParams.version || $("version").value;
@@ -1547,11 +1543,9 @@ function applyRecoveredToForm(rowParams, clientesInfo){
   $("departamento").value = rowParams.departamento || $("departamento").value;
   $("fecha").value = rowParams.fecha || $("fecha").value;
 
-  // Cambia UI a desempeño (porque el botón Recuperar existe ahí)
   $("tipoFormulario").value = "desempeno";
   applyTipoUI();
 
-  // Textos desempeño
   if(rowParams.justificacion) $("justificacion").value = rowParams.justificacion;
   if(rowParams.comentarios_evaluador) $("comentariosEvaluador").value = rowParams.comentarios_evaluador;
   if(rowParams.nombre_evaluador && $("nombreEvaluadorDesempeno")) $("nombreEvaluadorDesempeno").value = rowParams.nombre_evaluador;
@@ -1560,7 +1554,6 @@ function applyRecoveredToForm(rowParams, clientesInfo){
   if(rowParams.proyeccion_potencial) $("proyeccion").value = rowParams.proyeccion_potencial;
   if(rowParams.necesidades_capacitacion) $("necesidadesCapacitacion").value = rowParams.necesidades_capacitacion;
 
-  // Evaluación clientes: prioridad a Clientes (retroalimentación)
   let evalCli = String(rowParams.evaluacion_clientes || "").trim();
   if(clientesInfo && clientesInfo.found){
     const head = clientesInfo.nombre_evaluador ? `(${clientesInfo.nombre_evaluador}) ` : "";
@@ -1572,7 +1565,6 @@ function applyRecoveredToForm(rowParams, clientesInfo){
   }
   if(evalCli) $("evaluacionClientes").value = evalCli;
 
-  // Items (selects)
   ensureItemsVisibleIfNeeded();
   ITEMS.forEach(sec => sec.items.forEach(it => {
     const raw = String(rowParams[it.key] ?? "").trim();
@@ -1585,12 +1577,10 @@ function applyRecoveredToForm(rowParams, clientesInfo){
   setDirty(false);
 }
 
-/** ✅ Autollenar SOLO TEXTOS (no toca selects) */
 function applyRecoveredTextsOnly(rowParams, clientesInfo){
   $("tipoFormulario").value = "desempeno";
   applyTipoUI();
 
-  // Encabezados
   if(rowParams.no_personal) $("noPersonal").value = rowParams.no_personal;
   if(rowParams.periodo) $("periodo").value = rowParams.periodo;
   if(rowParams.version) $("version").value = rowParams.version;
@@ -1599,7 +1589,6 @@ function applyRecoveredTextsOnly(rowParams, clientesInfo){
   if(rowParams.departamento) $("departamento").value = rowParams.departamento;
   if(rowParams.fecha) $("fecha").value = rowParams.fecha;
 
-  // Textos desempeño
   if(rowParams.justificacion) $("justificacion").value = rowParams.justificacion;
   if(rowParams.comentarios_evaluador) $("comentariosEvaluador").value = rowParams.comentarios_evaluador;
   if(rowParams.fortalezas) $("fortalezas").value = rowParams.fortalezas;
@@ -1608,7 +1597,6 @@ function applyRecoveredTextsOnly(rowParams, clientesInfo){
   if(rowParams.necesidades_capacitacion) $("necesidadesCapacitacion").value = rowParams.necesidades_capacitacion;
   if(rowParams.nombre_evaluador && $("nombreEvaluadorDesempeno")) $("nombreEvaluadorDesempeno").value = rowParams.nombre_evaluador;
 
-  // Evaluación clientes: prioridad a Clientes
   let evalCli = String(rowParams.evaluacion_clientes || "").trim();
   if(clientesInfo && clientesInfo.found){
     const head = clientesInfo.nombre_evaluador ? `(${clientesInfo.nombre_evaluador}) ` : "";
@@ -1626,7 +1614,7 @@ function applyRecoveredTextsOnly(rowParams, clientesInfo){
 }
 
 /************************************************************
- * ✅ LOOKUP MODAL (LISTA) — ahora busca en AUTOEVALUACIONES
+ * ✅ LOOKUP MODAL (LISTA)
  ************************************************************/
 let lastLookupResults = [];
 function setLookupStatus(txt, kind){
@@ -1677,7 +1665,6 @@ function renderLookupResults(rows){
       try{
         setLookupStatus("Cargando detalle…", "warn");
 
-        // ✅ detalle SIEMPRE desde autoevaluaciones
         const data = await jsonpRequestWithFallback({
           action: "recuperar_por_fila",
           tipo: "autoevaluacion",
@@ -1758,17 +1745,11 @@ async function searchRecords(){
     renderLookupResults([]);
     alert(
       "No se pudo consultar.\n\n" + (err.message || err) + "\n\n" +
-      "Tip real: el WebApp debe estar desplegado como 'Anyone' y tu red/extensión no debe bloquear script.google.com."
+      "Tip: el WebApp debe estar 'Anyone' y tu red/extensión no debe bloquear script.google.com."
     );
   }
 }
 
-/************************************************************
- * ✅ RECUPERAR (DEFINITIVO) POR LLAVES:
- * - Busca EXACTO en hoja autoevaluaciones (No personal + Periodo + Version)
- * - Trae Clientes retroalimentación por las mismas llaves
- * - Muestra tabla (modal) + botones autollenado
- ************************************************************/
 async function recoverByKeys(){
   if(state.saving) return;
 
@@ -1793,10 +1774,8 @@ async function recoverByKeys(){
     $("apiHint").className = "warn";
     $("apiHint").textContent = "Recuperando…";
 
-    // No bloqueamos por ping (redes bloquean JSONP)
     try{ await apiPing(); }catch(_e){}
 
-    // 1) Recuperar EXACTO autoevaluaciones
     const exact = await jsonpRequestWithFallback({
       action: "recuperar_por_keys",
       tipo: "autoevaluacion",
@@ -1805,7 +1784,6 @@ async function recoverByKeys(){
       version
     });
 
-    // Si no existe exacto: abre modal lista ya prellenado para buscar/seleccionar
     if(!exact || exact.ok === false){
       const msg = exact?.error || "Respuesta inválida recuperando por llaves.";
       $("apiHint").className = "err";
@@ -1817,17 +1795,13 @@ async function recoverByKeys(){
     if(!exact.found){
       $("apiHint").className = "warn";
       $("apiHint").textContent = "Sin registro con esas llaves.";
-      // abre modal lookup con filtros ya puestos (para que el usuario revise)
       openLookupPrefilled();
-      // auto dispara búsqueda (lista)
       setTimeout(() => { try{ searchRecords(); }catch(_e){} }, 50);
       return;
     }
 
-    // 2) Clientes (si el server ya lo incluye, lo usamos)
     let clientesInfo = exact.clientes || null;
 
-    // 3) Componer evaluación clientes al campo desempeño
     if(clientesInfo && clientesInfo.found){
       const head = clientesInfo.nombre_evaluador ? `(${clientesInfo.nombre_evaluador}) ` : "";
       const composed = `${head}${clientesInfo.retroalimentacion || ""}`.trim();
@@ -1839,7 +1813,6 @@ async function recoverByKeys(){
       }
     }
 
-    // 4) Mostrar modal detalle + autollenar
     buildRecoverModal(
       exact.rowParams,
       {
@@ -2010,7 +1983,6 @@ function validateAll(){
   const tipo = header.tipo;
   const missing = [];
 
-  // Campos base (SIEMPRE)
   if(!header.no_personal) missing.push("No. de personal");
   if(!header.nombre) missing.push("Nombre");
   if(!header.posicion) missing.push("Posición");
@@ -2025,7 +1997,6 @@ function validateAll(){
     return { ok: missing.length === 0, missing, header, extra };
   }
 
-  // Items 1–5 (SIEMPRE para autoevaluación y desempeño)
   ITEMS.forEach(sec => sec.items.forEach(it => {
     const v = state.answers[it.key];
     if(!(typeof v === "number" && v >= 1 && v <= 5)){
@@ -2038,7 +2009,6 @@ function validateAll(){
   }
 
   if(tipo === "desempeno"){
-    // Campos desempeño (NO los quito)
     if(!extra.justificacion) missing.push("Justificación calificaciones");
     if(!extra.comentarios_evaluador) missing.push("Comentarios del evaluador");
     if(!extra.fortalezas) missing.push("Fortalezas");
@@ -2083,23 +2053,19 @@ async function saveToSheet(){
     version: header.version,
     fecha: header.fecha,
 
-    // Items
     ...answersText,
 
-    // Clientes (solo si tipo=clientes)
     retroalimentacion: (header.tipo === "clientes") ? (extra.retroalimentacion || "") : "",
     nombre_evaluador: (header.tipo === "clientes") ? (extra.nombre_evaluador || "")
       : (header.tipo === "desempeno") ? (extra.nombre_evaluador || "")
       : "",
 
-    // Desempeño
     evaluacion_clientes: (header.tipo === "desempeno") ? (extra.evaluacion_clientes || "") : "",
     necesidades_capacitacion: (header.tipo === "desempeno") ? (extra.necesidades_capacitacion || "") : "",
 
     respuestas_json: respuestasJSON,
     comentarios: buildComentariosParaSheet(header.tipo, extra),
 
-    // Textos “en columnas” (si existen)
     justificacion: (extra.justificacion || ""),
     comentarios_evaluador: (extra.comentarios_evaluador || ""),
     fortalezas: (extra.fortalezas || ""),
@@ -2162,7 +2128,6 @@ function bind(){
     clearForm();
   });
 
-  // ✅ Recuperar DEFINITIVO por llaves (auto) + clientes
   $("btnRecover").addEventListener("click", async ()=>{
     if(state.saving) return;
     const tipo = $("tipoFormulario").value;
@@ -2237,7 +2202,6 @@ function bind(){
     closeRecoverModal();
   });
 
-  // Lookup modal
   $("btnCloseLookup").addEventListener("click", closeLookupModal);
   $("lookupBackdrop").addEventListener("click", (e)=>{
     if(e.target === $("lookupBackdrop")) closeLookupModal();
@@ -2326,5 +2290,3 @@ if(document.readyState === "loading"){
 </script>
 </body>
 </html>
-
- 
