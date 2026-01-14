@@ -1507,7 +1507,7 @@ function renderKeyReport(no_personal, periodo, version, sourceHint){
       <div class="small-muted">${escapeHtml(sourceHint || "")}</div>
     </div>
     <table class="mini-table" style="margin-top:10px;">
-      <thead><tr><th class="col-k">Campo</th><th class="col-v">Valor</th></tr></thead>
+      <thead><tr><th class="col-k">&nbsp;</th><th class="col-v">&nbsp;</th></tr></thead>
       <tbody>
         <tr><td class="col-k">No. personal</td><td class="col-v">${escapeHtml(no_personal || "—")}</td></tr>
         <tr><td class="col-k">Periodo</td><td class="col-v">${escapeHtml(periodo || "—")}</td></tr>
@@ -1535,7 +1535,7 @@ function renderAllColumnsTable(allColumns){
   box.innerHTML = `
     <div class="chip"><b>Datos recuperados (Encabezado / Valor)</b></div>
     <table class="mini-table" style="margin-top:10px;">
-      <thead><tr><th class="col-k">Encabezado</th><th class="col-v">Valor</th></tr></thead>
+      <thead><tr><th class="col-k">&nbsp;</th><th class="col-v">&nbsp;</th></tr></thead>
       <tbody>
         ${arr.map(x => `
           <tr>
@@ -1624,7 +1624,7 @@ function buildRecoverModal(rowParams, meta, clientesInfo, allColumns){
   gen.className = "mini-table";
   gen.innerHTML = `
     <thead>
-      <tr><th class="col-k">Campo</th><th class="col-v">Valor (Sheets)</th></tr>
+      <tr><th class="col-k">&nbsp;</th><th class="col-v">&nbsp;</th></tr>
     </thead>
     <tbody>
       ${generalRows.map(([k,v]) => `
@@ -2137,7 +2137,9 @@ function bind(){
     await recoverByKeys();
   });
 
-  $("btnCloseRecovered").addEventListener("click", closeRecoverModal);
+  const closeBtn = $("btnCloseRecovered");
+  if(closeBtn) closeBtn.addEventListener("click", closeRecoverModal);
+
   $("recoverBackdrop").addEventListener("click", (e)=>{
     if(e.target === $("recoverBackdrop")) closeRecoverModal();
   });
@@ -2150,13 +2152,7 @@ function bind(){
     closeRecoverModal();
   });
 
-  $("btnApplyRecoveredTexts").addEventListener("click", ()=>{
-    if(!lastRecovered || !lastRecovered.rowParams) return;
-    applyRecoveredTextsOnly(lastRecovered.rowParams, lastRecovered.clientesInfo || null);
-    $("apiHint").className = "ok";
-    $("apiHint").textContent = "Autollenado (solo textos) ✅";
-    closeRecoverModal();
-  });
+  // ❌ Eliminado: Autollenar solo textos (botón y binding)
 
   $("btnCloseLookup").addEventListener("click", closeLookupModal);
   $("lookupBackdrop").addEventListener("click", (e)=>{
@@ -2320,7 +2316,7 @@ if(document.readyState === "loading"){
       </div>
 
       <div class="small-muted" style="margin-top:10px;">
-        Tip: Si ves duplicados, selecciona la fila correcta. Luego en el detalle puedes usar <b>Autollenar todo</b> o <b>Autollenar solo textos</b>.
+        Tip: Si ves duplicados, selecciona la fila correcta. Luego en el detalle puedes usar <b>Autollenar todo</b>.
       </div>
     </div>
   </div>
@@ -2336,7 +2332,7 @@ if(document.readyState === "loading"){
         <div class="chip" id="recoverTitle"><b>Registro encontrado</b></div>
         <div id="recoverSub" class="small-muted" style="margin-top:6px;"></div>
       </div>
-      <button class="btn ghost" type="button" id="btnCloseRecovered">Cerrar</button>
+      <!-- ❌ Eliminado el Cerrar de arriba derecha -->
     </div>
 
     <div class="modal-body">
@@ -2361,8 +2357,8 @@ if(document.readyState === "loading"){
       </div>
 
       <div class="modal-footer" style="display:flex; justify-content:flex-end; gap:10px;">
-        <button class="btn" type="button" id="btnApplyRecoveredTexts">Autollenar solo textos</button>
         <button class="btn primary" type="button" id="btnApplyRecovered">Autollenar todo</button>
+        <button class="btn primary" type="button" id="btnCloseRecovered">Cerrar</button>
       </div>
     </div>
   </div>
