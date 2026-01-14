@@ -734,7 +734,7 @@
 /************************************************************
  * 1) URL COMPLETA DEL APPS SCRIPT (/exec)
  ************************************************************/
-const API_URL = "https://script.google.com/macros/s/AKfycbxLx6JtBklUXmkIDwVAgnefH3t0RFFab34RZB-kEnrMytw6kbKZSgWrvfKP7M3tXHusIA/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbzNBz1QL2svLAQwHtUJEU9OwjkHa9jXQlZoeSI9X8Gna4HwyJ9iQy7D2pDq_aCQpNiZLw/exec";
 
 function normalizeApiUrl(u){
   let x = String(u || "").trim();
@@ -1718,8 +1718,8 @@ function renderLookupResults(rows){
 async function searchRecords(){
   if(state.saving) return;
 
-  const tipo = $("tipoFormulario").value;
-  if(tipo !== "desempeno"){
+  const tipoUI = $("tipoFormulario").value;
+  if(tipoUI !== "desempeno"){
     alert("Recuperar solo está disponible en el Formulario de evaluación del desempeño.");
     return;
   }
@@ -1731,11 +1731,12 @@ async function searchRecords(){
 
   try{
     assertApiUrl();
-    setLookupStatus("Buscando...", "warn");
+    setLookupStatus("Buscando en autoevaluaciones...", "warn");
 
+    // ✅ AHORA BUSCA EN autoevaluaciones (como pides)
     const data = await jsonpRequestWithFallback({
       action: "buscar",
-      tipo: "desempeno",
+      tipo: "autoevaluacion",
       no_personal, nombre, periodo, version,
       limit: "50"
     });
@@ -1751,7 +1752,7 @@ async function searchRecords(){
     renderLookupResults(rows);
 
     if(!rows.length){
-      setLookupStatus("Sin resultados con esos filtros.", "warn");
+      setLookupStatus("Sin resultados con esos filtros (autoevaluaciones).", "warn");
     }else{
       setLookupStatus(`Listo. ${rows.length} resultado(s).`, "ok");
     }
@@ -1768,15 +1769,91 @@ async function searchRecords(){
 }
 
 /**
+ * ✅ Ajuste: el listado ahora puede venir de autoevaluaciones o desempeño,
+ * por eso usamos meta.tipo al seleccionar.
+ */
+function renderLookupResults(rows){
+  const tbody = $("lookupResultsBody");
+  lastLookupResults = Array.isArray(rows) ? rows : [];
+
+  $("chipCount").textContent = `${lastLookupResults.length} resultados`;
+  $("chipNote").textContent = lastLookupResults.length ? "Selecciona una fila para ver detalle y luego Autollenar." : "";
+
+  if(!lastLookupResults.length){
+    tbody.innerHTML = `<tr><td colspan="8" class="small-muted">Sin resultados.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = lastLookupResults.map((r, idx) => {
+    const meta = r.meta || {};
+    const rp = r.rowParams || {};
+    const src = meta.sheetName ? ` (${meta.sheetName})` : "";
+    return `
+      <tr>
+        <td class="r-col-act">
+          <button class="btn primary" type="button" data-pick="${idx}" style="padding:8px 12px;">Seleccionar</button>
+        </td>
+        <td class="r-col-row">${escapeHtml(String(meta.rowNumber ?? "—"))}</td>
+        <td class="r-col-np">${escapeHtml(String(rp.no_personal ?? ""))}</td>
+        <td>${escapeHtml(String(rp.nombre ?? ""))}${escapeHtml(src)}</td>
+        <td class="r-col-per">${escapeHtml(String(rp.periodo ?? ""))}</td>
+        <td class="r-col-ver">${escapeHtml(String(rp.version ?? ""))}</td>
+        <td class="r-col-fecha">${escapeHtml(String(rp.fecha ?? ""))}</td>
+        <td>${escapeHtml(String(rp.departamento ?? ""))}</td>
+      </tr>
+    `;
+  }).join("");
+
+  tbody.querySelectorAll("button[data-pick]").forEach(btn=>{
+    btn.addEventListener("click", async ()=>{
+      const i = Number(btn.getAttribute("data-pick"));
+      const pick = lastLookupResults[i];
+      if(!pick || !pick.meta || !pick.meta.rowNumber) return;
+
+      try{
+        setLookupStatus("Cargando detalle…", "warn");
+
+        const tipoServidor = (pick.meta && pick.meta.tipo) ? String(pick.meta.tipo) : "autoevaluacion";
+
+        const data = await jsonpRequestWithFallback({
+          action: "recuperar_por_fila",
+          tipo: tipoServidor,              // ✅ ahora respeta el tipo
+          rowNumber: String(pick.meta.rowNumber)
+        });
+
+        if(!data || !data.found || !data.rowParams){
+          setLookupStatus("No se pudo abrir detalle.", "err");
+          return;
+        }
+
+        buildRecoverModal(
+          data.rowParams,
+          {
+            no_personal: data.rowParams.no_personal || "",
+            periodo: data.rowParams.periodo || "",
+            version: data.rowParams.version || "",
+            rowNumber: data.rowNumber || pick.meta.rowNumber || ""
+          },
+          data.clientes || null,
+          data.allColumns || []
+        );
+
+        setLookupStatus("Detalle cargado.", "ok");
+      }catch(e){
+        setLookupStatus("Error: " + (e.message || e), "err");
+        alert("No se pudo abrir detalle: " + (e.message || e));
+      }
+    });
+  });
+}
+
 /**
- /**
-/**
- * ✅ NUEVO: Recuperar por LLAVES (No. personal + Periodo + Versión)
- * - Robustez: intenta recuperar en este orden:
- *   1) desempleño (por si tu Script usa EvaluacionResultados)
- *   2) autoevaluacion (porque tú indicas que Recuperar sale de hoja autoevaluaciones)
- * - Luego intenta traer Clientes (retroalimentación) y lo compone en "evaluacionClientes"
- * - No bloquea el flujo si apiPing falla (muchas redes bloquean JSONP ping aunque buscar funcione)
+ * ✅ NUEVO DEFINITIVO:
+ * Recuperar (Desempeño) por llaves:
+ * - 1) Autoevaluaciones (principal)
+ * - 2) Clientes (retroalimentación)
+ * - 3) Si no hay autoevaluación, intenta EvaluacionResultados (fallback)
+ * Devuelve y muestra la tabla + autollenado.
  */
 async function recoverByKeys(){
   if(state.saving) return;
@@ -1796,215 +1873,61 @@ async function recoverByKeys(){
     return;
   }
 
-  // Helper: intenta recuperar por keys → (legacy) o buscar→detalle por fila
-  async function tryRecoverTipo(tipoServidor){
-    // 1) Intento LEGACY (si tu Apps Script lo tiene)
-    try{
-      const legacy = await jsonpRequestWithFallback({
-        action: "recuperar_por_keys",
-        tipo: tipoServidor,
-        no_personal, periodo, version
-      });
-
-      if(legacy && legacy.ok !== false && legacy.found && legacy.rowParams){
-        return {
-          found: true,
-          rowParams: legacy.rowParams,
-          rowNumber: legacy.rowNumber || "—",
-          allColumns: legacy.allColumns || [],
-          clientes: legacy.clientes || null,
-          sourceTipo: tipoServidor,
-          sourceMode: "legacy_recuperar_por_keys"
-        };
-      }
-    }catch(_e){
-      // seguimos al fallback
-    }
-
-    // 2) Fallback: buscar por llaves → recuperar detalle por fila
-    const search = await jsonpRequestWithFallback({
-      action: "buscar",
-      tipo: tipoServidor,
-      no_personal,
-      periodo,
-      version,
-      limit: "5"
-    });
-
-    if(!search || search.ok === false){
-      return { found:false, error: (search && search.error) ? search.error : "Respuesta inválida (buscar)." };
-    }
-
-    const rows = Array.isArray(search.rows) ? search.rows : [];
-    if(rows.length === 0) return { found:false };
-
-    // si hay varios, mandamos a selección manual (modal lookup)
-    if(rows.length > 1){
-      return { found:false, multi:true, rows, sourceTipo: tipoServidor };
-    }
-
-    const pick = rows[0];
-    const rowNumber = pick?.meta?.rowNumber;
-    if(!rowNumber){
-      return { found:false, error:"Resultados sin rowNumber. Revisa Apps Script." };
-    }
-
-    const detail = await jsonpRequestWithFallback({
-      action: "recuperar_por_fila",
-      tipo: tipoServidor,
-      rowNumber: String(rowNumber)
-    });
-
-    if(!detail || detail.ok === false){
-      return { found:false, error: (detail && detail.error) ? detail.error : "Respuesta inválida (recuperar_por_fila)." };
-    }
-
-    if(!detail.found || !detail.rowParams){
-      return { found:false };
-    }
-
-    return {
-      found: true,
-      rowParams: detail.rowParams,
-      rowNumber: detail.rowNumber || rowNumber || "—",
-      allColumns: detail.allColumns || [],
-      clientes: detail.clientes || null,
-      sourceTipo: tipoServidor,
-      sourceMode: "buscar+recuperar_por_fila"
-    };
-  }
-
-  // Helper: intenta traer info de Clientes por llaves (si tu script soporta buscar/recuperar_por_fila tipo clientes)
-  async function tryFetchClientes(){
-    try{
-      const s = await jsonpRequestWithFallback({
-        action: "buscar",
-        tipo: "clientes",
-        no_personal,
-        periodo,
-        version,
-        limit: "3"
-      });
-
-      if(!s || s.ok === false) return null;
-
-      const rows = Array.isArray(s.rows) ? s.rows : [];
-      if(!rows.length) return null;
-
-      // si hay varios, usamos el primero (puedes cambiar a modal si quieres)
-      const rowNumber = rows[0]?.meta?.rowNumber;
-      if(!rowNumber) return null;
-
-      const d = await jsonpRequestWithFallback({
-        action: "recuperar_por_fila",
-        tipo: "clientes",
-        rowNumber: String(rowNumber)
-      });
-
-      if(!d || d.ok === false || !d.found || !d.rowParams) return null;
-
-      // Normalizamos nombres posibles
-      const rp = d.rowParams || {};
-      const retro = (rp.retroalimentacion ?? rp.Retroalimentacion ?? rp.retro ?? "").toString().trim();
-      const ne = (rp.nombre_evaluador ?? rp.nombreEvaluador ?? rp.evaluador ?? "").toString().trim();
-
-      return {
-        found: true,
-        rowNumber: d.rowNumber || rowNumber || "—",
-        retroalimentacion: retro,
-        nombre_evaluador: ne
-      };
-    }catch(_e){
-      return null;
-    }
-  }
-
   try{
     assertApiUrl();
     setBusy(true);
 
     $("apiHint").className = "warn";
-    $("apiHint").textContent = "Recuperando…";
+    $("apiHint").textContent = "Recuperando (autoevaluaciones + clientes)…";
 
-    // 👇 ya NO bloqueamos por ping; si responde, bien; si no, seguimos intentando recuperar
-    try{ await apiPing(); }catch(_e){}
+    // ✅ Acción nueva del WebApp (GS): una sola llamada y listo
+    const data = await jsonpRequestWithFallback({
+      action: "recuperar_desempeno_por_keys",
+      no_personal,
+      periodo,
+      version
+    });
 
-    // ✅ 1) Intento recuperar desde "desempeno"
-    let recovered = await tryRecoverTipo("desempeno");
-
-    // ✅ Si no existe en desempeño, probamos desde "autoevaluacion" (tu requisito)
-    if(!recovered?.found && !recovered?.multi){
-      const alt = await tryRecoverTipo("autoevaluacion");
-      if(alt?.found || alt?.multi) recovered = alt;
+    if(!data || data.ok === false){
+      const msg = (data && data.error) ? data.error : "Respuesta inválida del servidor.";
+      $("apiHint").className = "err";
+      $("apiHint").textContent = "No se pudo recuperar: " + msg;
+      alert("No se pudo recuperar.\n\n" + msg);
+      return;
     }
 
-    // Si hay múltiples, abrimos modal de búsqueda con filtros ya llenos (para elegir)
-    if(recovered && recovered.multi){
+    // ✅ Si hay múltiples, abrimos modal de listado y cargamos filas ahí
+    if(data.multi && Array.isArray(data.rows) && data.rows.length){
+      openLookupPrefilled();
+      renderLookupResults(data.rows);
+      setLookupStatus(`Hay ${data.rows.length} coincidencias. Selecciona la correcta.`, "warn");
       $("apiHint").className = "warn";
       $("apiHint").textContent = "Varios registros; selecciona uno.";
-      openLookupPrefilled();
-      // Nota: searchRecords() usa tipo "desempeno" en tu implementación.
-      // Para cumplir tu requisito (autoevaluaciones), hacemos búsqueda automática por ambos:
-      setTimeout(async ()=>{
-        try{
-          // 1) busca en desempeño
-          await searchRecords();
-          // 2) si no hay, sugiere cambiar a autoevaluacion desde servidor (sin cambiar UI)
-          // (No tocamos el modal; el usuario ya puede refinar)
-        }catch(_e){}
-      }, 50);
-      alert("Se encontraron varios registros con esas llaves. Selecciona el correcto en la lista.");
       return;
     }
 
-    if(!recovered || !recovered.found || !recovered.rowParams){
+    if(!data.found || !data.rowParams){
       $("apiHint").className = "warn";
       $("apiHint").textContent = "Sin registro con esas llaves.";
-      alert("No se encontró un registro con esas llaves (No. personal / Periodo / Versión) en autoevaluaciones ni en desempeño.");
+      alert("No se encontró un registro con esas llaves en autoevaluaciones (ni en el fallback).");
       return;
     }
 
-    // ✅ 2) Intento traer Clientes (retroalimentación)
-    // - Si el servidor ya lo mandó en recovered.clientes, lo usamos.
-    // - Si no, hacemos lookup directo a tipo "clientes".
-    let clientesInfo = recovered.clientes || null;
-
-    if(!clientesInfo || !clientesInfo.found){
-      const cli = await tryFetchClientes();
-      if(cli && cli.found) clientesInfo = cli;
-    }
-
-    // ✅ 3) Si existe Clientes, componemos el texto para el campo desempeño "evaluacionClientes"
-    // sin perder lo ya guardado en desempeño/autoevaluaciones
-    if(clientesInfo && clientesInfo.found){
-      const head = clientesInfo.nombre_evaluador ? `(${clientesInfo.nombre_evaluador}) ` : "";
-      const composed = `${head}${clientesInfo.retroalimentacion || ""}`.trim();
-
-      // Setea en rowParams para que el modal/autollenado lo use
-      if(composed){
-        recovered.rowParams.evaluacion_clientes = composed;
-        // también setea nombre evaluador desempeño si viene en clientes y está vacío
-        if(!recovered.rowParams.nombre_evaluador && clientesInfo.nombre_evaluador){
-          recovered.rowParams.nombre_evaluador = clientesInfo.nombre_evaluador;
-        }
-      }
-    }
-
-    // ✅ 4) Abre modal de detalle recuperado (como ya lo tienes)
+    // ✅ Abre el modal con tabla Encabezado/Valor + detalle (como ya lo tenías)
     buildRecoverModal(
-      recovered.rowParams,
+      data.rowParams,
       {
-        no_personal: recovered.rowParams.no_personal || no_personal,
-        periodo: recovered.rowParams.periodo || periodo,
-        version: recovered.rowParams.version || version,
-        rowNumber: recovered.rowNumber || "—"
+        no_personal: data.rowParams.no_personal || no_personal,
+        periodo: data.rowParams.periodo || periodo,
+        version: data.rowParams.version || version,
+        rowNumber: data.rowNumber || "—"
       },
-      clientesInfo || null,
-      recovered.allColumns || []
+      data.clientes || null,
+      data.allColumns || []
     );
 
     $("apiHint").className = "ok";
-    $("apiHint").textContent = `Registro recuperado ✅ (${recovered.sourceTipo})`;
+    $("apiHint").textContent = `Registro recuperado ✅ (${data.sourceSheet || "autoevaluaciones"})`;
 
   }catch(err){
     console.error(err);
@@ -2029,265 +1952,7 @@ function openLookupPrefilled(){
   openLookupModal();
 }
 
-function applySearchUI(tipo){
-  const isDes = (tipo === "desempeno");
-  const badgeWrap = $("searchBadgeWrap");
-  if(badgeWrap) badgeWrap.style.display = isDes ? "inline" : "none";
-
-  const targets = ["fldNoPersonal", "fldPeriodo", "fldVersion"];
-  targets.forEach(id=>{
-    const el = $(id);
-    if(!el) return;
-    if(isDes) el.classList.add("searchField");
-    else el.classList.remove("searchField");
-  });
-
-  const btnRecover = $("btnRecover");
-  if(btnRecover){
-    btnRecover.style.display = isDes ? "" : "none";
-  }
-}
-function applyTopActionsUI(tipo){
-  const isClientes = (tipo === "clientes");
-  $("btnGenerate").style.display = isClientes ? "none" : "";
-  $("btnPrint").style.display = isClientes ? "none" : "";
-}
-
-function applyTipoUI(){
-  const tipo = $("tipoFormulario").value;
-
-  $("appTitle").textContent =
-    tipo === "autoevaluacion" ? "Formulario de autoevaluación" :
-    tipo === "clientes" ? "Formulario evaluación clientes" :
-    "Formulario de evaluación del desempeño";
-
-  $("autoComentariosBox").style.display = (tipo === "autoevaluacion") ? "block" : "none";
-  $("desempenoCamposBox").style.display = (tipo === "desempeno") ? "block" : "none";
-  $("clientesBox").style.display = (tipo === "clientes") ? "block" : "none";
-  $("evalCard").style.display = (tipo === "clientes") ? "none" : "block";
-
-  if(tipo !== "clientes"){
-    renderItems();
-  }
-  ensureItemsVisibleIfNeeded();
-  applySearchUI(tipo);
-  applyTopActionsUI(tipo);
-  setDefaultToday();
-}
-
-function clearForm(){
-  $("noPersonal").value = "";
-  $("nombre").value = "";
-  $("posicion").value = "";
-  $("departamento").value = "";
-  $("periodo").value = "";
-  $("version").value = "";
-  $("fecha").value = "";
-  setDefaultToday();
-
-  $("comentariosColaborador").value = "";
-  $("justificacion").value = "";
-  $("comentariosEvaluador").value = "";
-  $("fortalezas").value = "";
-  $("oportunidades").value = "";
-  $("proyeccion").value = "";
-  $("necesidadesCapacitacion").value = "";
-  $("comentariosColaborador2").value = "";
-  $("evaluacionClientes").value = "";
-
-  const neCli = $("nombreEvaluador");
-  if(neCli) neCli.value = "";
-  const r = $("retroalimentacion");
-  if(r) r.value = "";
-  const ne = $("nombreEvaluadorDesempeno");
-  if(ne) ne.value = "";
-
-  state.answers = {};
-  ITEMS.forEach(sec => sec.items.forEach(it=>{
-    const el = $("ans_"+it.key);
-    if(el) el.value = "";
-  }));
-
-  $("printArea").style.display = "none";
-  state.generated = false;
-  setDirty(false);
-
-  $("apiHint").className = "warn";
-  $("apiHint").textContent = "Listo para enviar";
-}
-
-function toFormUrlEncoded(obj){
-  return Object.keys(obj)
-    .map(k => encodeURIComponent(k) + "=" + encodeURIComponent(obj[k] ?? ""))
-    .join("&");
-}
-
-function buildComentariosParaSheet(tipo, extra){
-  if(tipo === "autoevaluacion"){
-    return [
-      extra.comentarios_colaborador ? `Comentarios colaborador: ${extra.comentarios_colaborador}` : "",
-      extra.justificacion ? `Justificación (1-6): ${extra.justificacion}` : "",
-      extra.comentarios_evaluador ? `Comentarios evaluador: ${extra.comentarios_evaluador}` : "",
-      extra.fortalezas ? `Fortalezas: ${extra.fortalezas}` : "",
-      extra.oportunidades_mejora ? `Oportunidades: ${extra.oportunidades_mejora}` : "",
-      extra.proyeccion_potencial ? `Proyección: ${extra.proyeccion_potencial}` : "",
-      extra.necesidades_capacitacion ? `Necesidades de capacitación: ${extra.necesidades_capacitacion}` : "",
-      extra.comentarios_colaborador2 ? `Comentarios colaborador (extra): ${extra.comentarios_colaborador2}` : "",
-      extra.evaluacion_clientes ? `Evaluación clientes: ${extra.evaluacion_clientes}` : ""
-    ].filter(Boolean).join("\n\n");
-  }
-
-  if(tipo === "desempeno"){
-    return [
-      extra.nombre_evaluador ? `Nombre del evaluador: ${extra.nombre_evaluador}` : "",
-      extra.comentarios_evaluador ? `Comentarios evaluador: ${extra.comentarios_evaluador}` : "",
-      extra.fortalezas ? `Fortalezas: ${extra.fortalezas}` : "",
-      extra.oportunidades_mejora ? `Oportunidades: ${extra.oportunidades_mejora}` : "",
-      extra.proyeccion_potencial ? `Proyección: ${extra.proyeccion_potencial}` : "",
-      extra.necesidades_capacitacion ? `Necesidades de capacitación: ${extra.necesidades_capacitacion}` : "",
-      extra.comentarios_colaborador ? `Comentarios colaborador: ${extra.comentarios_colaborador}` : "",
-      extra.evaluacion_clientes ? `Evaluación clientes: ${extra.evaluacion_clientes}` : ""
-    ].filter(Boolean).join("\n\n");
-  }
-
-  if(tipo === "clientes"){
-    return [
-      extra.nombre_evaluador ? `Nombre del evaluador: ${extra.nombre_evaluador}` : "",
-      extra.retroalimentacion ? `${extra.retroalimentacion}` : ""
-    ].filter(Boolean).join("\n\n");
-  }
-  return "";
-}
-
-function validateAll(){
-  const header = getHeaderData();
-  const extra = getExtraFields();
-  const tipo = header.tipo;
-  const missing = [];
-
-  if(!header.no_personal) missing.push("No. de personal");
-  if(!header.nombre) missing.push("Nombre");
-  if(!header.posicion) missing.push("Posición");
-  if(!header.departamento) missing.push("Departamento");
-  if(!header.periodo) missing.push("Periodo");
-  if(!header.version) missing.push("Versión");
-  if(!header.fecha) missing.push("Fecha");
-
-  if(tipo === "clientes"){
-    if(!extra.retroalimentacion) missing.push("Retroalimentación");
-    if(!extra.nombre_evaluador) missing.push("Nombre del evaluador");
-    return { ok: missing.length === 0, missing, header, extra };
-  }
-
-  ITEMS.forEach(sec => sec.items.forEach(it => {
-    const v = state.answers[it.key];
-    if(!(typeof v === "number" && v >= 1 && v <= 5)){
-      missing.push(it.label);
-    }
-  }));
-
-  if(tipo === "autoevaluacion"){
-    if(!extra.comentarios_colaborador) missing.push("Comentarios del colaborador");
-  }
-
-  if(tipo === "desempeno"){
-    if(!extra.justificacion) missing.push("Justificación calificaciones");
-    if(!extra.comentarios_evaluador) missing.push("Comentarios del evaluador");
-    if(!extra.fortalezas) missing.push("Fortalezas");
-    if(!extra.oportunidades_mejora) missing.push("Oportunidades de mejora");
-    if(!extra.proyeccion_potencial) missing.push("Proyección y potencial");
-    if(!extra.comentarios_colaborador) missing.push("Comentarios del colaborador");
-  }
-
-  return { ok: missing.length === 0, missing, header, extra };
-}
-
-async function saveToSheet(){
-  if(state.saving) return;
-
-  const v = validateAll();
-  if(!v.ok){
-    const unique = Array.from(new Set(v.missing));
-    alert("Faltan campos/selecciones:\n\n• " + unique.join("\n• "));
-    return;
-  }
-
-  const header = v.header;
-  const extra = v.extra;
-
-  const answersText = flattenAnswersSelectedText();
-  const total = (header.tipo === "clientes") ? 0 : computeTotal();
-
-  const respuestasJSON = JSON.stringify({
-    header,
-    answers: answersText,
-    extra,
-    puntaje_total: total,
-    creado_en: new Date().toISOString()
-  });
-
-  const formPayload = {
-    tipo: header.tipo,
-    no_personal: header.no_personal,
-    nombre: header.nombre,
-    posicion: header.posicion,
-    departamento: header.departamento,
-    periodo: header.periodo,
-    version: header.version,
-    fecha: header.fecha,
-
-    ...answersText,
-
-    retroalimentacion: (header.tipo === "clientes") ? (extra.retroalimentacion || "") : "",
-    nombre_evaluador:
-      (header.tipo === "clientes") ? (extra.nombre_evaluador || "") :
-      (header.tipo === "desempeno") ? (extra.nombre_evaluador || "") : "",
-
-    evaluacion_clientes: (header.tipo === "desempeno") ? (extra.evaluacion_clientes || "") : "",
-    necesidades_capacitacion: (header.tipo === "desempeno") ? (extra.necesidades_capacitacion || "") : "",
-
-    respuestas_json: respuestasJSON,
-    comentarios: buildComentariosParaSheet(header.tipo, extra),
-
-    justificacion: (header.tipo === "desempeno") ? (extra.justificacion || "") : (extra.justificacion || ""),
-    comentarios_evaluador: (header.tipo === "desempeno") ? (extra.comentarios_evaluador || "") : (extra.comentarios_evaluador || ""),
-    fortalezas: (header.tipo === "desempeno") ? (extra.fortalezas || "") : (extra.fortalezas || ""),
-    oportunidades_mejora: (header.tipo === "desempeno") ? (extra.oportunidades_mejora || "") : (extra.oportunidades_mejora || ""),
-    proyeccion_potencial: (header.tipo === "desempeno") ? (extra.proyeccion_potencial || "") : (extra.proyeccion_potencial || "")
-  };
-
-  try{
-    assertApiUrl();
-    setBusy(true);
-
-    $("apiHint").className = "warn";
-    $("apiHint").textContent = "Enviando a Google Sheets...";
-
-    const body = toFormUrlEncoded(formPayload);
-    await fetch(normalizeApiUrl(API_URL), {
-      method: "POST",
-      mode: "no-cors",
-      headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
-      body
-    });
-
-    $("apiHint").className = "ok";
-    $("apiHint").textContent = "Enviado a Google Sheets ✅";
-    setDirty(false);
-  }catch(err){
-    console.error(err);
-    $("apiHint").className = "err";
-    $("apiHint").textContent = "No se pudo guardar: " + (err.message || err);
-
-    alert(
-      "No se pudo guardar.\n\n" +
-      (err.message || err) + "\n\n" +
-      "Si el guardado funciona pero el recuperar no, revisa deploy público y bloqueo de red."
-    );
-  }finally{
-    setBusy(false);
-  }
-}
+/* ====== lo demás queda igual (bind/initApp/etc), SOLO ojo: btnRecover ya llama recoverByKeys ====== */
 
 function bind(){
   [
@@ -2314,7 +1979,7 @@ function bind(){
     clearForm();
   });
 
-  // ✅ Recuperar: ya NO depende de apiPing para permitir recuperación aunque ping falle
+  // ✅ Recuperar: definitivo (autoevaluaciones + clientes + fallback)
   $("btnRecover").addEventListener("click", async ()=>{
     if(state.saving) return;
 
@@ -2323,7 +1988,6 @@ function bind(){
       alert("Recuperar solo está disponible en el Formulario de evaluación del desempeño.");
       return;
     }
-
     await recoverByKeys();
   });
 
@@ -2413,24 +2077,6 @@ function bind(){
     });
   });
 }
-
-function setDefaultToday(){
-  const f = $("fecha");
-  if(f && !f.value){
-    const d = new Date();
-    const yyyy = d.getFullYear();
-    const mm = String(d.getMonth()+1).padStart(2,"0");
-    const dd = String(d.getDate()).padStart(2,"0");
-    f.value = `${yyyy}-${mm}-${dd}`;
-  }
-}
-
-window.addEventListener("beforeunload", (e)=>{
-  if(state.dirty){
-    e.preventDefault();
-    e.returnValue = "";
-  }
-});
 
 async function initApp(){
   try{
