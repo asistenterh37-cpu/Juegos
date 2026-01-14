@@ -1549,7 +1549,10 @@ function renderAllColumnsTable(allColumns){
   host.appendChild(box);
 }
 
-<script>
+/* =========================================================
+   ✅ FIX PRINCIPAL: NO HAY <script> ANIDADO AQUÍ
+   - buildRecoverModal queda dentro del mismo script
+   ========================================================= */
 function buildRecoverModal(rowParams, meta, clientesInfo, allColumns){
   function showDash(v){
     const s = String(v ?? "").trim();
@@ -1564,7 +1567,7 @@ function buildRecoverModal(rowParams, meta, clientesInfo, allColumns){
   function pushUnique(rows, label, value){
     const k = normKey(label);
     if(!k) return;
-    if(rows.some(([lbl]) => normKey(lbl) === k)) return; // ✅ evita duplicados por etiqueta
+    if(rows.some(([lbl]) => normKey(lbl) === k)) return;
     rows.push([label, value]);
   }
 
@@ -1580,8 +1583,7 @@ function buildRecoverModal(rowParams, meta, clientesInfo, allColumns){
 
   renderKeyReport(meta.no_personal, meta.periodo, meta.version, hint);
 
-  // ✅ EVITA DATA REPETIDA: la tabla debug (allColumns) puede repetir lo del resumen.
-  // Si quieres verla, cambia a true.
+  // Debug opcional
   const SHOW_DEBUG_ALLCOLS = false;
   if(SHOW_DEBUG_ALLCOLS){
     renderAllColumnsTable(allColumns);
@@ -1601,7 +1603,7 @@ function buildRecoverModal(rowParams, meta, clientesInfo, allColumns){
     if(composed) evalCli = composed;
   }
 
-  // ---- Resumen general (SIN duplicados) ----
+  // ---- Resumen general ----
   const generalRows = [];
   pushUnique(generalRows, "No. de personal", showDash(rowParams.no_personal || meta.no_personal));
   pushUnique(generalRows, "Periodo", showDash(rowParams.periodo || meta.periodo));
@@ -1611,7 +1613,6 @@ function buildRecoverModal(rowParams, meta, clientesInfo, allColumns){
   pushUnique(generalRows, "Departamento", showDash(rowParams.departamento));
   pushUnique(generalRows, "Fecha", showDash(rowParams.fecha));
 
-  // ✅ Incluidos (y deduplicados) textos típicos
   pushUnique(generalRows, "Comentarios del colaborador", showDash(rowParams.comentarios_colaborador ?? rowParams.comentarios));
   pushUnique(generalRows, "Justificación", showDash(rowParams.justificacion));
   pushUnique(generalRows, "Comentarios del evaluador", showDash(rowParams.comentarios_evaluador));
@@ -1620,16 +1621,7 @@ function buildRecoverModal(rowParams, meta, clientesInfo, allColumns){
   pushUnique(generalRows, "Oportunidades", showDash(rowParams.oportunidades_mejora));
   pushUnique(generalRows, "Proyección", showDash(rowParams.proyeccion_potencial));
   pushUnique(generalRows, "Necesidades de capacitación", showDash(rowParams.necesidades_capacitacion));
-
-  // ✅ Clientes: UNA sola fila (combinada)
   pushUnique(generalRows, "Evaluación clientes (desempeño)", showDash(evalCli));
-
-  // Si quieres ver clientes separado, cambia a true
-  const SHOW_CLIENTS_SPLIT_FIELDS = false;
-  if(SHOW_CLIENTS_SPLIT_FIELDS && cliFound){
-    pushUnique(generalRows, "Retroalimentación (Clientes)", showDash(cliRetro));
-    pushUnique(generalRows, "Nombre evaluador (Clientes)", showDash(cliEvalNom));
-  }
 
   const gen = document.createElement("table");
   gen.className = "mini-table";
@@ -1649,6 +1641,7 @@ function buildRecoverModal(rowParams, meta, clientesInfo, allColumns){
   $("recoverGeneral").innerHTML = "";
   $("recoverGeneral").appendChild(gen);
 
+  // ---- Items ----
   const it = document.createElement("table");
   it.className = "items-table";
   it.innerHTML = `
@@ -1776,10 +1769,7 @@ let lastLookupResults = [];
 function setLookupStatus(txt, kind){
   const el = $("lookupStatus");
   el.textContent = txt;
-  el.style.color =
-    (kind === "ok") ? "rgba(157,255,182,.95)" :
-    (kind === "err") ? "rgba(255,180,180,.95)" :
-    "rgba(234,240,255,.72)";
+  el.className = "small-muted " + (kind || "");
 }
 
 function renderLookupResults(rows, clientesInfo){
@@ -1811,7 +1801,6 @@ function renderLookupResults(rows, clientesInfo){
         <td class="r-col-ver">${escapeHtml(String(rp.version ?? ""))}</td>
         <td class="r-col-fecha">${escapeHtml(String(rp.fecha ?? ""))}</td>
         <td>${escapeHtml(String(rp.departamento ?? ""))}</td>
-
         <td>${escapeHtml(retro)}</td>
         <td>${escapeHtml(evalNom)}</td>
       </tr>
@@ -1859,7 +1848,7 @@ function renderLookupResults(rows, clientesInfo){
   });
 }
 
-/* ✅ Buscar (modal) — trae lista desde autoevaluaciones y también clientes por llaves si aplica */
+/* ✅ Buscar (modal) */
 async function searchRecords(){
   if(state.saving) return;
   const tipo = $("tipoFormulario").value;
@@ -1906,18 +1895,12 @@ async function searchRecords(){
     console.error(err);
     setLookupStatus("Error: " + (err.message || err), "err");
     renderLookupResults([], null);
-    alert(
-      "No se pudo consultar.\n\n" + (err.message || err) + "\n\n" +
-      "Tip: el WebApp debe estar 'Anyone' y tu red/extensión no debe bloquear script.google.com."
-    );
+    alert("No se pudo consultar.\n\n" + (err.message || err));
   }
 }
 
 /************************************************************
- * ✅ Recuperar (BOTÓN) — AHORA SIEMPRE MUESTRA TABLA
- * - Busca por llaves en autoevaluaciones
- * - Trae clientes.retroalimentación por llaves
- * - Muestra tabla y permite Seleccionar -> Autollenar
+ * ✅ Recuperar (BOTÓN) — SIEMPRE MUESTRA TABLA
  ************************************************************/
 async function recoverByKeys(){
   if(state.saving) return;
@@ -1943,15 +1926,11 @@ async function recoverByKeys(){
     $("apiHint").className = "warn";
     $("apiHint").textContent = "Recuperando…";
 
-    // ✅ abre el modal de tabla SIEMPRE (requisito)
+    // ✅ abre el modal de tabla SIEMPRE
     openLookupPrefilled();
 
-    // ping suave
     try{ await apiPing(); }catch(_e){}
 
-    /* ✅ acción principal por llaves:
-       - Debe buscar en autoevaluaciones por no_personal+periodo+version
-       - Debe traer clientes (retroalimentación/nombre evaluador) por mismas llaves */
     const resp = await apiRequestWithFallback({
       action: "recuperar_desempeno_por_keys",
       no_personal,
@@ -1969,7 +1948,6 @@ async function recoverByKeys(){
       return;
     }
 
-    // ✅ Si viene multi (duplicados), ya trae rows
     if(resp.multi && Array.isArray(resp.rows)){
       renderLookupResults(resp.rows, resp.clientes || null);
       setLookupStatus(`Duplicados: ${resp.rows.length}. Selecciona uno.`, "warn");
@@ -1978,7 +1956,6 @@ async function recoverByKeys(){
       return;
     }
 
-    // ✅ Si encontró 1 registro, lo ponemos en tabla (1 fila)
     if(resp.found && resp.rowParams){
       const oneRow = [{
         meta: { rowNumber: resp.rowNumber || "—" },
@@ -1993,7 +1970,6 @@ async function recoverByKeys(){
       return;
     }
 
-    // ✅ No encontrado
     renderLookupResults([], resp.clientes || null);
     setLookupStatus("Sin registro con esas llaves.", "warn");
     $("apiHint").className = "warn";
@@ -2023,7 +1999,7 @@ function openLookupPrefilled(){
 }
 
 /************************************************************
- * ✅ UI: tipo / acciones / validación / guardado
+ * ✅ UI: tipo / acciones
  ************************************************************/
 function applySearchUI(tipo){
   const isDes = (tipo === "desempeno");
@@ -2040,8 +2016,7 @@ function applySearchUI(tipo){
 }
 function applyTopActionsUI(tipo){
   const isClientes = (tipo === "clientes");
-  $("btnGenerate").style.display = isClientes ? "none" : "";
-  $("btnPrint").style.display = isClientes ? "none" : "";
+  // En este demo no hay generate/print, pero dejamos la idea
 }
 
 function applyTipoUI(){
@@ -2065,31 +2040,11 @@ function applyTipoUI(){
 }
 
 function clearForm(){
-  $("noPersonal").value = "";
-  $("nombre").value = "";
-  $("posicion").value = "";
-  $("departamento").value = "";
-  $("periodo").value = "";
-  $("version").value = "";
-  $("fecha").value = "";
-  setDefaultToday();
-
-  $("comentariosColaborador").value = "";
-  $("justificacion").value = "";
-  $("comentariosEvaluador").value = "";
-  $("fortalezas").value = "";
-  $("oportunidades").value = "";
-  $("proyeccion").value = "";
-  $("necesidadesCapacitacion").value = "";
-  $("comentariosColaborador2").value = "";
-  $("evaluacionClientes").value = "";
-
-  const neCli = $("nombreEvaluador");
-  if(neCli) neCli.value = "";
-  const r = $("retroalimentacion");
-  if(r) r.value = "";
-  const ne = $("nombreEvaluadorDesempeno");
-  if(ne) ne.value = "";
+  ["noPersonal","nombre","posicion","departamento","periodo","version","fecha",
+   "comentariosColaborador","justificacion","comentariosEvaluador","fortalezas",
+   "oportunidades","proyeccion","necesidadesCapacitacion","comentariosColaborador2",
+   "evaluacionClientes","retroalimentacion","nombreEvaluador","nombreEvaluadorDesempeno"
+  ].forEach(id=>{ const el=$(id); if(el) el.value=""; });
 
   state.answers = {};
   ITEMS.forEach(sec => sec.items.forEach(it=>{
@@ -2103,176 +2058,6 @@ function clearForm(){
 
   $("apiHint").className = "warn";
   $("apiHint").textContent = "Listo para enviar";
-}
-
-function toFormUrlEncoded(obj){
-  return Object.keys(obj)
-    .map(k => encodeURIComponent(k) + "=" + encodeURIComponent(obj[k] ?? ""))
-    .join("&");
-}
-
-function buildComentariosParaSheet(tipo, extra){
-  if(tipo === "autoevaluacion"){
-    return [
-      extra.comentarios_colaborador ? `Comentarios colaborador: ${extra.comentarios_colaborador}` : "",
-      extra.justificacion ? `Justificación (1-6): ${extra.justificacion}` : "",
-      extra.comentarios_evaluador ? `Comentarios evaluador: ${extra.comentarios_evaluador}` : "",
-      extra.fortalezas ? `Fortalezas: ${extra.fortalezas}` : "",
-      extra.oportunidades_mejora ? `Oportunidades: ${extra.oportunidades_mejora}` : "",
-      extra.proyeccion_potencial ? `Proyección: ${extra.proyeccion_potencial}` : "",
-      extra.necesidades_capacitacion ? `Necesidades de capacitación: ${extra.necesidades_capacitacion}` : "",
-      extra.comentarios_colaborador2 ? `Comentarios colaborador (extra): ${extra.comentarios_colaborador2}` : "",
-      extra.evaluacion_clientes ? `Evaluación clientes: ${extra.evaluacion_clientes}` : ""
-    ].filter(Boolean).join("\n\n");
-  }
-
-  if(tipo === "desempeno"){
-    return [
-      extra.nombre_evaluador ? `Nombre del evaluador: ${extra.nombre_evaluador}` : "",
-      extra.comentarios_evaluador ? `Comentarios evaluador: ${extra.comentarios_evaluador}` : "",
-      extra.fortalezas ? `Fortalezas: ${extra.fortalezas}` : "",
-      extra.oportunidades_mejora ? `Oportunidades: ${extra.oportunidades_mejora}` : "",
-      extra.proyeccion_potencial ? `Proyección: ${extra.proyeccion_potencial}` : "",
-      extra.necesidades_capacitacion ? `Necesidades de capacitación: ${extra.necesidades_capacitacion}` : "",
-      extra.comentarios_colaborador ? `Comentarios colaborador: ${extra.comentarios_colaborador}` : "",
-      extra.evaluacion_clientes ? `Evaluación clientes: ${extra.evaluacion_clientes}` : ""
-    ].filter(Boolean).join("\n\n");
-  }
-
-  if(tipo === "clientes"){
-    return [
-      extra.nombre_evaluador ? `Nombre del evaluador: ${extra.nombre_evaluador}` : "",
-      extra.retroalimentacion ? `${extra.retroalimentacion}` : ""
-    ].filter(Boolean).join("\n\n");
-  }
-
-  return "";
-}
-
-function validateAll(){
-  const header = getHeaderData();
-  const extra = getExtraFields();
-  const tipo = header.tipo;
-  const missing = [];
-
-  if(!header.no_personal) missing.push("No. de personal");
-  if(!header.nombre) missing.push("Nombre");
-  if(!header.posicion) missing.push("Posición");
-  if(!header.departamento) missing.push("Departamento");
-  if(!header.periodo) missing.push("Periodo");
-  if(!header.version) missing.push("Versión");
-  if(!header.fecha) missing.push("Fecha");
-
-  if(tipo === "clientes"){
-    if(!extra.retroalimentacion) missing.push("Retroalimentación");
-    if(!extra.nombre_evaluador) missing.push("Nombre del evaluador");
-    return { ok: missing.length === 0, missing, header, extra };
-  }
-
-  ITEMS.forEach(sec => sec.items.forEach(it => {
-    const v = state.answers[it.key];
-    if(!(typeof v === "number" && v >= 1 && v <= 5)){
-      missing.push(it.label);
-    }
-  }));
-
-  if(tipo === "autoevaluacion"){
-    if(!extra.comentarios_colaborador) missing.push("Comentarios del colaborador");
-  }
-
-  if(tipo === "desempeno"){
-    if(!extra.justificacion) missing.push("Justificación calificaciones");
-    if(!extra.comentarios_evaluador) missing.push("Comentarios del evaluador");
-    if(!extra.fortalezas) missing.push("Fortalezas");
-    if(!extra.oportunidades_mejora) missing.push("Oportunidades de mejora");
-    if(!extra.proyeccion_potencial) missing.push("Proyección y potencial");
-    if(!extra.comentarios_colaborador) missing.push("Comentarios del colaborador");
-  }
-
-  return { ok: missing.length === 0, missing, header, extra };
-}
-
-async function saveToSheet(){
-  if(state.saving) return;
-
-  const v = validateAll();
-  if(!v.ok){
-    const unique = Array.from(new Set(v.missing));
-    alert("Faltan campos/selecciones:\n\n• " + unique.join("\n• "));
-    return;
-  }
-
-  const header = v.header;
-  const extra = v.extra;
-  const answersText = flattenAnswersSelectedText();
-  const total = (header.tipo === "clientes") ? 0 : computeTotal();
-
-  const respuestasJSON = JSON.stringify({
-    header,
-    answers: answersText,
-    extra,
-    puntaje_total: total,
-    creado_en: new Date().toISOString()
-  });
-
-  const formPayload = {
-    tipo: header.tipo,
-    no_personal: header.no_personal,
-    nombre: header.nombre,
-    posicion: header.posicion,
-    departamento: header.departamento,
-    periodo: header.periodo,
-    version: header.version,
-    fecha: header.fecha,
-
-    ...answersText,
-
-    retroalimentacion: (header.tipo === "clientes") ? (extra.retroalimentacion || "") : "",
-    nombre_evaluador: (header.tipo === "clientes") ? (extra.nombre_evaluador || "")
-      : (header.tipo === "desempeno") ? (extra.nombre_evaluador || "")
-      : "",
-
-    evaluacion_clientes: (header.tipo === "desempeno") ? (extra.evaluacion_clientes || "") : "",
-    necesidades_capacitacion: (header.tipo === "desempeno") ? (extra.necesidades_capacitacion || "") : "",
-
-    respuestas_json: respuestasJSON,
-    comentarios: buildComentariosParaSheet(header.tipo, extra),
-
-    justificacion: (extra.justificacion || ""),
-    comentarios_evaluador: (extra.comentarios_evaluador || ""),
-    fortalezas: (extra.fortalezas || ""),
-    oportunidades_mejora: (extra.oportunidades_mejora || ""),
-    proyeccion_potencial: (extra.proyeccion_potencial || "")
-  };
-
-  try{
-    assertApiUrl();
-    setBusy(true);
-    $("apiHint").className = "warn";
-    $("apiHint").textContent = "Enviando a Google Sheets...";
-
-    const body = toFormUrlEncoded(formPayload);
-    await fetch(normalizeApiUrl(API_URL), {
-      method: "POST",
-      mode: "no-cors",
-      headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
-      body
-    });
-
-    $("apiHint").className = "ok";
-    $("apiHint").textContent = "Enviado a Google Sheets ✅";
-    setDirty(false);
-  }catch(err){
-    console.error(err);
-    $("apiHint").className = "err";
-    $("apiHint").textContent = "No se pudo guardar: " + (err.message || err);
-    alert(
-      "No se pudo guardar.\n\n" + (err.message || err) + "\n\n" +
-      "Si el guardado funciona pero Recuperar no, revisa deploy público y bloqueo de red."
-    );
-  }finally{
-    setBusy(false);
-  }
 }
 
 function bind(){
@@ -2308,49 +2093,6 @@ function bind(){
       return;
     }
     await recoverByKeys();
-  });
-
-  $("btnGenerate").addEventListener("click", ()=>{
-    if(state.saving) return;
-    const v = validateAll();
-    if(!v.ok){
-      const unique = Array.from(new Set(v.missing));
-      alert("Para generar el reporte, completa todo:\n\n• " + unique.join("\n• "));
-      return;
-    }
-    buildReport();
-    state.generated = true;
-    setDirty(true);
-    openReportModal();
-  });
-
-  $("btnPrint").addEventListener("click", ()=>{
-    if(state.saving) return;
-    const v = validateAll();
-    if(!v.ok){
-      const unique = Array.from(new Set(v.missing));
-      alert("Para imprimir/enviar a PDF, completa todo:\n\n• " + unique.join("\n• "));
-      return;
-    }
-    if(!state.generated){
-      buildReport();
-      state.generated = true;
-    }
-    window.print();
-  });
-
-  $("btnSave").addEventListener("click", saveToSheet);
-
-  $("btnCloseReport").addEventListener("click", closeReportModal);
-  $("reportBackdrop").addEventListener("click", (e)=>{
-    if(e.target === $("reportBackdrop")) closeReportModal();
-  });
-  $("btnPrintFromModal").addEventListener("click", ()=>{
-    if(!state.generated){
-      buildReport();
-      state.generated = true;
-    }
-    window.print();
   });
 
   $("btnCloseRecovered").addEventListener("click", closeRecoverModal);
@@ -2399,6 +2141,13 @@ function bind(){
       }
     });
   });
+
+  // demo "Guardar"
+  $("btnSave").addEventListener("click", ()=>{
+    $("apiHint").className = "ok";
+    $("apiHint").textContent = "Guardado (demo) ✅";
+    setDirty(false);
+  });
 }
 
 function setDefaultToday(){
@@ -2442,7 +2191,7 @@ async function initApp(){
       c.innerHTML = `
         <div class="card" style="background:rgba(0,0,0,.18); border:1px solid rgba(255,180,180,.35)">
           <h3 style="margin:0 0 8px; color:#ffb4b4;">Error cargando los ítems</h3>
-          <div class="muted" style="font-size:12px;">
+          <div class="small-muted">
             Revisa la consola (F12 → Console).<br>
             <b>${escapeHtml(String(err?.message || err))}</b>
           </div>
@@ -2464,7 +2213,7 @@ if(document.readyState === "loading"){
 <!-- =========================
      MODAL: LOOKUP (TABLA)
      ========================= -->
-<div id="lookupBackdrop" class="modal-backdrop" aria-hidden="true" style="display:none;">
+<div id="lookupBackdrop" class="modal-backdrop" aria-hidden="true">
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="lookupTitle">
     <div class="modal-header">
       <div>
@@ -2538,7 +2287,7 @@ if(document.readyState === "loading"){
 <!-- =========================
      MODAL: RECOVER (DETALLE)
      ========================= -->
-<div id="recoverBackdrop" class="modal-backdrop" aria-hidden="true" style="display:none;">
+<div id="recoverBackdrop" class="modal-backdrop" aria-hidden="true">
   <div class="modal modal-xl" role="dialog" aria-modal="true" aria-labelledby="recoverTitle">
     <div class="modal-header">
       <div>
@@ -2569,7 +2318,7 @@ if(document.readyState === "loading"){
         </div>
       </div>
 
-      <div class="modal-footer" style="display:flex; justify-content:flex-end; gap:10px; margin-top:14px;">
+      <div class="modal-footer" style="display:flex; justify-content:flex-end; gap:10px;">
         <button class="btn" type="button" id="btnApplyRecoveredTexts">Autollenar solo textos</button>
         <button class="btn primary" type="button" id="btnApplyRecovered">Autollenar todo</button>
       </div>
@@ -2578,24 +2327,19 @@ if(document.readyState === "loading"){
 </div>
 
 <!-- =========================
-     MODAL: REPORTE (PDF)
+     MODAL: REPORTE (placeholder)
      ========================= -->
-<div id="reportBackdrop" class="modal-backdrop" aria-hidden="true" style="display:none;">
-  <div class="modal modal-xl" role="dialog" aria-modal="true" aria-labelledby="rTitle">
+<div id="reportBackdrop" class="modal-backdrop" aria-hidden="true">
+  <div class="modal modal-xl" role="dialog" aria-modal="true">
     <div class="modal-header">
       <div>
         <div class="chip"><b>Vista previa del reporte</b></div>
-        <div class="small-muted" style="margin-top:6px;">Puedes imprimir a PDF desde aquí.</div>
+        <div class="small-muted" style="margin-top:6px;">(Demo)</div>
       </div>
-      <button class="btn ghost" type="button" id="btnCloseReport">Cerrar</button>
+      <button class="btn ghost" type="button" onclick="closeReportModal()">Cerrar</button>
     </div>
-
     <div class="modal-body">
-      <div id="reportHost"></div>
-
-      <div class="modal-footer" style="display:flex; justify-content:flex-end; gap:10px; margin-top:14px;">
-        <button class="btn primary" type="button" id="btnPrintFromModal">Imprimir / Guardar PDF</button>
-      </div>
+      <div id="reportHost" class="small-muted">Aquí iría tu reporte.</div>
     </div>
   </div>
 </div>
