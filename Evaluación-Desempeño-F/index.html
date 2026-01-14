@@ -2419,145 +2419,146 @@ if(document.readyState === "loading"){
 }else{
   initApp();
 }
-  <!-- =========================
-       MODAL: LOOKUP (TABLA)
-       ========================= -->
-  <div id="lookupBackdrop" class="modal-backdrop" aria-hidden="true" style="display:none;">
-    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="lookupTitle">
-      <div class="modal-header">
-        <div>
-          <div class="chip" id="lookupTitle"><b>Resultados encontrados</b></div>
-          <div id="lookupStatus" class="small-muted" style="margin-top:6px;">Listo para buscar.</div>
-        </div>
-        <button class="btn ghost" type="button" id="btnCloseLookup">Cerrar</button>
+</script>
+
+<!-- =========================
+     MODAL: LOOKUP (TABLA)
+     ========================= -->
+<div id="lookupBackdrop" class="modal-backdrop" aria-hidden="true" style="display:none;">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="lookupTitle">
+    <div class="modal-header">
+      <div>
+        <div class="chip" id="lookupTitle"><b>Resultados encontrados</b></div>
+        <div id="lookupStatus" class="small-muted" style="margin-top:6px;">Listo para buscar.</div>
       </div>
+      <button class="btn ghost" type="button" id="btnCloseLookup">Cerrar</button>
+    </div>
 
-      <div class="modal-body">
-        <div class="card" style="background:rgba(0,0,0,.12); border:1px solid rgba(255,255,255,.08); padding:12px;">
-          <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:10px;">
-            <div>
-              <label>No. personal</label>
-              <input id="qNoPersonal" placeholder="Ej: 000123" />
-            </div>
-            <div>
-              <label>Nombre</label>
-              <input id="qNombre" placeholder="Ej: Valentina" />
-            </div>
-            <div>
-              <label>Periodo</label>
-              <input id="qPeriodo" placeholder="Ej: Ene 2026" />
-            </div>
-            <div>
-              <label>Versión</label>
-              <input id="qVersion" placeholder="Ej: v1" />
-            </div>
+    <div class="modal-body">
+      <div class="card" style="background:rgba(0,0,0,.12); border:1px solid rgba(255,255,255,.08); padding:12px;">
+        <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:10px;">
+          <div>
+            <label>No. personal</label>
+            <input id="qNoPersonal" placeholder="Ej: 000123" />
           </div>
-
-          <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; align-items:center;">
-            <button class="btn primary" id="btnSearch" type="button">Buscar</button>
-            <button class="btn" id="btnClearSearch" type="button">Limpiar</button>
-
-            <div style="margin-left:auto; display:flex; gap:10px; flex-wrap:wrap;">
-              <span class="chip" id="chipCount">0 resultados</span>
-              <span class="chip" id="chipNote"></span>
-            </div>
+          <div>
+            <label>Nombre</label>
+            <input id="qNombre" placeholder="Ej: Valentina" />
+          </div>
+          <div>
+            <label>Periodo</label>
+            <input id="qPeriodo" placeholder="Ej: Ene 2026" />
+          </div>
+          <div>
+            <label>Versión</label>
+            <input id="qVersion" placeholder="Ej: v1" />
           </div>
         </div>
 
-        <div class="card" style="margin-top:12px; overflow:auto; border:1px solid rgba(255,255,255,.08)">
-          <table class="results-table">
-            <thead>
-              <tr>
-                <th class="r-col-act">Acción</th>
-                <th class="r-col-row">Fila</th>
-                <th class="r-col-np">No. personal</th>
-                <th>Nombre</th>
-                <th class="r-col-per">Periodo</th>
-                <th class="r-col-ver">Versión</th>
-                <th class="r-col-fecha">Fecha</th>
-                <th>Departamento</th>
-                <th>Retroalimentación (Clientes)</th>
-                <th>Evaluador (Clientes)</th>
-              </tr>
-            </thead>
-            <tbody id="lookupResultsBody">
-              <tr><td colspan="10" class="small-muted">Sin resultados aún.</td></tr>
-            </tbody>
-          </table>
-        </div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; align-items:center;">
+          <button class="btn primary" id="btnSearch" type="button">Buscar</button>
+          <button class="btn" id="btnClearSearch" type="button">Limpiar</button>
 
-        <div class="small-muted" style="margin-top:10px;">
-          Tip: Si ves duplicados, selecciona la fila correcta. Luego en el detalle puedes usar <b>Autollenar todo</b> o <b>Autollenar solo textos</b>.
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- =========================
-       MODAL: RECOVER (DETALLE)
-       ========================= -->
-  <div id="recoverBackdrop" class="modal-backdrop" aria-hidden="true" style="display:none;">
-    <div class="modal modal-xl" role="dialog" aria-modal="true" aria-labelledby="recoverTitle">
-      <div class="modal-header">
-        <div>
-          <div class="chip" id="recoverTitle"><b>Registro encontrado</b></div>
-          <div id="recoverSub" class="small-muted" style="margin-top:6px;"></div>
-        </div>
-        <button class="btn ghost" type="button" id="btnCloseRecovered">Cerrar</button>
-      </div>
-
-      <div class="modal-body">
-        <div id="recoverKeyReport"></div>
-
-        <div style="margin-top:12px;">
-          <div class="chip"><b>Resumen general</b></div>
-          <div id="recoverGeneral" style="margin-top:10px;"></div>
-        </div>
-
-        <div style="margin-top:14px;">
-          <div class="chip"><b>Ítems (puntuación + texto guardado)</b></div>
-          <div id="recoverItems" style="margin-top:10px;"></div>
-        </div>
-
-        <div style="margin-top:14px;">
-          <div class="chip"><b>Encabezados y valores (debug)</b></div>
-          <div id="recoverAllCols" style="margin-top:10px;"></div>
-          <div class="small-muted" style="margin-top:8px;">
-            Esto te ayuda a confirmar qué columnas llegaron desde Sheets (especialmente si cambiaste encabezados).
+          <div style="margin-left:auto; display:flex; gap:10px; flex-wrap:wrap;">
+            <span class="chip" id="chipCount">0 resultados</span>
+            <span class="chip" id="chipNote"></span>
           </div>
         </div>
+      </div>
 
-        <div class="modal-footer" style="display:flex; justify-content:flex-end; gap:10px; margin-top:14px;">
-          <button class="btn" type="button" id="btnApplyRecoveredTexts">Autollenar solo textos</button>
-          <button class="btn primary" type="button" id="btnApplyRecovered">Autollenar todo</button>
-        </div>
+      <div class="card" style="margin-top:12px; overflow:auto; border:1px solid rgba(255,255,255,.08)">
+        <table class="results-table">
+          <thead>
+            <tr>
+              <th class="r-col-act">Acción</th>
+              <th class="r-col-row">Fila</th>
+              <th class="r-col-np">No. personal</th>
+              <th>Nombre</th>
+              <th class="r-col-per">Periodo</th>
+              <th class="r-col-ver">Versión</th>
+              <th class="r-col-fecha">Fecha</th>
+              <th>Departamento</th>
+              <th>Retroalimentación (Clientes)</th>
+              <th>Evaluador (Clientes)</th>
+            </tr>
+          </thead>
+          <tbody id="lookupResultsBody">
+            <tr><td colspan="10" class="small-muted">Sin resultados aún.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="small-muted" style="margin-top:10px;">
+        Tip: Si ves duplicados, selecciona la fila correcta. Luego en el detalle puedes usar <b>Autollenar todo</b> o <b>Autollenar solo textos</b>.
       </div>
     </div>
   </div>
+</div>
 
-  <!-- =========================
-       MODAL: REPORTE (PDF)
-       ========================= -->
-  <div id="reportBackdrop" class="modal-backdrop" aria-hidden="true" style="display:none;">
-    <div class="modal modal-xl" role="dialog" aria-modal="true" aria-labelledby="rTitle">
-      <div class="modal-header">
-        <div>
-          <div class="chip"><b>Vista previa del reporte</b></div>
-          <div class="small-muted" style="margin-top:6px;">Puedes imprimir a PDF desde aquí.</div>
-        </div>
-        <button class="btn ghost" type="button" id="btnCloseReport">Cerrar</button>
+<!-- =========================
+     MODAL: RECOVER (DETALLE)
+     ========================= -->
+<div id="recoverBackdrop" class="modal-backdrop" aria-hidden="true" style="display:none;">
+  <div class="modal modal-xl" role="dialog" aria-modal="true" aria-labelledby="recoverTitle">
+    <div class="modal-header">
+      <div>
+        <div class="chip" id="recoverTitle"><b>Registro encontrado</b></div>
+        <div id="recoverSub" class="small-muted" style="margin-top:6px;"></div>
+      </div>
+      <button class="btn ghost" type="button" id="btnCloseRecovered">Cerrar</button>
+    </div>
+
+    <div class="modal-body">
+      <div id="recoverKeyReport"></div>
+
+      <div style="margin-top:12px;">
+        <div class="chip"><b>Resumen general</b></div>
+        <div id="recoverGeneral" style="margin-top:10px;"></div>
       </div>
 
-      <div class="modal-body">
-        <div id="reportHost"></div>
+      <div style="margin-top:14px;">
+        <div class="chip"><b>Ítems (puntuación + texto guardado)</b></div>
+        <div id="recoverItems" style="margin-top:10px;"></div>
+      </div>
 
-        <div class="modal-footer" style="display:flex; justify-content:flex-end; gap:10px; margin-top:14px;">
-          <button class="btn primary" type="button" id="btnPrintFromModal">Imprimir / Guardar PDF</button>
+      <div style="margin-top:14px;">
+        <div class="chip"><b>Encabezados y valores (debug)</b></div>
+        <div id="recoverAllCols" style="margin-top:10px;"></div>
+        <div class="small-muted" style="margin-top:8px;">
+          Esto te ayuda a confirmar qué columnas llegaron desde Sheets (especialmente si cambiaste encabezados).
         </div>
+      </div>
+
+      <div class="modal-footer" style="display:flex; justify-content:flex-end; gap:10px; margin-top:14px;">
+        <button class="btn" type="button" id="btnApplyRecoveredTexts">Autollenar solo textos</button>
+        <button class="btn primary" type="button" id="btnApplyRecovered">Autollenar todo</button>
       </div>
     </div>
   </div>
+</div>
+
+<!-- =========================
+     MODAL: REPORTE (PDF)
+     ========================= -->
+<div id="reportBackdrop" class="modal-backdrop" aria-hidden="true" style="display:none;">
+  <div class="modal modal-xl" role="dialog" aria-modal="true" aria-labelledby="rTitle">
+    <div class="modal-header">
+      <div>
+        <div class="chip"><b>Vista previa del reporte</b></div>
+        <div class="small-muted" style="margin-top:6px;">Puedes imprimir a PDF desde aquí.</div>
+      </div>
+      <button class="btn ghost" type="button" id="btnCloseReport">Cerrar</button>
+    </div>
+
+    <div class="modal-body">
+      <div id="reportHost"></div>
+
+      <div class="modal-footer" style="display:flex; justify-content:flex-end; gap:10px; margin-top:14px;">
+        <button class="btn primary" type="button" id="btnPrintFromModal">Imprimir / Guardar PDF</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 </body>
 </html>
-
