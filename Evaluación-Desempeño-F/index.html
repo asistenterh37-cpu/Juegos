@@ -1926,9 +1926,6 @@ async function recoverByKeys(){
     $("apiHint").className = "warn";
     $("apiHint").textContent = "Recuperando…";
 
-    // ✅ abre el modal de tabla SIEMPRE
-    openLookupPrefilled();
-
     try{ await apiPing(); }catch(_e){}
 
     const resp = await apiRequestWithFallback({
@@ -1942,44 +1939,92 @@ async function recoverByKeys(){
       const msg = resp?.error || "Respuesta inválida recuperando por llaves.";
       $("apiHint").className = "err";
       $("apiHint").textContent = msg;
-      setLookupStatus("Error: " + msg, "err");
-      renderLookupResults([], null);
       alert(msg);
       return;
     }
 
-    if(resp.multi && Array.isArray(resp.rows)){
-      renderLookupResults(resp.rows, resp.clientes || null);
-      setLookupStatus(`Duplicados: ${resp.rows.length}. Selecciona uno.`, "warn");
+    // ✅ Si hay duplicados: NO mostrar modal de "Recuperar registros"
+    //    Abrimos directamente "Registro encontrado" con el PRIMER registro.
+    if(resp.multi && Array.isArray(resp.rows) && resp.rows.length){
       $("apiHint").className = "warn";
-      $("apiHint").textContent = "Duplicados detectados. Selecciona en la lista.";
+      $("apiHint").textContent = `Duplicados detectados (${resp.rows.length}). Mostrando el primero.`;
+
+      // Intento 1: si ya viene rowParams en la lista, usamos el primero
+      const first = resp.rows[0] || {};
+      if(first.rowParams){
+        buildRecoverModal(
+          first.rowParams,
+          {
+            no_personal: first.rowParams.no_personal || no_personal || "",
+            periodo: first.rowParams.periodo || periodo || "",
+            version: first.rowParams.version || version || "",
+            rowNumber: first.meta?.rowNumber || first.rowNumber || resp.rowNumber || "—"
+          },
+          resp.clientes || first.clientes || null,
+          resp.allColumns || first.allColumns || []
+        );
+        return;
+      }
+
+      // Intento 2: si solo viene rowNumber/meta, pedimos el detalle por fila
+      const rowNumber = first.meta?.rowNumber || first.rowNumber;
+      if(rowNumber){
+        const data = await apiRequestWithFallback({
+          action: "recuperar_por_fila",
+          tipo: "autoevaluacion",
+          rowNumber: String(rowNumber)
+        });
+
+        if(data && data.found && data.rowParams){
+          buildRecoverModal(
+            data.rowParams,
+            {
+              no_personal: data.rowParams.no_personal || no_personal || "",
+              periodo: data.rowParams.periodo || periodo || "",
+              version: data.rowParams.version || version || "",
+              rowNumber: data.rowNumber || rowNumber || "—"
+            },
+            data.clientes || null,
+            data.allColumns || []
+          );
+          return;
+        }
+      }
+
+      // Si por alguna razón no pudimos abrir el detalle
+      $("apiHint").className = "err";
+      $("apiHint").textContent = "Duplicados detectados, pero no se pudo abrir el detalle.";
+      alert("Duplicados detectados, pero no se pudo abrir el detalle.");
       return;
     }
 
+    // ✅ Found único: NO mostrar modal de lista; abrir directamente el detalle
     if(resp.found && resp.rowParams){
-      const oneRow = [{
-        meta: { rowNumber: resp.rowNumber || "—" },
-        rowParams: resp.rowParams
-      }];
-
-      renderLookupResults(oneRow, resp.clientes || null);
-      setLookupStatus("1 resultado. Selecciona para ver detalle y Autollenar.", "ok");
+      buildRecoverModal(
+        resp.rowParams,
+        {
+          no_personal: resp.rowParams.no_personal || no_personal || "",
+          periodo: resp.rowParams.periodo || periodo || "",
+          version: resp.rowParams.version || version || "",
+          rowNumber: resp.rowNumber || "—"
+        },
+        resp.clientes || null,
+        resp.allColumns || []
+      );
 
       $("apiHint").className = "ok";
-      $("apiHint").textContent = "Registro encontrado ✅ (selecciona en la tabla)";
+      $("apiHint").textContent = "Registro encontrado ✅";
       return;
     }
 
-    renderLookupResults([], resp.clientes || null);
-    setLookupStatus("Sin registro con esas llaves.", "warn");
     $("apiHint").className = "warn";
     $("apiHint").textContent = "Sin registro con esas llaves.";
+    alert("Sin registro con esas llaves.");
 
   }catch(err){
     console.error(err);
     $("apiHint").className = "err";
     $("apiHint").textContent = "No se pudo recuperar: " + (err.message || err);
-    setLookupStatus("Error: " + (err.message || err), "err");
     alert("No se pudo recuperar.\n\n" + (err.message || err));
   }finally{
     setBusy(false);
