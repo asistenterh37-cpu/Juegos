@@ -609,10 +609,14 @@
                   <th class="r-col-ver">Versión</th>
                   <th class="r-col-fecha">Fecha</th>
                   <th>Departamento</th>
+
+                  <!-- ✅ SIEMPRE incluir Clientes -->
+                  <th>Retroalimentación (Clientes)</th>
+                  <th>Evaluador (Clientes)</th>
                 </tr>
               </thead>
               <tbody id="lookupResultsBody">
-                <tr><td colspan="8" class="small-muted">Sin resultados aún.</td></tr>
+                <tr><td colspan="10" class="small-muted">Sin resultados aún.</td></tr>
               </tbody>
             </table>
           </div>
@@ -620,7 +624,7 @@
       </div>
     </div>
 
-        <!-- ✅ Modal Detalle Recuperado (Autollenar / Cerrar) -->
+    <!-- ✅ Modal Detalle Recuperado (Autollenar / Cerrar) -->
     <div class="modal-backdrop" id="recoverBackdrop" aria-hidden="true">
       <div class="modal" role="dialog" aria-modal="true" aria-labelledby="recoverTitle">
         <div class="modal-head">
@@ -652,16 +656,18 @@
     </div>
 
     <!-- ✅ Modal Lookup (Lista de coincidencias / duplicados) -->
-    <div class="modal-backdrop" id="lookupBackdrop" aria-hidden="true">
-      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="lookupTitle">
+    <!-- ⚠️ FIX: este segundo modal tenía IDs DUPLICADOS que rompían Recuperar/Buscar.
+         NO se elimina, solo se renombra para evitar colisión. -->
+    <div class="modal-backdrop" id="lookupBackdrop2" aria-hidden="true">
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="lookupTitle2">
         <div class="modal-head">
           <div>
-            <div class="modal-title" id="lookupTitle">Buscar registros (Autollenar desde Autoevaluación)</div>
+            <div class="modal-title" id="lookupTitle2">Buscar registros (Autollenar desde Autoevaluación)</div>
             <div class="modal-sub">Si hay duplicados, selecciona la fila correcta y luego Autollenar.</div>
           </div>
           <div class="modal-actions">
-            <span class="pill" id="lookupStatus">Listo para buscar.</span>
-            <button class="btn" id="btnCloseLookup" type="button">Cerrar</button>
+            <span class="pill" id="lookupStatus2">Listo para buscar.</span>
+            <button class="btn" id="btnCloseLookup2" type="button">Cerrar</button>
           </div>
         </div>
 
@@ -669,29 +675,29 @@
           <div class="grid2" style="margin-bottom:12px;">
             <div class="field">
               <label>No. personal</label>
-              <input id="qNoPersonal" type="text" placeholder="Ej: 1234" />
+              <input id="qNoPersonal2" type="text" placeholder="Ej: 1234" />
             </div>
             <div class="field">
               <label>Nombre</label>
-              <input id="qNombre" type="text" placeholder="Ej: Juan Pérez" />
+              <input id="qNombre2" type="text" placeholder="Ej: Juan Pérez" />
             </div>
             <div class="field">
               <label>Periodo</label>
-              <input id="qPeriodo" type="text" placeholder="Ej: 2025" />
+              <input id="qPeriodo2" type="text" placeholder="Ej: 2025" />
             </div>
             <div class="field">
               <label>Versión</label>
-              <input id="qVersion" type="text" placeholder="Ej: V1" />
+              <input id="qVersion2" type="text" placeholder="Ej: V1" />
             </div>
           </div>
 
           <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:10px;">
-            <button class="btn primary" id="btnSearch" type="button">Buscar</button>
-            <button class="btn" id="btnClearSearch" type="button">Limpiar</button>
-            <div class="chip" id="chipCount" style="margin-left:auto;">0 resultados</div>
+            <button class="btn primary" id="btnSearch2" type="button">Buscar</button>
+            <button class="btn" id="btnClearSearch2" type="button">Limpiar</button>
+            <div class="chip" id="chipCount2" style="margin-left:auto;">0 resultados</div>
           </div>
 
-          <div class="small-muted" id="chipNote" style="margin-bottom:10px;"></div>
+          <div class="small-muted" id="chipNote2" style="margin-bottom:10px;"></div>
 
           <table class="results-table" style="width:100%;">
             <thead>
@@ -710,7 +716,7 @@
                 <th>Evaluador (Clientes)</th>
               </tr>
             </thead>
-            <tbody id="lookupResultsBody">
+            <tbody id="lookupResultsBody2">
               <tr><td colspan="10" class="small-muted">Sin resultados aún.</td></tr>
             </tbody>
           </table>
@@ -796,7 +802,6 @@
     </div>
 
   </div>
-
 <script>
 /************************************************************
  * ✅ FIX CRÍTICO:
@@ -875,19 +880,63 @@ function jsonpRequest(url, params){
     document.body.appendChild(script);
   });
 }
-async function jsonpRequestWithFallback(params){
+
+/* ✅ NUEVO: fallback por fetch (si JSONP es bloqueado).
+   - Intenta leer JSON directo
+   - Si viene “envuelto” tipo callback(...), lo desenvuelve */
+async function fetchRequest(url, params){
+  const qs = new URLSearchParams({ ...params, _ts: Date.now().toString() }).toString();
+  const full = url + (url.includes("?") ? "&" : "?") + qs;
+
+  const res = await fetch(full, {
+    method: "GET",
+    mode: "cors",
+    credentials: "omit",
+    redirect: "follow",
+    cache: "no-store"
+  });
+
+  const txt = await res.text();
+
+  // Intento JSON puro
+  try{
+    return JSON.parse(txt);
+  }catch(_e){}
+
+  // Intento “desenvolver” JSONP: algoComoCallback( {...} )
+  const m = txt.match(/^[a-zA-Z_$][\w$]*\s*\(\s*([\s\S]*)\s*\)\s*;?\s*$/);
+  if(m && m[1]){
+    const inner = m[1];
+    try{ return JSON.parse(inner); }catch(_e2){}
+  }
+
+  // Si no, devolvemos error con el contenido para depurar
+  throw new Error("Respuesta no-JSON (fetch). Revisa doGet para JSON/JSONP. Contenido: " + txt.slice(0, 180));
+}
+
+async function apiRequestWithFallback(params){
   assertApiUrl();
   const candidates = getApiCandidates();
   let lastErr = null;
+
+  // 1) JSONP primero
   for(const u of candidates){
     try{ return await jsonpRequest(u, params); }
     catch(e){ lastErr = e; }
   }
-  throw lastErr || new Error("No se pudo conectar por JSONP en ningún endpoint.");
+
+  // 2) Si JSONP falla, intentar fetch
+  for(const u of candidates){
+    try{ return await fetchRequest(u, params); }
+    catch(e){ lastErr = e; }
+  }
+
+  throw lastErr || new Error("No se pudo conectar (JSONP+fetch) en ningún endpoint.");
 }
+
 async function apiPing(){
   try{
-    const r = await jsonpRequestWithFallback({ action:"ping" });
+    const r = await apiRequestWithFallback({ action:"ping" });
     if(r && r.ok){
       $("apiHint").className = "ok";
       $("apiHint").textContent = "Conectado ✅";
@@ -1738,7 +1787,7 @@ function renderLookupResults(rows, clientesInfo){
       try{
         setLookupStatus("Cargando detalle…", "warn");
 
-        const data = await jsonpRequestWithFallback({
+        const data = await apiRequestWithFallback({
           action: "recuperar_por_fila",
           tipo: "autoevaluacion",
           rowNumber: String(pick.meta.rowNumber)
@@ -1770,6 +1819,7 @@ function renderLookupResults(rows, clientesInfo){
   });
 }
 
+/* ✅ Buscar (modal) — trae lista desde autoevaluaciones y también clientes por llaves si aplica */
 async function searchRecords(){
   if(state.saving) return;
   const tipo = $("tipoFormulario").value;
@@ -1787,7 +1837,7 @@ async function searchRecords(){
     assertApiUrl();
     setLookupStatus("Buscando en autoevaluaciones...", "warn");
 
-    const data = await jsonpRequestWithFallback({
+    const data = await apiRequestWithFallback({
       action: "buscar",
       tipo: "autoevaluacion",
       no_personal,
@@ -1823,6 +1873,12 @@ async function searchRecords(){
   }
 }
 
+/************************************************************
+ * ✅ Recuperar (BOTÓN) — AHORA SIEMPRE MUESTRA TABLA
+ * - Busca por llaves en autoevaluaciones
+ * - Trae clientes.retroalimentación por llaves
+ * - Muestra tabla y permite Seleccionar -> Autollenar
+ ************************************************************/
 async function recoverByKeys(){
   if(state.saving) return;
 
@@ -1847,10 +1903,16 @@ async function recoverByKeys(){
     $("apiHint").className = "warn";
     $("apiHint").textContent = "Recuperando…";
 
+    // ✅ abre el modal de tabla SIEMPRE (requisito)
+    openLookupPrefilled();
+
+    // ping suave
     try{ await apiPing(); }catch(_e){}
 
-    /* ✅ CAMBIO: usar action recuperar_desempeno_por_keys (incluye Clientes + duplicados) */
-    const resp = await jsonpRequestWithFallback({
+    /* ✅ acción principal por llaves:
+       - Debe buscar en autoevaluaciones por no_personal+periodo+version
+       - Debe traer clientes (retroalimentación/nombre evaluador) por mismas llaves */
+    const resp = await apiRequestWithFallback({
       action: "recuperar_desempeno_por_keys",
       no_personal,
       periodo,
@@ -1861,13 +1923,14 @@ async function recoverByKeys(){
       const msg = resp?.error || "Respuesta inválida recuperando por llaves.";
       $("apiHint").className = "err";
       $("apiHint").textContent = msg;
+      setLookupStatus("Error: " + msg, "err");
+      renderLookupResults([], null);
       alert(msg);
       return;
     }
 
-    /* ✅ CAMBIO: si hay duplicados → abrir Lookup con lista */
+    // ✅ Si viene multi (duplicados), ya trae rows
     if(resp.multi && Array.isArray(resp.rows)){
-      openLookupPrefilled();
       renderLookupResults(resp.rows, resp.clientes || null);
       setLookupStatus(`Duplicados: ${resp.rows.length}. Selecciona uno.`, "warn");
       $("apiHint").className = "warn";
@@ -1875,46 +1938,32 @@ async function recoverByKeys(){
       return;
     }
 
-    if(!resp.found){
-      $("apiHint").className = "warn";
-      $("apiHint").textContent = "Sin registro con esas llaves.";
-      openLookupPrefilled();
-      setTimeout(() => { try{ searchRecords(); }catch(_e){} }, 50);
+    // ✅ Si encontró 1 registro, lo ponemos en tabla (1 fila)
+    if(resp.found && resp.rowParams){
+      const oneRow = [{
+        meta: { rowNumber: resp.rowNumber || "—" },
+        rowParams: resp.rowParams
+      }];
+
+      renderLookupResults(oneRow, resp.clientes || null);
+      setLookupStatus("1 resultado. Selecciona para ver detalle y Autollenar.", "ok");
+
+      $("apiHint").className = "ok";
+      $("apiHint").textContent = "Registro encontrado ✅ (selecciona en la tabla)";
       return;
     }
 
-    let clientesInfo = resp.clientes || null;
-
-    if(clientesInfo && clientesInfo.found){
-      const head = clientesInfo.nombre_evaluador ? `(${clientesInfo.nombre_evaluador}) ` : "";
-      const composed = `${head}${clientesInfo.retroalimentacion || ""}`.trim();
-      if(composed){
-        resp.rowParams.evaluacion_clientes = composed;
-        if(!resp.rowParams.nombre_evaluador && clientesInfo.nombre_evaluador){
-          resp.rowParams.nombre_evaluador = clientesInfo.nombre_evaluador;
-        }
-      }
-    }
-
-    buildRecoverModal(
-      resp.rowParams,
-      {
-        no_personal: resp.rowParams.no_personal || no_personal,
-        periodo: resp.rowParams.periodo || periodo,
-        version: resp.rowParams.version || version,
-        rowNumber: resp.rowNumber || "—"
-      },
-      clientesInfo || null,
-      resp.allColumns || []
-    );
-
-    $("apiHint").className = "ok";
-    $("apiHint").textContent = "Registro recuperado ✅ (autoevaluaciones + clientes)";
+    // ✅ No encontrado
+    renderLookupResults([], resp.clientes || null);
+    setLookupStatus("Sin registro con esas llaves.", "warn");
+    $("apiHint").className = "warn";
+    $("apiHint").textContent = "Sin registro con esas llaves.";
 
   }catch(err){
     console.error(err);
     $("apiHint").className = "err";
     $("apiHint").textContent = "No se pudo recuperar: " + (err.message || err);
+    setLookupStatus("Error: " + (err.message || err), "err");
     alert("No se pudo recuperar.\n\n" + (err.message || err));
   }finally{
     setBusy(false);
@@ -2370,6 +2419,145 @@ if(document.readyState === "loading"){
 }else{
   initApp();
 }
-</script>
+  <!-- =========================
+       MODAL: LOOKUP (TABLA)
+       ========================= -->
+  <div id="lookupBackdrop" class="modal-backdrop" aria-hidden="true" style="display:none;">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="lookupTitle">
+      <div class="modal-header">
+        <div>
+          <div class="chip" id="lookupTitle"><b>Resultados encontrados</b></div>
+          <div id="lookupStatus" class="small-muted" style="margin-top:6px;">Listo para buscar.</div>
+        </div>
+        <button class="btn ghost" type="button" id="btnCloseLookup">Cerrar</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="card" style="background:rgba(0,0,0,.12); border:1px solid rgba(255,255,255,.08); padding:12px;">
+          <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:10px;">
+            <div>
+              <label>No. personal</label>
+              <input id="qNoPersonal" placeholder="Ej: 000123" />
+            </div>
+            <div>
+              <label>Nombre</label>
+              <input id="qNombre" placeholder="Ej: Valentina" />
+            </div>
+            <div>
+              <label>Periodo</label>
+              <input id="qPeriodo" placeholder="Ej: Ene 2026" />
+            </div>
+            <div>
+              <label>Versión</label>
+              <input id="qVersion" placeholder="Ej: v1" />
+            </div>
+          </div>
+
+          <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; align-items:center;">
+            <button class="btn primary" id="btnSearch" type="button">Buscar</button>
+            <button class="btn" id="btnClearSearch" type="button">Limpiar</button>
+
+            <div style="margin-left:auto; display:flex; gap:10px; flex-wrap:wrap;">
+              <span class="chip" id="chipCount">0 resultados</span>
+              <span class="chip" id="chipNote"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:12px; overflow:auto; border:1px solid rgba(255,255,255,.08)">
+          <table class="results-table">
+            <thead>
+              <tr>
+                <th class="r-col-act">Acción</th>
+                <th class="r-col-row">Fila</th>
+                <th class="r-col-np">No. personal</th>
+                <th>Nombre</th>
+                <th class="r-col-per">Periodo</th>
+                <th class="r-col-ver">Versión</th>
+                <th class="r-col-fecha">Fecha</th>
+                <th>Departamento</th>
+                <th>Retroalimentación (Clientes)</th>
+                <th>Evaluador (Clientes)</th>
+              </tr>
+            </thead>
+            <tbody id="lookupResultsBody">
+              <tr><td colspan="10" class="small-muted">Sin resultados aún.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="small-muted" style="margin-top:10px;">
+          Tip: Si ves duplicados, selecciona la fila correcta. Luego en el detalle puedes usar <b>Autollenar todo</b> o <b>Autollenar solo textos</b>.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================
+       MODAL: RECOVER (DETALLE)
+       ========================= -->
+  <div id="recoverBackdrop" class="modal-backdrop" aria-hidden="true" style="display:none;">
+    <div class="modal modal-xl" role="dialog" aria-modal="true" aria-labelledby="recoverTitle">
+      <div class="modal-header">
+        <div>
+          <div class="chip" id="recoverTitle"><b>Registro encontrado</b></div>
+          <div id="recoverSub" class="small-muted" style="margin-top:6px;"></div>
+        </div>
+        <button class="btn ghost" type="button" id="btnCloseRecovered">Cerrar</button>
+      </div>
+
+      <div class="modal-body">
+        <div id="recoverKeyReport"></div>
+
+        <div style="margin-top:12px;">
+          <div class="chip"><b>Resumen general</b></div>
+          <div id="recoverGeneral" style="margin-top:10px;"></div>
+        </div>
+
+        <div style="margin-top:14px;">
+          <div class="chip"><b>Ítems (puntuación + texto guardado)</b></div>
+          <div id="recoverItems" style="margin-top:10px;"></div>
+        </div>
+
+        <div style="margin-top:14px;">
+          <div class="chip"><b>Encabezados y valores (debug)</b></div>
+          <div id="recoverAllCols" style="margin-top:10px;"></div>
+          <div class="small-muted" style="margin-top:8px;">
+            Esto te ayuda a confirmar qué columnas llegaron desde Sheets (especialmente si cambiaste encabezados).
+          </div>
+        </div>
+
+        <div class="modal-footer" style="display:flex; justify-content:flex-end; gap:10px; margin-top:14px;">
+          <button class="btn" type="button" id="btnApplyRecoveredTexts">Autollenar solo textos</button>
+          <button class="btn primary" type="button" id="btnApplyRecovered">Autollenar todo</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================
+       MODAL: REPORTE (PDF)
+       ========================= -->
+  <div id="reportBackdrop" class="modal-backdrop" aria-hidden="true" style="display:none;">
+    <div class="modal modal-xl" role="dialog" aria-modal="true" aria-labelledby="rTitle">
+      <div class="modal-header">
+        <div>
+          <div class="chip"><b>Vista previa del reporte</b></div>
+          <div class="small-muted" style="margin-top:6px;">Puedes imprimir a PDF desde aquí.</div>
+        </div>
+        <button class="btn ghost" type="button" id="btnCloseReport">Cerrar</button>
+      </div>
+
+      <div class="modal-body">
+        <div id="reportHost"></div>
+
+        <div class="modal-footer" style="display:flex; justify-content:flex-end; gap:10px; margin-top:14px;">
+          <button class="btn primary" type="button" id="btnPrintFromModal">Imprimir / Guardar PDF</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </body>
 </html>
+
