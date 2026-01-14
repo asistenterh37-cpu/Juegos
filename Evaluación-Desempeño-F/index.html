@@ -620,7 +620,7 @@
       </div>
     </div>
 
-    <!-- ✅ Modal Detalle Recuperado (Autollenar / Cerrar) -->
+        <!-- ✅ Modal Detalle Recuperado (Autollenar / Cerrar) -->
     <div class="modal-backdrop" id="recoverBackdrop" aria-hidden="true">
       <div class="modal" role="dialog" aria-modal="true" aria-labelledby="recoverTitle">
         <div class="modal-head">
@@ -647,6 +647,73 @@
 
           <div id="recoverGeneral"></div>
           <div id="recoverItems"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ✅ Modal Lookup (Lista de coincidencias / duplicados) -->
+    <div class="modal-backdrop" id="lookupBackdrop" aria-hidden="true">
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="lookupTitle">
+        <div class="modal-head">
+          <div>
+            <div class="modal-title" id="lookupTitle">Buscar registros (Autollenar desde Autoevaluación)</div>
+            <div class="modal-sub">Si hay duplicados, selecciona la fila correcta y luego Autollenar.</div>
+          </div>
+          <div class="modal-actions">
+            <span class="pill" id="lookupStatus">Listo para buscar.</span>
+            <button class="btn" id="btnCloseLookup" type="button">Cerrar</button>
+          </div>
+        </div>
+
+        <div class="modal-body">
+          <div class="grid2" style="margin-bottom:12px;">
+            <div class="field">
+              <label>No. personal</label>
+              <input id="qNoPersonal" type="text" placeholder="Ej: 1234" />
+            </div>
+            <div class="field">
+              <label>Nombre</label>
+              <input id="qNombre" type="text" placeholder="Ej: Juan Pérez" />
+            </div>
+            <div class="field">
+              <label>Periodo</label>
+              <input id="qPeriodo" type="text" placeholder="Ej: 2025" />
+            </div>
+            <div class="field">
+              <label>Versión</label>
+              <input id="qVersion" type="text" placeholder="Ej: V1" />
+            </div>
+          </div>
+
+          <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:10px;">
+            <button class="btn primary" id="btnSearch" type="button">Buscar</button>
+            <button class="btn" id="btnClearSearch" type="button">Limpiar</button>
+            <div class="chip" id="chipCount" style="margin-left:auto;">0 resultados</div>
+          </div>
+
+          <div class="small-muted" id="chipNote" style="margin-bottom:10px;"></div>
+
+          <table class="results-table" style="width:100%;">
+            <thead>
+              <tr>
+                <th class="r-col-act">Acción</th>
+                <th class="r-col-row">Fila</th>
+                <th class="r-col-np">No. personal</th>
+                <th>Nombre</th>
+                <th class="r-col-per">Periodo</th>
+                <th class="r-col-ver">Versión</th>
+                <th class="r-col-fecha">Fecha</th>
+                <th>Departamento</th>
+
+                <!-- ✅ SIEMPRE incluir Clientes -->
+                <th>Retroalimentación (Clientes)</th>
+                <th>Evaluador (Clientes)</th>
+              </tr>
+            </thead>
+            <tbody id="lookupResultsBody">
+              <tr><td colspan="10" class="small-muted">Sin resultados aún.</td></tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -741,7 +808,7 @@
 /************************************************************
  * 1) URL COMPLETA DEL APPS SCRIPT (/exec)
  ************************************************************/
-const API_URL = "https://script.google.com/macros/s/AKfycbwE7SJrXvo0c-qGSRTY1D6_OAo81jgOhWorPGFSdLTWw91zP2fbrDHfXKYL7F-yXhiXug/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbzt5wrTUsKkr0c4Y1V46kabC5c_jOA3tNoQLGB7-vEk2ObztXvLgqABv6jvhWhvAQzvng/exec";
 
 function normalizeApiUrl(u){
   let x = String(u || "").trim();
@@ -1614,7 +1681,7 @@ function applyRecoveredTextsOnly(rowParams, clientesInfo){
 }
 
 /************************************************************
- * ✅ LOOKUP MODAL (LISTA)
+ * ✅ LOOKUP MODAL (LISTA) — incluye Clientes SIEMPRE
  ************************************************************/
 let lastLookupResults = [];
 function setLookupStatus(txt, kind){
@@ -1626,14 +1693,17 @@ function setLookupStatus(txt, kind){
     "rgba(234,240,255,.72)";
 }
 
-function renderLookupResults(rows){
+function renderLookupResults(rows, clientesInfo){
   const tbody = $("lookupResultsBody");
   lastLookupResults = Array.isArray(rows) ? rows : [];
   $("chipCount").textContent = `${lastLookupResults.length} resultados`;
   $("chipNote").textContent = lastLookupResults.length ? "Selecciona una fila para ver detalle y luego Autollenar." : "";
 
+  const retro = (clientesInfo && clientesInfo.found) ? String(clientesInfo.retroalimentacion || "") : "";
+  const evalNom = (clientesInfo && clientesInfo.found) ? String(clientesInfo.nombre_evaluador || "") : "";
+
   if(!lastLookupResults.length){
-    tbody.innerHTML = `<tr><td colspan="8" class="small-muted">Sin resultados.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="10" class="small-muted">Sin resultados.</td></tr>`;
     return;
   }
 
@@ -1652,6 +1722,9 @@ function renderLookupResults(rows){
         <td class="r-col-ver">${escapeHtml(String(rp.version ?? ""))}</td>
         <td class="r-col-fecha">${escapeHtml(String(rp.fecha ?? ""))}</td>
         <td>${escapeHtml(String(rp.departamento ?? ""))}</td>
+
+        <td>${escapeHtml(retro)}</td>
+        <td>${escapeHtml(evalNom)}</td>
       </tr>
     `;
   }).join("");
@@ -1727,12 +1800,12 @@ async function searchRecords(){
     if(!data || data.ok === false){
       const msg = (data && data.error) ? data.error : "Respuesta inválida del servidor.";
       setLookupStatus("Error: " + msg, "err");
-      renderLookupResults([]);
+      renderLookupResults([], null);
       return;
     }
 
     const rows = data.rows || [];
-    renderLookupResults(rows);
+    renderLookupResults(rows, data.clientes || null);
 
     if(!rows.length){
       setLookupStatus("Sin resultados con esos filtros.", "warn");
@@ -1742,7 +1815,7 @@ async function searchRecords(){
   }catch(err){
     console.error(err);
     setLookupStatus("Error: " + (err.message || err), "err");
-    renderLookupResults([]);
+    renderLookupResults([], null);
     alert(
       "No se pudo consultar.\n\n" + (err.message || err) + "\n\n" +
       "Tip: el WebApp debe estar 'Anyone' y tu red/extensión no debe bloquear script.google.com."
@@ -1776,23 +1849,33 @@ async function recoverByKeys(){
 
     try{ await apiPing(); }catch(_e){}
 
-    const exact = await jsonpRequestWithFallback({
-      action: "recuperar_por_keys",
-      tipo: "autoevaluacion",
+    /* ✅ CAMBIO: usar action recuperar_desempeno_por_keys (incluye Clientes + duplicados) */
+    const resp = await jsonpRequestWithFallback({
+      action: "recuperar_desempeno_por_keys",
       no_personal,
       periodo,
       version
     });
 
-    if(!exact || exact.ok === false){
-      const msg = exact?.error || "Respuesta inválida recuperando por llaves.";
+    if(!resp || resp.ok === false){
+      const msg = resp?.error || "Respuesta inválida recuperando por llaves.";
       $("apiHint").className = "err";
       $("apiHint").textContent = msg;
       alert(msg);
       return;
     }
 
-    if(!exact.found){
+    /* ✅ CAMBIO: si hay duplicados → abrir Lookup con lista */
+    if(resp.multi && Array.isArray(resp.rows)){
+      openLookupPrefilled();
+      renderLookupResults(resp.rows, resp.clientes || null);
+      setLookupStatus(`Duplicados: ${resp.rows.length}. Selecciona uno.`, "warn");
+      $("apiHint").className = "warn";
+      $("apiHint").textContent = "Duplicados detectados. Selecciona en la lista.";
+      return;
+    }
+
+    if(!resp.found){
       $("apiHint").className = "warn";
       $("apiHint").textContent = "Sin registro con esas llaves.";
       openLookupPrefilled();
@@ -1800,33 +1883,33 @@ async function recoverByKeys(){
       return;
     }
 
-    let clientesInfo = exact.clientes || null;
+    let clientesInfo = resp.clientes || null;
 
     if(clientesInfo && clientesInfo.found){
       const head = clientesInfo.nombre_evaluador ? `(${clientesInfo.nombre_evaluador}) ` : "";
       const composed = `${head}${clientesInfo.retroalimentacion || ""}`.trim();
       if(composed){
-        exact.rowParams.evaluacion_clientes = composed;
-        if(!exact.rowParams.nombre_evaluador && clientesInfo.nombre_evaluador){
-          exact.rowParams.nombre_evaluador = clientesInfo.nombre_evaluador;
+        resp.rowParams.evaluacion_clientes = composed;
+        if(!resp.rowParams.nombre_evaluador && clientesInfo.nombre_evaluador){
+          resp.rowParams.nombre_evaluador = clientesInfo.nombre_evaluador;
         }
       }
     }
 
     buildRecoverModal(
-      exact.rowParams,
+      resp.rowParams,
       {
-        no_personal: exact.rowParams.no_personal || no_personal,
-        periodo: exact.rowParams.periodo || periodo,
-        version: exact.rowParams.version || version,
-        rowNumber: exact.rowNumber || "—"
+        no_personal: resp.rowParams.no_personal || no_personal,
+        periodo: resp.rowParams.periodo || periodo,
+        version: resp.rowParams.version || version,
+        rowNumber: resp.rowNumber || "—"
       },
       clientesInfo || null,
-      exact.allColumns || []
+      resp.allColumns || []
     );
 
     $("apiHint").className = "ok";
-    $("apiHint").textContent = "Registro recuperado ✅ (autoevaluaciones)";
+    $("apiHint").textContent = "Registro recuperado ✅ (autoevaluaciones + clientes)";
 
   }catch(err){
     console.error(err);
@@ -1845,7 +1928,7 @@ function openLookupPrefilled(){
   $("qVersion").value = $("version").value.trim();
   $("chipCount").textContent = "0 resultados";
   $("chipNote").textContent = "";
-  $("lookupResultsBody").innerHTML = `<tr><td colspan="8" class="small-muted">Sin resultados aún.</td></tr>`;
+  $("lookupResultsBody").innerHTML = `<tr><td colspan="10" class="small-muted">Sin resultados aún.</td></tr>`;
   setLookupStatus("Listo para buscar.", "warn");
   openLookupModal();
 }
@@ -2213,7 +2296,7 @@ function bind(){
     $("qNombre").value = "";
     $("qPeriodo").value = "";
     $("qVersion").value = "";
-    renderLookupResults([]);
+    renderLookupResults([], null);
     setLookupStatus("Listo para buscar.", "warn");
   });
 
