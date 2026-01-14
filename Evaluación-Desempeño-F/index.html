@@ -1549,46 +1549,86 @@ function renderAllColumnsTable(allColumns){
   host.appendChild(box);
 }
 
+<script>
 function buildRecoverModal(rowParams, meta, clientesInfo, allColumns){
   function showDash(v){
     const s = String(v ?? "").trim();
     return s ? s : "—";
   }
+  function normKey(s){
+    return String(s ?? "")
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, " ");
+  }
+  function pushUnique(rows, label, value){
+    const k = normKey(label);
+    if(!k) return;
+    if(rows.some(([lbl]) => normKey(lbl) === k)) return; // ✅ evita duplicados por etiqueta
+    rows.push([label, value]);
+  }
 
   lastRecovered = { rowParams, meta, clientesInfo, allColumns };
 
   $("recoverTitle").textContent = "Registro encontrado";
-  $("recoverSub").textContent = `Keys: ${meta.no_personal || "—"} / ${meta.periodo || "—"} / ${meta.version || "—"} • Fila: ${meta.rowNumber || "—"}`;
+  $("recoverSub").textContent =
+    `Keys: ${meta.no_personal || "—"} / ${meta.periodo || "—"} / ${meta.version || "—"} • Fila: ${meta.rowNumber || "—"}`;
 
   const hint = (clientesInfo && clientesInfo.found)
     ? `Autoevaluaciones + Clientes (fila Clientes: ${clientesInfo.rowNumber || "—"})`
     : `Autoevaluaciones (Clientes: sin registro)`;
 
   renderKeyReport(meta.no_personal, meta.periodo, meta.version, hint);
-  renderAllColumnsTable(allColumns);
 
-  const generalRows = [
-    ["No. de personal", showDash(rowParams.no_personal || meta.no_personal)],
-    ["Periodo", showDash(rowParams.periodo || meta.periodo)],
-    ["Versión", showDash(rowParams.version || meta.version)],
-    ["Nombre", showDash(rowParams.nombre)],
-    ["Posición", showDash(rowParams.posicion)],
-    ["Departamento", showDash(rowParams.departamento)],
-    ["Fecha", showDash(rowParams.fecha)],
-    ["Comentarios (auto)", showDash(rowParams.comentarios)],
-    ["Justificación", showDash(rowParams.justificacion)],
-    ["Comentarios del evaluador", showDash(rowParams.comentarios_evaluador)],
-    ["Fortalezas", showDash(rowParams.fortalezas)],
-    ["Oportunidades", showDash(rowParams.oportunidades_mejora)],
-    ["Proyección", showDash(rowParams.proyeccion_potencial)],
-    ["Necesidades de capacitación", showDash(rowParams.necesidades_capacitacion)],
-    ["Evaluación clientes (campo desempeño)", showDash(rowParams.evaluacion_clientes)],
-    ["Nombre del evaluador (desempeño)", showDash(rowParams.nombre_evaluador)]
-  ];
+  // ✅ EVITA DATA REPETIDA: la tabla debug (allColumns) puede repetir lo del resumen.
+  // Si quieres verla, cambia a true.
+  const SHOW_DEBUG_ALLCOLS = false;
+  if(SHOW_DEBUG_ALLCOLS){
+    renderAllColumnsTable(allColumns);
+  }else{
+    if($("recoverAllCols")) $("recoverAllCols").innerHTML = "";
+  }
 
-  if(clientesInfo){
-    generalRows.push(["Retroalimentación (Clientes)", showDash(clientesInfo.retroalimentacion)]);
-    generalRows.push(["Nombre evaluador (Clientes)", showDash(clientesInfo.nombre_evaluador)]);
+  // ---- Clientes (composición) ----
+  const cliFound = !!(clientesInfo && clientesInfo.found);
+  const cliRetro = cliFound ? String(clientesInfo.retroalimentacion || "").trim() : "";
+  const cliEvalNom = cliFound ? String(clientesInfo.nombre_evaluador || "").trim() : "";
+
+  let evalCli = String(rowParams.evaluacion_clientes || "").trim();
+  if(cliFound){
+    const head = cliEvalNom ? `(${cliEvalNom}) ` : "";
+    const composed = `${head}${cliRetro}`.trim();
+    if(composed) evalCli = composed;
+  }
+
+  // ---- Resumen general (SIN duplicados) ----
+  const generalRows = [];
+  pushUnique(generalRows, "No. de personal", showDash(rowParams.no_personal || meta.no_personal));
+  pushUnique(generalRows, "Periodo", showDash(rowParams.periodo || meta.periodo));
+  pushUnique(generalRows, "Versión", showDash(rowParams.version || meta.version));
+  pushUnique(generalRows, "Nombre", showDash(rowParams.nombre));
+  pushUnique(generalRows, "Posición", showDash(rowParams.posicion));
+  pushUnique(generalRows, "Departamento", showDash(rowParams.departamento));
+  pushUnique(generalRows, "Fecha", showDash(rowParams.fecha));
+
+  // ✅ Incluidos (y deduplicados) textos típicos
+  pushUnique(generalRows, "Comentarios del colaborador", showDash(rowParams.comentarios_colaborador ?? rowParams.comentarios));
+  pushUnique(generalRows, "Justificación", showDash(rowParams.justificacion));
+  pushUnique(generalRows, "Comentarios del evaluador", showDash(rowParams.comentarios_evaluador));
+  pushUnique(generalRows, "Nombre del evaluador (desempeño)", showDash(rowParams.nombre_evaluador));
+  pushUnique(generalRows, "Fortalezas", showDash(rowParams.fortalezas));
+  pushUnique(generalRows, "Oportunidades", showDash(rowParams.oportunidades_mejora));
+  pushUnique(generalRows, "Proyección", showDash(rowParams.proyeccion_potencial));
+  pushUnique(generalRows, "Necesidades de capacitación", showDash(rowParams.necesidades_capacitacion));
+
+  // ✅ Clientes: UNA sola fila (combinada)
+  pushUnique(generalRows, "Evaluación clientes (desempeño)", showDash(evalCli));
+
+  // Si quieres ver clientes separado, cambia a true
+  const SHOW_CLIENTS_SPLIT_FIELDS = false;
+  if(SHOW_CLIENTS_SPLIT_FIELDS && cliFound){
+    pushUnique(generalRows, "Retroalimentación (Clientes)", showDash(cliRetro));
+    pushUnique(generalRows, "Nombre evaluador (Clientes)", showDash(cliEvalNom));
   }
 
   const gen = document.createElement("table");
