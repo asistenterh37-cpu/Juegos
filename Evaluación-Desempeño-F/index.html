@@ -1236,11 +1236,16 @@ function getHeaderData(){
 function getExtraFields(){
   const tipo = $("tipoFormulario").value;
 
+  // ✅ Normalizamos nombres de campos para que el back-end reciba SIEMPRE lo mismo:
+  // - comentarios_colaborador
+  // - evaluacion_clientes
+  // - nombre_evaluador (cuando aplique)
+  // (evita que en Sheets quede vacío por mismatch de nombres)
   if(tipo === "autoevaluacion"){
     return {
-      comentarios: ($("comentariosColaborador")?.value || "").trim(),
+      comentarios_colaborador: ($("comentariosColaborador")?.value || "").trim(),
       justificacion: ($("justificacion")?.value || "").trim(),
-      comentarios_evaluador: ($("comentariosEvaluador")?.value || "").trimm(),
+      comentarios_evaluador: ($("comentariosEvaluador")?.value || "").trim(), /* ✅ FIX: trimm() -> trim() */
       fortalezas: ($("fortalezas")?.value || "").trim(),
       oportunidades_mejora: ($("oportunidades")?.value || "").trim(),
       proyeccion_potencial: ($("proyeccion")?.value || "").trim(),
@@ -1258,7 +1263,7 @@ function getExtraFields(){
       oportunidades_mejora: ($("oportunidades")?.value || "").trim(),
       proyeccion_potencial: ($("proyeccion")?.value || "").trim(),
       necesidades_capacitacion: ($("necesidadesCapacitacion")?.value || "").trim(),
-      comentarios: ($("comentariosColaborador2")?.value || "").trim(),
+      comentarios_colaborador: ($("comentariosColaborador2")?.value || "").trim(), /* ✅ FIX: antes "comentarios" */
       evaluacion_clientes: ($("evaluacionClientes")?.value || "").trim()
     };
   }
@@ -2188,6 +2193,10 @@ function bind(){
     });
   });
 
+  /* ✅ FIX CRÍTICO:
+     - Había un addEventListener("click") DUPLICADO y ANIDADO dentro de sí mismo.
+     - Eso rompe el guardado (se ejecuta 2 veces / payload inconsistente).
+     - Se deja UN SOLO handler, y aquí se agrega el guardado de "puntaje + descripción" por columna. */
   $("btnSave").addEventListener("click", async ()=>{
     if(state.saving) return;
 
@@ -2215,37 +2224,10 @@ function bind(){
       ...getExtraFields()
     };
 
-    $("btnSave").addEventListener("click", async ()=>{
-    if(state.saving) return;
-
-    const header = getHeaderData();
-    const tipo = header.tipo;
-
-    if(!header.no_personal || !header.periodo || !header.version){
-      alert("Para Guardar, llena: No. de personal + Periodo + Versión.");
-      return;
-    }
-
-    if(tipo !== "clientes") ensureItemsVisibleIfNeeded();
-
-    const payload = {
-      action: "guardar",
-      tipo: tipo,
-      no_personal: header.no_personal,
-      nombre: header.nombre,
-      posicion: header.posicion,
-      departamento: header.departamento,
-      periodo: header.periodo,
-      version: header.version,
-      fecha: header.fecha || "",
-      puntaje: (tipo === "clientes") ? 0 : computeTotal(),
-      ...getExtraFields()
-    };
-
-    /* ======== INICIO FIX (ANTES: guardaba solo "1..5") ======== */
+    /* ======== INICIO FIX (GUARDAR: puntaje + descripción por ítem) ======== */
     if(tipo !== "clientes"){
-      // Guarda en cada columna el texto completo: "n — descripción"
-      const selectedText = flattenAnswersSelectedText(); // usa la rúbrica del ITEMS
+      // En cada columna de ítem se guarda el texto completo: "n — descripción"
+      const selectedText = flattenAnswersSelectedText(); // usa la rúbrica de ITEMS
       ITEMS.forEach(sec => sec.items.forEach(it=>{
         payload[it.key] = selectedText[it.key] || "";
       }));
@@ -2279,35 +2261,8 @@ function bind(){
       setBusy(false);
     }
   });
-
-    try{
-      setBusy(true);
-      $("apiHint").className = "warn";
-      $("apiHint").textContent = "Guardando…";
-
-      const body = new URLSearchParams(payload).toString();
-
-      await fetch(API_URL, {
-        method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
-        body
-      });
-
-      $("apiHint").className = "ok";
-      $("apiHint").textContent = "Guardado enviado ✅ (verifica en Google Sheets)";
-      setDirty(false);
-
-    }catch(e){
-      console.error(e);
-      $("apiHint").className = "err";
-      $("apiHint").textContent = "Error guardando: " + (e.message || e);
-      alert("No se pudo guardar.\n\n" + (e.message || e));
-    }finally{
-      setBusy(false);
-    }
-  });
 }
+</script>
 
 function setDefaultToday(){
   const f = $("fecha");
