@@ -2325,48 +2325,6 @@ if(document.readyState === "loading"){
 </div>
 
 <!-- =========================
-     MODAL: RECOVER (DETALLE)
-     ========================= -->
-<div id="recoverBackdrop" class="modal-backdrop" aria-hidden="true">
-  <div class="modal modal-xl" role="dialog" aria-modal="true" aria-labelledby="recoverTitle">
-    <div class="modal-header">
-      <div>
-        <div class="chip" id="recoverTitle"><b>Registro encontrado</b></div>
-        <div id="recoverSub" class="small-muted" style="margin-top:6px;"></div>
-      </div>
-      <!-- ❌ Eliminado el Cerrar de arriba derecha -->
-    </div>
-
-    <div class="modal-body">
-      <div id="recoverKeyReport"></div>
-
-      <div style="margin-top:12px;">
-        <div class="chip"><b>Resumen general</b></div>
-        <div id="recoverGeneral" style="margin-top:10px;"></div>
-      </div>
-
-      <div style="margin-top:14px;">
-        <div class="chip"><b>Ítems (puntuación + texto guardado)</b></div>
-        <div id="recoverItems" style="margin-top:10px;"></div>
-      </div>
-
-      <div style="margin-top:14px;">
-        <div class="chip"><b>Encabezados y valores (debug)</b></div>
-        <div id="recoverAllCols" style="margin-top:10px;"></div>
-        <div class="small-muted" style="margin-top:8px;">
-          Esto te ayuda a confirmar qué columnas llegaron desde Sheets (especialmente si cambiaste encabezados).
-        </div>
-      </div>
-
-    <div class="modal-footer" style="display:flex; justify-content:flex-end; gap:10px;">
-  <button class="btn primary" type="button" id="btnApplyRecovered">Autollenar todo</button>
-  <button class="btn primary" type="button" id="btnCloseRecovered">Cerrar</button>
-</div>
-    </div>
-  </div>
-</div>
-
-<!-- =========================
      MODAL: REPORTE (placeholder)
      ========================= -->
 <div id="reportBackdrop" class="modal-backdrop" aria-hidden="true">
