@@ -1603,7 +1603,7 @@ function buildRecoverModal(rowParams, meta, clientesInfo, allColumns){
     if(composed) evalCli = composed;
   }
 
-  // ---- Resumen general ----
+ // ---- Resumen general ----
   const generalRows = [];
   pushUnique(generalRows, "Nombre", showDash(rowParams.nombre));
   pushUnique(generalRows, "Posición", showDash(rowParams.posicion));
@@ -1611,13 +1611,14 @@ function buildRecoverModal(rowParams, meta, clientesInfo, allColumns){
   pushUnique(generalRows, "Fecha", showDash(rowParams.fecha));
 
   pushUnique(generalRows, "Comentarios del colaborador", showDash(rowParams.comentarios_colaborador ?? rowParams.comentarios));
-  pushUnique(generalRows, "Justificación", showDash(rowParams.justificacion));
+  // ❌ No incluir en la tabla del modal:
+  // pushUnique(generalRows, "Justificación", showDash(rowParams.justificacion));
   pushUnique(generalRows, "Comentarios del evaluador", showDash(rowParams.comentarios_evaluador));
   pushUnique(generalRows, "Nombre del evaluador (desempeño)", showDash(rowParams.nombre_evaluador));
-  pushUnique(generalRows, "Fortalezas", showDash(rowParams.fortalezas));
-  pushUnique(generalRows, "Oportunidades", showDash(rowParams.oportunidades_mejora));
-  pushUnique(generalRows, "Proyección", showDash(rowParams.proyeccion_potencial));
-  pushUnique(generalRows, "Necesidades de capacitación", showDash(rowParams.necesidades_capacitacion));
+  // pushUnique(generalRows, "Fortalezas", showDash(rowParams.fortalezas));
+  // pushUnique(generalRows, "Oportunidades", showDash(rowParams.oportunidades_mejora));
+  // pushUnique(generalRows, "Proyección", showDash(rowParams.proyeccion_potencial));
+  // pushUnique(generalRows, "Necesidades de capacitación", showDash(rowParams.necesidades_capacitacion));
   pushUnique(generalRows, "Evaluación clientes (desempeño)", showDash(evalCli));
 
   const gen = document.createElement("table");
