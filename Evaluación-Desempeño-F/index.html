@@ -1213,6 +1213,8 @@ function ensureItemsVisibleIfNeeded(){
   if(container.children.length === 0) renderItems();
 }
 
+<!-- ✅ REEMPLAZA DESDE: function getHeaderData(){ ... } HASTA EL </script> QUE CIERRA EL SCRIPT ANIDADO -->
+
 function getHeaderData(){
   return {
     tipo: $("tipoFormulario").value,
@@ -1226,19 +1228,19 @@ function getHeaderData(){
   };
 }
 
-<script>
 /* =========================
-   CAMBIO 1) Ajustar llaves de comentarios
+   FIX: NO anidar <script> aquí.
+   (Solo código JS normal dentro del mismo <script> principal)
    ========================= */
 function getExtraFields(){
   const tipo = $("tipoFormulario").value;
 
   if(tipo === "autoevaluacion"){
     return {
-      // ✅ ESTA es la llave que mapea a la columna "comentarios"
-      comentarios: $("comentariosColaborador").value.trim(),
+      // ✅ Llave correcta a columna "comentarios"
+      comentarios: ($("comentariosColaborador")?.value || "").trim(),
 
-      // (dejo lo demás igual por si lo estás usando en tu Sheet)
+      // (mantengo lo demás por compatibilidad)
       justificacion: ($("justificacion")?.value || "").trim(),
       comentarios_evaluador: ($("comentariosEvaluador")?.value || "").trim(),
       fortalezas: ($("fortalezas")?.value || "").trim(),
@@ -1251,16 +1253,16 @@ function getExtraFields(){
 
   if(tipo === "desempeno"){
     return {
-      justificacion: $("justificacion").value.trim(),
-      comentarios_evaluador: $("comentariosEvaluador").value.trim(),
+      justificacion: ($("justificacion")?.value || "").trim(),
+      comentarios_evaluador: ($("comentariosEvaluador")?.value || "").trim(),
       nombre_evaluador: ($("nombreEvaluadorDesempeno")?.value || "").trim(),
-      fortalezas: $("fortalezas").value.trim(),
-      oportunidades_mejora: $("oportunidades").value.trim(),
-      proyeccion_potencial: $("proyeccion").value.trim(),
+      fortalezas: ($("fortalezas")?.value || "").trim(),
+      oportunidades_mejora: ($("oportunidades")?.value || "").trim(),
+      proyeccion_potencial: ($("proyeccion")?.value || "").trim(),
       necesidades_capacitacion: ($("necesidadesCapacitacion")?.value || "").trim(),
 
-      // ✅ Igual aquí: guardar en columna "comentarios"
-      comentarios: $("comentariosColaborador2").value.trim(),
+      // ✅ Llave correcta a columna "comentarios"
+      comentarios: ($("comentariosColaborador2")?.value || "").trim(),
 
       evaluacion_clientes: ($("evaluacionClientes")?.value || "").trim()
     };
@@ -1277,7 +1279,7 @@ function getExtraFields(){
 }
 
 /* =========================
-   CAMBIO 2) Guardar DESCRIPCIÓN en cada Item (no solo el número)
+   Guardar DESCRIPCIÓN seleccionada en cada ítem (no solo el número)
    ========================= */
 $("btnSave").addEventListener("click", async ()=>{
   if(state.saving) return;
@@ -1306,7 +1308,7 @@ $("btnSave").addEventListener("click", async ()=>{
     ...getExtraFields()
   };
 
-  // ✅ AQUÍ está el fix: mandar el texto seleccionado "n — descripción"
+  // ✅ Enviar texto "n — descripción" por ítem
   if(tipo !== "clientes"){
     const selectedText = flattenAnswersSelectedText(); // {A_metas:"5 — ...", ...}
     ITEMS.forEach(sec => sec.items.forEach(it=>{
@@ -1341,7 +1343,8 @@ $("btnSave").addEventListener("click", async ()=>{
     setBusy(false);
   }
 });
-</script>
+
+<!-- ✅ HASTA AQUÍ LLEGA EL REEMPLAZO: ya NO debe existir el </script> “extra” aquí -->
 
 function getScoreFromDOM(itKey){
   const el = document.getElementById("ans_" + itKey);
