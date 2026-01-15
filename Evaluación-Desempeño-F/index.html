@@ -624,36 +624,37 @@
       </div>
     </div>
 
-    <!-- ✅ Modal Detalle Recuperado (Autollenar / Cerrar) -->
-    <div class="modal-backdrop" id="recoverBackdrop" aria-hidden="true">
-      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="recoverTitle">
-        <div class="modal-head">
-          <div>
-            <div class="modal-title" id="recoverTitle">Registro encontrado</div>
-            <div class="modal-sub" id="recoverSub">—</div>
-          </div>
-          <div class="modal-actions">
-            <div class="tag-ok"><span class="dot"></span>Registro</div>
+  <!-- ✅ Modal Detalle Recuperado (Autollenar / Cerrar) -->
+<div class="modal-backdrop" id="recoverBackdrop" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="recoverTitle">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title" id="recoverTitle">Registro encontrado</div>
+        <div class="modal-sub" id="recoverSub">—</div>
+      </div>
 
-            <!-- ✅ 2 opciones Autollenar -->
-            <button class="btn primary" id="btnApplyRecovered" type="button">Autollenar todo</button>
-            <button class="btn" id="btnApplyRecoveredTexts" type="button">Autollenar solo textos</button>
+      <div class="modal-actions">
+        <div class="tag-ok"><span class="dot"></span>Registro</div>
 
-            <button class="btn" id="btnCloseRecovered" type="button">Cerrar</button>
-          </div>
-        </div>
+        <!-- ✅ Solo 1 opción de Autollenar -->
+        <button class="btn primary" id="btnApplyRecovered" type="button">Autollenar todo</button>
 
-        <div class="modal-body">
-          <div id="recoverKeyReport" style="margin-bottom:12px;"></div>
-
-          <!-- ✅ Tabla completa Encabezado/Valor -->
-          <div id="recoverAllCols" style="margin-bottom:12px;"></div>
-
-          <div id="recoverGeneral"></div>
-          <div id="recoverItems"></div>
-        </div>
+        <!-- ✅ Cerrar en azul (igual que Autollenar) -->
+        <button class="btn primary" id="btnCloseRecovered" type="button">Cerrar</button>
       </div>
     </div>
+
+    <div class="modal-body">
+      <div id="recoverKeyReport" style="margin-bottom:12px;"></div>
+
+      <!-- ✅ Tabla completa Encabezado/Valor -->
+      <div id="recoverAllCols" style="margin-bottom:12px;"></div>
+
+      <div id="recoverGeneral"></div>
+      <div id="recoverItems"></div>
+    </div>
+  </div>
+</div>
 
     <!-- ✅ Modal Lookup (Lista de coincidencias / duplicados) -->
     <!-- ⚠️ FIX: este segundo modal tenía IDs DUPLICADOS que rompían Recuperar/Buscar.
