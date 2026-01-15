@@ -2264,6 +2264,11 @@ function bind(){
 }
 </script>
 
+<!-- ✅ FIX SEGÚN FOTO:
+     El JS siguiente se estaba “imprimiendo” en la página porque quedó FUERA de un <script>.
+     Se reabre el script justo aquí para que NO se renderice como texto. -->
+<script>
+
 function setDefaultToday(){
   const f = $("fecha");
   if(f && !f.value){
