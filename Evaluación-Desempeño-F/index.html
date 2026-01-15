@@ -1226,19 +1226,25 @@ function getHeaderData(){
   };
 }
 
+<script>
+/* =========================
+   CAMBIO 1) Ajustar llaves de comentarios
+   ========================= */
 function getExtraFields(){
   const tipo = $("tipoFormulario").value;
 
   if(tipo === "autoevaluacion"){
     return {
-      comentarios_colaborador: $("comentariosColaborador").value.trim(),
+      // ✅ ESTA es la llave que mapea a la columna "comentarios"
+      comentarios: $("comentariosColaborador").value.trim(),
+
+      // (dejo lo demás igual por si lo estás usando en tu Sheet)
       justificacion: ($("justificacion")?.value || "").trim(),
       comentarios_evaluador: ($("comentariosEvaluador")?.value || "").trim(),
       fortalezas: ($("fortalezas")?.value || "").trim(),
       oportunidades_mejora: ($("oportunidades")?.value || "").trim(),
       proyeccion_potencial: ($("proyeccion")?.value || "").trim(),
       necesidades_capacitacion: ($("necesidadesCapacitacion")?.value || "").trim(),
-      comentarios_colaborador2: ($("comentariosColaborador2")?.value || "").trim(),
       evaluacion_clientes: ($("evaluacionClientes")?.value || "").trim()
     };
   }
@@ -1252,7 +1258,10 @@ function getExtraFields(){
       oportunidades_mejora: $("oportunidades").value.trim(),
       proyeccion_potencial: $("proyeccion").value.trim(),
       necesidades_capacitacion: ($("necesidadesCapacitacion")?.value || "").trim(),
-      comentarios_colaborador: $("comentariosColaborador2").value.trim(),
+
+      // ✅ Igual aquí: guardar en columna "comentarios"
+      comentarios: $("comentariosColaborador2").value.trim(),
+
       evaluacion_clientes: ($("evaluacionClientes")?.value || "").trim()
     };
   }
@@ -1266,6 +1275,73 @@ function getExtraFields(){
 
   return {};
 }
+
+/* =========================
+   CAMBIO 2) Guardar DESCRIPCIÓN en cada Item (no solo el número)
+   ========================= */
+$("btnSave").addEventListener("click", async ()=>{
+  if(state.saving) return;
+
+  const header = getHeaderData();
+  const tipo = header.tipo;
+
+  if(!header.no_personal || !header.periodo || !header.version){
+    alert("Para Guardar, llena: No. de personal + Periodo + Versión.");
+    return;
+  }
+
+  if(tipo !== "clientes") ensureItemsVisibleIfNeeded();
+
+  const payload = {
+    action: "guardar",
+    tipo: tipo,
+    no_personal: header.no_personal,
+    nombre: header.nombre,
+    posicion: header.posicion,
+    departamento: header.departamento,
+    periodo: header.periodo,
+    version: header.version,
+    fecha: header.fecha || "",
+    puntaje: (tipo === "clientes") ? 0 : computeTotal(),
+    ...getExtraFields()
+  };
+
+  // ✅ AQUÍ está el fix: mandar el texto seleccionado "n — descripción"
+  if(tipo !== "clientes"){
+    const selectedText = flattenAnswersSelectedText(); // {A_metas:"5 — ...", ...}
+    ITEMS.forEach(sec => sec.items.forEach(it=>{
+      payload[it.key] = selectedText[it.key] || "";
+    }));
+  }
+
+  try{
+    setBusy(true);
+    $("apiHint").className = "warn";
+    $("apiHint").textContent = "Guardando…";
+
+    const body = new URLSearchParams(payload).toString();
+
+    await fetch(API_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+      body
+    });
+
+    $("apiHint").className = "ok";
+    $("apiHint").textContent = "Guardado enviado ✅ (verifica en Google Sheets)";
+    setDirty(false);
+
+  }catch(e){
+    console.error(e);
+    $("apiHint").className = "err";
+    $("apiHint").textContent = "Error guardando: " + (e.message || e);
+    alert("No se pudo guardar.\n\n" + (e.message || e));
+  }finally{
+    setBusy(false);
+  }
+});
+</script>
 
 function getScoreFromDOM(itKey){
   const el = document.getElementById("ans_" + itKey);
