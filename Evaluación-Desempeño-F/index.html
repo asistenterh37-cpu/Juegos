@@ -2215,12 +2215,70 @@ function bind(){
       ...getExtraFields()
     };
 
+    $("btnSave").addEventListener("click", async ()=>{
+    if(state.saving) return;
+
+    const header = getHeaderData();
+    const tipo = header.tipo;
+
+    if(!header.no_personal || !header.periodo || !header.version){
+      alert("Para Guardar, llena: No. de personal + Periodo + Versión.");
+      return;
+    }
+
+    if(tipo !== "clientes") ensureItemsVisibleIfNeeded();
+
+    const payload = {
+      action: "guardar",
+      tipo: tipo,
+      no_personal: header.no_personal,
+      nombre: header.nombre,
+      posicion: header.posicion,
+      departamento: header.departamento,
+      periodo: header.periodo,
+      version: header.version,
+      fecha: header.fecha || "",
+      puntaje: (tipo === "clientes") ? 0 : computeTotal(),
+      ...getExtraFields()
+    };
+
+    /* ======== INICIO FIX (ANTES: guardaba solo "1..5") ======== */
     if(tipo !== "clientes"){
+      // Guarda en cada columna el texto completo: "n — descripción"
+      const selectedText = flattenAnswersSelectedText(); // usa la rúbrica del ITEMS
       ITEMS.forEach(sec => sec.items.forEach(it=>{
-        const n = getScoreFromDOM(it.key);
-        payload[it.key] = (typeof n === "number") ? String(n) : "";
+        payload[it.key] = selectedText[it.key] || "";
       }));
     }
+    /* ======== FIN FIX ======== */
+
+    try{
+      setBusy(true);
+      $("apiHint").className = "warn";
+      $("apiHint").textContent = "Guardando…";
+
+      const body = new URLSearchParams(payload).toString();
+
+      await fetch(API_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+        body
+      });
+
+      $("apiHint").className = "ok";
+      $("apiHint").textContent = "Guardado enviado ✅ (verifica en Google Sheets)";
+      setDirty(false);
+
+    }catch(e){
+      console.error(e);
+      $("apiHint").className = "err";
+      $("apiHint").textContent = "Error guardando: " + (e.message || e);
+      alert("No se pudo guardar.\n\n" + (e.message || e));
+    }finally{
+      setBusy(false);
+    }
+  });
 
     try{
       setBusy(true);
