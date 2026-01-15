@@ -1213,7 +1213,8 @@ function ensureItemsVisibleIfNeeded(){
   if(container.children.length === 0) renderItems();
 }
 
-<!-- ✅ REEMPLAZA DESDE: function getHeaderData(){ ... } HASTA EL </script> QUE CIERRA EL SCRIPT ANIDADO -->
+/* ✅ REEMPLAZA DESDE: function getHeaderData(){ ... } HASTA donde terminaba tu “script anidado” */
+/* (IMPORTANTE: aquí NO uses <!-- -->, usa comentarios JS) */
 
 function getHeaderData(){
   return {
@@ -1237,12 +1238,9 @@ function getExtraFields(){
 
   if(tipo === "autoevaluacion"){
     return {
-      // ✅ Llave correcta a columna "comentarios"
       comentarios: ($("comentariosColaborador")?.value || "").trim(),
-
-      // (mantengo lo demás por compatibilidad)
       justificacion: ($("justificacion")?.value || "").trim(),
-      comentarios_evaluador: ($("comentariosEvaluador")?.value || "").trim(),
+      comentarios_evaluador: ($("comentariosEvaluador")?.value || "").trimm(),
       fortalezas: ($("fortalezas")?.value || "").trim(),
       oportunidades_mejora: ($("oportunidades")?.value || "").trim(),
       proyeccion_potencial: ($("proyeccion")?.value || "").trim(),
@@ -1260,10 +1258,7 @@ function getExtraFields(){
       oportunidades_mejora: ($("oportunidades")?.value || "").trim(),
       proyeccion_potencial: ($("proyeccion")?.value || "").trim(),
       necesidades_capacitacion: ($("necesidadesCapacitacion")?.value || "").trim(),
-
-      // ✅ Llave correcta a columna "comentarios"
       comentarios: ($("comentariosColaborador2")?.value || "").trim(),
-
       evaluacion_clientes: ($("evaluacionClientes")?.value || "").trim()
     };
   }
@@ -1277,74 +1272,6 @@ function getExtraFields(){
 
   return {};
 }
-
-/* =========================
-   Guardar DESCRIPCIÓN seleccionada en cada ítem (no solo el número)
-   ========================= */
-$("btnSave").addEventListener("click", async ()=>{
-  if(state.saving) return;
-
-  const header = getHeaderData();
-  const tipo = header.tipo;
-
-  if(!header.no_personal || !header.periodo || !header.version){
-    alert("Para Guardar, llena: No. de personal + Periodo + Versión.");
-    return;
-  }
-
-  if(tipo !== "clientes") ensureItemsVisibleIfNeeded();
-
-  const payload = {
-    action: "guardar",
-    tipo: tipo,
-    no_personal: header.no_personal,
-    nombre: header.nombre,
-    posicion: header.posicion,
-    departamento: header.departamento,
-    periodo: header.periodo,
-    version: header.version,
-    fecha: header.fecha || "",
-    puntaje: (tipo === "clientes") ? 0 : computeTotal(),
-    ...getExtraFields()
-  };
-
-  // ✅ Enviar texto "n — descripción" por ítem
-  if(tipo !== "clientes"){
-    const selectedText = flattenAnswersSelectedText(); // {A_metas:"5 — ...", ...}
-    ITEMS.forEach(sec => sec.items.forEach(it=>{
-      payload[it.key] = selectedText[it.key] || "";
-    }));
-  }
-
-  try{
-    setBusy(true);
-    $("apiHint").className = "warn";
-    $("apiHint").textContent = "Guardando…";
-
-    const body = new URLSearchParams(payload).toString();
-
-    await fetch(API_URL, {
-      method: "POST",
-      mode: "no-cors",
-      headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
-      body
-    });
-
-    $("apiHint").className = "ok";
-    $("apiHint").textContent = "Guardado enviado ✅ (verifica en Google Sheets)";
-    setDirty(false);
-
-  }catch(e){
-    console.error(e);
-    $("apiHint").className = "err";
-    $("apiHint").textContent = "Error guardando: " + (e.message || e);
-    alert("No se pudo guardar.\n\n" + (e.message || e));
-  }finally{
-    setBusy(false);
-  }
-});
-
-<!-- ✅ HASTA AQUÍ LLEGA EL REEMPLAZO: ya NO debe existir el </script> “extra” aquí -->
 
 function getScoreFromDOM(itKey){
   const el = document.getElementById("ans_" + itKey);
