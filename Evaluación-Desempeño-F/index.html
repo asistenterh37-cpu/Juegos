@@ -2514,15 +2514,17 @@ $("btnSave").addEventListener("click", async ()=>{
      Se reabre el script justo aquí para que NO se renderice como texto. -->
 <script>
 
-function setDefaultToday(){
+function setDefaultToday(force = false){
   const f = $("fecha");
-  if(f && !f.value){
-    const d = new Date();
-    const yyyy = d.getFullYear();
-    const mm = String(d.getMonth()+1).padStart(2,"0");
-    const dd = String(d.getDate()).padStart(2,"0");
-    f.value = `${yyyy}-${mm}-${dd}`;
-  }
+  if(!f) return;
+
+  if(!force && f.value) return;
+
+  const d = new Date();
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth()+1).padStart(2,"0");
+  const dd = String(d.getDate()).padStart(2,"0");
+  f.value = `${yyyy}-${mm}-${dd}`;
 }
 
 window.addEventListener("beforeunload", (e)=>{
@@ -2537,7 +2539,10 @@ async function initApp(){
     applyTipoUI();
     renderItems();
     bind();
-    setDefaultToday();
+
+    // ✅ SIEMPRE mostrar HOY al iniciar (formularios: autoevaluación / clientes / desempeño)
+    setDefaultToday(true);
+
     setDirty(false);
 
     setTimeout(() => {
