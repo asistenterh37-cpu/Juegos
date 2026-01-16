@@ -824,7 +824,7 @@
 /************************************************************
  * 1) URL COMPLETA DEL APPS SCRIPT (/exec)
  ************************************************************/
-const API_URL = "https://script.google.com/macros/s/AKfycby_4Pix8ZoZmItx8qdzzvMnazIuQ6pqpV3JW61ShMa4C2w-G57bMj1dvtO_-pRXtHfXkw/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbwvv2Ies3S8akO-vhoxCXbD3WEfETL1plyasdnsIQ3nOD26u1sTIpjiN3rj0AIFHcMaXQ/exec";
 
 function normalizeApiUrl(u){
   let x = String(u || "").trim();
@@ -1264,11 +1264,16 @@ function getExtraFields(){
     };
   }
 
-  if(tipo === "desempeno"){
+if(tipo === "desempeno"){
     return {
       justificacion: ($("justificacion")?.value || "").trim(),
       comentarios_evaluador: ($("comentariosEvaluador")?.value || "").trim(),
       nombre_evaluador: ($("nombreEvaluadorDesempeno")?.value || "").trim(),
+
+      /* ✅ NUEVO: Mail1 / Mail2 (solo desempeño) */
+      mail1: ($("mail1")?.value || "").trim(),
+      mail2: ($("mail2")?.value || "").trim(),
+
       fortalezas: ($("fortalezas")?.value || "").trim(),
       oportunidades_mejora: ($("oportunidades")?.value || "").trim(),
       proyeccion_potencial: ($("proyeccion")?.value || "").trim(),
@@ -1718,6 +1723,11 @@ function applyRecoveredToForm(rowParams, clientesInfo){
   if(rowParams.justificacion) $("justificacion").value = rowParams.justificacion;
   if(rowParams.comentarios_evaluador) $("comentariosEvaluador").value = rowParams.comentarios_evaluador;
   if(rowParams.nombre_evaluador && $("nombreEvaluadorDesempeno")) $("nombreEvaluadorDesempeno").value = rowParams.nombre_evaluador;
+
+  /* ✅ NUEVO: recuperar mail1/mail2 si vienen */
+  if(rowParams.mail1 && $("mail1")) $("mail1").value = rowParams.mail1;
+  if(rowParams.mail2 && $("mail2")) $("mail2").value = rowParams.mail2;
+
   if(rowParams.fortalezas) $("fortalezas").value = rowParams.fortalezas;
   if(rowParams.oportunidades_mejora) $("oportunidades").value = rowParams.oportunidades_mejora;
   if(rowParams.proyeccion_potencial) $("proyeccion").value = rowParams.proyeccion_potencial;
@@ -1765,6 +1775,10 @@ function applyRecoveredTextsOnly(rowParams, clientesInfo){
   if(rowParams.proyeccion_potencial) $("proyeccion").value = rowParams.proyeccion_potencial;
   if(rowParams.necesidades_capacitacion) $("necesidadesCapacitacion").value = rowParams.necesidades_capacitacion;
   if(rowParams.nombre_evaluador && $("nombreEvaluadorDesempeno")) $("nombreEvaluadorDesempeno").value = rowParams.nombre_evaluador;
+
+  /* ✅ NUEVO: recuperar mail1/mail2 si vienen */
+  if(rowParams.mail1 && $("mail1")) $("mail1").value = rowParams.mail1;
+  if(rowParams.mail2 && $("mail2")) $("mail2").value = rowParams.mail2;
 
   let evalCli = String(rowParams.evaluacion_clientes || "").trim();
   if(clientesInfo && clientesInfo.found){
@@ -2109,7 +2123,10 @@ function clearForm(){
   ["noPersonal","nombre","posicion","departamento","periodo","version","fecha",
    "comentariosColaborador","justificacion","comentariosEvaluador","fortalezas",
    "oportunidades","proyeccion","necesidadesCapacitacion","comentariosColaborador2",
-   "evaluacionClientes","retroalimentacion","nombreEvaluador","nombreEvaluadorDesempeno"
+   "evaluacionClientes","retroalimentacion","nombreEvaluador","nombreEvaluadorDesempeno",
+
+   /* ✅ NUEVO: limpiar mail1/mail2 */
+   "mail1","mail2"
   ].forEach(id=>{ const el=$(id); if(el) el.value=""; });
 
   state.answers = {};
@@ -2132,7 +2149,10 @@ function bind(){
     "comentariosColaborador","justificacion","comentariosEvaluador","fortalezas",
     "oportunidades","proyeccion","necesidadesCapacitacion",
     "comentariosColaborador2","evaluacionClientes",
-    "retroalimentacion","nombreEvaluador","nombreEvaluadorDesempeno"
+    "retroalimentacion","nombreEvaluador","nombreEvaluadorDesempeno",
+
+    /* ✅ NUEVO: dirty tracking mail1/mail2 */
+    "mail1","mail2"
   ].forEach(id=>{
     const el = $(id);
     if(!el) return;
