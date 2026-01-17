@@ -2212,6 +2212,14 @@ $("recoverBackdrop").addEventListener("click", (e)=>{
 $("btnApplyRecovered").addEventListener("click", ()=>{
   if(!lastRecovered || !lastRecovered.rowParams) return;
   applyRecoveredToForm(lastRecovered.rowParams, lastRecovered.clientesInfo || null);
+
+  // ✅ Asegura que se muestren los ítems y campos llenados (desempeño)
+  const tipo = $("tipoFormulario").value;
+  if(tipo !== "clientes"){
+    renderItems();
+    ensureItemsVisibleIfNeeded();
+  }
+
   $("apiHint").className = "ok";
   $("apiHint").textContent = "Autollenado aplicado ✅";
   closeRecoverModal();
