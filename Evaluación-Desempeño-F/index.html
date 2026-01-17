@@ -2093,9 +2093,16 @@ function applySearchUI(tipo){
   const btnRecover = $("btnRecover");
   if(btnRecover) btnRecover.style.display = isDes ? "" : "none";
 }
-function applyTopActionsUI(tipo){
+applyTopActionsUI(tipo){
   const isClientes = (tipo === "clientes");
   // En este demo no hay generate/print, pero dejamos la idea
+
+  // ✅ Guardar SOLO visible/activo en "desempeño"
+  const btnSave = $("btnSave");
+  if(btnSave){
+    btnSave.style.display = (tipo === "desempeno") ? "" : "none";
+    btnSave.disabled = (tipo !== "desempeno");
+  }
 }
 
 function applyTipoUI(){
