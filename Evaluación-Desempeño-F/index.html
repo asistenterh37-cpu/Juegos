@@ -1936,7 +1936,7 @@ async function searchRecords(){
 /************************************************************
  * ✅ Recuperar (BOTÓN) — SIEMPRE MUESTRA TABLA
  ************************************************************/
-async function recoverByKeys(){
+
   if(state.saving) return;
 
   const tipoUI = $("tipoFormulario").value;
@@ -2102,6 +2102,20 @@ applyTopActionsUI(tipo){
   if(btnSave){
     btnSave.style.display = (tipo === "desempeno") ? "" : "none";
     btnSave.disabled = (tipo !== "desempeno");
+  }
+
+  // ✅ Recuperar SOLO visible/activo en "desempeño"
+  const btnRecover = $("btnRecover");
+  if(btnRecover){
+    btnRecover.style.display = (tipo === "desempeno") ? "" : "none";
+    btnRecover.disabled = (tipo !== "desempeno");
+  }
+
+  // ✅ Generar SOLO visible/activo en "desempeño"
+  const btnGen = $("btnGenerate");
+  if(btnGen){
+    btnGen.style.display = (tipo === "desempeno") ? "" : "none";
+    btnGen.disabled = (tipo !== "desempeno");
   }
 }
 
