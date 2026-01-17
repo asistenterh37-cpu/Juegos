@@ -2132,7 +2132,6 @@ function applyTipoUI(){
   $("clientesBox").style.display = (tipo === "clientes") ? "block" : "none";
   $("evalCard").style.display = (tipo === "clientes") ? "none" : "block";
 
-  if(tipo !== "clientes") renderItems();
   ensureItemsVisibleIfNeeded();
   applySearchUI(tipo);
   applyTopActionsUI(tipo);
@@ -2213,8 +2212,8 @@ function bind(){
     if(!lastRecovered || !lastRecovered.rowParams) return;
     applyRecoveredToForm(lastRecovered.rowParams, lastRecovered.clientesInfo || null);
 
-    // ✅ Asegura que se muestren los ítems y campos llenados
-    applyTipoUI();
+    // ✅ Asegura que se muestren los ítems y campos llenados (sin re-render innecesario)
+    ensureItemsVisibleIfNeeded();
 
     $("apiHint").className = "ok";
     $("apiHint").textContent = "Autollenado aplicado ✅";
