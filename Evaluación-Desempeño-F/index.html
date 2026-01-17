@@ -2093,7 +2093,7 @@ function applySearchUI(tipo){
   const btnRecover = $("btnRecover");
   if(btnRecover) btnRecover.style.display = isDes ? "" : "none";
 }
-applyTopActionsUI(tipo){
+function applyTopActionsUI(tipo){
   const isClientes = (tipo === "clientes");
   // En este demo no hay generate/print, pero dejamos la idea
 
@@ -2186,522 +2186,292 @@ function bind(){
     setDirty(true);
   });
 
-$("btnNew").addEventListener("click", ()=>{
-  if(state.saving) return;
-  if(state.dirty && !confirm("Hay cambios sin guardar. ¿Limpiar todo de todas formas?")) return;
-  clearForm();
-});
+  $("btnNew").addEventListener("click", ()=>{
+    if(state.saving) return;
+    if(state.dirty && !confirm("Hay cambios sin guardar. ¿Limpiar todo de todas formas?")) return;
+    clearForm();
+  });
 
-$("btnRecover").addEventListener("click", async ()=>{
-  if(state.saving) return;
-  const tipo = $("tipoFormulario").value;
-  if(tipo !== "desempeno"){
-    alert("Recuperar solo está disponible en el Formulario de evaluación del desempeño.");
-    return;
-  }
-  await recoverByKeys();
-});
-
-const closeBtn = $("btnCloseRecovered");
-if(closeBtn) closeBtn.addEventListener("click", closeRecoverModal);
-
-$("recoverBackdrop").addEventListener("click", (e)=>{
-  if(e.target === $("recoverBackdrop")) closeRecoverModal();
-});
-
-$("btnApplyRecovered").addEventListener("click", ()=>{
-  if(!lastRecovered || !lastRecovered.rowParams) return;
-  applyRecoveredToForm(lastRecovered.rowParams, lastRecovered.clientesInfo || null);
-
-  // ✅ Asegura que se muestren los ítems y campos llenados (desempeño)
-  const tipo = $("tipoFormulario").value;
-  if(tipo !== "clientes"){
-    renderItems();
-    ensureItemsVisibleIfNeeded();
-  }
-
-  $("apiHint").className = "ok";
-  $("apiHint").textContent = "Autollenado aplicado ✅";
-  closeRecoverModal();
-});
-
-$("btnCloseLookup").addEventListener("click", closeLookupModal);
-$("lookupBackdrop").addEventListener("click", (e)=>{
-  if(e.target === $("lookupBackdrop")) closeLookupModal();
-});
-
-$("btnSearch").addEventListener("click", searchRecords);
-
-$("btnClearSearch").addEventListener("click", ()=>{
-  $("qNoPersonal").value = "";
-  $("qNombre").value = "";
-  $("qPeriodo").value = "";
-  $("qVersion").value = "";
-  renderLookupResults([], null);
-  setLookupStatus("Listo para buscar.", "warn");
-});
-
-["qNoPersonal","qNombre","qPeriodo","qVersion"].forEach(id=>{
-  const el = $(id);
-  if(!el) return;
-  el.addEventListener("keydown", (e)=>{
-    if(e.key === "Enter"){
-      e.preventDefault();
-      searchRecords();
+  $("btnRecover").addEventListener("click", async ()=>{
+    if(state.saving) return;
+    const tipo = $("tipoFormulario").value;
+    if(tipo !== "desempeno"){
+      alert("Recuperar solo está disponible en el Formulario de evaluación del desempeño.");
+      return;
     }
-  });
-});
-
-/* =========================
-   ✅ NUEVO: Helpers Reporte
-   - Generar: muestra tabla flotante (modal) con resultados
-   - Imprimir: habilita Imprimir/Enviar a PDF
-   - Oculta campos vacíos en reporte
-   ========================= */
-
-function _isEmptyValue(v){
-  return v == null || String(v).trim() === "";
-}
-
-/**
- * Intenta “podar” filas/campos vacíos en un reporte ya renderizado.
- * Funciona por heurística (sin romper tu estructura si cambia).
- */
-function pruneEmptyFields(root){
-  if(!root) return;
-
-  // 1) Filas típicas (si existen): .kv, .field-row, .report-row
-  const rowSelectors = [".kv", ".field-row", ".report-row"];
-  rowSelectors.forEach(sel=>{
-    root.querySelectorAll(sel).forEach(row=>{
-      // Busca un "valor" típico (si existe). Si no, usa el texto del row sin el label.
-      const valEl =
-        row.querySelector(".value") ||
-        row.querySelector(".v") ||
-        row.querySelector("[data-value]") ||
-        null;
-
-      let val = "";
-      if(valEl){
-        val = (valEl.getAttribute("data-value") ?? valEl.textContent ?? "").trim();
-      }else{
-        // heurística: si hay 2 columnas, toma la 2da
-        const kids = Array.from(row.children || []);
-        if(kids.length >= 2) val = (kids[1].textContent || "").trim();
-      }
-
-      if(_isEmptyValue(val)){
-        row.remove();
-      }
-    });
+    await recoverByKeys();
   });
 
-  // 2) Tablas: elimina filas donde la 2da celda esté vacía
-  root.querySelectorAll("table").forEach(tbl=>{
-    tbl.querySelectorAll("tr").forEach(tr=>{
-      const tds = tr.querySelectorAll("td");
-      if(tds && tds.length >= 2){
-        const val = (tds[1].textContent || "").trim();
-        if(_isEmptyValue(val)) tr.remove();
-      }
-    });
+  const closeBtn = $("btnCloseRecovered");
+  if(closeBtn) closeBtn.addEventListener("click", closeRecoverModal);
+
+  $("recoverBackdrop").addEventListener("click", (e)=>{
+    if(e.target === $("recoverBackdrop")) closeRecoverModal();
   });
 
-  // 3) Listas: elimina <li> vacíos
-  root.querySelectorAll("li").forEach(li=>{
-    const val = (li.textContent || "").trim();
-    if(_isEmptyValue(val)) li.remove();
-  });
-}
+  $("btnApplyRecovered").addEventListener("click", ()=>{
+    if(!lastRecovered || !lastRecovered.rowParams) return;
+    applyRecoveredToForm(lastRecovered.rowParams, lastRecovered.clientesInfo || null);
 
-/**
- * Construye el reporte y lo inyecta en el modal (tabla flotante).
- * Compatible si tu buildReport():
- *  - retorna string HTML, o
- *  - renderiza un #report existente en el DOM.
- */
-function openReportModal(){
-  const backdrop = $("reportBackdrop");
-  const host = $("reportHost");
-  if(!backdrop || !host) return;
-
-  // Asegura ítems visibles para evaluar total / selección
-  const header = (typeof getHeaderData === "function") ? getHeaderData() : null;
-  const tipo = header?.tipo || $("tipoFormulario")?.value || "";
-  if(tipo !== "clientes" && typeof ensureItemsVisibleIfNeeded === "function"){
-    ensureItemsVisibleIfNeeded();
-  }
-
-  // Construye el reporte
-  let html = "";
-  if(typeof buildReport === "function"){
-    const r = buildReport();
-    if(typeof r === "string") html = r;
-  }
-
-  // Caso A: buildReport devolvió HTML
-  if(html){
-    host.innerHTML = html;
-  }else{
-    // Caso B: buildReport renderiza un #report en el DOM (lo clonamos sin IDs duplicados)
-    const reportEl = document.getElementById("report");
-    if(reportEl){
-      const clone = reportEl.cloneNode(true);
-      // Evita IDs duplicados (muy importante)
-      if(clone.id) clone.removeAttribute("id");
-      clone.querySelectorAll("[id]").forEach(n=>n.removeAttribute("id"));
-      host.innerHTML = "";
-      host.appendChild(clone);
-    }else{
-      // Fallback
-      host.textContent = "No se pudo generar el reporte (no se encontró #report ni HTML retornado).";
-    }
-  }
-
-  // Oculta campos vacíos dentro del reporte del modal
-  pruneEmptyFields(host);
-
-  backdrop.classList.add("show");
-  backdrop.setAttribute("aria-hidden", "false");
-}
-
-function closeReportModal(){
-  const backdrop = $("reportBackdrop");
-  if(!backdrop) return;
-  backdrop.classList.remove("show");
-  backdrop.setAttribute("aria-hidden", "true");
-}
-
-/**
- * Imprimir / Enviar a PDF:
- * - Si aún no hay reporte generado, lo genera (en el modal) y luego imprime.
- * - Para imprimir limpio, se apoya en tu @media print (print-area).
- */
-function doPrint(){
-  // Si existe el reporte visible en página (o modal), imprimimos
-  // Si no, generamos primero.
-  const host = $("reportHost");
-  const hasSomething = host && host.textContent && host.textContent.trim().length > 0;
-
-  if(!hasSomething){
-    openReportModal();
-  }
-  // Importante: podar vacíos antes de imprimir
-  if(host) pruneEmptyFields(host);
-
-  window.print();
-}
-
-
-/* ✅ FIX CRÍTICO:
-   - Había un addEventListener("click") DUPLICADO y ANIDADO dentro de sí mismo.
-   - Eso rompe el guardado (se ejecuta 2 veces / payload inconsistente).
-   - Se deja UN SOLO handler, y aquí se agrega el guardado de "puntaje + descripción" por columna. */
-$("btnSave").addEventListener("click", async ()=>{
-  if(state.saving) return;
-
-  const header = getHeaderData();
-  const tipo = header.tipo;
-
-  if(!header.no_personal || !header.periodo || !header.version){
-    alert("Para Guardar, llena: No. de personal + Periodo + Versión.");
-    return;
-  }
-
-  if(tipo !== "clientes") ensureItemsVisibleIfNeeded();
-
-  const payload = {
-    action: "guardar",
-    tipo: tipo,
-    no_personal: header.no_personal,
-    nombre: header.nombre,
-    posicion: header.posicion,
-    departamento: header.departamento,
-    periodo: header.periodo,
-    version: header.version,
-    fecha: header.fecha || "",
-    puntaje: (tipo === "clientes") ? 0 : computeTotal(),
-    ...getExtraFields()
-  };
-
-  /* ======== INICIO FIX (GUARDAR: puntaje + descripción por ítem) ======== */
-  if(tipo !== "clientes"){
-    // En cada columna de ítem se guarda el texto completo: "n — descripción"
-    const selectedText = flattenAnswersSelectedText(); // usa la rúbrica de ITEMS
-    ITEMS.forEach(sec => sec.items.forEach(it=>{
-      payload[it.key] = selectedText[it.key] || "";
-    }));
-  }
-  /* ======== FIN FIX ======== */
-
-  /* ======== ✅ NUEVO FIX: NO enviar campos vacíos ========
-     - Para que EvaluacionResultados guarde “como Generar”
-     - Y para evitar que un UPsert borre (con blanco) valores previos
-  ========================================================= */
-  function _isEmpty(v){
-    if(v === null || v === undefined) return true;
-    if(typeof v === "string" && v.trim() === "") return true;
-    return false;
-  }
-  function _prunePayload(obj){
-    // claves mínimas que SIEMPRE deben viajar
-    const keep = new Set(["action","tipo","no_personal","periodo","version"]);
-    Object.keys(obj).forEach(k=>{
-      if(keep.has(k)) return;
-      const v = obj[k];
-
-      // Mantener números (incluye 0) si son finitos
-      if(typeof v === "number"){
-        if(!Number.isFinite(v)) delete obj[k];
-        return;
-      }
-
-      // Mantener booleanos
-      if(typeof v === "boolean") return;
-
-      // Strings vacíos / null -> fuera
-      if(_isEmpty(v)) delete obj[k];
-    });
-    return obj;
-  }
-
-  _prunePayload(payload);
-  /* ======== FIN NUEVO FIX ======== */
-
-  try{
-    setBusy(true);
-    $("apiHint").className = "warn";
-    $("apiHint").textContent = "Guardando…";
-
-    const body = new URLSearchParams(payload).toString();
-
-    await fetch(API_URL, {
-      method: "POST",
-      mode: "no-cors",
-      headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
-      body
-    });
+    // ✅ Asegura que se muestren los ítems y campos llenados
+    applyTipoUI();
 
     $("apiHint").className = "ok";
-    $("apiHint").textContent = "Guardado enviado ✅ (verifica en Google Sheets)";
-    setDirty(false);
+    $("apiHint").textContent = "Autollenado aplicado ✅";
+    closeRecoverModal();
+  });
 
-  }catch(e){
-    console.error(e);
-    $("apiHint").className = "err";
-    $("apiHint").textContent = "Error guardando: " + (e.message || e);
-    alert("No se pudo guardar.\n\n" + (e.message || e));
-  }finally{
-    setBusy(false);
-  }
-});
+  $("btnCloseLookup").addEventListener("click", closeLookupModal);
+  $("lookupBackdrop").addEventListener("click", (e)=>{
+    if(e.target === $("lookupBackdrop")) closeLookupModal();
+  });
 
-/* =========================
-   ✅ NUEVO: Bind de botones
-   - btnGenerate: Generar reporte (tabla flotante)
-   - btnPrint: imprimir desde topbar
-   - btnPrintFromModal: imprimir desde modal
-   ========================= */
-(function bindExtraButtons(){
-  const btnGen = $("btnGenerate");
-  if(btnGen){
-    btnGen.addEventListener("click", ()=>{
-      if(state.saving) return;
-      openReportModal();
-    });
-  }
+  $("btnSearch").addEventListener("click", searchRecords);
 
-  const btnPrint = $("btnPrint");
-  if(btnPrint){
-    btnPrint.addEventListener("click", ()=>{
-      if(state.saving) return;
-      doPrint();
-    });
-  }
+  $("btnClearSearch").addEventListener("click", ()=>{
+    $("qNoPersonal").value = "";
+    $("qNombre").value = "";
+    $("qPeriodo").value = "";
+    $("qVersion").value = "";
+    renderLookupResults([], null);
+    setLookupStatus("Listo para buscar.", "warn");
+  });
 
-  const btnPrintFromModal = $("btnPrintFromModal");
-  if(btnPrintFromModal){
-    btnPrintFromModal.addEventListener("click", ()=>{
-      if(state.saving) return;
-      doPrint();
-    });
-  }
-
-  // Cierra modal haciendo click fuera
-  const rb = $("reportBackdrop");
-  if(rb){
-    rb.addEventListener("click", (e)=>{
-      if(e.target === rb) closeReportModal();
-    });
-  }
-})();
-}
-</script>
-
-<!-- ✅ FIX SEGÚN FOTO:
-     El JS siguiente se estaba “imprimiendo” en la página porque quedó FUERA de un <script>.
-     Se reabre el script justo aquí para que NO se renderice como texto. -->
-<script>
-
-function setDefaultToday(force = false){
-  const f = $("fecha");
-  if(!f) return;
-
-  if(!force && f.value) return;
-
-  const d = new Date();
-  const yyyy = d.getFullYear();
-  const mm = String(d.getMonth()+1).padStart(2,"0");
-  const dd = String(d.getDate()).padStart(2,"0");
-  f.value = `${yyyy}-${mm}-${dd}`;
-}
-
-window.addEventListener("beforeunload", (e)=>{
-  if(state.dirty){
-    e.preventDefault();
-    e.returnValue = "";
-  }
-});
-
-async function initApp(){
-  try{
-    applyTipoUI();
-    renderItems();
-    bind();
-
-    // ✅ SIEMPRE mostrar HOY al iniciar (formularios: autoevaluación / clientes / desempeño)
-    setDefaultToday(true);
-
-    setDirty(false);
-
-    setTimeout(() => {
-      const c = $("itemsContainer");
-      if(c && c.children.length === 0 && $("tipoFormulario").value !== "clientes"){
-        renderItems();
+  ["qNoPersonal","qNombre","qPeriodo","qVersion"].forEach(id=>{
+    const el = $(id);
+    if(!el) return;
+    el.addEventListener("keydown", (e)=>{
+      if(e.key === "Enter"){
+        e.preventDefault();
+        searchRecords();
       }
-    }, 250);
+    });
+  });
 
-    await apiPing();
-  }catch(err){
-    console.error("INIT ERROR:", err);
-    const c = $("itemsContainer");
-    if(c){
-      c.innerHTML = `
-        <div class="card" style="background:rgba(0,0,0,.18); border:1px solid rgba(255,180,180,.35)">
-          <h3 style="margin:0 0 8px; color:#ffb4b4;">Error cargando los ítems</h3>
-          <div class="small-muted">
-            Revisa la consola (F12 → Console).<br>
-            <b>${escapeHtml(String(err?.message || err))}</b>
-          </div>
-        </div>
-      `;
-    }
-    $("apiHint").className = "err";
-    $("apiHint").textContent = "Error inicializando.";
+  /* =========================
+     ✅ Helpers Reporte
+     - Generar: muestra tabla flotante (modal) con resultados
+     - Imprimir: habilita Imprimir/Enviar a PDF
+     - Oculta campos vacíos en reporte
+     ========================= */
+
+  function _isEmptyValue(v){
+    return v == null || String(v).trim() === "";
   }
+
+  function pruneEmptyFields(root){
+    if(!root) return;
+
+    const rowSelectors = [".kv", ".field-row", ".report-row"];
+    rowSelectors.forEach(sel=>{
+      root.querySelectorAll(sel).forEach(row=>{
+        const valEl =
+          row.querySelector(".value") ||
+          row.querySelector(".v") ||
+          row.querySelector("[data-value]") ||
+          null;
+
+        let val = "";
+        if(valEl){
+          val = (valEl.getAttribute("data-value") ?? valEl.textContent ?? "").trim();
+        }else{
+          const kids = Array.from(row.children || []);
+          if(kids.length >= 2) val = (kids[1].textContent || "").trim();
+        }
+
+        if(_isEmptyValue(val)){
+          row.remove();
+        }
+      });
+    });
+
+    root.querySelectorAll("table").forEach(tbl=>{
+      tbl.querySelectorAll("tr").forEach(tr=>{
+        const tds = tr.querySelectorAll("td");
+        if(tds && tds.length >= 2){
+          const val = (tds[1].textContent || "").trim();
+          if(_isEmptyValue(val)) tr.remove();
+        }
+      });
+    });
+
+    root.querySelectorAll("li").forEach(li=>{
+      const val = (li.textContent || "").trim();
+      if(_isEmptyValue(val)) li.remove();
+    });
+  }
+
+  function openReportModal(){
+    const backdrop = $("reportBackdrop");
+    const host = $("reportHost");
+    if(!backdrop || !host) return;
+
+    const header = (typeof getHeaderData === "function") ? getHeaderData() : null;
+    const tipo = header?.tipo || $("tipoFormulario")?.value || "";
+    if(tipo !== "clientes" && typeof ensureItemsVisibleIfNeeded === "function"){
+      ensureItemsVisibleIfNeeded();
+    }
+
+    let html = "";
+    if(typeof buildReport === "function"){
+      const r = buildReport();
+      if(typeof r === "string") html = r;
+    }
+
+    if(html){
+      host.innerHTML = html;
+    }else{
+      const reportEl = document.getElementById("report");
+      if(reportEl){
+        const clone = reportEl.cloneNode(true);
+        if(clone.id) clone.removeAttribute("id");
+        clone.querySelectorAll("[id]").forEach(n=>n.removeAttribute("id"));
+        host.innerHTML = "";
+        host.appendChild(clone);
+      }else{
+        host.textContent = "No se pudo generar el reporte (no se encontró #report ni HTML retornado).";
+      }
+    }
+
+    pruneEmptyFields(host);
+
+    backdrop.classList.add("show");
+    backdrop.setAttribute("aria-hidden", "false");
+  }
+
+  function closeReportModal(){
+    const backdrop = $("reportBackdrop");
+    if(!backdrop) return;
+    backdrop.classList.remove("show");
+    backdrop.setAttribute("aria-hidden", "true");
+  }
+
+  function doPrint(){
+    const host = $("reportHost");
+    const hasSomething = host && host.textContent && host.textContent.trim().length > 0;
+
+    if(!hasSomething){
+      openReportModal();
+    }
+    if(host) pruneEmptyFields(host);
+
+    window.print();
+  }
+
+  $("btnSave").addEventListener("click", async ()=>{
+    if(state.saving) return;
+
+    const header = getHeaderData();
+    const tipo = header.tipo;
+
+    if(!header.no_personal || !header.periodo || !header.version){
+      alert("Para Guardar, llena: No. de personal + Periodo + Versión.");
+      return;
+    }
+
+    if(tipo !== "clientes") ensureItemsVisibleIfNeeded();
+
+    const payload = {
+      action: "guardar",
+      tipo: tipo,
+      no_personal: header.no_personal,
+      nombre: header.nombre,
+      posicion: header.posicion,
+      departamento: header.departamento,
+      periodo: header.periodo,
+      version: header.version,
+      fecha: header.fecha || "",
+      puntaje: (tipo === "clientes") ? 0 : computeTotal(),
+      ...getExtraFields()
+    };
+
+    if(tipo !== "clientes"){
+      const selectedText = flattenAnswersSelectedText();
+      ITEMS.forEach(sec => sec.items.forEach(it=>{
+        payload[it.key] = selectedText[it.key] || "";
+      }));
+    }
+
+    function _isEmpty(v){
+      if(v === null || v === undefined) return true;
+      if(typeof v === "string" && v.trim() === "") return true;
+      return false;
+    }
+    function _prunePayload(obj){
+      const keep = new Set(["action","tipo","no_personal","periodo","version"]);
+      Object.keys(obj).forEach(k=>{
+        if(keep.has(k)) return;
+        const v = obj[k];
+        if(typeof v === "number"){
+          if(!Number.isFinite(v)) delete obj[k];
+          return;
+        }
+        if(typeof v === "boolean") return;
+        if(_isEmpty(v)) delete obj[k];
+      });
+      return obj;
+    }
+
+    _prunePayload(payload);
+
+    try{
+      setBusy(true);
+      $("apiHint").className = "warn";
+      $("apiHint").textContent = "Guardando…";
+
+      const body = new URLSearchParams(payload).toString();
+
+      await fetch(API_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+        body
+      });
+
+      $("apiHint").className = "ok";
+      $("apiHint").textContent = "Guardado enviado ✅ (verifica en Google Sheets)";
+      setDirty(false);
+
+    }catch(e){
+      console.error(e);
+      $("apiHint").className = "err";
+      $("apiHint").textContent = "Error guardando: " + (e.message || e);
+      alert("No se pudo guardar.\n\n" + (e.message || e));
+    }finally{
+      setBusy(false);
+    }
+  });
+
+  (function bindExtraButtons(){
+    const btnGen = $("btnGenerate");
+    if(btnGen){
+      btnGen.addEventListener("click", ()=>{
+        if(state.saving) return;
+        openReportModal();
+      });
+    }
+
+    const btnPrint = $("btnPrint");
+    if(btnPrint){
+      btnPrint.addEventListener("click", ()=>{
+        if(state.saving) return;
+        doPrint();
+      });
+    }
+
+    const btnPrintFromModal = $("btnPrintFromModal");
+    if(btnPrintFromModal){
+      btnPrintFromModal.addEventListener("click", ()=>{
+        if(state.saving) return;
+        doPrint();
+      });
+    }
+
+    const rb = $("reportBackdrop");
+    if(rb){
+      rb.addEventListener("click", (e)=>{
+        if(e.target === rb) closeReportModal();
+      });
+    }
+  })();
 }
-
-if(document.readyState === "loading"){
-  document.addEventListener("DOMContentLoaded", initApp);
-}else{
-  initApp();
-}
-</script>
-
-<!-- =========================
-     MODAL: LOOKUP (TABLA)
-     ========================= -->
-<div id="lookupBackdrop" class="modal-backdrop" aria-hidden="true">
-  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="lookupTitle">
-    <div class="modal-header">
-      <div>
-        <div class="chip" id="lookupTitle"><b>Resultados encontrados</b></div>
-        <div id="lookupStatus" class="small-muted" style="margin-top:6px;">Listo para buscar.</div>
-      </div>
-      <button class="btn ghost" type="button" id="btnCloseLookup">Cerrar</button>
-    </div>
-
-    <div class="modal-body">
-      <div class="card" style="background:rgba(0,0,0,.12); border:1px solid rgba(255,255,255,.08); padding:12px;">
-        <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:10px;">
-          <div>
-            <label>No. personal</label>
-            <input id="qNoPersonal" placeholder="Ej: 000123" />
-          </div>
-          <div>
-            <label>Nombre</label>
-            <input id="qNombre" placeholder="Ej: Valentina" />
-          </div>
-          <div>
-            <label>Periodo</label>
-            <input id="qPeriodo" placeholder="Ej: Ene 2026" />
-          </div>
-          <div>
-            <label>Versión</label>
-            <input id="qVersion" placeholder="Ej: v1" />
-          </div>
-        </div>
-
-        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; align-items:center;">
-          <button class="btn primary" id="btnSearch" type="button">Buscar</button>
-          <button class="btn" id="btnClearSearch" type="button">Limpiar</button>
-
-          <div style="margin-left:auto; display:flex; gap:10px; flex-wrap:wrap;">
-            <span class="chip" id="chipCount">0 resultados</span>
-            <span class="chip" id="chipNote"></span>
-          </div>
-        </div>
-      </div>
-
-      <div class="card" style="margin-top:12px; overflow:auto; border:1px solid rgba(255,255,255,.08)">
-        <table class="results-table">
-          <thead>
-            <tr>
-              <th class="r-col-act">Acción</th>
-              <th class="r-col-row">Fila</th>
-              <th class="r-col-np">No. personal</th>
-              <th>Nombre</th>
-              <th class="r-col-per">Periodo</th>
-              <th class="r-col-ver">Versión</th>
-              <th class="r-col-fecha">Fecha</th>
-              <th>Departamento</th>
-              <th>Retroalimentación (Clientes)</th>
-              <th>Evaluador (Clientes)</th>
-            </tr>
-          </thead>
-          <tbody id="lookupResultsBody">
-            <tr><td colspan="10" class="small-muted">Sin resultados aún.</td></tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="small-muted" style="margin-top:10px;">
-        Tip: Si ves duplicados, selecciona la fila correcta. Luego en el detalle puedes usar <b>Autollenar todo</b>.
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- =========================
-     MODAL: REPORTE (placeholder)
-     ========================= -->
-<div id="reportBackdrop" class="modal-backdrop" aria-hidden="true">
-  <div class="modal modal-xl" role="dialog" aria-modal="true">
-    <div class="modal-header">
-      <div>
-        <div class="chip"><b>Vista previa del reporte</b></div>
-        <div class="small-muted" style="margin-top:6px;">(Demo)</div>
-      </div>
-      <div style="display:flex; gap:10px; align-items:center;">
-        <button class="btn primary" id="btnPrintFromModal" type="button">Imprimir / Enviar a PDF</button>
-        <button class="btn ghost" type="button" onclick="closeReportModal()">Cerrar</button>
-      </div>
-    </div>
-    <div class="modal-body">
-      <div id="reportHost" class="small-muted">Aquí iría tu reporte.</div>
-    </div>
-  </div>
-</div>
-
-</body>
-</html>
