@@ -2401,92 +2401,115 @@ document.addEventListener("DOMContentLoaded", async () => {
   window.print();
 }
 
-    function _isEmpty(v){
-      if(v === null || v === undefined) return true;
-      if(typeof v === "string" && v.trim() === "") return true;
-      return false;
-    }
-    function _prunePayload(obj){
-      const keep = new Set(["action","tipo","no_personal","periodo","version"]);
-      Object.keys(obj).forEach(k=>{
-        if(keep.has(k)) return;
-        const v = obj[k];
-        if(typeof v === "number"){
-          if(!Number.isFinite(v)) delete obj[k];
-          return;
-        }
-        if(typeof v === "boolean") return;
-        if(_isEmpty(v)) delete obj[k];
-      });
-      return obj;
-    }
+/************************************************************
+ * ✅ GUARDAR (btnSave) — FIX: envolver await en async handler
+ ************************************************************/
+$("btnSave")?.addEventListener("click", async () => {
+  if(state.saving) return;
 
-    _prunePayload(payload);
+  const header = getHeaderData();
+  const extra  = getExtraFields();
 
-    try{
-      setBusy(true);
-      $("apiHint").className = "warn";
-      $("apiHint").textContent = "Guardando…";
+  // Guardar también textos “1 — rúbrica”
+  const answersText = flattenAnswersSelectedText();
 
-      const body = new URLSearchParams(payload).toString();
+  const payload = {
+    action: "guardar",
+    ...header,
+    ...extra,
+    ...answersText,
+    total: (header.tipo === "clientes") ? 0 : computeTotal()
+  };
 
-      await fetch(API_URL, {
-        method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
-        body
-      });
+  function _isEmpty(v){
+    if(v === null || v === undefined) return true;
+    if(typeof v === "string" && v.trim() === "") return true;
+    return false;
+  }
 
-      $("apiHint").className = "ok";
-      $("apiHint").textContent = "Guardado enviado ✅ (verifica en Google Sheets)";
-      setDirty(false);
+  function _prunePayload(obj){
+    const keep = new Set(["action","tipo","no_personal","periodo","version"]);
+    Object.keys(obj).forEach(k=>{
+      if(keep.has(k)) return;
+      const v = obj[k];
+      if(typeof v === "number"){
+        if(!Number.isFinite(v)) delete obj[k];
+        return;
+      }
+      if(typeof v === "boolean") return;
+      if(_isEmpty(v)) delete obj[k];
+    });
+    return obj;
+  }
 
-    }catch(e){
-      console.error(e);
-      $("apiHint").className = "err";
-      $("apiHint").textContent = "Error guardando: " + (e.message || e);
-      alert("No se pudo guardar.\n\n" + (e.message || e));
-    }finally{
-      setBusy(false);
-    }
-  });
+  _prunePayload(payload);
 
-  (function bindExtraButtons(){
-    const btnGen = $("btnGenerate");
-    if(btnGen){
-      btnGen.addEventListener("click", ()=>{
-        if(state.saving) return;
-        openReportModal();
-      });
-    }
+  try{
+    setBusy(true);
+    $("apiHint").className = "warn";
+    $("apiHint").textContent = "Guardando…";
 
-    const btnPrint = $("btnPrint");
-    if(btnPrint){
-      btnPrint.addEventListener("click", ()=>{
-        if(state.saving) return;
-        doPrint();
-      });
-    }
+    const body = new URLSearchParams(payload).toString();
 
-    const btnPrintFromModal = $("btnPrintFromModal");
-    if(btnPrintFromModal){
-      btnPrintFromModal.addEventListener("click", ()=>{
-        if(state.saving) return;
-        doPrint();
-      });
-    }
+    await fetch(API_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+      body
+    });
 
-    const rb = $("reportBackdrop");
-    if(rb){
-      rb.addEventListener("click", (e)=>{
-        if(e.target === rb) closeReportModal();
-      });
-    }
-  })();
-}
+    $("apiHint").className = "ok";
+    $("apiHint").textContent = "Guardado enviado ✅ (verifica en Google Sheets)";
+    setDirty(false);
+
+  }catch(e){
+    console.error(e);
+    $("apiHint").className = "err";
+    $("apiHint").textContent = "Error guardando: " + (e.message || e);
+    alert("No se pudo guardar.\n\n" + (e.message || e));
+  }finally{
+    setBusy(false);
+  }
+});
+
+/************************************************************
+ * ✅ Botones extra (si tu código los usa además de bind())
+ ************************************************************/
+(function bindExtraButtons(){
+  const btnGen = $("btnGenerate");
+  if(btnGen){
+    btnGen.addEventListener("click", ()=>{
+      if(state.saving) return;
+      openReportModal();
+    });
+  }
+
+  const btnPrint = $("btnPrint");
+  if(btnPrint){
+    btnPrint.addEventListener("click", ()=>{
+      if(state.saving) return;
+      doPrint();
+    });
+  }
+
+  const btnPrintFromModal = $("btnPrintFromModal");
+  if(btnPrintFromModal){
+    btnPrintFromModal.addEventListener("click", ()=>{
+      if(state.saving) return;
+      doPrint();
+    });
+  }
+
+  const rb = $("reportBackdrop");
+  if(rb){
+    rb.addEventListener("click", (e)=>{
+      if(e.target === rb) closeReportModal();
+    });
+  }
+})();
 
 /* ✅ CIERRES DEL DOCUMENTO (AGREGADOS) */
- /* ✅ INIT: ejecutar UI y render de ítems al cargar */
+/* ✅ INIT: ejecutar UI y render de ítems al cargar */
 document.addEventListener("DOMContentLoaded", () => {
   if(typeof bind === "function") bind();
   if(typeof applyTipoUI === "function") applyTipoUI();
@@ -2498,7 +2521,6 @@ document.addEventListener("DOMContentLoaded", () => {
       if(typeof ensureItemsVisibleIfNeeded === "function") ensureItemsVisibleIfNeeded();
     });
 });
-
 </script>
 </body>
 </html>
