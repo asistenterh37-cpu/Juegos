@@ -2447,13 +2447,13 @@ function bind(){
   });
 
   $("btnCloseReport")?.addEventListener("click", closeReportModal);
+$("reportBackdrop")?.addEventListener("click", (e) => {
+    if (e.target === $("reportBackdrop")) closeReportModal();
+  });
 
-  $("reportBackdrop")?.addEventListener("click", (e)=>{
-    if(e.target === $("reportBackdrop")) closeReportModal();
-}
+} // <-- cierre de bind()
 
-/* ✅ INIT ÚNICO (NO duplicado) */
-document.addEventListener("DOMContentLoaded", async () => {
+  document.addEventListener("DOMContentLoaded", async () => {
   if(typeof bind === "function") bind();
   if(typeof applyTipoUI === "function") applyTipoUI();
   try { await apiPing(); } catch(_e) {}
