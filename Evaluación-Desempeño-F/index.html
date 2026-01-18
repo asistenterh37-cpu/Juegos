@@ -1214,23 +1214,19 @@ function renderItems(){
 }
 
 function ensureItemsVisibleIfNeeded(){
-  const tipoSel = $("tipoFormulario");
-  const tipo = tipoSel ? tipoSel.value : "autoevaluacion";
-
-  const container = $("itemsContainer");
+  const tipo = $("tipoFormulario")?.value || "autoevaluacion";
   const evalCard = $("evalCard");
+  const container = $("itemsContainer");
 
-  // Si estamos en clientes, ocultamos la tarjeta completa y salimos
   if(tipo === "clientes"){
     if(evalCard) evalCard.style.display = "none";
     return;
   }
 
-  // En autoevaluación y desempeño, la tarjeta debe estar visible
   if(evalCard) evalCard.style.display = "block";
   if(!container) return;
 
-  // Render SIEMPRE si no hay nada (o si quedó vacío)
+  // Renderiza si quedó vacío (o nunca se renderizó)
   if(container.children.length === 0){
     renderItems();
   }
@@ -1254,16 +1250,21 @@ function getHeaderData(){
    (Solo código JS normal dentro del mismo <script> principal)
    ========================= */
 function getExtraFields(){
-  const tipo = $("tipoFormulario").value;
+  const tipo = $("tipoFormulario")?.value || "autoevaluacion";
 
-  // ✅ Autoevaluación: SOLO comentarios del colaborador
   if(tipo === "autoevaluacion"){
     return {
       comentarios_colaborador: ($("comentariosColaborador")?.value || "").trim()
     };
   }
 
-  // ✅ Desempeño: campos extendidos (Justificación, capacitación, etc.)
+  if(tipo === "clientes"){
+    return {
+      retroalimentacion: ($("retroalimentacion")?.value || "").trim(),
+      nombre_evaluador: ($("nombreEvaluador")?.value || "").trim()
+    };
+  }
+
   if(tipo === "desempeno"){
     return {
       justificacion: ($("justificacion")?.value || "").trim(),
@@ -1279,14 +1280,6 @@ function getExtraFields(){
       necesidades_capacitacion: ($("necesidadesCapacitacion")?.value || "").trim(),
       comentarios_colaborador: ($("comentariosColaborador2")?.value || "").trim(),
       evaluacion_clientes: ($("evaluacionClientes")?.value || "").trim()
-    };
-  }
-
-  // ✅ Clientes: SOLO retroalimentación + nombre evaluador
-  if(tipo === "clientes"){
-    return {
-      retroalimentacion: ($("retroalimentacion")?.value || "").trim(),
-      nombre_evaluador: ($("nombreEvaluador")?.value || "").trim()
     };
   }
 
@@ -2130,14 +2123,11 @@ function applyTopActionsUI(tipo){
 /* ✅ MODIFICADA: applyTipoUI() — asegura (Auto: ítems) (Clientes: 2 campos) (Desempeño: ítems + campos) */
 /* ✅ NUEVO: crea el bloque Clientes si no existe (2 campos parametrizados) */
 function ensureClientesBox(){
-  // Si ya existe, no hacemos nada
   if(document.getElementById("clientesBox")) return;
 
-  // Insertaremos el card justo después de evalCard (o al final del grid si no existe)
   const evalCard = document.getElementById("evalCard");
   const grid = evalCard?.closest(".grid") || document.querySelector(".grid");
-
-  if(!grid) return; // por seguridad
+  if(!grid) return;
 
   const card = document.createElement("div");
   card.className = "card";
@@ -2164,7 +2154,7 @@ function ensureClientesBox(){
     </div>
   `;
 
-  // Insertar después de evalCard, para que quede en orden
+  // Insertar justo después de la tarjeta de ítems para que quede ordenado
   if(evalCard && evalCard.parentNode){
     evalCard.parentNode.insertBefore(card, evalCard.nextSibling);
   }else{
@@ -2172,12 +2162,11 @@ function ensureClientesBox(){
   }
 }
   
-  function applyTipoUI(){
-  const tipoSel = $("tipoFormulario");
-  const tipo = tipoSel ? tipoSel.value : "autoevaluacion";
+ function applyTipoUI(){
+  const tipo = $("tipoFormulario")?.value || "autoevaluacion";
 
-  // ✅ Asegura que el card de Clientes exista antes de mostrar/ocultar
-  if(typeof ensureClientesBox === "function") ensureClientesBox();
+  // Asegura que el box de Clientes exista antes de mostrar/ocultar
+  ensureClientesBox();
 
   // Título
   const appTitle = $("appTitle");
@@ -2188,31 +2177,27 @@ function ensureClientesBox(){
       "Formulario de evaluación del desempeño";
   }
 
-  // Cajas
   const autoBox = $("autoComentariosBox");
   const desBox  = $("desempenoCamposBox");
   const cliBox  = $("clientesBox");
   const evalCard = $("evalCard");
 
-  // ✅ Reglas de visibilidad
-  // Autoevaluación: Ítems + comentarios colaborador
+  // Autoevaluación: Ítems + comentarios del colaborador
   if(autoBox) autoBox.style.display = (tipo === "autoevaluacion") ? "block" : "none";
 
   // Desempeño: Ítems + campos definidos
   if(desBox) desBox.style.display = (tipo === "desempeno") ? "block" : "none";
 
-  // Clientes: SOLO 2 campos parametrizados (sin ítems / sin desempeño / sin comentarios auto)
+  // Clientes: SOLO 2 campos (sin ítems, sin desempeño, sin comentarios auto)
   if(cliBox) cliBox.style.display = (tipo === "clientes") ? "block" : "none";
 
-  // Ítems: se muestran en autoevaluación y desempeño; se ocultan solo en clientes
+  // Ítems: se muestran en autoevaluación y desempeño; se ocultan en clientes
   if(evalCard) evalCard.style.display = (tipo === "clientes") ? "none" : "block";
 
-  // ✅ Asegura ítems SIEMPRE donde corresponda
-  if(tipo !== "clientes"){
-    ensureItemsVisibleIfNeeded(); // renderiza si hace falta
-  }
+  // Fuerza render de ítems donde toca
+  ensureItemsVisibleIfNeeded();
 
-  // UI adicional
+  // UI adicional (si existen en tu código)
   if(typeof applySearchUI === "function") applySearchUI(tipo);
   if(typeof applyTopActionsUI === "function") applyTopActionsUI(tipo);
   if(typeof setDefaultToday === "function") setDefaultToday();
@@ -2244,17 +2229,18 @@ function clearForm(){
 
 /* ✅ MODIFICADA: bind() — asegura que el bloque Clientes exista ANTES de poner listeners */
 /* ✅ MODIFICADA: bind() — asegura que Clientes exista ANTES de listeners */
+
 function bind(){
-  // ✅ IMPORTANTÍSIMO: si no creas el ClientesBox antes, retroalimentacion/nombreEvaluador no existen
-  if(typeof ensureClientesBox === "function") ensureClientesBox();
+  // IMPORTANTÍSIMO: crea primero el box de Clientes para que existan los IDs
+  ensureClientesBox();
 
   [
     "noPersonal","nombre","posicion","departamento","periodo","version","fecha",
-    "comentariosColaborador","justificacion","comentariosEvaluador","fortalezas",
-    "oportunidades","proyeccion","necesidadesCapacitacion",
-    "comentariosColaborador2","evaluacionClientes",
-    "retroalimentacion","nombreEvaluador","nombreEvaluadorDesempeno",
-    "mail1","mail2"
+    "comentariosColaborador",
+    "retroalimentacion","nombreEvaluador",
+    "justificacion","comentariosEvaluador","fortalezas","oportunidades","proyeccion",
+    "necesidadesCapacitacion","comentariosColaborador2","evaluacionClientes",
+    "nombreEvaluadorDesempeno","mail1","mail2"
   ].forEach(id=>{
     const el = $(id);
     if(!el) return;
@@ -2284,8 +2270,7 @@ function bind(){
   if(btnRecover){
     btnRecover.addEventListener("click", async ()=>{
       if(state.saving) return;
-      const tipo = $("tipoFormulario").value;
-      if(tipo !== "desempeno"){
+      if($("tipoFormulario").value !== "desempeno"){
         alert("Recuperar solo está disponible en el Formulario de evaluación del desempeño.");
         return;
       }
@@ -2293,8 +2278,8 @@ function bind(){
     });
   }
 
-  const closeBtn = $("btnCloseRecovered");
-  if(closeBtn) closeBtn.addEventListener("click", closeRecoverModal);
+  const btnCloseRecovered = $("btnCloseRecovered");
+  if(btnCloseRecovered) btnCloseRecovered.addEventListener("click", closeRecoverModal);
 
   const recoverBackdrop = $("recoverBackdrop");
   if(recoverBackdrop){
@@ -2306,7 +2291,7 @@ function bind(){
   const btnApplyRecovered = $("btnApplyRecovered");
   if(btnApplyRecovered){
     btnApplyRecovered.addEventListener("click", ()=>{
-      if(!lastRecovered || !lastRecovered.rowParams) return;
+      if(!lastRecovered?.rowParams) return;
       applyRecoveredToForm(lastRecovered.rowParams, lastRecovered.clientesInfo || null);
       ensureItemsVisibleIfNeeded();
       $("apiHint").className = "ok";
@@ -2351,39 +2336,23 @@ function bind(){
     });
   });
 
-  // Botones reporte / imprimir
+  // Reporte / imprimir
   const btnGen = $("btnGenerate");
-  if(btnGen){
-    btnGen.addEventListener("click", ()=>{
-      if(state.saving) return;
-      openReportModal();
-    });
-  }
+  if(btnGen) btnGen.addEventListener("click", ()=> { if(!state.saving) openReportModal(); });
 
   const btnPrint = $("btnPrint");
-  if(btnPrint){
-    btnPrint.addEventListener("click", ()=>{
-      if(state.saving) return;
-      doPrint();
-    });
-  }
+  if(btnPrint) btnPrint.addEventListener("click", ()=> { if(!state.saving) doPrint(); });
 
   const btnPrintFromModal = $("btnPrintFromModal");
-  if(btnPrintFromModal){
-    btnPrintFromModal.addEventListener("click", ()=>{
-      if(state.saving) return;
-      doPrint();
-    });
-  }
+  if(btnPrintFromModal) btnPrintFromModal.addEventListener("click", ()=> { if(!state.saving) doPrint(); });
 
-  const rb = $("reportBackdrop");
-  if(rb){
-    rb.addEventListener("click", (e)=>{
-      if(e.target === rb) closeReportModal();
+  const reportBackdrop = $("reportBackdrop");
+  if(reportBackdrop){
+    reportBackdrop.addEventListener("click", (e)=>{
+      if(e.target === reportBackdrop) closeReportModal();
     });
   }
 }
-
   (function bindExtraButtons(){
     const btnGen = $("btnGenerate");
     if(btnGen){
