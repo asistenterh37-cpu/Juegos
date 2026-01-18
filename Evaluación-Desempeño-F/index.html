@@ -2076,24 +2076,21 @@ function applySearchUI(tipo){
   if(btnRecover) btnRecover.style.display = isDes ? "" : "none";
 }
 function applyTopActionsUI(tipo){
-  const isClientes = (tipo === "clientes");
-  // En este demo no hay generate/print, pero dejamos la idea
-
-  // ✅ Guardar SOLO visible/activo en "desempeño"
+  // ✅ Guardar visible en Autoevaluación, Clientes y Desempeño
   const btnSave = $("btnSave");
   if(btnSave){
-    btnSave.style.display = (tipo === "desempeno") ? "" : "none";
-    btnSave.disabled = (tipo !== "desempeno");
+    btnSave.style.display = "";     // mostrar
+    btnSave.disabled = false;       // habilitar (setBusy() lo bloqueará cuando toque)
   }
 
-  // ✅ Recuperar SOLO visible/activo en "desempeño"
+  // ✅ Recuperar SOLO en Desempeño
   const btnRecover = $("btnRecover");
   if(btnRecover){
     btnRecover.style.display = (tipo === "desempeno") ? "" : "none";
     btnRecover.disabled = (tipo !== "desempeno");
   }
 
-  // ✅ Generar SOLO visible/activo en "desempeño"
+  // ✅ Generar SOLO en Desempeño (si quieres que también exista en otros, me dices)
   const btnGen = $("btnGenerate");
   if(btnGen){
     btnGen.style.display = (tipo === "desempeno") ? "" : "none";
