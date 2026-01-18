@@ -1195,15 +1195,18 @@ function renderItems(){
 }
 
 function ensureItemsVisibleIfNeeded(){
-  const tipo = $("tipoFormulario").value;
+  const tipoSel = $("tipoFormulario");
+  const tipo = tipoSel ? tipoSel.value : "autoevaluacion";
+
   const need = (tipo === "autoevaluacion" || tipo === "desempeno");
   const container = $("itemsContainer");
   if(!need || !container) return;
-  if(container.children.length === 0) renderItems();
-}
 
-/* ✅ REEMPLAZA DESDE: function getHeaderData(){ ... } HASTA donde terminaba tu “script anidado” */
-/* (IMPORTANTE: aquí NO uses <!-- -->, usa comentarios JS) */
+  // Render SIEMPRE que no haya nada (y también si quedó vacío por algún error previo)
+  if(container.children.length === 0){
+    renderItems();
+  }
+}
 
 function getHeaderData(){
   return {
@@ -2099,25 +2102,46 @@ function applyTopActionsUI(tipo){
 }
 
 function applyTipoUI(){
-  const tipo = $("tipoFormulario").value;
+  const tipoSel = $("tipoFormulario");
+  const tipo = tipoSel ? tipoSel.value : "autoevaluacion";
 
-  $("appTitle").textContent =
-    (tipo === "autoevaluacion") ? "Formulario de autoevaluación" :
-    (tipo === "clientes") ? "Formulario evaluación clientes" :
-    "Formulario de evaluación del desempeño";
+  // Título
+  const appTitle = $("appTitle");
+  if(appTitle){
+    appTitle.textContent =
+      (tipo === "autoevaluacion") ? "Formulario de autoevaluación" :
+      (tipo === "clientes") ? "Formulario evaluación clientes" :
+      "Formulario de evaluación del desempeño";
+  }
 
-  $("autoComentariosBox").style.display = (tipo === "autoevaluacion") ? "block" : "none";
-  $("desempenoCamposBox").style.display = (tipo === "desempeno") ? "block" : "none";
-  $("clientesBox").style.display = (tipo === "clientes") ? "block" : "none";
-  $("evalCard").style.display = (tipo === "clientes") ? "none" : "block";
+  // Mostrar/ocultar cajas (con null-safety)
+  const autoBox = $("autoComentariosBox");
+  if(autoBox) autoBox.style.display = (tipo === "autoevaluacion") ? "block" : "none";
 
-  ensureItemsVisibleIfNeeded();
-  applySearchUI(tipo);
-  applyTopActionsUI(tipo);
-  setDefaultToday();
+  const desBox = $("desempenoCamposBox");
+  if(desBox) desBox.style.display = (tipo === "desempeno") ? "block" : "none";
+
+  // OJO: en tu HTML pegado NO existe #clientesBox → esto antes te rompía TODO
+  const cliBox = $("clientesBox");
+  if(cliBox) cliBox.style.display = (tipo === "clientes") ? "block" : "none";
+
+  // Card de ítems: oculto solo para clientes
+  const evalCard = $("evalCard");
+  if(evalCard) evalCard.style.display = (tipo === "clientes") ? "none" : "block";
+
+  // Renderizar ítems cuando aplique
+  if(tipo !== "clientes"){
+    ensureItemsVisibleIfNeeded();
+  }
+
+  // UI superior / búsqueda (si existen)
+  if(typeof applySearchUI === "function") applySearchUI(tipo);
+  if(typeof applyTopActionsUI === "function") applyTopActionsUI(tipo);
+
+  // Evitar que se rompa si no existe setDefaultToday()
+  if(typeof setDefaultToday === "function") setDefaultToday();
 }
 
-/* ✅ TODO el JS sigue dentro del MISMO <script> (sin <script> anidado) */
 function clearForm(){
   ["noPersonal","nombre","posicion","departamento","periodo","version","fecha",
    "comentariosColaborador","justificacion","comentariosEvaluador","fortalezas",
@@ -2456,9 +2480,9 @@ function bind(){
 
 /* ✅ CIERRES DEL DOCUMENTO (AGREGADOS) */
  /* ✅ INIT: ejecutar UI y render de ítems al cargar */
-  document.addEventListener("DOMContentLoaded", () => {
-    applyTipoUI();   // ← esto dispara ensureItemsVisibleIfNeeded()
-  });
+ document.addEventListener("DOMContentLoaded", async () => {
+  // 1) Bindeos (event listeners)
+  if(typeof bind === "function") bind();
 
 </script>
 </body>
