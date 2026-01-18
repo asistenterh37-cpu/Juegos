@@ -1669,8 +1669,6 @@ function buildRecoverModal(rowParams, meta, clientesInfo, allColumns){
   pushUnique(generalRows, "Comentarios del colaborador", showDash(rowParams.comentarios_colaborador ?? rowParams.comentarios));
   // ❌ No incluir en la tabla del modal:
   // pushUnique(generalRows, "Justificación", showDash(rowParams.justificacion));
-  pushUnique(generalRows, "Comentarios del evaluador", showDash(rowParams.comentarios_evaluador));
-  pushUnique(generalRows, "Nombre del evaluador (desempeño)", showDash(rowParams.nombre_evaluador));
   // pushUnique(generalRows, "Fortalezas", showDash(rowParams.fortalezas));
   // pushUnique(generalRows, "Oportunidades", showDash(rowParams.oportunidades_mejora));
   // pushUnique(generalRows, "Proyección", showDash(rowParams.proyeccion_potencial));
@@ -1750,8 +1748,8 @@ function applyRecoveredToForm(rowParams, clientesInfo){
   applyTipoUI();
 
   if(rowParams.justificacion) $("justificacion").value = rowParams.justificacion;
-  if(rowParams.comentarios_evaluador) $("comentariosEvaluador").value = rowParams.comentarios_evaluador;
-  if(rowParams.nombre_evaluador && $("nombreEvaluadorDesempeno")) $("nombreEvaluadorDesempeno").value = rowParams.nombre_evaluador;
+  if($("comentariosEvaluador")) $("comentariosEvaluador").value = "";
+  if($("nombreEvaluadorDesempeno")) $("nombreEvaluadorDesempeno").value = "";
 
   /* ✅ NUEVO: recuperar mail1/mail2 si vienen */
   if(rowParams.mail1 && $("mail1")) $("mail1").value = rowParams.mail1;
@@ -1803,7 +1801,7 @@ function applyRecoveredTextsOnly(rowParams, clientesInfo){
   if(rowParams.oportunidades_mejora) $("oportunidades").value = rowParams.oportunidades_mejora;
   if(rowParams.proyeccion_potencial) $("proyeccion").value = rowParams.proyeccion_potencial;
   if(rowParams.necesidades_capacitacion) $("necesidadesCapacitacion").value = rowParams.necesidades_capacitacion;
-  if(rowParams.nombre_evaluador && $("nombreEvaluadorDesempeno")) $("nombreEvaluadorDesempeno").value = rowParams.nombre_evaluador;
+  if($("nombreEvaluadorDesempeno")) $("nombreEvaluadorDesempeno").value = "";
 
   /* ✅ NUEVO: recuperar mail1/mail2 si vienen */
   if(rowParams.mail1 && $("mail1")) $("mail1").value = rowParams.mail1;
