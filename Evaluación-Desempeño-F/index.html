@@ -2453,12 +2453,14 @@ $("reportBackdrop")?.addEventListener("click", (e) => {
 
 } // <-- cierre de bind()
 
-  document.addEventListener("DOMContentLoaded", async () => {
-  if(typeof bind === "function") bind();
-  if(typeof applyTipoUI === "function") applyTipoUI();
-  try { await apiPing(); } catch(_e) {}
-  if(typeof ensureItemsVisibleIfNeeded === "function") ensureItemsVisibleIfNeeded();
+/* ✅ INIT ÚNICO (NO duplicado) */
+document.addEventListener("DOMContentLoaded", async () => {
+  if (typeof bind === "function") bind();
+  if (typeof applyTipoUI === "function") applyTipoUI();
+  try { await apiPing(); } catch (_e) {}
+  if (typeof ensureItemsVisibleIfNeeded === "function") ensureItemsVisibleIfNeeded();
 });
+
 </script>
 </body>
 </html>
