@@ -523,7 +523,6 @@
         </div>
         
 </div><!-- ✅ CIERRE CORRECTO de .card#desempenoCamposBox -->
-📌 Dato clave: En tu archivo, después de la 535 ya arranca clientesBox (fila 537), así que este </div> es el que evita que se “trague” el resto del HTML y te desaparezcan secciones.
     
       <div class="card" id="clientesBox" style="display:none;">
         <h2>Formulario evaluación clientes</h2>
@@ -2468,6 +2467,11 @@ function bind(){
 }
 
 /* ✅ CIERRES DEL DOCUMENTO (AGREGADOS) */
+ /* ✅ INIT: ejecutar UI y render de ítems al cargar */
+  document.addEventListener("DOMContentLoaded", () => {
+    applyTipoUI();   // ← esto dispara ensureItemsVisibleIfNeeded()
+  });
+
 </script>
 </body>
 </html>
