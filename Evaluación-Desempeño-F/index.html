@@ -2127,14 +2127,57 @@ function applyTopActionsUI(tipo){
 }
 
 /* ✅ MODIFICADA: applyTipoUI() — ahora sí muestra el bloque Clientes siempre */
-function applyTipoUI(){
+/* ✅ MODIFICADA: applyTipoUI() — asegura (Auto: ítems) (Clientes: 2 campos) (Desempeño: ítems + campos) */
+/* ✅ NUEVO: crea el bloque Clientes si no existe (2 campos parametrizados) */
+function ensureClientesBox(){
+  // Si ya existe, no hacemos nada
+  if(document.getElementById("clientesBox")) return;
+
+  // Insertaremos el card justo después de evalCard (o al final del grid si no existe)
+  const evalCard = document.getElementById("evalCard");
+  const grid = evalCard?.closest(".grid") || document.querySelector(".grid");
+
+  if(!grid) return; // por seguridad
+
+  const card = document.createElement("div");
+  card.className = "card";
+  card.id = "clientesBox";
+  card.style.display = "none";
+
+  card.innerHTML = `
+    <h2>Evaluación de clientes</h2>
+    <p>Completa los 2 campos siguientes (según formato).</p>
+
+    <div class="highlightBadge">
+      <span class="dot"></span>
+      Campos realzados: Retroalimentación • Nombre del evaluador
+    </div>
+
+    <div style="margin-top:14px;" class="highlightField">
+      <label>Retroalimentación (Clientes)</label>
+      <textarea id="retroalimentacion" placeholder="Escribe la retroalimentación del cliente..."></textarea>
+    </div>
+
+    <div style="margin-top:12px;" class="highlightField">
+      <label>Nombre del evaluador</label>
+      <input id="nombreEvaluador" type="text" placeholder="Ej. Ana López" />
+    </div>
+  `;
+
+  // Insertar después de evalCard, para que quede en orden
+  if(evalCard && evalCard.parentNode){
+    evalCard.parentNode.insertBefore(card, evalCard.nextSibling);
+  }else{
+    grid.appendChild(card);
+  }
+}
+  
+  function applyTipoUI(){
   const tipoSel = $("tipoFormulario");
   const tipo = tipoSel ? tipoSel.value : "autoevaluacion";
 
-  // ✅ CRÍTICO: NO rompas el script si ensureClientesBox no existe
-  if(typeof ensureClientesBox === "function"){
-    ensureClientesBox();
-  }
+  // ✅ Asegura que el card de Clientes exista antes de mostrar/ocultar
+  if(typeof ensureClientesBox === "function") ensureClientesBox();
 
   // Título
   const appTitle = $("appTitle");
@@ -2145,26 +2188,31 @@ function applyTipoUI(){
       "Formulario de evaluación del desempeño";
   }
 
-  // Mostrar/ocultar cajas
+  // Cajas
   const autoBox = $("autoComentariosBox");
+  const desBox  = $("desempenoCamposBox");
+  const cliBox  = $("clientesBox");
+  const evalCard = $("evalCard");
+
+  // ✅ Reglas de visibilidad
+  // Autoevaluación: Ítems + comentarios colaborador
   if(autoBox) autoBox.style.display = (tipo === "autoevaluacion") ? "block" : "none";
 
-  const desBox = $("desempenoCamposBox");
+  // Desempeño: Ítems + campos definidos
   if(desBox) desBox.style.display = (tipo === "desempeno") ? "block" : "none";
 
-  // Clientes (solo si existe en DOM)
-  const cliBox = $("clientesBox");
+  // Clientes: SOLO 2 campos parametrizados (sin ítems / sin desempeño / sin comentarios auto)
   if(cliBox) cliBox.style.display = (tipo === "clientes") ? "block" : "none";
 
-  // Ítems: ocultar SOLO para clientes
-  const evalCard = $("evalCard");
+  // Ítems: se muestran en autoevaluación y desempeño; se ocultan solo en clientes
   if(evalCard) evalCard.style.display = (tipo === "clientes") ? "none" : "block";
 
-  // ✅ Renderizar ítems SIEMPRE en autoevaluación y desempeño
+  // ✅ Asegura ítems SIEMPRE donde corresponda
   if(tipo !== "clientes"){
-    ensureItemsVisibleIfNeeded();
+    ensureItemsVisibleIfNeeded(); // renderiza si hace falta
   }
 
+  // UI adicional
   if(typeof applySearchUI === "function") applySearchUI(tipo);
   if(typeof applyTopActionsUI === "function") applyTopActionsUI(tipo);
   if(typeof setDefaultToday === "function") setDefaultToday();
@@ -2195,11 +2243,10 @@ function clearForm(){
 }
 
 /* ✅ MODIFICADA: bind() — asegura que el bloque Clientes exista ANTES de poner listeners */
+/* ✅ MODIFICADA: bind() — asegura que Clientes exista ANTES de listeners */
 function bind(){
-  // ✅ CRÍTICO: NO rompas el script si ensureClientesBox no existe
-  if(typeof ensureClientesBox === "function"){
-    ensureClientesBox();
-  }
+  // ✅ IMPORTANTÍSIMO: si no creas el ClientesBox antes, retroalimentacion/nombreEvaluador no existen
+  if(typeof ensureClientesBox === "function") ensureClientesBox();
 
   [
     "noPersonal","nombre","posicion","departamento","periodo","version","fecha",
@@ -2218,7 +2265,7 @@ function bind(){
   const tipoSel = $("tipoFormulario");
   if(tipoSel){
     tipoSel.addEventListener("change", ()=>{
-      applyTipoUI();          // ✅ esto ahora sí corre siempre
+      applyTipoUI();
       setDirty(true);
     });
   }
@@ -2229,7 +2276,7 @@ function bind(){
       if(state.saving) return;
       if(state.dirty && !confirm("Hay cambios sin guardar. ¿Limpiar todo de todas formas?")) return;
       clearForm();
-      applyTipoUI();          // ✅ al limpiar, reaplica visibilidad correcta
+      applyTipoUI();
     });
   }
 
@@ -2304,7 +2351,7 @@ function bind(){
     });
   });
 
-  // Botones de reporte / imprimir
+  // Botones reporte / imprimir
   const btnGen = $("btnGenerate");
   if(btnGen){
     btnGen.addEventListener("click", ()=>{
