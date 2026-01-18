@@ -1835,17 +1835,7 @@ function setLookupStatus(txt, kind){
   el.className = "small-muted " + (kind || "");
 }
 
-<script>
-/* ==========================================================
-   ✅ BLOQUE COMPLETO CORREGIDO (desde lookup hasta cierre HTML)
-   - Sin await suelto (TODO await está dentro de async)
-   - Sin INIT duplicado (solo 1 DOMContentLoaded)
-   - Sin doPrint duplicado (solo 1 función)
-   - btnSave se enlaza dentro de bind() para evitar doble listener
-   ========================================================== */
-
-/* ---------- Lookup: tabla de resultados ---------- */
-function renderLookupResults(rows, clientesInfo){
+  function renderLookupResults(rows, clientesInfo){
   const tbody = $("lookupResultsBody");
   if(!tbody) return;
 
