@@ -2487,13 +2487,16 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 /* ✅ CIERRES DEL DOCUMENTO (AGREGADOS) */
  /* ✅ INIT: ejecutar UI y render de ítems al cargar */
-document.addEventListener("DOMContentLoaded", async () => {
-  bind();
-  applyTipoUI();
+document.addEventListener("DOMContentLoaded", () => {
+  if(typeof bind === "function") bind();
+  if(typeof applyTipoUI === "function") applyTipoUI();
 
-  try{ await apiPing(); }catch(_e){}
-
-  ensureItemsVisibleIfNeeded();
+  // 👇 SIN await (así no truena el script)
+  apiPing()
+    .catch(()=>{})
+    .finally(()=> {
+      if(typeof ensureItemsVisibleIfNeeded === "function") ensureItemsVisibleIfNeeded();
+    });
 });
 
 </script>
