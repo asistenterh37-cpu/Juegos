@@ -467,84 +467,72 @@
         </div>
       </div>
 
-      <div class="card" id="desempenoCamposBox" style="display:none;">
-        <h2>Justificación y comentarios</h2>
-        <p>Completa los campos siguientes (según formato).</p>
+    <div class="card" id="desempenoCamposBox" style="display:none;">
+  <h2>Justificación y comentarios</h2>
+  <p>Completa los campos siguientes (según formato).</p>
 
-        <div class="highlightBadge">
-          <span class="dot"></span>
-          Campos realzados (inicio): Justificación • Comentarios • Fortalezas • Oportunidades • Proyección • Evaluación clientes • Necesidades de capacitación
-        </div>
+  <div class="highlightBadge">
+    <span class="dot"></span>
+    Campos realzados: Justificación • Comentarios • Fortalezas • Oportunidades • Proyección • Evaluación clientes • Necesidades de capacitación • Nombre del evaluador • Mail1 • Mail2
+  </div>
 
-        <div style="margin-top:14px;" class="highlightField">
-          <label>Justificación calificaciones (1 - 6)</label>
-          <textarea id="justificacion" placeholder="Describe la justificación de las calificaciones..."></textarea>
-        </div>
+  <div style="margin-top:14px;" class="highlightField">
+    <label>Justificación calificaciones (1 - 6)</label>
+    <textarea id="justificacion" placeholder="Describe la justificación de las calificaciones..."></textarea>
+  </div>
 
-        <div style="margin-top:12px;" class="highlightField">
-          <label>Comentarios del evaluador</label>
-          <textarea id="comentariosEvaluador" placeholder="Comentarios del evaluador..."></textarea>
-        </div>
+  <div style="margin-top:12px;" class="highlightField">
+    <label>Comentarios del evaluador</label>
+    <textarea id="comentariosEvaluador" placeholder="Comentarios del evaluador..."></textarea>
+  </div>
 
-        <div style="margin-top:12px;" class="highlightField">
-          <label>Fortalezas</label>
-          <textarea id="fortalezas" placeholder="Fortalezas..."></textarea>
-        </div>
+  <div style="margin-top:12px;" class="highlightField">
+    <label>Fortalezas</label>
+    <textarea id="fortalezas" placeholder="Fortalezas..."></textarea>
+  </div>
 
-        <div style="margin-top:12px;" class="highlightField">
-          <label>Oportunidades de mejora</label>
-          <textarea id="oportunidades" placeholder="Oportunidades de mejora..."></textarea>
-        </div>
+  <div style="margin-top:12px;" class="highlightField">
+    <label>Oportunidades de mejora</label>
+    <textarea id="oportunidades" placeholder="Oportunidades de mejora..."></textarea>
+  </div>
 
-        <div style="margin-top:12px;" class="highlightField">
-          <label>Proyección y potencial de desarrollo</label>
-          <textarea id="proyeccion" placeholder="Proyección y potencial..."></textarea>
-        </div>
+  <div style="margin-top:12px;" class="highlightField">
+    <label>Proyección y potencial de desarrollo</label>
+    <textarea id="proyeccion" placeholder="Proyección y potencial..."></textarea>
+  </div>
 
-        <div style="margin-top:12px;" class="highlightField">
-          <label>Necesidades de capacitación</label>
-          <textarea id="necesidadesCapacitacion" placeholder="Necesidades de capacitación..."></textarea>
-        </div>
+  <div style="margin-top:12px;" class="highlightField">
+    <label>Necesidades de capacitación</label>
+    <textarea id="necesidadesCapacitacion" placeholder="Necesidades de capacitación..."></textarea>
+  </div>
 
-        <div style="margin-top:12px;" class="highlightField">
-          <label>Comentarios del colaborador</label>
-          <textarea id="comentariosColaborador2" placeholder="Comentarios del colaborador..."></textarea>
-        </div>
+  <div style="margin-top:12px;" class="highlightField">
+    <label>Comentarios del colaborador</label>
+    <textarea id="comentariosColaborador2" placeholder="Comentarios del colaborador..."></textarea>
+  </div>
 
-        <div style="margin-top:12px;" class="highlightField">
-          <label>Evaluación clientes (autollenado desde hoja Clientes)</label>
-          <textarea id="evaluacionClientes" placeholder="Evaluación clientes..."></textarea>
-          <div class="hint">Al recuperar (desempeño), se autocompleta con retroalimentación y nombre del evaluador (si existe).</div>
-        </div>
+  <div style="margin-top:12px;" class="highlightField">
+    <label>Evaluación clientes (autollenado desde hoja Clientes)</label>
+    <textarea id="evaluacionClientes" placeholder="Evaluación clientes..."></textarea>
+    <div class="hint">Al recuperar (desempeño), se autocompleta con retroalimentación y nombre del evaluador (si existe).</div>
+  </div>
 
-        <div style="margin-top:12px;" class="highlightField">
-         <label>Nombre del evaluador</label>
-         <input id="nombreEvaluadorDesempeno" type="text" placeholder="Ej. Daniel Coello" />
-        </div>
-        
-</div><!-- ✅ CIERRE CORRECTO de .card#desempenoCamposBox -->
-    
-      <div class="card" id="clientesBox" style="display:none;">
-        <h2>Formulario evaluación clientes</h2>
-        <p>Después de los datos del colaborador, solo se solicita la retroalimentación.</p>
+  <div style="margin-top:12px;" class="highlightField">
+    <label>Nombre del evaluador</label>
+    <input id="nombreEvaluadorDesempeno" type="text" placeholder="Ej. Daniel Coello" />
+  </div>
 
-        <div style="margin-top:14px;">
-          <label>Retroalimentación</label>
-          <p class="muted" style="margin:6px 0 10px; line-height:1.45;">
-            Su retroalimentación podría ser orientada en algunos de estos aspectos: calidad del servicio o entregables,
-            cumplimiento de tiempos y compromisos, calidad de la comunicación, actitud y profesionalismo,
-            capacidad de resolución de problemas, valor agregado o proactividad en la atención,
-            nivel de relación de confianza construida, adaptabilidad y flexibilidad ante cambios o necesidades,
-            comprensión de las necesidades del cliente y satisfacción general con el servicio recibido.
-          </p>
-          <textarea id="retroalimentacion" placeholder="Escribe aquí la retroalimentación..."></textarea>
-        </div>
+  <!-- ✅ NUEVO: Mail1 / Mail2 (ya los estás leyendo en JS, aquí los hacemos visibles) -->
+  <div style="margin-top:12px;" class="highlightField">
+    <label>Mail 1</label>
+    <input id="mail1" type="email" placeholder="ej. evaluador@empresa.com" />
+  </div>
 
-        <div style="margin-top:12px;">
-          <label>Nombre del evaluador</label>
-          <input id="nombreEvaluador" placeholder="Ej. María López" />
-        </div>
-      </div>
+  <div style="margin-top:12px;" class="highlightField">
+    <label>Mail 2</label>
+    <input id="mail2" type="email" placeholder="ej. rrhh@empresa.com" />
+  </div>
+</div>
     </div>
 
     <!-- ✅ Modal Recuperar (queda, pero ahora Recuperar por llaves usa el modal de detalle) -->
