@@ -1217,11 +1217,20 @@ function ensureItemsVisibleIfNeeded(){
   const tipoSel = $("tipoFormulario");
   const tipo = tipoSel ? tipoSel.value : "autoevaluacion";
 
-  const need = (tipo === "autoevaluacion" || tipo === "desempeno");
   const container = $("itemsContainer");
-  if(!need || !container) return;
+  const evalCard = $("evalCard");
 
-  // Render SIEMPRE que no haya nada (y también si quedó vacío por algún error previo)
+  // Si estamos en clientes, ocultamos la tarjeta completa y salimos
+  if(tipo === "clientes"){
+    if(evalCard) evalCard.style.display = "none";
+    return;
+  }
+
+  // En autoevaluación y desempeño, la tarjeta debe estar visible
+  if(evalCard) evalCard.style.display = "block";
+  if(!container) return;
+
+  // Render SIEMPRE si no hay nada (o si quedó vacío)
   if(container.children.length === 0){
     renderItems();
   }
@@ -2122,8 +2131,10 @@ function applyTipoUI(){
   const tipoSel = $("tipoFormulario");
   const tipo = tipoSel ? tipoSel.value : "autoevaluacion";
 
-  // ✅ Asegura que exista el bloque Clientes (siempre)
-  ensureClientesBox();
+  // ✅ CRÍTICO: NO rompas el script si ensureClientesBox no existe
+  if(typeof ensureClientesBox === "function"){
+    ensureClientesBox();
+  }
 
   // Título
   const appTitle = $("appTitle");
@@ -2141,15 +2152,15 @@ function applyTipoUI(){
   const desBox = $("desempenoCamposBox");
   if(desBox) desBox.style.display = (tipo === "desempeno") ? "block" : "none";
 
-  // ✅ Clientes: ahora sí existe y se muestra
+  // Clientes (solo si existe en DOM)
   const cliBox = $("clientesBox");
   if(cliBox) cliBox.style.display = (tipo === "clientes") ? "block" : "none";
 
-  // Card de ítems: oculto solo para clientes
+  // Ítems: ocultar SOLO para clientes
   const evalCard = $("evalCard");
   if(evalCard) evalCard.style.display = (tipo === "clientes") ? "none" : "block";
 
-  // Renderizar ítems cuando aplique
+  // ✅ Renderizar ítems SIEMPRE en autoevaluación y desempeño
   if(tipo !== "clientes"){
     ensureItemsVisibleIfNeeded();
   }
@@ -2185,8 +2196,10 @@ function clearForm(){
 
 /* ✅ MODIFICADA: bind() — asegura que el bloque Clientes exista ANTES de poner listeners */
 function bind(){
-  // 🔥 Clave: crear clientesBox primero, así los listeners sí se agregan
-  ensureClientesBox();
+  // ✅ CRÍTICO: NO rompas el script si ensureClientesBox no existe
+  if(typeof ensureClientesBox === "function"){
+    ensureClientesBox();
+  }
 
   [
     "noPersonal","nombre","posicion","departamento","periodo","version","fecha",
@@ -2202,58 +2215,83 @@ function bind(){
     el.addEventListener("change", ()=> setDirty(true));
   });
 
-  $("tipoFormulario").addEventListener("change", ()=>{
-    applyTipoUI();
-    setDirty(true);
-  });
+  const tipoSel = $("tipoFormulario");
+  if(tipoSel){
+    tipoSel.addEventListener("change", ()=>{
+      applyTipoUI();          // ✅ esto ahora sí corre siempre
+      setDirty(true);
+    });
+  }
 
-  $("btnNew").addEventListener("click", ()=>{
-    if(state.saving) return;
-    if(state.dirty && !confirm("Hay cambios sin guardar. ¿Limpiar todo de todas formas?")) return;
-    clearForm();
-  });
+  const btnNew = $("btnNew");
+  if(btnNew){
+    btnNew.addEventListener("click", ()=>{
+      if(state.saving) return;
+      if(state.dirty && !confirm("Hay cambios sin guardar. ¿Limpiar todo de todas formas?")) return;
+      clearForm();
+      applyTipoUI();          // ✅ al limpiar, reaplica visibilidad correcta
+    });
+  }
 
-  $("btnRecover").addEventListener("click", async ()=>{
-    if(state.saving) return;
-    const tipo = $("tipoFormulario").value;
-    if(tipo !== "desempeno"){
-      alert("Recuperar solo está disponible en el Formulario de evaluación del desempeño.");
-      return;
-    }
-    await recoverByKeys();
-  });
+  const btnRecover = $("btnRecover");
+  if(btnRecover){
+    btnRecover.addEventListener("click", async ()=>{
+      if(state.saving) return;
+      const tipo = $("tipoFormulario").value;
+      if(tipo !== "desempeno"){
+        alert("Recuperar solo está disponible en el Formulario de evaluación del desempeño.");
+        return;
+      }
+      await recoverByKeys();
+    });
+  }
 
   const closeBtn = $("btnCloseRecovered");
   if(closeBtn) closeBtn.addEventListener("click", closeRecoverModal);
 
-  $("recoverBackdrop").addEventListener("click", (e)=>{
-    if(e.target === $("recoverBackdrop")) closeRecoverModal();
-  });
+  const recoverBackdrop = $("recoverBackdrop");
+  if(recoverBackdrop){
+    recoverBackdrop.addEventListener("click", (e)=>{
+      if(e.target === recoverBackdrop) closeRecoverModal();
+    });
+  }
 
-  $("btnApplyRecovered").addEventListener("click", ()=>{
-    if(!lastRecovered || !lastRecovered.rowParams) return;
-    applyRecoveredToForm(lastRecovered.rowParams, lastRecovered.clientesInfo || null);
-    ensureItemsVisibleIfNeeded();
-    $("apiHint").className = "ok";
-    $("apiHint").textContent = "Autollenado aplicado ✅";
-    closeRecoverModal();
-  });
+  const btnApplyRecovered = $("btnApplyRecovered");
+  if(btnApplyRecovered){
+    btnApplyRecovered.addEventListener("click", ()=>{
+      if(!lastRecovered || !lastRecovered.rowParams) return;
+      applyRecoveredToForm(lastRecovered.rowParams, lastRecovered.clientesInfo || null);
+      ensureItemsVisibleIfNeeded();
+      $("apiHint").className = "ok";
+      $("apiHint").textContent = "Autollenado aplicado ✅";
+      closeRecoverModal();
+    });
+  }
 
-  $("btnCloseLookup").addEventListener("click", closeLookupModal);
-  $("lookupBackdrop").addEventListener("click", (e)=>{
-    if(e.target === $("lookupBackdrop")) closeLookupModal();
-  });
+  const btnCloseLookup = $("btnCloseLookup");
+  if(btnCloseLookup) btnCloseLookup.addEventListener("click", closeLookupModal);
 
-  $("btnSearch").addEventListener("click", searchRecords);
+  const lookupBackdrop = $("lookupBackdrop");
+  if(lookupBackdrop){
+    lookupBackdrop.addEventListener("click", (e)=>{
+      if(e.target === lookupBackdrop) closeLookupModal();
+    });
+  }
 
-  $("btnClearSearch").addEventListener("click", ()=>{
-    $("qNoPersonal").value = "";
-    $("qNombre").value = "";
-    $("qPeriodo").value = "";
-    $("qVersion").value = "";
-    renderLookupResults([], null);
-    setLookupStatus("Listo para buscar.", "warn");
-  });
+  const btnSearch = $("btnSearch");
+  if(btnSearch) btnSearch.addEventListener("click", searchRecords);
+
+  const btnClearSearch = $("btnClearSearch");
+  if(btnClearSearch){
+    btnClearSearch.addEventListener("click", ()=>{
+      $("qNoPersonal").value = "";
+      $("qNombre").value = "";
+      $("qPeriodo").value = "";
+      $("qVersion").value = "";
+      renderLookupResults([], null);
+      setLookupStatus("Listo para buscar.", "warn");
+    });
+  }
 
   ["qNoPersonal","qNombre","qPeriodo","qVersion"].forEach(id=>{
     const el = $(id);
@@ -2266,7 +2304,39 @@ function bind(){
     });
   });
 
-  // Reporte/Print (lo dejas igual que lo tenías)
+  // Botones de reporte / imprimir
+  const btnGen = $("btnGenerate");
+  if(btnGen){
+    btnGen.addEventListener("click", ()=>{
+      if(state.saving) return;
+      openReportModal();
+    });
+  }
+
+  const btnPrint = $("btnPrint");
+  if(btnPrint){
+    btnPrint.addEventListener("click", ()=>{
+      if(state.saving) return;
+      doPrint();
+    });
+  }
+
+  const btnPrintFromModal = $("btnPrintFromModal");
+  if(btnPrintFromModal){
+    btnPrintFromModal.addEventListener("click", ()=>{
+      if(state.saving) return;
+      doPrint();
+    });
+  }
+
+  const rb = $("reportBackdrop");
+  if(rb){
+    rb.addEventListener("click", (e)=>{
+      if(e.target === rb) closeReportModal();
+    });
+  }
+}
+
   (function bindExtraButtons(){
     const btnGen = $("btnGenerate");
     if(btnGen){
