@@ -2255,6 +2255,7 @@ function clearForm(){
  function bind(){
   ensureClientesBox();
 
+  // listeners de campos
   [
     "noPersonal","nombre","posicion","departamento","periodo","version","fecha",
     "comentariosColaborador",
@@ -2269,6 +2270,7 @@ function clearForm(){
     el.addEventListener("change", ()=> setDirty(true));
   });
 
+  // cambio de tipo
   const tipoSel = $("tipoFormulario");
   if(tipoSel){
     tipoSel.addEventListener("change", ()=>{
@@ -2277,179 +2279,52 @@ function clearForm(){
     });
   }
 
-  const btnNew = $("btnNew");
-  if(btnNew){
-    btnNew.addEventListener("click", ()=>{
-      if(state.saving) return;
-      if(state.dirty && !confirm("Hay cambios sin guardar. ¿Limpiar todo de todas formas?")) return;
-      clearForm();
-      applyTipoUI();
-    });
-  }
-
-  const btnRecover = $("btnRecover");
-  if(btnRecover){
-    btnRecover.addEventListener("click", async ()=>{
-      if(state.saving) return;
-      if($("tipoFormulario").value !== "desempeno"){
-        alert("Recuperar solo está disponible en el Formulario de evaluación del desempeño.");
-        return;
-      }
-      await recoverByKeys();
-    });
-  }
-
-  const btnCloseRecovered = $("btnCloseRecovered");
-  if(btnCloseRecovered) btnCloseRecovered.addEventListener("click", closeRecoverModal);
-
-  const recoverBackdrop = $("recoverBackdrop");
-  if(recoverBackdrop){
-    recoverBackdrop.addEventListener("click", (e)=>{
-      if(e.target === recoverBackdrop) closeRecoverModal();
-    });
-  }
-
-  const btnApplyRecovered = $("btnApplyRecovered");
-  if(btnApplyRecovered){
-    btnApplyRecovered.addEventListener("click", ()=>{
-      if(!lastRecovered?.rowParams) return;
-      applyRecoveredToForm(lastRecovered.rowParams, lastRecovered.clientesInfo || null);
-      ensureItemsVisibleIfNeeded();
-      $("apiHint").className = "ok";
-      $("apiHint").textContent = "Autollenado aplicado ✅";
-      closeRecoverModal();
-    });
-  }
-
-  const btnCloseLookup = $("btnCloseLookup");
-  if(btnCloseLookup) btnCloseLookup.addEventListener("click", closeLookupModal);
-
-  const lookupBackdrop = $("lookupBackdrop");
-  if(lookupBackdrop){
-    lookupBackdrop.addEventListener("click", (e)=>{
-      if(e.target === lookupBackdrop) closeLookupModal();
-    });
-  }
-
-  const btnSearch = $("btnSearch");
-  if(btnSearch) btnSearch.addEventListener("click", searchRecords);
-
-  const btnClearSearch = $("btnClearSearch");
-  if(btnClearSearch){
-    btnClearSearch.addEventListener("click", ()=>{
-      $("qNoPersonal").value = "";
-      $("qNombre").value = "";
-      $("qPeriodo").value = "";
-      $("qVersion").value = "";
-      renderLookupResults([], null);
-      setLookupStatus("Listo para buscar.", "warn");
-    });
-  }
-
-  ["qNoPersonal","qNombre","qPeriodo","qVersion"].forEach(id=>{
-    const el = $(id);
-    if(!el) return;
-    el.addEventListener("keydown", (e)=>{
-      if(e.key === "Enter"){
-        e.preventDefault();
-        searchRecords();
-      }
-    });
+  // botones
+  $("btnNew")?.addEventListener("click", ()=>{
+    if(state.saving) return;
+    if(state.dirty && !confirm("Hay cambios sin guardar. ¿Limpiar todo de todas formas?")) return;
+    clearForm();
+    applyTipoUI();
   });
 
-  const btnGen = $("btnGenerate");
-  if(btnGen) btnGen.addEventListener("click", ()=> { if(!state.saving) openReportModal(); });
+  $("btnRecover")?.addEventListener("click", async ()=>{
+    if(state.saving) return;
+    if($("tipoFormulario").value !== "desempeno"){
+      alert("Recuperar solo está disponible en el Formulario de evaluación del desempeño.");
+      return;
+    }
+    await recoverByKeys();
+  });
 
-  const btnPrint = $("btnPrint");
-  if(btnPrint) btnPrint.addEventListener("click", ()=> { if(!state.saving) doPrint(); });
+  $("btnGenerate")?.addEventListener("click", ()=>{
+    if(state.saving) return;
+    openReportModal();
+  });
 
-  const btnPrintFromModal = $("btnPrintFromModal");
-  if(btnPrintFromModal) btnPrintFromModal.addEventListener("click", ()=> { if(!state.saving) doPrint(); });
+  $("btnPrint")?.addEventListener("click", ()=>{
+    if(state.saving) return;
+    doPrint();
+  });
 
-  const btnCloseReport = $("btnCloseReport");
-  if(btnCloseReport) btnCloseReport.addEventListener("click", closeReportModal);
+  $("btnPrintFromModal")?.addEventListener("click", ()=>{
+    if(state.saving) return;
+    doPrint();
+  });
 
-  const reportBackdrop = $("reportBackdrop");
-  if(reportBackdrop){
-    reportBackdrop.addEventListener("click", (e)=>{
-      if(e.target === reportBackdrop) closeReportModal();
-    });
-  }
+  $("btnCloseReport")?.addEventListener("click", closeReportModal);
 
-  const btnSave = $("btnSave");
-  if(btnSave){
-    btnSave.addEventListener("click", async ()=>{
-      if(state.saving) return;
-
-      const header = getHeaderData();
-      const tipo = header.tipo;
-
-      if(!header.no_personal || !header.periodo || !header.version){
-        alert("Para Guardar, llena: No. de personal + Periodo + Versión.");
-        return;
-      }
-
-      if(tipo !== "clientes") ensureItemsVisibleIfNeeded();
-
-      const payload = {
-        action: "guardar",
-        tipo: tipo,
-        no_personal: header.no_personal,
-        nombre: header.nombre,
-        posicion: header.posicion,
-        departamento: header.departamento,
-        periodo: header.periodo,
-        version: header.version,
-        fecha: header.fecha || "",
-        puntaje: (tipo === "clientes") ? 0 : computeTotal(),
-        ...getExtraFields()
-      };
-
-      if(tipo !== "clientes"){
-        const selectedText = flattenAnswersSelectedText();
-        ITEMS.forEach(sec => sec.items.forEach(it=>{
-          payload[it.key] = selectedText[it.key] || "";
-        }));
-      }
-
-      const keep = new Set(["action","tipo","no_personal","periodo","version"]);
-      Object.keys(payload).forEach(k=>{
-        if(keep.has(k)) return;
-        const v = payload[k];
-        if(v == null) { delete payload[k]; return; }
-        if(typeof v === "string" && v.trim() === "") { delete payload[k]; return; }
-        if(typeof v === "number" && !Number.isFinite(v)) { delete payload[k]; return; }
-      });
-
-      try{
-        setBusy(true);
-        $("apiHint").className = "warn";
-        $("apiHint").textContent = "Guardando…";
-
-        const body = new URLSearchParams(payload).toString();
-
-        await fetch(API_URL, {
-          method: "POST",
-          mode: "no-cors",
-          headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
-          body
-        });
-
-        $("apiHint").className = "ok";
-        $("apiHint").textContent = "Guardado enviado ✅ (verifica en Google Sheets)";
-        setDirty(false);
-
-      }catch(e){
-        console.error(e);
-        $("apiHint").className = "err";
-        $("apiHint").textContent = "Error guardando: " + (e.message || e);
-        alert("No se pudo guardar.\n\n" + (e.message || e));
-      }finally{
-        setBusy(false);
-      }
-    });
-  }
+  $("reportBackdrop")?.addEventListener("click", (e)=>{
+    if(e.target === $("reportBackdrop")) closeReportModal();
+  });
 }
+
+// ✅ INIT (aquí SÍ se permite await porque es async)
+document.addEventListener("DOMContentLoaded", async () => {
+  bind();
+  applyTipoUI();
+  try { await apiPing(); } catch(_e) {}
+  ensureItemsVisibleIfNeeded();
+});
 
   function _isEmptyValue(v){
   return v == null || String(v).trim() === "";
