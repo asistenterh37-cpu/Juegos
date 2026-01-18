@@ -2450,21 +2450,6 @@ function bind(){
 
   $("reportBackdrop")?.addEventListener("click", (e)=>{
     if(e.target === $("reportBackdrop")) closeReportModal();
-// ✅ Botones del modal "Registro encontrado"
-$("btnApplyRecovered")?.addEventListener("click", () => {
-  if(!lastRecovered || !lastRecovered.rowParams) return;
-  applyRecoveredToForm(lastRecovered.rowParams, lastRecovered.clientesInfo || null);
-  closeRecoverModal();
-});
-
-$("btnCloseRecovered")?.addEventListener("click", () => {
-  closeRecoverModal();
-});
-
-// (Opcional) cerrar si das click fuera del modal
-$("recoverBackdrop")?.addEventListener("click", (e) => {
-  if(e.target === $("recoverBackdrop")) closeRecoverModal();
-}); 
 }
 
 /* ✅ INIT ÚNICO (NO duplicado) */
