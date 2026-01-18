@@ -1138,6 +1138,7 @@ function setBusy(isBusy){
 function renderItems(){
   const container = $("itemsContainer");
   if(!container) return;
+
   container.innerHTML = "";
 
   ITEMS.forEach(section => {
@@ -1164,10 +1165,12 @@ function renderItems(){
       const title = document.createElement("div");
       title.style.fontWeight = "800";
       title.textContent = it.label;
+
       const sub = document.createElement("div");
       sub.className = "muted";
       sub.style.fontSize = "12px";
       sub.textContent = "Selecciona 1–5 según la rúbrica.";
+
       left.appendChild(title);
       left.appendChild(sub);
 
@@ -1226,7 +1229,6 @@ function ensureItemsVisibleIfNeeded(){
   if(evalCard) evalCard.style.display = "block";
   if(!container) return;
 
-  // Renderiza si quedó vacío (o nunca se renderizó)
   if(container.children.length === 0){
     renderItems();
   }
@@ -1384,13 +1386,37 @@ function renderSeleccionEnReporte(){
 }
 
 function openReportModal(){
-  $("reportHost").innerHTML = $("report").outerHTML;
-  $("reportBackdrop").style.display = "flex";
-  $("reportBackdrop").setAttribute("aria-hidden", "false");
+  const backdrop = $("reportBackdrop");
+  const host = $("reportHost");
+  if(!backdrop || !host) return;
+
+  const tipo = $("tipoFormulario")?.value || "";
+  if(tipo !== "clientes") ensureItemsVisibleIfNeeded();
+
+  buildReport();
+
+  const reportEl = document.getElementById("report");
+  if(reportEl){
+    const clone = reportEl.cloneNode(true);
+    clone.removeAttribute("id");
+    clone.querySelectorAll("[id]").forEach(n=>n.removeAttribute("id"));
+    host.innerHTML = "";
+    host.appendChild(clone);
+  }else{
+    host.textContent = "No se pudo generar el reporte (#report no existe).";
+  }
+
+  pruneEmptyFields(host);
+
+  backdrop.style.display = "flex";
+  backdrop.setAttribute("aria-hidden", "false");
 }
+
 function closeReportModal(){
-  $("reportBackdrop").style.display = "none";
-  $("reportBackdrop").setAttribute("aria-hidden", "true");
+  const backdrop = $("reportBackdrop");
+  if(!backdrop) return;
+  backdrop.style.display = "none";
+  backdrop.setAttribute("aria-hidden", "true");
 }
 
 function buildReport(){
@@ -2122,11 +2148,10 @@ function applyTopActionsUI(tipo){
 /* ✅ MODIFICADA: applyTipoUI() — ahora sí muestra el bloque Clientes siempre */
 /* ✅ MODIFICADA: applyTipoUI() — asegura (Auto: ítems) (Clientes: 2 campos) (Desempeño: ítems + campos) */
 /* ✅ NUEVO: crea el bloque Clientes si no existe (2 campos parametrizados) */
-function ensureClientesBox(){
+ function ensureClientesBox(){
   if(document.getElementById("clientesBox")) return;
 
-  const evalCard = document.getElementById("evalCard");
-  const grid = evalCard?.closest(".grid") || document.querySelector(".grid");
+  const grid = document.querySelector(".grid");
   if(!grid) return;
 
   const card = document.createElement("div");
@@ -2154,21 +2179,20 @@ function ensureClientesBox(){
     </div>
   `;
 
-  // Insertar justo después de la tarjeta de ítems para que quede ordenado
-  if(evalCard && evalCard.parentNode){
-    evalCard.parentNode.insertBefore(card, evalCard.nextSibling);
+  // Insertar después de la tarjeta "Datos del colaborador" si existe (2da card dentro del grid)
+  const cards = grid.querySelectorAll(".card");
+  if(cards && cards.length >= 2 && cards[1].parentNode){
+    cards[1].parentNode.insertBefore(card, cards[1].nextSibling);
   }else{
     grid.appendChild(card);
   }
 }
-  
+ 
  function applyTipoUI(){
   const tipo = $("tipoFormulario")?.value || "autoevaluacion";
 
-  // Asegura que el box de Clientes exista antes de mostrar/ocultar
   ensureClientesBox();
 
-  // Título
   const appTitle = $("appTitle");
   if(appTitle){
     appTitle.textContent =
@@ -2177,30 +2201,28 @@ function ensureClientesBox(){
       "Formulario de evaluación del desempeño";
   }
 
-  const autoBox = $("autoComentariosBox");
-  const desBox  = $("desempenoCamposBox");
-  const cliBox  = $("clientesBox");
+  const autoBox  = $("autoComentariosBox");
+  const desBox   = $("desempenoCamposBox");
+  const cliBox   = $("clientesBox");
   const evalCard = $("evalCard");
 
-  // Autoevaluación: Ítems + comentarios del colaborador
+  // Autoevaluación: ítems + comentarios colaborador
   if(autoBox) autoBox.style.display = (tipo === "autoevaluacion") ? "block" : "none";
 
-  // Desempeño: Ítems + campos definidos
+  // Desempeño: ítems + campos definidos
   if(desBox) desBox.style.display = (tipo === "desempeno") ? "block" : "none";
 
-  // Clientes: SOLO 2 campos (sin ítems, sin desempeño, sin comentarios auto)
+  // Clientes: SOLO 2 campos
   if(cliBox) cliBox.style.display = (tipo === "clientes") ? "block" : "none";
 
-  // Ítems: se muestran en autoevaluación y desempeño; se ocultan en clientes
+  // Ítems: NO en clientes
   if(evalCard) evalCard.style.display = (tipo === "clientes") ? "none" : "block";
 
-  // Fuerza render de ítems donde toca
+  // Forzar render de ítems en auto/desempeño
   ensureItemsVisibleIfNeeded();
 
-  // UI adicional (si existen en tu código)
   if(typeof applySearchUI === "function") applySearchUI(tipo);
   if(typeof applyTopActionsUI === "function") applyTopActionsUI(tipo);
-  if(typeof setDefaultToday === "function") setDefaultToday();
 }
 
 function clearForm(){
@@ -2230,8 +2252,7 @@ function clearForm(){
 /* ✅ MODIFICADA: bind() — asegura que el bloque Clientes exista ANTES de poner listeners */
 /* ✅ MODIFICADA: bind() — asegura que Clientes exista ANTES de listeners */
 
-function bind(){
-  // IMPORTANTÍSIMO: crea primero el box de Clientes para que existan los IDs
+ function bind(){
   ensureClientesBox();
 
   [
@@ -2336,7 +2357,6 @@ function bind(){
     });
   });
 
-  // Reporte / imprimir
   const btnGen = $("btnGenerate");
   if(btnGen) btnGen.addEventListener("click", ()=> { if(!state.saving) openReportModal(); });
 
@@ -2346,99 +2366,108 @@ function bind(){
   const btnPrintFromModal = $("btnPrintFromModal");
   if(btnPrintFromModal) btnPrintFromModal.addEventListener("click", ()=> { if(!state.saving) doPrint(); });
 
+  const btnCloseReport = $("btnCloseReport");
+  if(btnCloseReport) btnCloseReport.addEventListener("click", closeReportModal);
+
   const reportBackdrop = $("reportBackdrop");
   if(reportBackdrop){
     reportBackdrop.addEventListener("click", (e)=>{
       if(e.target === reportBackdrop) closeReportModal();
     });
   }
+
+  const btnSave = $("btnSave");
+  if(btnSave){
+    btnSave.addEventListener("click", async ()=>{
+      if(state.saving) return;
+
+      const header = getHeaderData();
+      const tipo = header.tipo;
+
+      if(!header.no_personal || !header.periodo || !header.version){
+        alert("Para Guardar, llena: No. de personal + Periodo + Versión.");
+        return;
+      }
+
+      if(tipo !== "clientes") ensureItemsVisibleIfNeeded();
+
+      const payload = {
+        action: "guardar",
+        tipo: tipo,
+        no_personal: header.no_personal,
+        nombre: header.nombre,
+        posicion: header.posicion,
+        departamento: header.departamento,
+        periodo: header.periodo,
+        version: header.version,
+        fecha: header.fecha || "",
+        puntaje: (tipo === "clientes") ? 0 : computeTotal(),
+        ...getExtraFields()
+      };
+
+      if(tipo !== "clientes"){
+        const selectedText = flattenAnswersSelectedText();
+        ITEMS.forEach(sec => sec.items.forEach(it=>{
+          payload[it.key] = selectedText[it.key] || "";
+        }));
+      }
+
+      const keep = new Set(["action","tipo","no_personal","periodo","version"]);
+      Object.keys(payload).forEach(k=>{
+        if(keep.has(k)) return;
+        const v = payload[k];
+        if(v == null) { delete payload[k]; return; }
+        if(typeof v === "string" && v.trim() === "") { delete payload[k]; return; }
+        if(typeof v === "number" && !Number.isFinite(v)) { delete payload[k]; return; }
+      });
+
+      try{
+        setBusy(true);
+        $("apiHint").className = "warn";
+        $("apiHint").textContent = "Guardando…";
+
+        const body = new URLSearchParams(payload).toString();
+
+        await fetch(API_URL, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+          body
+        });
+
+        $("apiHint").className = "ok";
+        $("apiHint").textContent = "Guardado enviado ✅ (verifica en Google Sheets)";
+        setDirty(false);
+
+      }catch(e){
+        console.error(e);
+        $("apiHint").className = "err";
+        $("apiHint").textContent = "Error guardando: " + (e.message || e);
+        alert("No se pudo guardar.\n\n" + (e.message || e));
+      }finally{
+        setBusy(false);
+      }
+    });
+  }
 }
-  (function bindExtraButtons(){
-    const btnGen = $("btnGenerate");
-    if(btnGen){
-      btnGen.addEventListener("click", ()=>{
-        if(state.saving) return;
-        openReportModal();
-      });
-    }
-
-    const btnPrint = $("btnPrint");
-    if(btnPrint){
-      btnPrint.addEventListener("click", ()=>{
-        if(state.saving) return;
-        doPrint();
-      });
-    }
-
-    const btnPrintFromModal = $("btnPrintFromModal");
-    if(btnPrintFromModal){
-      btnPrintFromModal.addEventListener("click", ()=>{
-        if(state.saving) return;
-        doPrint();
-      });
-    }
-
-    const rb = $("reportBackdrop");
-    if(rb){
-      rb.addEventListener("click", (e)=>{
-        if(e.target === rb) closeReportModal();
-      });
-    }
-  })();
-}
-
-  /* =========================
-     ✅ Helpers Reporte
-     - Generar: muestra tabla flotante (modal) con resultados
-     - Imprimir: habilita Imprimir/Enviar a PDF
-     - Oculta campos vacíos en reporte
-     ========================= */
 
   function _isEmptyValue(v){
-    return v == null || String(v).trim() === "";
-  }
+  return v == null || String(v).trim() === "";
+}
 
   function pruneEmptyFields(root){
-    if(!root) return;
+  if(!root) return;
 
-    const rowSelectors = [".kv", ".field-row", ".report-row"];
-    rowSelectors.forEach(sel=>{
-      root.querySelectorAll(sel).forEach(row=>{
-        const valEl =
-          row.querySelector(".value") ||
-          row.querySelector(".v") ||
-          row.querySelector("[data-value]") ||
-          null;
-
-        let val = "";
-        if(valEl){
-          val = (valEl.getAttribute("data-value") ?? valEl.textContent ?? "").trim();
-        }else{
-          const kids = Array.from(row.children || []);
-          if(kids.length >= 2) val = (kids[1].textContent || "").trim();
-        }
-
-        if(_isEmptyValue(val)){
-          row.remove();
-        }
-      });
+  root.querySelectorAll("table").forEach(tbl=>{
+    tbl.querySelectorAll("tr").forEach(tr=>{
+      const tds = tr.querySelectorAll("td");
+      if(tds && tds.length >= 2){
+        const val = (tds[1].textContent || "").trim();
+        if(_isEmptyValue(val)) tr.remove();
+      }
     });
-
-    root.querySelectorAll("table").forEach(tbl=>{
-      tbl.querySelectorAll("tr").forEach(tr=>{
-        const tds = tr.querySelectorAll("td");
-        if(tds && tds.length >= 2){
-          const val = (tds[1].textContent || "").trim();
-          if(_isEmptyValue(val)) tr.remove();
-        }
-      });
-    });
-
-    root.querySelectorAll("li").forEach(li=>{
-      const val = (li.textContent || "").trim();
-      if(_isEmptyValue(val)) li.remove();
-    });
-  }
+  });
+}
 
   function openReportModal(){
     const backdrop = $("reportBackdrop");
@@ -2486,50 +2515,16 @@ function bind(){
   }
 
   function doPrint(){
-    const host = $("reportHost");
-    const hasSomething = host && host.textContent && host.textContent.trim().length > 0;
+  const host = $("reportHost");
+  const hasSomething = host && host.textContent && host.textContent.trim().length > 0;
 
-    if(!hasSomething){
-      openReportModal();
-    }
-    if(host) pruneEmptyFields(host);
-
-    window.print();
+  if(!hasSomething){
+    openReportModal();
   }
+  if(host) pruneEmptyFields(host);
 
-  $("btnSave").addEventListener("click", async ()=>{
-    if(state.saving) return;
-
-    const header = getHeaderData();
-    const tipo = header.tipo;
-
-    if(!header.no_personal || !header.periodo || !header.version){
-      alert("Para Guardar, llena: No. de personal + Periodo + Versión.");
-      return;
-    }
-
-    if(tipo !== "clientes") ensureItemsVisibleIfNeeded();
-
-    const payload = {
-      action: "guardar",
-      tipo: tipo,
-      no_personal: header.no_personal,
-      nombre: header.nombre,
-      posicion: header.posicion,
-      departamento: header.departamento,
-      periodo: header.periodo,
-      version: header.version,
-      fecha: header.fecha || "",
-      puntaje: (tipo === "clientes") ? 0 : computeTotal(),
-      ...getExtraFields()
-    };
-
-    if(tipo !== "clientes"){
-      const selectedText = flattenAnswersSelectedText();
-      ITEMS.forEach(sec => sec.items.forEach(it=>{
-        payload[it.key] = selectedText[it.key] || "";
-      }));
-    }
+  window.print();
+}
 
     function _isEmpty(v){
       if(v === null || v === undefined) return true;
@@ -2617,17 +2612,12 @@ function bind(){
 
 /* ✅ CIERRES DEL DOCUMENTO (AGREGADOS) */
  /* ✅ INIT: ejecutar UI y render de ítems al cargar */
- document.addEventListener("DOMContentLoaded", async () => {
-  // 1) Bindeos (event listeners)
-  if(typeof bind === "function") bind();
-
-  // 2) Aplicar UI del tipo (esto renderiza ítems y muestra campos de desempeño)
+document.addEventListener("DOMContentLoaded", async () => {
+  bind();
   applyTipoUI();
 
-  // 3) Ping de API (no bloquea la UI si falla)
   try{ await apiPing(); }catch(_e){}
 
-  // 4) Asegurar ítems visibles para auto/desempeño
   ensureItemsVisibleIfNeeded();
 });
 
