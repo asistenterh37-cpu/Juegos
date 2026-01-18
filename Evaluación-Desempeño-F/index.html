@@ -522,7 +522,7 @@
          <input id="nombreEvaluadorDesempeno" type="text" placeholder="Ej. Daniel Coello" />
         </div>
         
-  <div class="form-grid" style="margin-top:12px; display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+ <div class="form-grid" style="margin-top:12px; display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
   <div class="highlightField">
     <label>Mail 1</label>
     <input id="mail1" type="email" placeholder="Ej. correo1@empresa.com" />
@@ -533,7 +533,10 @@
     <input id="mail2" type="email" placeholder="Ej. correo2@empresa.com" />
   </div>
 </div>
-        
+
+</div><!-- ✅ CIERRE CORRECTO de .card#desempenoCamposBox -->
+📌 Dato clave: En tu archivo, después de la 535 ya arranca clientesBox (fila 537), así que este </div> es el que evita que se “trague” el resto del HTML y te desaparezcan secciones.
+    
       <div class="card" id="clientesBox" style="display:none;">
         <h2>Formulario evaluación clientes</h2>
         <p>Después de los datos del colaborador, solo se solicita la retroalimentación.</p>
