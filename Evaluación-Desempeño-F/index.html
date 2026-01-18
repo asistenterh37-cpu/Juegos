@@ -2484,6 +2484,16 @@ function bind(){
   // 1) Bindeos (event listeners)
   if(typeof bind === "function") bind();
 
+  // 2) Aplicar UI del tipo (esto renderiza ítems y muestra campos de desempeño)
+  applyTipoUI();
+
+  // 3) Ping de API (no bloquea la UI si falla)
+  try{ await apiPing(); }catch(_e){}
+
+  // 4) Asegurar ítems visibles para auto/desempeño
+  ensureItemsVisibleIfNeeded();
+});
+
 </script>
 </body>
 </html>
