@@ -1225,31 +1225,20 @@ function getHeaderData(){
 function getExtraFields(){
   const tipo = $("tipoFormulario").value;
 
-  // ✅ Normalizamos nombres de campos para que el back-end reciba SIEMPRE lo mismo:
-  // - comentarios_colaborador
-  // - evaluacion_clientes
-  // - nombre_evaluador (cuando aplique)
-  // (evita que en Sheets quede vacío por mismatch de nombres)
+  // ✅ Autoevaluación: SOLO comentarios del colaborador
   if(tipo === "autoevaluacion"){
     return {
-      comentarios_colaborador: ($("comentariosColaborador")?.value || "").trim(),
-      justificacion: ($("justificacion")?.value || "").trim(),
-      comentarios_evaluador: ($("comentariosEvaluador")?.value || "").trim(), /* ✅ FIX: trimm() -> trim() */
-      fortalezas: ($("fortalezas")?.value || "").trim(),
-      oportunidades_mejora: ($("oportunidades")?.value || "").trim(),
-      proyeccion_potencial: ($("proyeccion")?.value || "").trim(),
-      necesidades_capacitacion: ($("necesidadesCapacitacion")?.value || "").trim(),
-      evaluacion_clientes: ($("evaluacionClientes")?.value || "").trim()
+      comentarios_colaborador: ($("comentariosColaborador")?.value || "").trim()
     };
   }
 
-if(tipo === "desempeno"){
+  // ✅ Desempeño: campos extendidos (Justificación, capacitación, etc.)
+  if(tipo === "desempeno"){
     return {
       justificacion: ($("justificacion")?.value || "").trim(),
       comentarios_evaluador: ($("comentariosEvaluador")?.value || "").trim(),
       nombre_evaluador: ($("nombreEvaluadorDesempeno")?.value || "").trim(),
 
-      /* ✅ NUEVO: Mail1 / Mail2 (solo desempeño) */
       mail1: ($("mail1")?.value || "").trim(),
       mail2: ($("mail2")?.value || "").trim(),
 
@@ -1257,11 +1246,12 @@ if(tipo === "desempeno"){
       oportunidades_mejora: ($("oportunidades")?.value || "").trim(),
       proyeccion_potencial: ($("proyeccion")?.value || "").trim(),
       necesidades_capacitacion: ($("necesidadesCapacitacion")?.value || "").trim(),
-      comentarios_colaborador: ($("comentariosColaborador2")?.value || "").trim(), /* ✅ FIX: antes "comentarios" */
+      comentarios_colaborador: ($("comentariosColaborador2")?.value || "").trim(),
       evaluacion_clientes: ($("evaluacionClientes")?.value || "").trim()
     };
   }
 
+  // ✅ Clientes: SOLO retroalimentación + nombre evaluador
   if(tipo === "clientes"){
     return {
       retroalimentacion: ($("retroalimentacion")?.value || "").trim(),
@@ -1398,9 +1388,18 @@ function buildReport(){
   $("rVersion").textContent = header.version || "—";
   $("rFecha").textContent = formatDateES(header.fecha);
 
-  renderSeleccionEnReporte();
+  // ✅ Ítems/rúbricas SOLO en autoevaluación y desempeño
+  if(header.tipo !== "clientes"){
+    renderSeleccionEnReporte();
+  }else{
+    // Si venía algo de antes, lo vaciamos
+    const host = $("rRubricas");
+    if(host) host.innerHTML = "";
+  }
+
   $("rTotal").textContent = String((header.tipo === "clientes") ? 0 : total);
 
+  // ✅ Comentarios del colaborador SOLO si aplica (autoevaluación o desempeño)
   const comentarioColab =
     (header.tipo === "autoevaluacion") ? (extra.comentarios_colaborador || "") :
     (header.tipo === "desempeno") ? (extra.comentarios_colaborador || "") : "";
@@ -1413,6 +1412,7 @@ function buildReport(){
     $("rComentarios").textContent = "—";
   }
 
+  // ✅ Bloques exclusivos de desempeño
   if((header.tipo === "desempeno") && extra.evaluacion_clientes){
     $("rEvalClientesBlock").style.display = "block";
     $("rEvalClientes").textContent = extra.evaluacion_clientes;
