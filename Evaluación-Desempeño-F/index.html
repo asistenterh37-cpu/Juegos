@@ -2184,10 +2184,12 @@ function applyTopActionsUI(tipo){
     btnRecover.disabled = (tipo !== "desempeno");
   }
 
+  // ✅ Generar: visible para autoevaluación y desempeño (y si quieres, también para clientes)
   const btnGen = $("btnGenerate");
   if(btnGen){
-    btnGen.style.display = (tipo === "desempeno") ? "" : "none";
-    btnGen.disabled = (tipo !== "desempeno");
+    const allowGenerate = (tipo === "autoevaluacion" || tipo === "desempeno" || tipo === "clientes"); // si NO quieres clientes, quita "|| tipo === 'clientes'"
+    btnGen.style.display = allowGenerate ? "" : "none";
+    btnGen.disabled = !allowGenerate;
   }
 }
 
