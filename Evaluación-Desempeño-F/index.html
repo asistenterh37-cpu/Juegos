@@ -2288,7 +2288,7 @@ function clearForm(){
     "evaluacionClientes","retroalimentacion","nombreEvaluador","nombreEvaluadorDesempeno",
     "mail1","mail2"
   ].forEach(id=>{ const el=$(id); if(el) el.value=""; });
-
+   setFechaHoyDefault(true); // ✅ fuerza HOY cuando limpias
   state.answers = {};
   ITEMS.forEach(sec => sec.items.forEach(it=>{
     const el = $("ans_"+it.key);
@@ -2498,6 +2498,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     bind();                 // activa listeners
     applyTipoUI();          // muestra/oculta secciones por tipo
     ensureItemsVisibleIfNeeded(); // renderiza ítems para autoevaluación/desempeño
+    setFechaHoyDefault(false); // ✅ pone HOY solo si está vacío
     await apiPing();        // opcional: estado API
   }catch(e){
     console.error(e);
