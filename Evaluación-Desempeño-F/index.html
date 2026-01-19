@@ -1836,6 +1836,7 @@ let evalCli = String(rowParams.evaluacion_clientes || "").trim();
   $("printArea").style.display = "none";
   state.generated = false;
   setDirty(false);
+  updateSaveEnabled();
 }
 
 function applyRecoveredTextsOnly(rowParams, clientesInfo){
@@ -2280,6 +2281,7 @@ function applyTipoUI(){
   if(typeof ensureItemsVisibleIfNeeded === "function") ensureItemsVisibleIfNeeded();
   if(typeof applySearchUI === "function") applySearchUI(tipo);
   if(typeof applyTopActionsUI === "function") applyTopActionsUI(tipo);
+  updateSaveEnabled();
 }
 
 function clearForm(){
@@ -2300,6 +2302,7 @@ function clearForm(){
   $("printArea").style.display = "none";
   state.generated = false;
   setDirty(false);
+  updateSaveEnabled();
 
   $("apiHint").className = "warn";
   $("apiHint").textContent = "Listo para enviar";
@@ -2609,6 +2612,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     ensureItemsVisibleIfNeeded(); // renderiza ítems para autoevaluación/desempeño
     setFechaHoyDefault(false); // ✅ pone HOY solo si está vacío
     await apiPing();        // opcional: estado API
+    updateSaveEnabled();
   }catch(e){
     console.error(e);
   }
