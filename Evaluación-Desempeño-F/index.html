@@ -1219,10 +1219,11 @@ function renderItems(){
       }
 
       sel.addEventListener("change", () => {
-        state.answers[it.key] = sel.value ? Number(sel.value) : null;
-        setDirty(true);
+      state.answers[it.key] = sel.value ? Number(sel.value) : null;
+      setDirty(true);
+      updateSaveEnabled();
       });
-
+      
       right.appendChild(lab);
       right.appendChild(sel);
 
@@ -2335,6 +2336,82 @@ function doPrint(){
   window.print();
 }
 
+// ===============================
+// ✅ VALIDACIÓN PARA GUARDAR
+// ===============================
+function isVisible(el){
+  return !!(el && el.offsetParent !== null);
+}
+
+function fieldLabel(el){
+  const wrap = el.closest("div");
+  const lab = wrap ? wrap.querySelector("label") : null;
+  return lab ? lab.textContent.trim() : (el.id || "Campo sin nombre");
+}
+
+function validateBeforeSave(){
+  const tipo = $("tipoFormulario")?.value || "autoevaluacion";
+
+  const mainGrid = document.querySelector(".grid.no-print");
+  if(!mainGrid) return { ok:true, missingFields:[], missingItems:[] };
+
+  const controls = Array.from(mainGrid.querySelectorAll("input, textarea, select"))
+    .filter(el =>
+      el.id &&
+      !el.disabled &&
+      isVisible(el)
+    );
+
+  const itemSelects = controls.filter(el => el.tagName === "SELECT" && el.id.startsWith("ans_"));
+  const normalControls = controls.filter(el => !el.id.startsWith("ans_"));
+
+  const missingFields = [];
+
+  normalControls.forEach(el => {
+    if(el.tagName === "SELECT"){
+      if(!String(el.value || "").trim()){
+        missingFields.push(fieldLabel(el));
+      }
+      return;
+    }
+    if(!String(el.value || "").trim()){
+      missingFields.push(fieldLabel(el));
+    }
+  });
+
+  const missingItems = [];
+  const evalCardVisible = $("evalCard") && isVisible($("evalCard"));
+
+  if(tipo !== "clientes" && evalCardVisible){
+    itemSelects.forEach(sel => {
+      if(!String(sel.value || "").trim()){
+        const row = sel.closest("div")?.parentElement;
+        const itemTitle = row?.querySelector("div > div")?.textContent?.trim();
+        missingItems.push(itemTitle || sel.id);
+      }
+    });
+  }
+
+  return {
+    ok: missingFields.length === 0 && missingItems.length === 0,
+    missingFields,
+    missingItems
+  };
+}
+
+function updateSaveEnabled(){
+  const btn = $("btnSave");
+  if(!btn) return;
+
+  if(state.saving){
+    btn.disabled = true;
+    return;
+  }
+
+  const v = validateBeforeSave();
+  btn.disabled = !v.ok;
+}
+  
 /* ---------- Guardar (btnSave) ---------- */
 async function saveCurrent(){
   if(state.saving) return;
@@ -2409,16 +2486,23 @@ function bind(){
   ].forEach(id=>{
     const el = $(id);
     if(!el) return;
-    el.addEventListener("input", ()=> setDirty(true));
-    el.addEventListener("change", ()=> setDirty(true));
+   el.addEventListener("input", ()=>{
+  setDirty(true);
+  updateSaveEnabled();
+});
+el.addEventListener("change", ()=>{
+  setDirty(true);
+  updateSaveEnabled();
+});
   });
 
   const tipoSel = $("tipoFormulario");
   if(tipoSel){
-    tipoSel.addEventListener("change", ()=>{
-      applyTipoUI();
-      setDirty(true);
-    });
+ tipoSel.addEventListener("change", ()=>{
+  applyTipoUI();
+  setDirty(true);
+  updateSaveEnabled();
+});
   }
 
   $("btnNew")?.addEventListener("click", ()=>{
