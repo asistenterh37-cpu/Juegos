@@ -1113,6 +1113,25 @@ const ITEMS = [
 const state = { dirty:false, generated:false, answers:{}, saving:false };
 const $ = (id) => document.getElementById(id);
 
+function todayYMDLocal(){
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`; // formato que espera input[type="date"]
+}
+
+function setFechaHoyDefault(force=false){
+  const f = $("fecha");
+  if(!f) return;
+
+  // Si force=true: siempre pisa con hoy
+  // Si force=false: solo lo pone si está vacío
+  if(force || !String(f.value || "").trim()){
+    f.value = todayYMDLocal();
+  }
+}
+  
 function setDirty(v){
   state.dirty = v;
   const dot = $("stateDot");
