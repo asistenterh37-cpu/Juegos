@@ -1837,7 +1837,8 @@ function setLookupStatus(txt, kind){
   el.className = "small-muted " + (kind || "");
 }
 
-  function renderLookupResults(rows, clientesInfo){
+ <script>
+function renderLookupResults(rows, clientesInfo){
   const tbody = $("lookupResultsBody");
   if(!tbody) return;
 
@@ -2270,6 +2271,7 @@ function pruneEmptyFields(root){
   });
 }
 
+/* ✅ FIX: abrir/cerrar modal de reporte usando display (no .show inexistente) */
 function openReportModal(){
   const backdrop = $("reportBackdrop");
   const host = $("reportHost");
@@ -2281,37 +2283,28 @@ function openReportModal(){
     ensureItemsVisibleIfNeeded();
   }
 
-  let html = "";
-  if(typeof buildReport === "function"){
-    const r = buildReport();
-    if(typeof r === "string") html = r;
-  }
-
-  if(html){
-    host.innerHTML = html;
+  // Tu buildReport ya arma #report; aquí solo clonamos a modal
+  const reportEl = document.getElementById("report");
+  if(reportEl){
+    const clone = reportEl.cloneNode(true);
+    if(clone.id) clone.removeAttribute("id");
+    clone.querySelectorAll("[id]").forEach(n=>n.removeAttribute("id"));
+    host.innerHTML = "";
+    host.appendChild(clone);
   }else{
-    const reportEl = document.getElementById("report");
-    if(reportEl){
-      const clone = reportEl.cloneNode(true);
-      if(clone.id) clone.removeAttribute("id");
-      clone.querySelectorAll("[id]").forEach(n=>n.removeAttribute("id"));
-      host.innerHTML = "";
-      host.appendChild(clone);
-    }else{
-      host.textContent = "No se pudo generar el reporte (no se encontró #report ni HTML retornado).";
-    }
+    host.textContent = "No se pudo generar el reporte (no se encontró #report).";
   }
 
   pruneEmptyFields(host);
 
-  backdrop.classList.add("show");
+  backdrop.style.display = "flex";
   backdrop.setAttribute("aria-hidden", "false");
 }
 
 function closeReportModal(){
   const backdrop = $("reportBackdrop");
   if(!backdrop) return;
-  backdrop.classList.remove("show");
+  backdrop.style.display = "none";
   backdrop.setAttribute("aria-hidden", "true");
 }
 
@@ -2451,44 +2444,67 @@ function bind(){
   });
 
   $("btnCloseReport")?.addEventListener("click", closeReportModal);
-$("reportBackdrop")?.addEventListener("click", (e) => {
+  $("reportBackdrop")?.addEventListener("click", (e) => {
     if (e.target === $("reportBackdrop")) closeReportModal();
   });
-/* ======== FIX: Botones del modal "Registro encontrado" ======== */
-$("btnApplyRecovered")?.addEventListener("click", () => {
-  // lastRecovered se setea en buildRecoverModal(...)
-  if(!lastRecovered || !lastRecovered.rowParams){
-    alert("No hay datos recuperados para autollenar.");
-    return;
-  }
 
-  // Autollenar TODO (cabecera + items + campos desempeño + clientes si existe)
-  applyRecoveredToForm(lastRecovered.rowParams, lastRecovered.clientesInfo || null);
+  /* ======== FIX: Botones del modal "Registro encontrado" ======== */
+  $("btnApplyRecovered")?.addEventListener("click", () => {
+    if(!lastRecovered || !lastRecovered.rowParams){
+      alert("No hay datos recuperados para autollenar.");
+      return;
+    }
+    applyRecoveredToForm(lastRecovered.rowParams, lastRecovered.clientesInfo || null);
+    closeRecoverModal();
+  });
 
-  // Cerrar modal
-  closeRecoverModal();
-});
+  $("btnCloseRecovered")?.addEventListener("click", () => {
+    closeRecoverModal();
+  });
 
-$("btnCloseRecovered")?.addEventListener("click", () => {
-  closeRecoverModal();
-});
+  $("recoverBackdrop")?.addEventListener("click", (e) => {
+    if (e.target === $("recoverBackdrop")) closeRecoverModal();
+  });
 
-/* Click fuera del modal = cerrar */
-$("recoverBackdrop")?.addEventListener("click", (e) => {
-  if (e.target === $("recoverBackdrop")) closeRecoverModal();
-});
-  
+  /* ✅ IMPORTANTE: bind del modal de búsqueda (si estás usando el modal) */
+  $("btnSearch")?.addEventListener("click", searchRecords);
+  $("btnClearSearch")?.addEventListener("click", ()=>{
+    $("qNoPersonal").value = "";
+    $("qNombre").value = "";
+    $("qPeriodo").value = "";
+    $("qVersion").value = "";
+    renderLookupResults([], null);
+    setLookupStatus("Listo para buscar.", "warn");
+  });
+  $("btnCloseLookup")?.addEventListener("click", closeLookupModal);
 } // <-- cierre de bind()
 
-/* ✅ INIT ÚNICO (NO duplicado) */
-document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape") {
-    // Cierra solo si está abierto
-    const rb = $("recoverBackdrop");
-    if (rb && rb.style.display === "flex") closeRecoverModal();
+/* ✅ INIT ÚNICO: aquí estaba el “missing piece” */
+document.addEventListener("DOMContentLoaded", async () => {
+  try{
+    bind();                 // activa listeners
+    applyTipoUI();          // muestra/oculta secciones por tipo
+    ensureItemsVisibleIfNeeded(); // renderiza ítems para autoevaluación/desempeño
+    await apiPing();        // opcional: estado API
+  }catch(e){
+    console.error(e);
   }
 });
 
+/* ESC cierra modal recuperado */
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") {
+    const rb = $("recoverBackdrop");
+    if (rb && rb.style.display === "flex") closeRecoverModal();
+
+    const rep = $("reportBackdrop");
+    if (rep && rep.style.display === "flex") closeReportModal();
+
+    const lk = $("lookupBackdrop");
+    if (lk && lk.style.display === "flex") closeLookupModal();
+  }
+});
 </script>
 </body>
 </html>
+ 
