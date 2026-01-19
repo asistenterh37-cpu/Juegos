@@ -822,7 +822,7 @@ select:focus{
 /************************************************************
  * 1) URL COMPLETA DEL APPS SCRIPT (/exec)
  ************************************************************/
-const API_URL = "https://script.google.com/macros/s/AKfycbz6gXE8GsathU9oQJv6NqaFfIKt_6JIwQlVK08fCwdGUX6wQBi3a1RhYOE3dm4O-NmGgg/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbwncPfgwkg31uNyy20peSJo6p3HiYt0aapWj7MKUSqvEQWiN8VgkaenTReg4DnJOB1fuQ/exec";
 
 function normalizeApiUrl(u){
   let x = String(u || "").trim();
@@ -2393,10 +2393,9 @@ async function saveCurrent(){
     const body = new URLSearchParams(payload).toString();
 
     await fetch(API_URL, {
-      method: "POST",
-      mode: "no-cors",
-     headers: { "Content-Type": "application/x-www-form-urlencoded" }, 
-      body
+    method: "POST",
+    mode: "no-cors",
+    body
     });
 
     $("apiHint").className = "ok";
