@@ -822,7 +822,7 @@ select:focus{
 /************************************************************
  * 1) URL COMPLETA DEL APPS SCRIPT (/exec)
  ************************************************************/
-const API_URL = "https://script.google.com/macros/s/AKfycbwvv2Ies3S8akO-vhoxCXbD3WEfETL1plyasdnsIQ3nOD26u1sTIpjiN3rj0AIFHcMaXQ/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbzu7Z5K8WZi8MGAkkMLkDcN4Im65RPVZY9pIhg_gi-QNFJCpChWMrj8RP837S5k81Vdig/exec";
 
 function normalizeApiUrl(u){
   let x = String(u || "").trim();
@@ -1556,6 +1556,36 @@ function escapeHtml(s){
     .replaceAll("'","&#039;");
 }
 
+function clientesToText_(clientesInfo){
+  // Soporta:
+  // - clientesInfo = {found:true, retroalimentacion, nombre_evaluador} (1 fila)
+  // - clientesInfo = {found:true, rows:[{retroalimentacion, nombre_evaluador, rowNumber}, ...]} (muchas filas)
+  if(!clientesInfo) return "";
+
+  // Caso muchas filas
+  if(Array.isArray(clientesInfo.rows) && clientesInfo.rows.length){
+    return clientesInfo.rows
+      .map(r => {
+        const retro = String(r.retroalimentacion || "").trim();
+        const evalNom = String(r.nombre_evaluador || "").trim();
+        const head = evalNom ? `(${evalNom}) ` : "";
+        return `${head}${retro}`.trim();
+      })
+      .filter(Boolean)
+      .join("\n\n");
+  }
+
+  // Caso una fila (tu comportamiento actual)
+  if(clientesInfo.found){
+    const retro = String(clientesInfo.retroalimentacion || "").trim();
+    const evalNom = String(clientesInfo.nombre_evaluador || "").trim();
+    const head = evalNom ? `(${evalNom}) ` : "";
+    return `${head}${retro}`.trim();
+  }
+
+  return "";
+}
+
 function renderKeyReport(no_personal, periodo, version, sourceHint){
   const box = document.createElement("div");
   box.className = "card";
@@ -1652,15 +1682,11 @@ function buildRecoverModal(rowParams, meta, clientesInfo, allColumns){
   }
 
   // ---- Clientes (composición) ----
-  const cliFound = !!(clientesInfo && clientesInfo.found);
-  const cliRetro = cliFound ? String(clientesInfo.retroalimentacion || "").trim() : "";
-  const cliEvalNom = cliFound ? String(clientesInfo.nombre_evaluador || "").trim() : "";
+    let evalCli = String(rowParams.evaluacion_clientes || "").trim();
 
-  let evalCli = String(rowParams.evaluacion_clientes || "").trim();
-  if(cliFound){
-    const head = cliEvalNom ? `(${cliEvalNom}) ` : "";
-    const composed = `${head}${cliRetro}`.trim();
-    if(composed) evalCli = composed;
+  const composedClientes = clientesToText_(clientesInfo);
+  if(composedClientes){
+    evalCli = composedClientes;
   }
 
  // ---- Resumen general ----
@@ -1764,17 +1790,22 @@ function applyRecoveredToForm(rowParams, clientesInfo){
   if(rowParams.proyeccion_potencial) $("proyeccion").value = rowParams.proyeccion_potencial;
   if(rowParams.necesidades_capacitacion) $("necesidadesCapacitacion").value = rowParams.necesidades_capacitacion;
 
-  let evalCli = String(rowParams.evaluacion_clientes || "").trim();
-  if(clientesInfo && clientesInfo.found){
-    const head = clientesInfo.nombre_evaluador ? `(${clientesInfo.nombre_evaluador}) ` : "";
-    const composed = `${head}${clientesInfo.retroalimentacion || ""}`.trim();
-    if(composed) evalCli = composed;
-    if(!$("nombreEvaluadorDesempeno").value && clientesInfo.nombre_evaluador){
-      $("nombreEvaluadorDesempeno").value = clientesInfo.nombre_evaluador;
+let evalCli = String(rowParams.evaluacion_clientes || "").trim();
+
+  const composedClientes = clientesToText_(clientesInfo);
+  if(composedClientes){
+    evalCli = composedClientes;
+
+    // Si hay muchas filas, no “forzamos” un solo nombre de evaluador.
+    // Si es una sola fila, mantenemos el comportamiento.
+    if(!Array.isArray(clientesInfo?.rows) && clientesInfo?.nombre_evaluador){
+      if(!$("nombreEvaluadorDesempeno").value){
+        $("nombreEvaluadorDesempeno").value = clientesInfo.nombre_evaluador;
+      }
     }
   }
-  if(evalCli) $("evaluacionClientes").value = evalCli;
-
+ if(evalCli) $("evaluacionClientes").value = evalCli;
+  
   ensureItemsVisibleIfNeeded();
   ITEMS.forEach(sec => sec.items.forEach(it => {
     const raw = String(rowParams[it.key] ?? "").trim();
