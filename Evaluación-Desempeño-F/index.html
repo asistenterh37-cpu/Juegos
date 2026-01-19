@@ -2204,9 +2204,10 @@ function applyTopActionsUI(tipo){
   }
 
   // ✅ Generar: visible para autoevaluación y desempeño (y si quieres, también para clientes)
+   // ✅ Generar: SOLO visible en desempeño
   const btnGen = $("btnGenerate");
   if(btnGen){
-    const allowGenerate = (tipo === "autoevaluacion" || tipo === "desempeno" || tipo === "clientes"); // si NO quieres clientes, quita "|| tipo === 'clientes'"
+    const allowGenerate = (tipo === "desempeno");
     btnGen.style.display = allowGenerate ? "" : "none";
     btnGen.disabled = !allowGenerate;
   }
