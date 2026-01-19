@@ -2303,43 +2303,6 @@ function pruneEmptyFields(root){
   });
 }
 
-/* ✅ FIX: abrir/cerrar modal de reporte usando display (no .show inexistente) */
-function openReportModal(){
-  const backdrop = $("reportBackdrop");
-  const host = $("reportHost");
-  if(!backdrop || !host) return;
-
-  const header = (typeof getHeaderData === "function") ? getHeaderData() : null;
-  const tipo = header?.tipo || $("tipoFormulario")?.value || "";
-  if(tipo !== "clientes" && typeof ensureItemsVisibleIfNeeded === "function"){
-    ensureItemsVisibleIfNeeded();
-  }
-
-  // Tu buildReport ya arma #report; aquí solo clonamos a modal
-  const reportEl = document.getElementById("report");
-  if(reportEl){
-    const clone = reportEl.cloneNode(true);
-    if(clone.id) clone.removeAttribute("id");
-    clone.querySelectorAll("[id]").forEach(n=>n.removeAttribute("id"));
-    host.innerHTML = "";
-    host.appendChild(clone);
-  }else{
-    host.textContent = "No se pudo generar el reporte (no se encontró #report).";
-  }
-
-  pruneEmptyFields(host);
-
-  backdrop.style.display = "flex";
-  backdrop.setAttribute("aria-hidden", "false");
-}
-
-function closeReportModal(){
-  const backdrop = $("reportBackdrop");
-  if(!backdrop) return;
-  backdrop.style.display = "none";
-  backdrop.setAttribute("aria-hidden", "true");
-}
-
 function doPrint(){
   const host = $("reportHost");
   const hasSomething = host && host.textContent && host.textContent.trim().length > 0;
