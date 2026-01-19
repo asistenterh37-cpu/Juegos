@@ -2399,6 +2399,23 @@ function validateBeforeSave(){
   };
 }
 
+function showSaveValidationErrors(v){
+  const msgs = [];
+
+  if(v.missingFields && v.missingFields.length){
+    msgs.push("❌ Campos obligatorios sin llenar:\n- " + v.missingFields.join("\n- "));
+  }
+  if(v.missingItems && v.missingItems.length){
+    msgs.push("❌ Ítems sin seleccionar (1–5):\n- " + v.missingItems.join("\n- "));
+  }
+
+  alert(
+    "No se puede Guardar todavía 😅\n\n" +
+    msgs.join("\n\n") +
+    "\n\nCompleta todo y vuelve a intentar."
+  );
+}
+
 function updateSaveEnabled(){
   const btn = $("btnSave");
   if(!btn) return;
@@ -2415,6 +2432,13 @@ function updateSaveEnabled(){
 /* ---------- Guardar (btnSave) ---------- */
 async function saveCurrent(){
   if(state.saving) return;
+  // ✅ VALIDACIÓN FINAL (bloquea guardado real)
+  const v = validateBeforeSave();
+  if(!v.ok){
+    showSaveValidationErrors(v);
+    updateSaveEnabled(); // recalcula por si algo cambió
+    return;
+  }
 
   const header = getHeaderData();
   const extra  = getExtraFields();
