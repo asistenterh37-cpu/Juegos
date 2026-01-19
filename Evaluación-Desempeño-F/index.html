@@ -1527,12 +1527,16 @@ function setSelectValue(key, score){
 let lastRecovered = null;
 
 function openRecoverModal(){
-  $("recoverBackdrop").style.display = "flex";
-  $("recoverBackdrop").setAttribute("aria-hidden", "false");
+ const b = $("recoverBackdrop");
+  if(!b) return;
+  b.style.display = "flex";
+  b.setAttribute("aria-hidden", "false");
 }
 function closeRecoverModal(){
-  $("recoverBackdrop").style.display = "none";
-  $("recoverBackdrop").setAttribute("aria-hidden", "true");
+  const b = $("recoverBackdrop");
+  if(!b) return;
+  b.style.display = "none";
+  b.setAttribute("aria-hidden", "true");
 }
 function openLookupModal(){
   $("lookupBackdrop").style.display = "flex";
@@ -2450,15 +2454,39 @@ function bind(){
 $("reportBackdrop")?.addEventListener("click", (e) => {
     if (e.target === $("reportBackdrop")) closeReportModal();
   });
+/* ======== FIX: Botones del modal "Registro encontrado" ======== */
+$("btnApplyRecovered")?.addEventListener("click", () => {
+  // lastRecovered se setea en buildRecoverModal(...)
+  if(!lastRecovered || !lastRecovered.rowParams){
+    alert("No hay datos recuperados para autollenar.");
+    return;
+  }
 
+  // Autollenar TODO (cabecera + items + campos desempeño + clientes si existe)
+  applyRecoveredToForm(lastRecovered.rowParams, lastRecovered.clientesInfo || null);
+
+  // Cerrar modal
+  closeRecoverModal();
+});
+
+$("btnCloseRecovered")?.addEventListener("click", () => {
+  closeRecoverModal();
+});
+
+/* Click fuera del modal = cerrar */
+$("recoverBackdrop")?.addEventListener("click", (e) => {
+  if (e.target === $("recoverBackdrop")) closeRecoverModal();
+});
+  
 } // <-- cierre de bind()
 
 /* ✅ INIT ÚNICO (NO duplicado) */
-document.addEventListener("DOMContentLoaded", async () => {
-  if (typeof bind === "function") bind();
-  if (typeof applyTipoUI === "function") applyTipoUI();
-  try { await apiPing(); } catch (_e) {}
-  if (typeof ensureItemsVisibleIfNeeded === "function") ensureItemsVisibleIfNeeded();
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") {
+    // Cierra solo si está abierto
+    const rb = $("recoverBackdrop");
+    if (rb && rb.style.display === "flex") closeRecoverModal();
+  }
 });
 
 </script>
