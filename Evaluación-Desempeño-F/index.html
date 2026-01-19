@@ -2342,6 +2342,24 @@ function doPrint(){
 // ===============================
 // ✅ VALIDACIÓN PARA GUARDAR
 // ===============================
+// ✅ Campos obligatorios por formulario (por ID)
+const REQUIRED_FIELDS = {
+  autoevaluacion: [
+    "noPersonal","nombre","posicion","departamento","periodo","version","fecha",
+    "comentariosColaborador"
+  ],
+  clientes: [
+    "noPersonal","nombre","posicion","departamento","periodo","version","fecha",
+    "retroalimentacion","nombreEvaluador"
+  ],
+  desempeno: [
+    "noPersonal","nombre","posicion","departamento","periodo","version","fecha",
+    "justificacion","comentariosEvaluador","fortalezas","oportunidades","proyeccion",
+    "necesidadesCapacitacion","comentariosColaborador2","evaluacionClientes",
+    "nombreEvaluadorDesempeno","mail1","mail2"
+  ]
+};
+  
 function isVisible(el){
   return !!(el && el.offsetParent !== null);
 }
@@ -2355,39 +2373,37 @@ function fieldLabel(el){
 function validateBeforeSave(){
   const tipo = $("tipoFormulario")?.value || "autoevaluacion";
 
-  const mainGrid = document.querySelector(".grid.no-print");
-  if(!mainGrid) return { ok:true, missingFields:[], missingItems:[] };
-
-  const controls = Array.from(mainGrid.querySelectorAll("input, textarea, select"))
-    .filter(el =>
-      el.id &&
-      !el.disabled &&
-      isVisible(el)
-    );
-
-  const itemSelects = controls.filter(el => el.tagName === "SELECT" && el.id.startsWith("ans_"));
-  const normalControls = controls.filter(el => !el.id.startsWith("ans_"));
-
   const missingFields = [];
+  const missingItems  = [];
 
-  normalControls.forEach(el => {
-    if(el.tagName === "SELECT"){
-      if(!String(el.value || "").trim()){
-        missingFields.push(fieldLabel(el));
-      }
+  // 1) Validar campos obligatorios por tipo (IDs)
+  const required = REQUIRED_FIELDS[tipo] || [];
+  required.forEach(id=>{
+    const el = $(id);
+    if(!el) { // si no existe, lo tratamos como faltante porque el formulario quedó inconsistente
+      missingFields.push(id);
       return;
     }
-    if(!String(el.value || "").trim()){
-      missingFields.push(fieldLabel(el));
-    }
+
+    // si está oculto, no lo exigimos (pero en tu UI, los requeridos normalmente están visibles)
+    if(!isVisible(el) || el.disabled) return;
+
+    const val = String(el.value || "").trim();
+    if(!val) missingFields.push(fieldLabel(el));
   });
 
-  const missingItems = [];
-  const evalCardVisible = $("evalCard") && isVisible($("evalCard"));
+  // 2) Validar ítems 1–5 (solo autoevaluación y desempeño)
+  if(tipo !== "clientes"){
+    ensureItemsVisibleIfNeeded();
 
-  if(tipo !== "clientes" && evalCardVisible){
-    itemSelects.forEach(sel => {
-      if(!String(sel.value || "").trim()){
+    // Busca TODOS los selects de ítems (ans_)
+    const itemSelects = Array.from(document.querySelectorAll("select[id^='ans_']"))
+      .filter(el => isVisible(el) && !el.disabled);
+
+    itemSelects.forEach(sel=>{
+      const v = String(sel.value || "").trim();
+      if(!v){
+        // tratar de sacar el título del ítem
         const row = sel.closest("div")?.parentElement;
         const itemTitle = row?.querySelector("div > div")?.textContent?.trim();
         missingItems.push(itemTitle || sel.id);
