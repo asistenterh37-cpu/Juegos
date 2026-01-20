@@ -880,7 +880,7 @@ select:focus{
 /************************************************************
  * 1) URL COMPLETA DEL APPS SCRIPT (/exec)
  ************************************************************/
-const API_URL = "https://script.google.com/macros/s/AKfycbzEooD17WBMw124BSG5GY0pgP7pLOtM5sjuREJEYRnUz1c_2B-lfIoz9DfCVi36J9epIw/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbykxpS0GmPPNCaW1NH889cLMXaoIgsmYFJjljoGGsdvK5cfSgr0ZDLIbvjSyHLibBTwqg/exec";
 
 function normalizeApiUrl(u){
   let x = String(u || "").trim();
@@ -1869,6 +1869,12 @@ function applyRecoveredToForm(rowParams, clientesInfo){
   if(rowParams.oportunidades_mejora) $("oportunidades").value = rowParams.oportunidades_mejora;
   if(rowParams.proyeccion_potencial) $("proyeccion").value = rowParams.proyeccion_potencial;
   if(rowParams.necesidades_capacitacion) $("necesidadesCapacitacion").value = rowParams.necesidades_capacitacion;
+  
+  // ✅ NUEVO: comentarios del colaborador (desempeño)
+  if($("comentariosColaborador2")){
+    $("comentariosColaborador2").value =
+      (rowParams.comentarios_colaborador ?? rowParams.comentarios ?? "");
+  }
 
 let evalCli = String(rowParams.evaluacion_clientes || "").trim();
 
@@ -1917,6 +1923,12 @@ function applyRecoveredTextsOnly(rowParams, clientesInfo){
   if(rowParams.oportunidades_mejora) $("oportunidades").value = rowParams.oportunidades_mejora;
   if(rowParams.proyeccion_potencial) $("proyeccion").value = rowParams.proyeccion_potencial;
   if(rowParams.necesidades_capacitacion) $("necesidadesCapacitacion").value = rowParams.necesidades_capacitacion;
+
+// ✅ NUEVO: comentarios del colaborador (desempeño)
+  if($("comentariosColaborador2")){
+    $("comentariosColaborador2").value =
+      (rowParams.comentarios_colaborador ?? rowParams.comentarios ?? "");
+  }
   if($("nombreEvaluadorDesempeno")) $("nombreEvaluadorDesempeno").value = "";
 
   /* ✅ NUEVO: recuperar mail1/mail2 si vienen */
