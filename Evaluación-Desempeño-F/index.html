@@ -132,6 +132,38 @@
       gap:12px;
       margin-top:14px;
     }
+    /* ✅ Alineación consistente de campos (Datos del colaborador) */
+.form-grid{ align-items:start; }
+.form-grid > div{
+  display:flex;
+  flex-direction:column;
+  gap:6px;                 /* mismo “ritmo” vertical */
+  min-width:0;
+}
+
+/* Labels consistentes (evita que el input “baje” en algunos campos) */
+.form-grid label{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  min-height:22px;
+}
+
+/* Reservar un alto mínimo para helpers (no “empuja” unos sí y otros no) */
+.keyHelper{ min-height:16px; }
+
+/* ✅ Layout escritorio (4 columnas) */
+@media (min-width: 981px){
+  #fldNoPersonal  { grid-column: 1; }
+  #fldNombre      { grid-column: 2 / span 2; }
+  #fldPosicion    { grid-column: 4; }
+
+  #fldDepartamento{ grid-column: 1; }
+  #fldPeriodo     { grid-column: 2; }
+  #fldVersion     { grid-column: 3; }
+  #fldFecha       { grid-column: 4; }
+}   
     @media (max-width: 980px){
       .form-grid{grid-template-columns: 1fr}
       .actions{justify-content:flex-end}
@@ -543,11 +575,11 @@ select:focus{
           <input id="noPersonal" placeholder="Ej. 1600" />
         <div class="keyHelper">Obligatorio para Recuperar</div>
           </div>
-          <div id="fldNombre" style="grid-column: 2 / span 2;">
-          <label>Nombre</label>
+         <div id="fldNombre">
+            <label>Nombre</label>
           <input id="nombre" placeholder="Ej. Carlos Paz" />
           </div>
-           <div id="fldPosicion" style="grid-column: 4 / span 1;">
+           <div id="fldPosicion">
            <label>Posición</label>
           <input id="posicion" placeholder="Ej. Analista" />
           </div>
