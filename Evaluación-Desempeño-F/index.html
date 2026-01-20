@@ -157,6 +157,61 @@ select:focus{
       border:1px solid rgba(74,163,255,.55);
       box-shadow: 0 0 0 2px rgba(47,123,255,.15), 0 12px 30px rgba(47,123,255,.10);
     }
+/* ✅ KEY FIELDS (Llaves para Recuperar) */
+.keyLookupField{
+  position: relative;
+  padding: 12px;
+  border-radius: 16px;
+  border: 1px solid rgba(74,163,255,.40);
+  background: linear-gradient(180deg, rgba(47,123,255,.12), rgba(0,0,0,.08));
+  box-shadow: 0 0 0 2px rgba(74,163,255,.12), 0 18px 45px rgba(47,123,255,.10);
+}
+
+.keyLookupField::before{
+  content:"";
+  position:absolute;
+  left:10px; top:12px; bottom:12px;
+  width:4px;
+  border-radius:999px;
+  background: linear-gradient(180deg, rgba(74,163,255,.95), rgba(47,123,255,.35));
+  opacity:.9;
+}
+
+.keyLookupField label{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  font-weight: 950;
+  color: rgba(234,240,255,.96);
+  letter-spacing: .2px;
+}
+
+.keyTag{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:4px 8px;
+  border-radius:999px;
+  border:1px solid rgba(74,163,255,.35);
+  background: rgba(74,163,255,.14);
+  color: rgba(234,240,255,.92);
+  font-size: 11px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.keyLookupField input{
+  border:1px solid rgba(74,163,255,.78) !important;
+  box-shadow: 0 0 0 3px rgba(74,163,255,.20), 0 18px 45px rgba(47,123,255,.14) !important;
+}
+
+.keyHelper{
+  margin-top:8px;
+  font-size:12px;
+  color: rgba(234,240,255,.72);
+}
+    
     .searchBadge{
       display:inline-flex; align-items:center; gap:8px;
       padding:6px 10px; border-radius:999px;
@@ -439,8 +494,9 @@ select:focus{
 
         <div class="form-grid">
           <div id="fldNoPersonal">
-            <label>No. de personal</label>
-            <input id="noPersonal" placeholder="Ej. 1600" />
+          <label>No. de personal <span class="keyTag">🔑 Llave p/ Recuperar</span></label>
+          <input id="noPersonal" placeholder="Ej. 1600" />
+        < div class="keyHelper">Obligatorio para Recuperar</div>
           </div>
           <div>
             <label>Nombre</label>
@@ -455,13 +511,15 @@ select:focus{
             <input id="departamento" placeholder="Ej. Contabilidad" />
           </div>
           <div id="fldPeriodo">
-            <label>Periodo</label>
-            <input id="periodo" placeholder="Ej. 2025" />
-          </div>
+          <label>Periodo <span class="keyTag">🔑 Llave p/ Recuperar</span></label>
+          <input id="periodo" placeholder="Ej. 2025" />
+          <div class="keyHelper">Obligatorio para Recuperar</div>
+           </div>  
           <div id="fldVersion">
-            <label>Versión</label>
-            <input id="version" placeholder="Ej. 1" />
-          </div>
+          <label>Versión <span class="keyTag">🔑 Llave p/ Recuperar</span></label>
+           <input id="version" placeholder="Ej. 1" />
+           <div class="keyHelper">Obligatorio para Recuperar</div>
+           </div>
           <div>
             <label>Fecha</label>
             <input id="fecha" type="date" />
@@ -2184,8 +2242,14 @@ function applySearchUI(tipo){
   ["fldNoPersonal","fldPeriodo","fldVersion"].forEach(id=>{
     const el = $(id);
     if(!el) return;
-    if(isDes) el.classList.add("searchField");
-    else el.classList.remove("searchField");
+
+    if(isDes){
+      el.classList.add("searchField");
+      el.classList.add("keyLookupField");
+    }else{
+      el.classList.remove("searchField");
+      el.classList.remove("keyLookupField");
+    }
   });
 
   const btnRecover = $("btnRecover");
