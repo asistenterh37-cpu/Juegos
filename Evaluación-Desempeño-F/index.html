@@ -880,7 +880,7 @@ select:focus{
 /************************************************************
  * 1) URL COMPLETA DEL APPS SCRIPT (/exec)
  ************************************************************/
-const API_URL = "https://script.google.com/macros/s/AKfycbxO310GCdN4KopF5uEizsjDs9wYWw0zsICDQMAO3QCAR-TjhvP1C97NrdnMokt9Drqh7A/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbzEooD17WBMw124BSG5GY0pgP7pLOtM5sjuREJEYRnUz1c_2B-lfIoz9DfCVi36J9epIw/exec";
 
 function normalizeApiUrl(u){
   let x = String(u || "").trim();
@@ -1333,10 +1333,12 @@ function getExtraFields(){
   const tipo = $("tipoFormulario")?.value || "autoevaluacion";
 
   if(tipo === "autoevaluacion"){
-    return {
-      comentarios_colaborador: ($("comentariosColaborador")?.value || "").trim()
-    };
-  }
+  const c = ($("comentariosColaborador")?.value || "").trim();
+  return {
+    comentarios_colaborador: c, // compat
+    comentarios: c              // ✅ CLAVE: mapea directo a columna "Comentarios"
+  };
+}
 
   if(tipo === "clientes"){
     return {
@@ -2528,12 +2530,17 @@ async function saveCurrent(){
   const answersText = flattenAnswersSelectedText();
 
   const payload = {
-    action: "guardar",
-    ...header,
-    ...extra,
-    ...answersText,
-    total: (header.tipo === "clientes") ? 0 : computeTotal()
-  };
+  action: "guardar",
+  ...header,
+  ...extra,
+  ...answersText,
+
+  // ✅ CLAVE: esto mapea directo a la columna Puntaje
+  puntaje: (header.tipo === "clientes") ? 0 : computeTotal(),
+
+  // (Opcional) conservar "total" por compatibilidad, pero ya no dependes de él
+  total: (header.tipo === "clientes") ? 0 : computeTotal()
+};
 
   function _isEmpty(v){
     return v == null || (typeof v === "string" && v.trim() === "");
