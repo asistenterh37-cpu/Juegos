@@ -53,6 +53,42 @@
     }
     .titles h1{margin:0; font-size:20px}
     .titles p{margin:2px 0 0; font-size:13px; color:var(--muted)}
+    /* ✅ Header fijo (identidad del programa) */
+.programTitle{
+  margin:0;
+  font-size:18px;
+  font-weight:950;
+  letter-spacing:.2px;
+  line-height:1.15;
+}
+
+.programMeta{
+  margin:6px 0 0;
+  display:flex;
+  gap:10px;
+  align-items:center;
+  flex-wrap:wrap;
+  font-size:12px;
+  color:rgba(234,240,255,.92);
+  font-weight:850;
+}
+
+.metaPill{
+  display:inline-flex;
+  gap:8px;
+  align-items:center;
+  padding:6px 10px;
+  border-radius:999px;
+  border:1px solid rgba(74,163,255,.35);
+  background: rgba(74,163,255,.14);
+  color: rgba(234,240,255,.95);
+  font-weight:900;
+  white-space:nowrap;
+}
+.metaPill .dot{
+  width:9px; height:9px; border-radius:50%;
+  background: var(--warn);
+}   
     .actions{display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:flex-end}
     .pill{
       padding:8px 12px; border-radius:999px; border:1px solid var(--stroke);
@@ -442,9 +478,18 @@ select:focus{
       <div class="brand">
         <div class="logo">ED</div>
         <div class="titles">
-          <h1 id="appTitle">Formulario de evaluación del desempeño</h1>
-          <p>Escala 1–5 • Guardado en Google Sheets • Reporte PDF (solo opción seleccionada)</p>
-        </div>
+  <h1 class="programTitle">Proceso de evaluación del desempeño</h1>
+  <div class="programMeta">
+    <span class="metaPill">
+      <span class="dot"></span>
+      Nombre Empresa: <b>No Implementado</b>
+    </span>
+
+    <span class="metaPill" style="background:rgba(0,0,0,.22); border:1px solid rgba(255,255,255,.12);">
+      Versión: <b>Prueba</b>
+    </span>
+  </div>
+</div>
       </div>
 
       <div class="actions">
