@@ -92,7 +92,7 @@
     .card p{margin:0; color:var(--muted); font-size:13px}
     .form-grid{
       display:grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(4, 1fr);
       gap:12px;
       margin-top:14px;
     }
@@ -496,20 +496,20 @@ select:focus{
           <div id="fldNoPersonal">
           <label>No. de personal <span class="keyTag">🔑 Llave p/ Recuperar</span></label>
           <input id="noPersonal" placeholder="Ej. 1600" />
-        < div class="keyHelper">Obligatorio para Recuperar</div>
+        <div class="keyHelper">Obligatorio para Recuperar</div>
           </div>
-          <div>
-            <label>Nombre</label>
-            <input id="nombre" placeholder="Ej. Carlos Paz" />
+          <div id="fldNombre" style="grid-column: 2 / span 2;">
+          <label>Nombre</label>
+          <input id="nombre" placeholder="Ej. Carlos Paz" />
           </div>
-          <div>
-            <label>Posición</label>
-            <input id="posicion" placeholder="Ej. Analista" />
+           <div id="fldPosicion" style="grid-column: 4 / span 1;">
+           <label>Posición</label>
+          <input id="posicion" placeholder="Ej. Analista" />
           </div>
-          <div>
-            <label>Departamento</label>
+          <div id="fldDepartamento">
+           <label>Departamento</label>
             <input id="departamento" placeholder="Ej. Contabilidad" />
-          </div>
+            </div>
           <div id="fldPeriodo">
           <label>Periodo <span class="keyTag">🔑 Llave p/ Recuperar</span></label>
           <input id="periodo" placeholder="Ej. 2025" />
@@ -520,9 +520,9 @@ select:focus{
            <input id="version" placeholder="Ej. 1" />
            <div class="keyHelper">Obligatorio para Recuperar</div>
            </div>
-          <div>
-            <label>Fecha</label>
-            <input id="fecha" type="date" />
+          <div id="fldFecha">
+         <label>Fecha</label>
+          <input id="fecha" type="date" />
           </div>
         </div>
 
