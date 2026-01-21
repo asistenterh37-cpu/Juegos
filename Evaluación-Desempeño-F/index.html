@@ -1247,6 +1247,41 @@ const ITEMS = [
   ]}
 ];
 
+/************************************************************
+ * ✅ TABLA DE PESOS (según Excel) — Total = 100
+ * Fórmula: (score / 5) * peso
+ ************************************************************/
+const WEIGHTS = {
+  // 1. Cumplimiento y Productividad
+  A_metas: 15,
+  B_eficiencia: 10,
+  C_seguridad: 2.5,
+  D_prioriza: 2.5,
+
+  // 2. Calidad del Trabajo
+  A_exactitud: 2.5,
+  B_estandares: 5,
+  C_entregas: 10,
+  D_errores: 2.5,
+
+  // 3. Competencias y Habilidades
+  A_conocimientos: 10,
+  B_clientes: 5,
+  C_problemas: 2.5,
+  D_iniciativa: 2.5,
+
+  // 4. Actitud y Valores
+  A_responsabilidad: 2.5,
+  B_puntualidad: 2.5,
+  C_equipo: 5,
+  D_comunicacion: 5,
+
+  // 5. Desarrollo y Potencial
+  A_adaptacion: 2.5,
+  B_aprender: 2.5,
+  C_liderazgo: 10
+};
+  
 const state = { dirty:false, generated:false, answers:{}, saving:false };
 const $ = (id) => document.getElementById(id);
 
@@ -1457,14 +1492,19 @@ function getScoreFromDOM(itKey){
 }
 
 function computeTotal(){
-  const vals = [];
+  // Puntaje total = SUMA( (score/5) * peso )
+  let total = 0;
+
   ITEMS.forEach(sec => sec.items.forEach(it => {
-    const n = getScoreFromDOM(it.key);
-    if(typeof n === "number") vals.push(n);
+    const score = getScoreFromDOM(it.key);        // 1..5 o null
+    const weight = Number(WEIGHTS[it.key] ?? 0);  // peso del Excel
+
+    if(typeof score === "number" && score >= 1 && score <= 5 && weight > 0){
+      total += (score / 5) * weight;
+    }
   }));
-  if(!vals.length) return 0;
-  const avg = vals.reduce((a,b)=>a+b,0) / vals.length;
-  return +(avg * 20).toFixed(2);
+
+  return +total.toFixed(2); // Ej: 87.50
 }
 
 function flattenAnswersSelectedText(){
