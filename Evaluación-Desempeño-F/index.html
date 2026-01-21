@@ -2665,9 +2665,18 @@ async function saveCurrent(){
     body
     });
 
-    $("apiHint").className = "ok";
+      $("apiHint").className = "ok";
     $("apiHint").textContent = "Guardado enviado ✅ (verifica en Google Sheets)";
     setDirty(false);
+
+    // ✅ NUEVO: al guardar, limpiar campos igual que "Nuevo"
+    clearForm();
+    applyTipoUI();
+
+    // (Opcional) Volver a mostrar el mensaje de guardado
+    $("apiHint").className = "ok";
+    $("apiHint").textContent = "Guardado enviado ✅ (verifica en Google Sheets)";
+
   }catch(e){
     console.error(e);
     $("apiHint").className = "err";
