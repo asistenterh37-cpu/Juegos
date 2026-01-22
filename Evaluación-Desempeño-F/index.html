@@ -555,10 +555,12 @@ select:focus{
           <div>
             <label>Fase</label>
             <select id="tipoFormulario">
-              <option value="autoevaluacion" selected>Formulario de autoevaluación</option>
-              <option value="clientes">Formulario evaluación clientes</option>
-              <option value="desempeno">Formulario de evaluación del desempeño</option>
+            <option value="autoevaluacion" selected>Formulario de autoevaluación</option>
+            <option value="clientes">Formulario evaluación clientes</option>
+            <option value="desempeno">Formulario de evaluación del desempeño</option>
+            <option value="resumen_ia">Resumen IA (Reporte ejecutivo)</option>
             </select>
+
             <div class="hint">El guardado siempre va a Google Sheets (Web App de Apps Script).</div>
           </div>
         </div>
@@ -690,7 +692,54 @@ select:focus{
   </div>
 </div>
     </div>
+<div class="card" id="resumenIaBox" style="display:none;">
+  <h2>Resumen IA (Reporte ejecutivo)</h2>
+  <p>
+    Usa No. personal + Periodo + Versión para generar un reporte ejecutivo desde la hoja
+    <b>Evaluaciones Resultados</b>.
+  </p>
 
+  <div class="highlightBadge">
+    <span class="dot"></span>
+    Campos: Puntaje • Resumen • Plan de capacitación • Plan de desarrollo • Conclusiones • Recomendaciones
+  </div>
+
+  <div class="lookup-actions" style="margin-top:12px;">
+    <button class="btn primary" id="btnResumenIA" type="button">Generar Resumen IA</button>
+    <span class="small-muted" id="iaStatus">Listo.</span>
+  </div>
+
+  <div style="margin-top:14px;" class="highlightField">
+    <label>Puntaje (desde Evaluaciones Resultados)</label>
+    <input id="iaPuntaje" type="text" placeholder="Se autocompleta..." />
+  </div>
+
+  <div style="margin-top:12px;" class="highlightField">
+    <label>Resumen</label>
+    <textarea id="iaResumen" placeholder="Se generará automáticamente..."></textarea>
+  </div>
+
+  <div style="margin-top:12px;" class="highlightField">
+    <label>Plan de capacitación</label>
+    <textarea id="iaPlanCapacitacion" placeholder="Se generará automáticamente..."></textarea>
+  </div>
+
+  <div style="margin-top:12px;" class="highlightField">
+    <label>Plan de desarrollo</label>
+    <textarea id="iaPlanDesarrollo" placeholder="Se generará automáticamente..."></textarea>
+  </div>
+
+  <div style="margin-top:12px;" class="highlightField">
+    <label>Conclusiones</label>
+    <textarea id="iaConclusiones" placeholder="Se generará automáticamente..."></textarea>
+  </div>
+
+  <div style="margin-top:12px;" class="highlightField">
+    <label>Recomendaciones</label>
+    <textarea id="iaRecomendaciones" placeholder="Se generará automáticamente..."></textarea>
+  </div>
+</div>
+    
     <!-- ✅ Modal Recuperar (queda, pero ahora Recuperar por llaves usa el modal de detalle) -->
     <div class="modal-backdrop" id="lookupBackdrop" aria-hidden="true">
       <div class="modal" role="dialog" aria-modal="true" aria-labelledby="lookupTitle">
@@ -943,6 +992,10 @@ select:focus{
         <div class="block" id="rJustifBlock" style="display:none;">
           <h2>Justificación y comentarios</h2>
           <div class="box" id="rJustifAll">—</div>
+         </div>
+        <div class="block" id="rResumenIaBlock" style="display:none;">
+        <h2>Resumen IA (Reporte ejecutivo)</h2>
+        <div class="box" id="rResumenIaAll">—</div>
         </div>
       </div>
     </div>
@@ -959,7 +1012,7 @@ select:focus{
 /************************************************************
  * 1) URL COMPLETA DEL APPS SCRIPT (/exec)
  ************************************************************/
-const API_URL = "https://script.google.com/macros/s/AKfycbykxpS0GmPPNCaW1NH889cLMXaoIgsmYFJjljoGGsdvK5cfSgr0ZDLIbvjSyHLibBTwqg/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbynufRRbwl1VMhkHPcwkUUK2XHBAqqGYqyzZSTuf-ZhphbB6mF7Bk3uD07noDuUhGeIeQ/exec";
 
 function normalizeApiUrl(u){
   let x = String(u || "").trim();
@@ -1098,6 +1151,67 @@ async function apiPing(){
   }
 }
 
+function setIaStatus(txt, kind){
+  const el = $("iaStatus");
+  if(!el) return;
+  el.textContent = txt;
+  el.className = "small-muted " + (kind || "");
+}
+
+async function generarResumenIA(){
+  const tipo = $("tipoFormulario")?.value || "";
+  if(tipo !== "resumen_ia"){
+    alert("Cambia el tipo de formulario a: Resumen IA.");
+    return;
+  }
+
+  const no_personal = ($("noPersonal")?.value || "").trim();
+  const periodo     = ($("periodo")?.value || "").trim();
+  const version     = ($("version")?.value || "").trim();
+
+  if(!no_personal || !periodo || !version){
+    alert("Para generar el Resumen IA, llena: No. personal + Periodo + Versión.");
+    return;
+  }
+
+  try{
+    setBusy(true);
+    setIaStatus("Generando con IA…", "warn");
+
+    const resp = await apiRequestWithFallback({
+      action: "resumen_ia",
+      no_personal,
+      periodo,
+      version
+    });
+
+    if(!resp || resp.ok === false){
+      throw new Error(resp?.error || "Respuesta inválida en resumen_ia");
+    }
+
+    // Esperado desde Apps Script:
+    // { ok:true, puntaje:"..", resumen:"..", plan_capacitacion:"..", plan_desarrollo:"..", conclusiones:"..", recomendaciones:".." }
+
+    if($("iaPuntaje")) $("iaPuntaje").value = resp.puntaje ?? "";
+    if($("iaResumen")) $("iaResumen").value = resp.resumen ?? "";
+    if($("iaPlanCapacitacion")) $("iaPlanCapacitacion").value = resp.plan_capacitacion ?? "";
+    if($("iaPlanDesarrollo")) $("iaPlanDesarrollo").value = resp.plan_desarrollo ?? "";
+    if($("iaConclusiones")) $("iaConclusiones").value = resp.conclusiones ?? "";
+    if($("iaRecomendaciones")) $("iaRecomendaciones").value = resp.recomendaciones ?? "";
+
+    setIaStatus("Listo ✅", "ok");
+    setDirty(true);
+    updateSaveEnabled();
+
+  }catch(e){
+    console.error(e);
+    setIaStatus("Error: " + (e.message || e), "err");
+    alert("No se pudo generar Resumen IA.\n\n" + (e.message || e));
+  }finally{
+    setBusy(false);
+  }
+}
+  
 /************************************************************
  * ✅ ITEMS COMPLETO (19 ítems) — KEYS = Look.gs
  ************************************************************/
@@ -1699,7 +1813,39 @@ function buildReport(){
     $("rJustifBlock").style.display = "none";
     $("rJustifAll").textContent = "—";
   }
+// ✅ Resumen IA (solo si tipo = resumen_ia)
+if(header.tipo === "resumen_ia"){
+  const p = ($("iaPuntaje")?.value || "").trim();
+  const rs = ($("iaResumen")?.value || "").trim();
+  const pc = ($("iaPlanCapacitacion")?.value || "").trim();
+  const pd = ($("iaPlanDesarrollo")?.value || "").trim();
+  const cc = ($("iaConclusiones")?.value || "").trim();
+  const rr = ($("iaRecomendaciones")?.value || "").trim();
 
+  const hasAnyIA = (p || rs || pc || pd || cc || rr);
+
+  if(hasAnyIA){
+    $("rResumenIaBlock").style.display = "block";
+    $("rResumenIaAll").textContent = [
+      `Puntaje: ${p || "—"}`,
+      `Resumen: ${rs || "—"}`,
+      `Plan de capacitación: ${pc || "—"}`,
+      `Plan de desarrollo: ${pd || "—"}`,
+      `Conclusiones: ${cc || "—"}`,
+      `Recomendaciones: ${rr || "—"}`
+    ].join("\n\n");
+  }else{
+    $("rResumenIaBlock").style.display = "none";
+    $("rResumenIaAll").textContent = "—";
+  }
+
+  // Puntaje total del reporte = el de IA (si existe), si no 0
+  $("rTotal").textContent = p || "0";
+}else{
+  // si no es Resumen IA, escondemos ese bloque
+  $("rResumenIaBlock").style.display = "none";
+  $("rResumenIaAll").textContent = "—";
+}
   $("printArea").style.display = "block";
 }
 
@@ -2405,11 +2551,12 @@ function applyTopActionsUI(tipo){
   // ✅ Generar: visible para autoevaluación y desempeño (y si quieres, también para clientes)
    // ✅ Generar: SOLO visible en desempeño
   const btnGen = $("btnGenerate");
-  if(btnGen){
-    const allowGenerate = (tipo === "desempeno");
-    btnGen.style.display = allowGenerate ? "" : "none";
-    btnGen.disabled = !allowGenerate;
-  }
+ const btnGen = $("btnGenerate");
+if(btnGen){
+  const allowGenerate = (tipo === "desempeno" || tipo === "resumen_ia");
+  btnGen.style.display = allowGenerate ? "" : "none";
+  btnGen.disabled = !allowGenerate;
+}
 }
 
 /* ---------- Clientes box ---------- */
@@ -2469,11 +2616,15 @@ function applyTipoUI(){
   const desBox   = $("desempenoCamposBox");
   const cliBox   = $("clientesBox");
   const evalCard = $("evalCard");
+  const iaBox = $("resumenIaBox");
 
-  if(autoBox)  autoBox.style.display  = (tipo === "autoevaluacion") ? "block" : "none";
-  if(desBox)   desBox.style.display   = (tipo === "desempeno") ? "block" : "none";
-  if(cliBox)   cliBox.style.display   = (tipo === "clientes") ? "block" : "none";
-  if(evalCard) evalCard.style.display = (tipo === "clientes") ? "none" : "block";
+   if(autoBox)  autoBox.style.display  = (tipo === "autoevaluacion") ? "block" : "none";
+   if(desBox)   desBox.style.display   = (tipo === "desempeno") ? "block" : "none";
+   if(cliBox)   cliBox.style.display   = (tipo === "clientes") ? "block" : "none";
+   if(iaBox)    iaBox.style.display    = (tipo === "resumen_ia") ? "block" : "none";
+
+// En Resumen IA no mostramos la evaluación por ítems (porque viene de la hoja)
+if(evalCard) evalCard.style.display = (tipo === "clientes" || tipo === "resumen_ia") ? "none" : "block";
 
   if(typeof ensureItemsVisibleIfNeeded === "function") ensureItemsVisibleIfNeeded();
   if(typeof applySearchUI === "function") applySearchUI(tipo);
@@ -2780,10 +2931,15 @@ el.addEventListener("change", ()=>{
     await recoverByKeys();
   });
 
-  $("btnGenerate")?.addEventListener("click", ()=>{
-    if(state.saving) return;
+$("btnGenerate")?.addEventListener("click", ()=>{
+  if(state.saving) return;
+  const tipo = $("tipoFormulario")?.value || "";
+  if(tipo === "resumen_ia"){
+    generarResumenIA();
+  }else{
     openReportModal();
-  });
+  }
+});
 
   $("btnPrint")?.addEventListener("click", ()=>{
     if(state.saving) return;
@@ -2799,6 +2955,11 @@ el.addEventListener("change", ()=>{
   $("reportBackdrop")?.addEventListener("click", (e) => {
     if (e.target === $("reportBackdrop")) closeReportModal();
   });
+
+  $("btnResumenIA")?.addEventListener("click", ()=>{
+  if(state.saving) return;
+  generarResumenIA();
+});
 
   /* ======== FIX: Botones del modal "Registro encontrado" ======== */
   $("btnApplyRecovered")?.addEventListener("click", () => {
