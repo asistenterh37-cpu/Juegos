@@ -1221,10 +1221,11 @@ async function generarResumenIA(){
     if($("iaConclusiones")) $("iaConclusiones").value = resp.conclusiones ?? "";
     if($("iaRecomendaciones")) $("iaRecomendaciones").value = resp.recomendaciones ?? "";
 
-    setIaStatus("Listo ✅", "ok");
+   setIaStatus("Listo ✅", "ok");
     setDirty(true);
     updateSaveEnabled();
 
+     openReportModal(); // ← NUEVO: abre el reporte flotante para imprimir / PDF
   }catch(e){
     console.error(e);
     setIaStatus("Error: " + (e.message || e), "err");
