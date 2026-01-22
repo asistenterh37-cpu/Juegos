@@ -37,8 +37,12 @@
       font-size: 14px;   /* 👈 baja tamaño general */
       line-height: 1.35; /* mantiene legible */
     }
-    .wrap{max-width:1180px; margin:28px auto; padding:0 18px 80px}
-     .wrap{ font-size: 1rem; }
+   .wrap{
+  max-width:1180px;
+  margin:28px auto;
+  padding:0 18px 80px;
+  font-size: 1rem;
+}
     .topbar{
       display:flex; align-items:center; justify-content:space-between;
       padding:18px 18px; border-radius:22px;
@@ -2103,6 +2107,7 @@ function buildRecoverModal(rowParams, meta, clientesInfo, allColumns){
   // pushUnique(generalRows, "Oportunidades", showDash(rowParams.oportunidades_mejora));
   // pushUnique(generalRows, "Proyección", showDash(rowParams.proyeccion_potencial));
   // pushUnique(generalRows, "Necesidades de capacitación", showDash(rowParams.necesidades_capacitacion));
+  if(String(evalCli || "").trim()){
   pushUnique(generalRows, "Evaluación clientes (desempeño)", showDash(evalCli));
 
   const gen = document.createElement("table");
@@ -2811,6 +2816,30 @@ const ALL_INPUT_IDS = [
 ];
 
 // =====================================================
+// APPLIES_FIELDS: qué campos EXISTEN y APLICAN por tipo
+// (IDs reales de inputs/textareas)
+// =====================================================
+const APPLIES_FIELDS = {
+  autoevaluacion: [
+    "noPersonal","nombre","posicion","departamento","periodo","version","fecha",
+    "comentariosColaborador"
+  ],
+  clientes: [
+    "noPersonal","nombre","posicion","departamento","periodo","version","fecha",
+    "retroalimentacion","nombreEvaluador"
+  ],
+  desempeno: [
+    "noPersonal","nombre","posicion","departamento","periodo","version","fecha",
+    "justificacion","comentariosEvaluador","fortalezas","oportunidades","proyeccion",
+    "necesidadesCapacitacion","comentariosColaborador2","evaluacionClientes",
+    "nombreEvaluadorDesempeno","mail1","mail2"
+  ],
+  resumen_ia: [
+    "noPersonal","periodo","version"
+  ]
+};
+  
+// =====================================================
 // B) ENFORCE PARAMETRIZATION
 // - Limpia y deshabilita campos que NO aplican
 // - Evita datos "fantasma" entre fases
@@ -2845,9 +2874,6 @@ function enforceParametrization(tipo){
   // 3) Recalcular estado del botón Guardar
   updateSaveEnabled();
 }
-
-  // Datos del colaborador
-  "noPersonal","nombre","posicion","departamento","periodo","version","fecha",
 
   // Autoevaluación
   "comentariosColaborador",
