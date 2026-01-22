@@ -1760,9 +1760,10 @@ function buildReport(){
   $("rNombreEvalBlock").style.display = "none";
 }
  
-  $("rTitle").textContent =
+   $("rTitle").textContent =
     (header.tipo === "autoevaluacion") ? "Autoevaluación del desempeño" :
     (header.tipo === "clientes") ? "Formulario evaluación clientes" :
+    (header.tipo === "resumen_ia") ? "Resumen IA (Reporte ejecutivo)" :
     "Evaluación del desempeño";
 
   $("rGenerated").textContent = new Date().toLocaleString();
@@ -1806,11 +1807,10 @@ function buildReport(){
     }
   }
   
-  // ✅ Ítems/rúbricas SOLO en autoevaluación y desempeño
-  if(header.tipo !== "clientes"){
+   // ✅ Ítems/rúbricas SOLO en autoevaluación y desempeño
+  if(header.tipo === "autoevaluacion" || header.tipo === "desempeno"){
     renderSeleccionEnReporte();
   }else{
-    // Si venía algo de antes, lo vaciamos
     const host = $("rRubricas");
     if(host) host.innerHTML = "";
   }
@@ -2792,12 +2792,26 @@ const REQUIRED_FIELDS = {
   ]
 };
 
-// =====================================================
+  // =====================================================
 // A) INVENTARIO ÚNICO DE CAMPOS DEL FORMULARIO
 // (inputs / textareas reales; NO incluye selects ans_)
 // =====================================================
 const ALL_INPUT_IDS = [
-  
+  // Datos del colaborador
+  "noPersonal","nombre","posicion","departamento","periodo","version","fecha",
+
+  // Autoevaluación
+  "comentariosColaborador",
+
+  // Clientes
+  "retroalimentacion","nombreEvaluador",
+
+  // Desempeño
+  "justificacion","comentariosEvaluador","fortalezas","oportunidades","proyeccion",
+  "necesidadesCapacitacion","comentariosColaborador2","evaluacionClientes",
+  "nombreEvaluadorDesempeno","mail1","mail2"
+];
+
 // =====================================================
 // B) ENFORCE PARAMETRIZATION
 // - Limpia y deshabilita campos que NO aplican
@@ -2831,9 +2845,10 @@ function enforceParametrization(tipo){
   });
 
   // 3) Recalcular estado del botón Guardar
+  enforceParametrization(tipo);
   updateSaveEnabled();
 }
-  
+
   // Datos del colaborador
   "noPersonal","nombre","posicion","departamento","periodo","version","fecha",
 
@@ -2963,6 +2978,9 @@ if(tipo === "resumen_ia"){
   if(tipo === "autoevaluacion" || tipo === "desempeno"){
     ensureItemsVisibleIfNeeded();
 
+  if($("rRubricas")) $("rRubricas").innerHTML = "";
+  if($("printArea")) $("printArea").style.display = "none";   
+    
     // Busca TODOS los selects de ítems (ans_)
     const itemSelects = Array.from(document.querySelectorAll("select[id^='ans_']"))
       .filter(el => isVisible(el) && !el.disabled);
