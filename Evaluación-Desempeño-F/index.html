@@ -1774,6 +1774,38 @@ function buildReport(){
   $("rVersion").textContent = header.version || "—";
   $("rFecha").textContent = formatDateES(header.fecha);
 
+  const isRIA = (header.tipo === "resumen_ia");
+
+  const kvNombre = $("rNombre")?.closest(".kv-row");
+  const kvPosDep = $("rPosicion")?.closest(".kv-row");
+  const kvPerVerF = $("rPeriodo")?.closest(".kv-row");
+
+  if(isRIA){
+    if(kvNombre){
+      const nombreKv = $("rNombre")?.closest(".kv");
+      if(nombreKv) nombreKv.style.display = "none";
+    }
+
+    if(kvPosDep) kvPosDep.style.display = "none";
+
+    if(kvPerVerF){
+      const fechaKv = $("rFecha")?.closest(".kv");
+      if(fechaKv) fechaKv.style.display = "none";
+      kvPerVerF.style.gridTemplateColumns = "1fr 1fr";
+    }
+  }else{
+    if(kvNombre){
+      const nombreKv = $("rNombre")?.closest(".kv");
+      if(nombreKv) nombreKv.style.display = "";
+    }
+    if(kvPosDep) kvPosDep.style.display = "";
+    if(kvPerVerF){
+      const fechaKv = $("rFecha")?.closest(".kv");
+      if(fechaKv) fechaKv.style.display = "";
+      kvPerVerF.style.gridTemplateColumns = "1fr 1fr 1fr";
+    }
+  }
+  
   // ✅ Ítems/rúbricas SOLO en autoevaluación y desempeño
   if(header.tipo !== "clientes"){
     renderSeleccionEnReporte();
@@ -2740,11 +2772,16 @@ const REQUIRED_FIELDS = {
     "noPersonal","nombre","posicion","departamento","periodo","version","fecha",
     "retroalimentacion","nombreEvaluador"
   ],
-  desempeno: [
+   desempeno: [
     "noPersonal","nombre","posicion","departamento","periodo","version","fecha",
     "justificacion","comentariosEvaluador","fortalezas","oportunidades","proyeccion",
     "necesidadesCapacitacion","comentariosColaborador2","evaluacionClientes",
     "nombreEvaluadorDesempeno","mail1","mail2"
+  ],
+
+  // ✅ NUEVO: Resumen IA solo usa llaves
+  resumen_ia: [
+    "noPersonal","periodo","version"
   ]
 };
 
@@ -2775,9 +2812,10 @@ function renderFormPreview(){
     html += `<div class="preview-title">Ítems (1–5) a evaluar</div>`;
     html += `<div class="preview-note">${flatItems.length} ítems configurados.</div>`;
     html += `<ul class="preview-list">` + flatItems.map(x=>`<li><b>${escapeHtml(x.group)}:</b> ${escapeHtml(x.label)}</li>`).join("") + `</ul>`;
-  }else{
+
+   }else{
     html += `<div class="preview-title">Ítems (1–5)</div>`;
-    html += `<div class="preview-note">Este formulario no usa rúbricas por ítem.</div>`;
+    html += `<div class="preview-note">Este formulario no usa rúbricas por ítem (los datos se generan desde la hoja).</div>`;
   }
 
   host.innerHTML = html;
@@ -2815,8 +2853,9 @@ function validateBeforeSave(){
     if(!val) missingFields.push(fieldLabel(el));
   });
 
-  // 2) Validar ítems 1–5 (solo autoevaluación y desempeño)
-  if(tipo !== "clientes"){
+// 2) Validar ítems 1–5 (solo autoevaluación y desempeño)
+  // ✅ Resumen IA NO usa ítems
+  if(tipo === "autoevaluacion" || tipo === "desempeno"){
     ensureItemsVisibleIfNeeded();
 
     // Busca TODOS los selects de ítems (ans_)
