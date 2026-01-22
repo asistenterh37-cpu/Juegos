@@ -714,17 +714,6 @@ select:focus{
   </div>
 </div>
     </div>
-<div class="card" id="resumenIaBox" style="display:none;">
-  <h2>Resumen IA (Reporte ejecutivo)</h2>
-  <p>
-    Usa No. personal + Periodo + Versión para generar un reporte ejecutivo desde la hoja
-    <b>Evaluaciones Resultados</b>.
-  </p>
-
-  <div class="highlightBadge">
-    <span class="dot"></span>
-    Campos: Puntaje • Resumen • Plan de capacitación • Plan de desarrollo • Conclusiones • Recomendaciones
-  </div>
 
   <div class="lookup-actions" style="margin-top:12px;">
     <button class="btn primary" id="btnResumenIA" type="button">Generar Resumen IA</button>
@@ -740,7 +729,41 @@ select:focus{
     <label>Resumen</label>
     <textarea id="iaResumen" placeholder="Se generará automáticamente..."></textarea>
   </div>
+<div class="card" id="resumenIaBox" style="display:none;">
+  <h2>Resumen IA (Reporte ejecutivo)</h2>
 
+  <p>
+    En esta fase el sistema genera un reporte ejecutivo automáticamente
+    utilizando únicamente las llaves del colaborador:
+    <b>No. de personal</b>, <b>Periodo</b> y <b>Versión</b>.
+  </p>
+
+  <div class="lookup-actions" style="margin-top:12px;">
+    <button class="btn primary" id="btnResumenIA" type="button">
+      Generar Resumen IA
+    </button>
+    <span class="small-muted" id="iaStatus">Listo.</span>
+  </div>
+
+  <!-- =====================================================
+       CAMPOS IA INTERNOS (NO VISIBLES)
+       - Se llenan desde Apps Script
+       - Se usan para reporte flotante / PDF
+       - NO se muestran en la UI
+       ===================================================== -->
+  <div style="display:none;">
+    <input id="iaPuntaje" type="text" />
+
+    <textarea id="iaResumen"></textarea>
+    <textarea id="iaPlanCapacitacion"></textarea>
+    <textarea id="iaPlanDesarrollo"></textarea>
+    <textarea id="iaConclusiones"></textarea>
+    <textarea id="iaRecomendaciones"></textarea>
+  </div>
+</div>
+
+
+    
   <div style="margin-top:12px;" class="highlightField">
     <label>Plan de capacitación</label>
     <textarea id="iaPlanCapacitacion" placeholder="Se generará automáticamente..."></textarea>
