@@ -2815,19 +2815,27 @@ function renderFormPreview(){
 
   const reqIds = REQUIRED_FIELDS[tipo] || [];
 
-  // Campos: mostrar label humano si existe en DOM; si no, mostrar el id
   const fieldNames = reqIds.map(id=>{
     const el = $(id);
     if(el) return fieldLabel(el);
-    return id; // fallback
+    return id;
   });
 
   let html = "";
 
+  // ✅ En Resumen IA: SOLO Datos del colaborador (llaves)
+  if(tipo === "resumen_ia"){
+    html += `<div class="preview-title">Datos del colaborador</div>`;
+    html += `<ul class="preview-list">` + fieldNames.map(x=>`<li>${escapeHtml(String(x))}</li>`).join("") + `</ul>`;
+    host.innerHTML = html;
+    return;
+  }
+
+  // ✅ Resto de formularios (comportamiento normal)
   html += `<div class="preview-title">Campos requeridos</div>`;
   html += `<ul class="preview-list">` + fieldNames.map(x=>`<li>${escapeHtml(String(x))}</li>`).join("") + `</ul>`;
 
-  // Ítems: solo aplican a autoevaluación y desempeño (clientes NO)
+  // Ítems: solo aplican a autoevaluación y desempeño
   if(tipo === "autoevaluacion" || tipo === "desempeno"){
     const flatItems = [];
     ITEMS.forEach(sec => sec.items.forEach(it => flatItems.push({ group: sec.group, label: it.label })));
@@ -2835,15 +2843,14 @@ function renderFormPreview(){
     html += `<div class="preview-title">Ítems (1–5) a evaluar</div>`;
     html += `<div class="preview-note">${flatItems.length} ítems configurados.</div>`;
     html += `<ul class="preview-list">` + flatItems.map(x=>`<li><b>${escapeHtml(x.group)}:</b> ${escapeHtml(x.label)}</li>`).join("") + `</ul>`;
-
-   }else{
+  }else{
     html += `<div class="preview-title">Ítems (1–5)</div>`;
     html += `<div class="preview-note">Este formulario no usa rúbricas por ítem (los datos se generan desde la hoja).</div>`;
   }
 
   host.innerHTML = html;
 }
-  
+
 function isVisible(el){
   return !!(el && el.offsetParent !== null);
 }
