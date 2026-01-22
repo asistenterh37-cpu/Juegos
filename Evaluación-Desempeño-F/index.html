@@ -1740,6 +1740,13 @@ function closeReportModal(){
 }
 
 function buildReport(){
+  
+  if(header.tipo === "resumen_ia"){
+  $("rJustifBlock").style.display = "none";
+  $("rEvalClientesBlock").style.display = "none";
+  $("rNombreEvalBlock").style.display = "none";
+}
+ 
   const header = getHeaderData();
   const extra = getExtraFields();
   const total = computeTotal();
@@ -2640,6 +2647,7 @@ function ensureClientesBox(){
 function applyTipoUI(){
   const tipo = $("tipoFormulario")?.value || "autoevaluacion";
 
+  document.body.setAttribute("data-form",
   ensureClientesBox();
 
   const appTitle = $("appTitle");
@@ -2825,6 +2833,19 @@ function fieldLabel(el){
 function validateBeforeSave(){
   const tipo = $("tipoFormulario")?.value || "autoevaluacion";
 
+if(tipo === "resumen_ia"){
+  const required = REQUIRED_FIELDS.resumen_ia || [];
+  const missingFields = [];
+
+  required.forEach(id=>{
+    const el = $(id);
+    const val = String(el?.value || "").trim();
+    if(!val) missingFields.push(fieldLabel(el) || id);
+  });
+
+  return { ok: missingFields.length === 0, missingFields, missingItems: [] };
+}
+  
   const missingFields = [];
   const missingItems  = [];
 
