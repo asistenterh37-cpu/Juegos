@@ -498,10 +498,6 @@ select:focus{
   color: rgba(234,240,255,.95);
 }
 
-      margin:12px 0 6px;
-      font-weight:950;
-      color: rgba(234,240,255,.95);
-    }
     .preview-note{
       margin-top:8px;
       font-size:12px;
@@ -645,11 +641,15 @@ select:focus{
         <div id="itemsContainer"></div>
 
         <div id="autoComentariosBox" style="display:none; margin-top:14px;">
-          <div class="divider"></div>
-          <h3 style="margin:0 0 6px;">Comentarios del colaborador</h3>
-          <p class="muted" style="margin:0 0 10px;">Incluye observaciones, ejemplos, mejoras o apoyo requerido.</p>
-          <textarea id="comentariosColaborador" placeholder="Comentarios del colaborador..."></textarea>
-        </div>
+  <div class="divider"></div>
+ 
+          <div class="highlightField">
+    <label for="comentariosColaborador">Comentarios del colaborador</label>
+    <p class="muted" style="margin:0 0 10px;">Incluye observaciones, ejemplos, mejoras o apoyo requerido.</p>
+    <textarea id="comentariosColaborador" placeholder="Comentarios del colaborador..."></textarea>
+  </div>
+</div>
+
       </div>
 
     <div class="card" id="desempenoCamposBox" style="display:none;">
@@ -2820,13 +2820,18 @@ function renderFormPreview(){
   html += `<ul class="preview-list">` + fieldNames.map(x=>`<li>${escapeHtml(String(x))}</li>`).join("") + `</ul>`;
 
   // Ítems: solo aplican a autoevaluación y desempeño
-  if(tipo === "autoevaluacion" || tipo === "desempeno"){
-    const flatItems = [];
-    ITEMS.forEach(sec => sec.items.forEach(it => flatItems.push({ group: sec.group, label: it.label })));
+if(tipo === "autoevaluacion" || tipo === "desempeno"){
+  const totalItems = ITEMS.reduce((acc, s) => acc + (s.items?.length || 0), 0);
 
-    html += `<div class="preview-title">Ítems (1–5) a evaluar</div>`;
-    html += `<div class="preview-note">${flatItems.length} ítems configurados.</div>`;
-    html += `<ul class="preview-list">` + flatItems.map(x=>`<li><b>${escapeHtml(x.group)}:</b> ${escapeHtml(x.label)}</li>`).join("") + `</ul>`;
+  html += `<div class="preview-title">Ítems (1–5) a evaluar</div>`;
+  html += `<div class="preview-note">${totalItems} ítems configurados.</div>`;
+
+  // Resumen por grupo (sin listar cada ítem)
+  html += `<ul class="preview-list">` + ITEMS.map(sec=>{
+    const n = sec.items?.length || 0;
+    return `<li><b>${escapeHtml(sec.group)}:</b> ${n} ítem(s)</li>`;
+  }).join("") + `</ul>`;
+}
   }else{
     html += `<div class="preview-title">Ítems (1–5)</div>`;
     html += `<div class="preview-note">Este formulario no usa rúbricas por ítem (los datos se generan desde la hoja).</div>`;
@@ -2840,9 +2845,24 @@ function isVisible(el){
 }
 
 function fieldLabel(el){
+  if(!el) return "Campo";
+
+  // 1) Label explícito por atributo for="id"
+  if(el.id){
+    const byFor = document.querySelector(`label[for="${CSS.escape(el.id)}"]`);
+    if(byFor && byFor.textContent.trim()) return byFor.textContent.trim();
+  }
+
+  // 2) Label dentro del contenedor del campo (lo más común)
   const wrap = el.closest("div");
-  const lab = wrap ? wrap.querySelector("label") : null;
-  return lab ? lab.textContent.trim() : (el.id || "Campo sin nombre");
+  if(wrap){
+    const lab = wrap.querySelector("label");
+    if(lab && lab.textContent.trim()) return lab.textContent.trim();
+  }
+
+  // 3) Fallback final: NUNCA devuelvas IDs “feos”
+  // (si no hay label, mostramos algo genérico)
+  return "Campo requerido";
 }
 
 function validateBeforeSave(){
