@@ -2107,8 +2107,10 @@ function buildRecoverModal(rowParams, meta, clientesInfo, allColumns){
   // pushUnique(generalRows, "Oportunidades", showDash(rowParams.oportunidades_mejora));
   // pushUnique(generalRows, "Proyección", showDash(rowParams.proyeccion_potencial));
   // pushUnique(generalRows, "Necesidades de capacitación", showDash(rowParams.necesidades_capacitacion));
+
   if(String(evalCli || "").trim()){
   pushUnique(generalRows, "Evaluación clientes (desempeño)", showDash(evalCli));
+} // ✅ CIERRA AQUÍ EL IF
 
   const gen = document.createElement("table");
   gen.className = "mini-table";
@@ -2803,13 +2805,7 @@ const REQUIRED_FIELDS = {
 // =====================================================
 const ALL_INPUT_IDS = [
  
-  // Autoevaluación
-  "comentariosColaborador",
-
-  // Clientes
-  "retroalimentacion","nombreEvaluador",
-
-  // Desempeño
+   // Desempeño
   "justificacion","comentariosEvaluador","fortalezas","oportunidades","proyeccion",
   "necesidadesCapacitacion","comentariosColaborador2","evaluacionClientes",
   "nombreEvaluadorDesempeno","mail1","mail2"
