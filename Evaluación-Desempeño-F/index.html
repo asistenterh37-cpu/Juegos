@@ -2792,6 +2792,63 @@ const REQUIRED_FIELDS = {
   ]
 };
 
+// =====================================================
+// A) INVENTARIO ÚNICO DE CAMPOS DEL FORMULARIO
+// (inputs / textareas reales; NO incluye selects ans_)
+// =====================================================
+const ALL_INPUT_IDS = [
+  
+// =====================================================
+// B) ENFORCE PARAMETRIZATION
+// - Limpia y deshabilita campos que NO aplican
+// - Evita datos "fantasma" entre fases
+// =====================================================
+function enforceParametrization(tipo){
+  const allowed = new Set(REQUIRED_FIELDS[tipo] || []);
+
+  // 1) Inputs / textareas
+  ALL_INPUT_IDS.forEach(id=>{
+    const el = $(id);
+    if(!el) return;
+
+    const applies = allowed.has(id);
+
+    if(applies){
+      el.disabled = false;
+      el.setAttribute("data-applies", "1");
+    }else{
+      el.value = "";
+      el.disabled = true;
+      el.setAttribute("data-applies", "0");
+    }
+  });
+
+  // 2) Ítems (selects ans_)
+  const itemsAllowed = (tipo === "autoevaluacion" || tipo === "desempeno");
+  document.querySelectorAll("select[id^='ans_']").forEach(sel=>{
+    sel.disabled = !itemsAllowed;
+    if(!itemsAllowed) sel.value = "";
+  });
+
+  // 3) Recalcular estado del botón Guardar
+  updateSaveEnabled();
+}
+  
+  // Datos del colaborador
+  "noPersonal","nombre","posicion","departamento","periodo","version","fecha",
+
+  // Autoevaluación
+  "comentariosColaborador",
+
+  // Clientes
+  "retroalimentacion","nombreEvaluador",
+
+  // Desempeño
+  "justificacion","comentariosEvaluador","fortalezas","oportunidades","proyeccion",
+  "necesidadesCapacitacion","comentariosColaborador2","evaluacionClientes",
+  "nombreEvaluadorDesempeno","mail1","mail2"
+];
+  
 function renderFormPreview(){
   const tipo = $("tipoFormulario")?.value || "autoevaluacion";
   const host = $("formPreview");
