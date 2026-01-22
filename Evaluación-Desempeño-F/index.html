@@ -2797,9 +2797,7 @@ const REQUIRED_FIELDS = {
 // (inputs / textareas reales; NO incluye selects ans_)
 // =====================================================
 const ALL_INPUT_IDS = [
-  // Datos del colaborador
-  "noPersonal","nombre","posicion","departamento","periodo","version","fecha",
-
+ 
   // Autoevaluación
   "comentariosColaborador",
 
@@ -2818,7 +2816,7 @@ const ALL_INPUT_IDS = [
 // - Evita datos "fantasma" entre fases
 // =====================================================
 function enforceParametrization(tipo){
-  const allowed = new Set(REQUIRED_FIELDS[tipo] || []);
+  const allowed = new Set(APPLIES_FIELDS[tipo] || []);
 
   // 1) Inputs / textareas
   ALL_INPUT_IDS.forEach(id=>{
@@ -2845,7 +2843,6 @@ function enforceParametrization(tipo){
   });
 
   // 3) Recalcular estado del botón Guardar
-  enforceParametrization(tipo);
   updateSaveEnabled();
 }
 
