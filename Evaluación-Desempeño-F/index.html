@@ -2646,6 +2646,24 @@ function applyTipoUI(){
 
 // En Resumen IA no mostramos la evaluación por ítems (porque viene de la hoja)
 if(evalCard) evalCard.style.display = (tipo === "clientes" || tipo === "resumen_ia") ? "none" : "block";
+  // ✅ Resumen IA: mostrar SOLO llaves (No. personal, Periodo, Versión) en una sola fila
+  if(tipo === "resumen_ia"){
+    ["fldNombre","fldPosicion","fldDepartamento","fldFecha"].forEach(id=>{
+      const el = $(id);
+      if(el) el.style.display = "none";
+    });
+
+    ["fldNoPersonal","fldPeriodo","fldVersion"].forEach(id=>{
+      const el = $(id);
+      if(el) el.style.display = "";
+    });
+  }else{
+    // ✅ Resto de formularios: volver a mostrar campos normales
+    ["fldNombre","fldPosicion","fldDepartamento","fldFecha"].forEach(id=>{
+      const el = $(id);
+      if(el) el.style.display = "";
+    });
+  }
 
   if(typeof ensureItemsVisibleIfNeeded === "function") ensureItemsVisibleIfNeeded();
   if(typeof applySearchUI === "function") applySearchUI(tipo);
