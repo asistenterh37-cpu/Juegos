@@ -2249,12 +2249,12 @@ async function recoverByKeys(){
 
     try{ await apiPing(); }catch(_e){}
 
- const resp = await jsonpRequest(API_URL, {
-  action: "reporte_ia_desempeno",
-  sheet: "EvaluacionResultados",
+const resp = await apiRequestWithFallback({
+  action: "resumen_ia",
   no_personal,
   periodo,
-  version
+  version,
+  _ts: Date.now() // cache-buster
 });
 
     if(!resp || resp.ok === false){
@@ -2555,6 +2555,55 @@ function doPrint(){
   if(host) pruneEmptyFields(host);
 
   window.print();
+}
+
+  function jsonpRequest(url, params = {}, timeoutMs = 25000) {
+  return new Promise((resolve, reject) => {
+    const cb = `__cb_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+
+    const query = {
+      ...params,
+      callback: cb,
+      _ts: Date.now() // cache-buster
+    };
+
+    const qs = new URLSearchParams(query).toString();
+    const src = url + (url.includes("?") ? "&" : "?") + qs;
+
+    let finished = false;
+    const script = document.createElement("script");
+
+    function cleanup() {
+      if (script.parentNode) script.parentNode.removeChild(script);
+      try { delete window[cb]; } catch (_) { window[cb] = undefined; }
+    }
+
+    const timer = setTimeout(() => {
+      if (finished) return;
+      finished = true;
+      cleanup();
+      reject(new Error("Timeout JSONP. Endpoint no respondió.\n" + src));
+    }, timeoutMs);
+
+    window[cb] = (data) => {
+      if (finished) return;
+      finished = true;
+      clearTimeout(timer);
+      cleanup();
+      resolve(data);
+    };
+
+    script.onerror = () => {
+      if (finished) return;
+      finished = true;
+      clearTimeout(timer);
+      cleanup();
+      reject(new Error("Error cargando script JSONP.\n" + src));
+    };
+
+    script.src = src;
+    document.head.appendChild(script);
+  });
 }
 
 /************************************************************
