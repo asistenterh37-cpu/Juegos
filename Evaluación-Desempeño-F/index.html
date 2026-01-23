@@ -960,7 +960,7 @@ select:focus{
 /************************************************************
  * 1) URL COMPLETA DEL APPS SCRIPT (/exec)
  ************************************************************/
-const API_URL = "https://script.google.com/macros/s/AKfycbx4jYx1yeWN4vcZm01ke_f0AEEh42PHOemLTVAIw0TQ4WXp-gxSxcBh83jC3bcCqdRtjQ/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbzlon5NW51m7ph9_1b-7WzAlN-bQGvluvQE9naW93nbcMnN3AbmnE_5SFt7rI_2rECWUw/exec";
 
 function normalizeApiUrl(u){
   let x = String(u || "").trim();
@@ -2658,13 +2658,12 @@ async function generarReporteIA(){
     // - Lee fila en hoja "EvaluacionResultados" por llaves
     // - Arma prompt con ítems + comentarios
     // - Llama OpenAI y devuelve campos del reporte
-    const resp = await apiRequestWithFallback({
-      action: "reporte_ia_desempeno",
-      sheet: "EvaluacionResultados",
-      no_personal,
-      periodo,
-      version
-    });
+const resp = await jsonpRequest(API_URL, {
+  action: "resumen_ia",
+  no_personal,
+  periodo,
+  version
+});
 
     if(!resp || resp.ok === false){
       const msg = resp?.error || "No se pudo generar el reporte IA (respuesta inválida).";
