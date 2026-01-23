@@ -2249,9 +2249,9 @@ async function recoverByKeys(){
 
     try{ await apiPing(); }catch(_e){}
 
-  const resp = await apiRequestWithFallback({
-  action: "recuperar_por_llaves",
-  tipo: "autoevaluacion",
+ const resp = await jsonpRequest(API_URL, {
+  action: "reporte_ia_desempeno",
+  sheet: "EvaluacionResultados",
   no_personal,
   periodo,
   version
