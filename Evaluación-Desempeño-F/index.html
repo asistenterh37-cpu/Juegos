@@ -558,7 +558,7 @@ select:focus{
               <option value="autoevaluacion" selected>Formulario de autoevaluación</option>
               <option value="clientes">Formulario evaluación clientes</option>
               <option value="desempeno">Formulario de evaluación del desempeño</option>
-              <option value="desempeno">Resúmen IA</option>
+              <option value="resumen_ia">Resumen IA</option>
             </select>
             <div class="hint">El guardado siempre va a Google Sheets (Web App de Apps Script).</div>
           </div>
@@ -2471,10 +2471,25 @@ function applyTipoUI(){
   const cliBox   = $("clientesBox");
   const evalCard = $("evalCard");
 
-  if(autoBox)  autoBox.style.display  = (tipo === "autoevaluacion") ? "block" : "none";
+    // ✅ Resumen IA: mostrar SOLO No. personal + Periodo + Versión
+  const isResumenIA = (tipo === "resumen_ia");
+
+  // Campos (wrappers) del bloque "Datos del colaborador"
+  const fldNombre       = $("fldNombre");
+  const fldPosicion     = $("fldPosicion");
+  const fldDepartamento = $("fldDepartamento");
+  const fldFecha        = $("fldFecha");
+
+  // Mostrar/ocultar campos (solo 3 visibles en Resumen IA)
+  if(fldNombre)       fldNombre.style.display       = isResumenIA ? "none" : "";
+  if(fldPosicion)     fldPosicion.style.display     = isResumenIA ? "none" : "";
+  if(fldDepartamento) fldDepartamento.style.display = isResumenIA ? "none" : "";
+  if(fldFecha)        fldFecha.style.display        = isResumenIA ? "none" : "";
+  
+    if(autoBox)  autoBox.style.display  = (tipo === "autoevaluacion") ? "block" : "none";
   if(desBox)   desBox.style.display   = (tipo === "desempeno") ? "block" : "none";
   if(cliBox)   cliBox.style.display   = (tipo === "clientes") ? "block" : "none";
-  if(evalCard) evalCard.style.display = (tipo === "clientes") ? "none" : "block";
+  if(evalCard) evalCard.style.display = (tipo === "clientes" || tipo === "resumen_ia") ? "none" : "block";
 
   if(typeof ensureItemsVisibleIfNeeded === "function") ensureItemsVisibleIfNeeded();
   if(typeof applySearchUI === "function") applySearchUI(tipo);
@@ -2555,6 +2570,9 @@ const REQUIRED_FIELDS = {
     "justificacion","comentariosEvaluador","fortalezas","oportunidades","proyeccion",
     "necesidadesCapacitacion","comentariosColaborador2","evaluacionClientes",
     "nombreEvaluadorDesempeno","mail1","mail2"
+  ]
+ resumen_ia: [
+    "noPersonal","periodo","version"
   ]
 };
   
