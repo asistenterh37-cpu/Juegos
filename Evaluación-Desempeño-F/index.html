@@ -1414,8 +1414,8 @@ function ensureItemsVisibleIfNeeded(){
   const evalCard = $("evalCard");
   const container = $("itemsContainer");
 
-  if(tipo === "clientes"){
-    if(evalCard) evalCard.style.display = "none";
+   if(tipo === "clientes" || tipo === "resumen_ia"){
+   if(evalCard) evalCard.style.display = "none";
     return;
   }
 
@@ -2570,7 +2570,7 @@ const REQUIRED_FIELDS = {
     "justificacion","comentariosEvaluador","fortalezas","oportunidades","proyeccion",
     "necesidadesCapacitacion","comentariosColaborador2","evaluacionClientes",
     "nombreEvaluadorDesempeno","mail1","mail2"
-  ]
+  ],
  resumen_ia: [
     "noPersonal","periodo","version"
   ]
