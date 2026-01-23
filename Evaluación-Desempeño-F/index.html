@@ -2556,6 +2556,151 @@ function doPrint(){
   window.print();
 }
 
+/************************************************************
+ * ✅ REPORTE IA (Resumen IA)
+ * - Lee EvaluacionResultados por llaves (NoPersonal+Periodo+Version)
+ * - El backend (Apps Script) llama OpenAI y devuelve el reporte
+ * - Se renderiza en el modal flotante #reportBackdrop
+ ************************************************************/
+
+function renderReporteIATable(payload){
+  // payload esperado:
+  // {
+  //   no_personal, nombre, posicion, departamento, periodo, version, fecha, puntaje,
+  //   resumen, plan_capacitacion, plan_desarrollo, conclusiones, recomendaciones
+  // }
+
+  const host = $("reportHost");
+  if(!host) return;
+
+  const safe = (v)=> (v == null || String(v).trim()==="") ? "—" : String(v);
+
+  // Título modal
+  const t = $("reportTitleModal");
+  if(t) t.textContent = "Reporte IA (Evaluación del desempeño)";
+
+  const generated = new Date().toLocaleString("es-HN");
+
+  const table = document.createElement("table");
+  table.className = "mini-table";
+  table.innerHTML = `
+    <thead>
+      <tr>
+        <th class="col-k">Campo</th>
+        <th class="col-v">Contenido</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td class="col-k">No. de personal</td><td class="col-v">${escapeHtml(safe(payload.no_personal))}</td></tr>
+      <tr><td class="col-k">Nombre</td><td class="col-v">${escapeHtml(safe(payload.nombre))}</td></tr>
+      <tr><td class="col-k">Posición</td><td class="col-v">${escapeHtml(safe(payload.posicion))}</td></tr>
+      <tr><td class="col-k">Departamento</td><td class="col-v">${escapeHtml(safe(payload.departamento))}</td></tr>
+      <tr><td class="col-k">Periodo</td><td class="col-v">${escapeHtml(safe(payload.periodo))}</td></tr>
+      <tr><td class="col-k">Versión</td><td class="col-v">${escapeHtml(safe(payload.version))}</td></tr>
+      <tr><td class="col-k">Fecha</td><td class="col-v">${escapeHtml(safe(payload.fecha))}</td></tr>
+      <tr><td class="col-k">Puntaje</td><td class="col-v"><b>${escapeHtml(safe(payload.puntaje))}</b></td></tr>
+
+      <tr><td class="col-k">Resumen</td><td class="col-v">${escapeHtml(safe(payload.resumen))}</td></tr>
+      <tr><td class="col-k">Plan de capacitación</td><td class="col-v">${escapeHtml(safe(payload.plan_capacitacion))}</td></tr>
+      <tr><td class="col-k">Plan de desarrollo</td><td class="col-v">${escapeHtml(safe(payload.plan_desarrollo))}</td></tr>
+      <tr><td class="col-k">Conclusiones</td><td class="col-v">${escapeHtml(safe(payload.conclusiones))}</td></tr>
+      <tr><td class="col-k">Recomendaciones</td><td class="col-v">${escapeHtml(safe(payload.recomendaciones))}</td></tr>
+    </tbody>
+  `;
+
+  const wrap = document.createElement("div");
+  wrap.className = "card";
+  wrap.style.padding = "12px";
+  wrap.style.background = "rgba(0,0,0,.14)";
+  wrap.innerHTML = `
+    <div style="display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; align-items:center;">
+      <div class="chip"><b>Generado por IA</b></div>
+      <div class="small-muted"><b>Generado:</b> ${escapeHtml(generated)}</div>
+    </div>
+    <div class="hint" style="margin-top:8px;">
+      Fuente: hoja <b>EvaluacionResultados</b> + OpenAI (vía Apps Script).
+    </div>
+  `;
+  wrap.appendChild(table);
+
+  host.innerHTML = "";
+  host.appendChild(wrap);
+
+  // abrir modal flotante
+  const backdrop = $("reportBackdrop");
+  if(backdrop){
+    backdrop.style.display = "flex";
+    backdrop.setAttribute("aria-hidden", "false");
+  }
+}
+
+async function generarReporteIA(){
+  if(state.saving) return;
+
+  const no_personal = ($("noPersonal")?.value || "").trim();
+  const periodo     = ($("periodo")?.value || "").trim();
+  const version     = ($("version")?.value || "").trim();
+
+  if(!no_personal || !periodo || !version){
+    alert("Para Reporte IA, llena: No. de personal + Periodo + Versión.");
+    return;
+  }
+
+  try{
+    assertApiUrl();
+    setBusy(true);
+
+    $("apiHint").className = "warn";
+    $("apiHint").textContent = "Generando Reporte IA…";
+
+    // ✅ Acción nueva esperada en Apps Script:
+    // - Lee fila en hoja "EvaluacionResultados" por llaves
+    // - Arma prompt con ítems + comentarios
+    // - Llama OpenAI y devuelve campos del reporte
+    const resp = await apiRequestWithFallback({
+      action: "reporte_ia_desempeno",
+      sheet: "EvaluacionResultados",
+      no_personal,
+      periodo,
+      version
+    });
+
+    if(!resp || resp.ok === false){
+      const msg = resp?.error || "No se pudo generar el reporte IA (respuesta inválida).";
+      $("apiHint").className = "err";
+      $("apiHint").textContent = msg;
+      alert(msg);
+      return;
+    }
+
+    // payload final (ya listo para tabla)
+    // resp.report puede venir ya armado por backend
+    const report = resp.report || resp.data || resp.payload || resp;
+
+    // validación mínima
+    if(!report || (!report.no_personal && !report.nombre && !report.resumen)){
+      const msg = "El backend respondió OK, pero no trajo el reporte en un formato esperado.";
+      $("apiHint").className = "warn";
+      $("apiHint").textContent = msg;
+      alert(msg);
+      return;
+    }
+
+    $("apiHint").className = "ok";
+    $("apiHint").textContent = "Reporte IA generado ✅";
+
+    renderReporteIATable(report);
+
+  }catch(e){
+    console.error(e);
+    $("apiHint").className = "err";
+    $("apiHint").textContent = "Error Reporte IA: " + (e.message || e);
+    alert("No se pudo generar Reporte IA.\n\n" + (e.message || e));
+  }finally{
+    setBusy(false);
+  }
+}
+  
 // ===============================
 // ✅ VALIDACIÓN PARA GUARDAR
 // ===============================
@@ -2803,10 +2948,20 @@ el.addEventListener("change", ()=>{
     await recoverByKeys();
   });
 
-  $("btnGenerate")?.addEventListener("click", ()=>{
-    if(state.saving) return;
-    openReportModal();
-  });
+$("btnGenerate")?.addEventListener("click", async ()=>{
+  if(state.saving) return;
+
+  const tipo = $("tipoFormulario")?.value || "";
+
+  // ✅ Si es Resumen IA → Reporte IA con OpenAI (vía Apps Script)
+  if(tipo === "resumen_ia"){
+    await generarReporteIA();
+    return;
+  }
+
+  // ✅ Si es desempeño → deja tu comportamiento actual
+  openReportModal();
+});
 
   $("btnPrint")?.addEventListener("click", ()=>{
     if(state.saving) return;
