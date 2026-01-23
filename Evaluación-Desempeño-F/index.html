@@ -2249,10 +2249,9 @@ async function recoverByKeys(){
 
     try{ await apiPing(); }catch(_e){}
 
-   const resp = await apiRequestWithFallback({
-   action: "reporte_ia_desempeno",
-   action: "resumen_ia",
-  sheet: "EvaluacionResultados",
+  const resp = await apiRequestWithFallback({
+  action: "recuperar_por_llaves",
+  tipo: "autoevaluacion",
   no_personal,
   periodo,
   version
@@ -2771,18 +2770,16 @@ function validateBeforeSave(){
     if(!val) missingFields.push(fieldLabel(el));
   });
 
-  // 2) Validar ítems 1–5 (solo autoevaluación y desempeño)
-  
+    // 2) Validar ítems 1–5 (SOLO autoevaluación y desempeño)
+  if(tipo === "autoevaluacion" || tipo === "desempeno"){
     ensureItemsVisibleIfNeeded();
 
-    // Busca TODOS los selects de ítems (ans_)
     const itemSelects = Array.from(document.querySelectorAll("select[id^='ans_']"))
       .filter(el => isVisible(el) && !el.disabled);
 
     itemSelects.forEach(sel=>{
       const v = String(sel.value || "").trim();
       if(!v){
-        // tratar de sacar el título del ítem
         const row = sel.closest("div")?.parentElement;
         const itemTitle = row?.querySelector("div > div")?.textContent?.trim();
         missingItems.push(itemTitle || sel.id);
