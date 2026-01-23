@@ -960,7 +960,7 @@ select:focus{
 /************************************************************
  * 1) URL COMPLETA DEL APPS SCRIPT (/exec)
  ************************************************************/
-const API_URL = "https://script.google.com/macros/s/AKfycbxPd0HUyBi64htDxni2DuC6_CzFbRIxNl0ZsiW1Nh1ig_pTROYfbaZxmr4konJ5l4lSZA/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbx4jYx1yeWN4vcZm01ke_f0AEEh42PHOemLTVAIw0TQ4WXp-gxSxcBh83jC3bcCqdRtjQ/exec";
 
 function normalizeApiUrl(u){
   let x = String(u || "").trim();
@@ -2249,12 +2249,14 @@ async function recoverByKeys(){
 
     try{ await apiPing(); }catch(_e){}
 
-    const resp = await apiRequestWithFallback({
-      action: "recuperar_desempeno_por_keys",
-      no_personal,
-      periodo,
-      version
-    });
+   const resp = await apiRequestWithFallback({
+-  action: "reporte_ia_desempeno",
++  action: "resumen_ia",
+  sheet: "EvaluacionResultados",
+  no_personal,
+  periodo,
+  version
+});
 
     if(!resp || resp.ok === false){
       const msg = resp?.error || "Respuesta inválida recuperando por llaves.";
@@ -2676,6 +2678,18 @@ async function generarReporteIA(){
     // payload final (ya listo para tabla)
     // resp.report puede venir ya armado por backend
     const report = resp.report || resp.data || resp.payload || resp;
+// ✅ Si el backend devolvió texto crudo (no JSON), mostrarlo como resumen
+if (resp.raw_content && !resp.report) {
+  renderReporteIATable({
+    no_personal, periodo, version,
+    resumen: resp.raw_content,
+    plan_capacitacion: "",
+    plan_desarrollo: "",
+    conclusiones: "",
+    recomendaciones: ""
+  });
+  return;
+}
 
     // validación mínima
     if(!report || (!report.no_personal && !report.nombre && !report.resumen)){
