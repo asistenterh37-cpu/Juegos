@@ -2250,8 +2250,8 @@ async function recoverByKeys(){
     try{ await apiPing(); }catch(_e){}
 
    const resp = await apiRequestWithFallback({
--  action: "reporte_ia_desempeno",
-+  action: "resumen_ia",
+   action: "reporte_ia_desempeno",
+   action: "resumen_ia",
   sheet: "EvaluacionResultados",
   no_personal,
   periodo,
@@ -2772,7 +2772,7 @@ function validateBeforeSave(){
   });
 
   // 2) Validar ítems 1–5 (solo autoevaluación y desempeño)
-  if(tipo !== "clientes"){
+  
     ensureItemsVisibleIfNeeded();
 
     // Busca TODOS los selects de ítems (ans_)
