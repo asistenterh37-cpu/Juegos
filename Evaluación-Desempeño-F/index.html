@@ -2403,14 +2403,18 @@ function applyTopActionsUI(tipo){
     btnRecover.disabled = (tipo !== "desempeno");
   }
 
-  // ✅ Generar: visible para autoevaluación y desempeño (y si quieres, también para clientes)
-   // ✅ Generar: SOLO visible en desempeño
-  const btnGen = $("btnGenerate");
-  if(btnGen){
-    const allowGenerate = (tipo === "desempeno");
-    btnGen.style.display = allowGenerate ? "" : "none";
-    btnGen.disabled = !allowGenerate;
-  }
+// ✅ Generar / Reporte IA:
+// - Visible en desempeño y en Resumen IA
+// - Texto cambia según el tipo
+const btnGen = $("btnGenerate");
+if(btnGen){
+  const allowGenerate = (tipo === "desempeno" || tipo === "resumen_ia");
+  btnGen.style.display = allowGenerate ? "" : "none";
+  btnGen.disabled = !allowGenerate;
+
+  // Texto del botón según tipo
+  btnGen.textContent = (tipo === "resumen_ia") ? "Reporte IA" : "Generar";
+}
 }
 
 /* ---------- Clientes box ---------- */
