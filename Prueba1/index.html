@@ -546,7 +546,8 @@ select:focus{
           <span id="stateText">Sin cambios</span>
         </div>
         <button class="btn primary" id="btnNew" type="button">Nuevo</button>
-
+        <button class="btn primary" id="btnReporteIA" type="button" style="display:none;">ReporteIA</button>
+        
         <!-- ✅ Recuperar SOLO existe en Desempeño -->
         <button class="btn primary" id="btnRecover" type="button" style="display:none;">Recuperar</button>
 
@@ -1636,6 +1637,7 @@ function buildReport(){
   const total = computeTotal();
 
   $("rTitle").textContent =
+    (header.tipo === "resumenIA") ? "Resumen IA" :
     (header.tipo === "autoevaluacion") ? "Autoevaluación del desempeño" :
     (header.tipo === "clientes") ? "Formulario evaluación clientes" :
     "Evaluación del desempeño";
@@ -1658,7 +1660,7 @@ function buildReport(){
     if(host) host.innerHTML = "";
   }
 
-  $("rTotal").textContent = String((header.tipo === "clientes") ? 0 : total);
+    $("rTotal").textContent = String((header.tipo === "clientes" || header.tipo === "resumenIA") ? 0 : total);
 
   // ✅ Comentarios del colaborador SOLO si aplica (autoevaluación o desempeño)
   const comentarioColab =
@@ -2402,25 +2404,50 @@ function applySearchUI(tipo){
 }
 
 function applyTopActionsUI(tipo){
-  const btnSave = $("btnSave");
+  const btnSave     = $("btnSave");
+  const btnRecover  = $("btnRecover");
+  const btnGen      = $("btnGenerate");
+  const btnReporte  = $("btnReporteIA");
+  const btnPrint    = $("btnPrint");
+  const btnNew      = $("btnNew");
+
+  // Defaults: mostrar lo normal
+  if(btnNew)    btnNew.style.display = "";
+  if(btnPrint)  btnPrint.style.display = "";
+
+  // Guardar: visible por defecto, pero NO en ResumenIA
   if(btnSave){
-    btnSave.style.display = "";
-    btnSave.disabled = false;
+    const showSave = (tipo !== "resumenIA");
+    btnSave.style.display = showSave ? "" : "none";
+    btnSave.disabled = !showSave;
   }
 
-  const btnRecover = $("btnRecover");
+  // Recuperar: solo desempeño
   if(btnRecover){
-    btnRecover.style.display = (tipo === "desempeno") ? "" : "none";
-    btnRecover.disabled = (tipo !== "desempeno");
+    const showRecover = (tipo === "desempeno");
+    btnRecover.style.display = showRecover ? "" : "none";
+    btnRecover.disabled = !showRecover;
   }
 
-  // ✅ Generar: visible para autoevaluación y desempeño (y si quieres, también para clientes)
-   // ✅ Generar: SOLO visible en desempeño
-  const btnGen = $("btnGenerate");
+  // Generar: solo desempeño (como lo tienes)
   if(btnGen){
-    const allowGenerate = (tipo === "desempeno");
-    btnGen.style.display = allowGenerate ? "" : "none";
-    btnGen.disabled = !allowGenerate;
+    const showGenerate = (tipo === "desempeno");
+    btnGen.style.display = showGenerate ? "" : "none";
+    btnGen.disabled = !showGenerate;
+  }
+
+  // ReporteIA: SOLO ResumenIA
+  if(btnReporte){
+    const showReporte = (tipo === "resumenIA");
+    btnReporte.style.display = showReporte ? "" : "none";
+    btnReporte.disabled = !showReporte;
+  }
+
+  // En ResumenIA: garantizamos que solo queden Nuevo + ReporteIA + Print
+  if(tipo === "resumenIA"){
+    if(btnRecover) btnRecover.style.display = "none";
+    if(btnGen)     btnGen.style.display     = "none";
+    if(btnSave)    btnSave.style.display    = "none";
   }
 }
 
@@ -2828,6 +2855,11 @@ el.addEventListener("change", ()=>{
   $("btnGenerate")?.addEventListener("click", ()=>{
     if(state.saving) return;
     openReportModal();
+  });
+
+  $("btnReporteIA")?.addEventListener("click", ()=>{
+    if(state.saving) return;
+    openReportModal(); // Reutiliza el mismo modal de reporte
   });
 
   $("btnPrint")?.addEventListener("click", ()=>{
