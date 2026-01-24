@@ -2509,12 +2509,12 @@ function applyTipoUI(){
     if(desBox)   desBox.style.display   = "none";
     if(cliBox)   cliBox.style.display   = "none";
   }
-
+  
   if(autoBox)  autoBox.style.display  = (tipo === "autoevaluacion") ? "block" : "none";
   if(desBox)   desBox.style.display   = (tipo === "desempeno") ? "block" : "none";
   if(cliBox)   cliBox.style.display   = (tipo === "clientes") ? "block" : "none";
-  if(evalCard) evalCard.style.display = (tipo === "clientes") ? "none" : "block";
-
+  
+  if(evalCard) evalCard.style.display = (tipo === "clientes" || tipo === "resumenIA") ? "none" : "block";
   if(typeof ensureItemsVisibleIfNeeded === "function") ensureItemsVisibleIfNeeded();
   if(typeof applySearchUI === "function") applySearchUI(tipo);
   if(typeof applyTopActionsUI === "function") applyTopActionsUI(tipo);
@@ -2601,7 +2601,7 @@ const REQUIRED_FIELDS = {
     "version"
   ],
 };
-  
+
 function isVisible(el){
   return !!(el && el.offsetParent !== null);
 }
