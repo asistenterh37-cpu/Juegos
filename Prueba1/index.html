@@ -938,6 +938,26 @@ select:focus{
           <div class="box" id="rTotal">0.00</div>
         </div>
 
+<div class="block" id="rIAPlanCapBlock" style="display:none;">
+  <h2>Resumen del plan de capacitación</h2>
+  <div class="box" id="rIAPlanCap">—</div>
+</div>
+
+<div class="block" id="rIAPlanDevBlock" style="display:none;">
+  <h2>Plan de desarrollo</h2>
+  <div class="box" id="rIAPlanDev">—</div>
+</div>
+
+<div class="block" id="rIAConclusionesBlock" style="display:none;">
+  <h2>Conclusiones</h2>
+  <div class="box" id="rIAConclusiones">—</div>
+</div>
+
+<div class="block" id="rIARecomendacionesBlock" style="display:none;">
+  <h2>Recomendaciones</h2>
+  <div class="box" id="rIARecomendaciones">—</div>
+</div>
+        
         <div class="block" id="rComentariosBlock" style="display:none;">
           <h2>Comentarios del colaborador</h2>
           <div class="box" id="rComentarios">—</div>
@@ -972,7 +992,7 @@ select:focus{
 /************************************************************
  * 1) URL COMPLETA DEL APPS SCRIPT (/exec)
  ************************************************************/
-const API_URL = "https://script.google.com/macros/s/AKfycby59b-BKwL9o7mXYyU9wlkq4QsnA4s4f3GhLHEMzrrVDoSQTceQRQNA16yYxo-FvVY1/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbyKL70VHdCC5F0wJc7pOoWqR-S_GRId0p1Phv6NUzGvv-diqqlVfBD0RGcEHfaomUaU/exec";
 
 function normalizeApiUrl(u){
   let x = String(u || "").trim();
@@ -1297,6 +1317,17 @@ const WEIGHTS = {
   
 const state = { dirty:false, generated:false, answers:{}, saving:false };
 const $ = (id) => document.getElementById(id);
+// ==============================
+// ✅ Resumen IA: cache del reporte (lo llena el botón ReporteIA)
+// ==============================
+let resumenIACache = null;
+
+function getKeysForResumenIA_(){
+  const no_personal = ($("noPersonal")?.value || "").trim();
+  const periodo     = ($("periodo")?.value || "").trim();
+  const version     = ($("version")?.value || "").trim();
+  return { no_personal, periodo, version };
+}
 
 function todayYMDLocal(){
   const d = new Date();
@@ -1643,24 +1674,78 @@ function buildReport(){
     "Evaluación del desempeño";
 
   $("rGenerated").textContent = new Date().toLocaleString();
-  $("rNoPersonal").textContent = header.no_personal || "—";
-  $("rNombre").textContent = header.nombre || "—";
-  $("rPosicion").textContent = header.posicion || "—";
-  $("rDepartamento").textContent = header.departamento || "—";
-  $("rPeriodo").textContent = header.periodo || "—";
-  $("rVersion").textContent = header.version || "—";
-  $("rFecha").textContent = formatDateES(header.fecha);
+
+// ✅ Si es ResumenIA y existe cache, usamos meta/printable del GS
+if(header.tipo === "resumenIA" && resumenIACache){
+  const meta = resumenIACache.meta || {};
+  const printable = resumenIACache.printable || {};
+
+  $("rNoPersonal").textContent  = meta.no_personal || printable["Número de personal"] || header.no_personal || "—";
+  $("rNombre").textContent      = meta.nombre      || printable["Nombre"]            || header.nombre      || "—";
+  $("rPosicion").textContent    = meta.posicion    || printable["Posición"]          || header.posicion    || "—";
+  $("rDepartamento").textContent= meta.departamento|| printable["Departamento"]      || header.departamento|| "—";
+  $("rPeriodo").textContent     = meta.periodo     || printable["Período"]           || header.periodo     || "—";
+  $("rVersion").textContent     = meta.version     || printable["Versión"]           || header.version     || "—";
+  $("rFecha").textContent       = formatDateES(meta.fecha || printable["Fecha"] || header.fecha);
+}else{
+  $("rNoPersonal").textContent  = header.no_personal || "—";
+  $("rNombre").textContent      = header.nombre || "—";
+  $("rPosicion").textContent    = header.posicion || "—";
+  $("rDepartamento").textContent= header.departamento || "—";
+  $("rPeriodo").textContent     = header.periodo || "—";
+  $("rVersion").textContent     = header.version || "—";
+  $("rFecha").textContent       = formatDateES(header.fecha);
+}
+
+// ==============================
+// ✅ Render de secciones IA (solo ResumenIA)
+// ==============================
+const bCap = $("rIAPlanCapBlock");
+const bDev = $("rIAPlanDevBlock");
+const bCon = $("rIAConclusionesBlock");
+const bRec = $("rIARecomendacionesBlock");
+
+if(header.tipo === "resumenIA" && resumenIACache?.printable){
+  const printable = resumenIACache.printable;
+
+  const planCap = String(printable["Plan de capacitación"] || "").trim();
+  const planDev = String(printable["Plan de desarrollo"] || "").trim();
+  const concl   = String(printable["Conclusiones"] || "").trim();
+  const recom   = String(printable["Recomendaciones"] || "").trim();
+
+  if(bCap) bCap.style.display = planCap ? "block" : "none";
+  if($("rIAPlanCap")) $("rIAPlanCap").textContent = planCap || "—";
+
+  if(bDev) bDev.style.display = planDev ? "block" : "none";
+  if($("rIAPlanDev")) $("rIAPlanDev").textContent = planDev || "—";
+
+  if(bCon) bCon.style.display = concl ? "block" : "none";
+  if($("rIAConclusiones")) $("rIAConclusiones").textContent = concl || "—";
+
+  if(bRec) bRec.style.display = recom ? "block" : "none";
+  if($("rIARecomendaciones")) $("rIARecomendaciones").textContent = recom || "—";
+}else{
+  // Si no aplica, ocultamos
+  if(bCap) bCap.style.display = "none";
+  if(bDev) bDev.style.display = "none";
+  if(bCon) bCon.style.display = "none";
+  if(bRec) bRec.style.display = "none";
+}
 
   // ✅ Ítems/rúbricas SOLO en autoevaluación y desempeño
-  if(header.tipo !== "clientes"){
-    renderSeleccionEnReporte();
-  }else{
-    // Si venía algo de antes, lo vaciamos
-    const host = $("rRubricas");
-    if(host) host.innerHTML = "";
-  }
+if(header.tipo !== "clientes" && header.tipo !== "resumenIA"){
+  renderSeleccionEnReporte();
+}else{
+  // Si venía algo de antes, lo vaciamos
+  const host = $("rRubricas");
+  if(host) host.innerHTML = "";
+}
 
-    $("rTotal").textContent = String((header.tipo === "clientes" || header.tipo === "resumenIA") ? 0 : total);
+    if(header.tipo === "resumenIA" && resumenIACache?.meta){
+  $("rTotal").textContent = String(resumenIACache.meta.puntaje || "—");
+}else{
+  $("rTotal").textContent = String((header.tipo === "clientes") ? 0 : total);
+}
 
   // ✅ Comentarios del colaborador SOLO si aplica (autoevaluación o desempeño)
   const comentarioColab =
@@ -2857,10 +2942,49 @@ el.addEventListener("change", ()=>{
     openReportModal();
   });
 
-  $("btnReporteIA")?.addEventListener("click", ()=>{
+ $("btnReporteIA")?.addEventListener("click", async ()=>{
+  try{
     if(state.saving) return;
-    openReportModal(); // Reutiliza el mismo modal de reporte
-  });
+    assertApiUrl();
+
+    const { no_personal, periodo, version } = getKeysForResumenIA_();
+    if(!no_personal || !periodo || !version){
+      alert("Completa No. de personal, Período y Versión para generar el Resumen IA.");
+      return;
+    }
+
+    // Limpia cache previo
+    resumenIACache = null;
+
+    // ✅ Llama a GS (JSONP/Fetch fallback)
+    const data = await apiRequestWithFallback({
+      action: "resumen_ia",
+      no_personal,
+      periodo,
+      version
+    });
+
+    if(!data){
+      throw new Error("Respuesta vacía del servidor.");
+    }
+    if(data.ok === false){
+      throw new Error(data.error || "Error generando Resumen IA.");
+    }
+    if(data.found === false){
+      alert(data.reason || "No se encontró el registro en EvaluacionResultados con esas llaves.");
+      return;
+    }
+
+    // ✅ Guarda para que buildReport() lo pinte
+    resumenIACache = data;
+
+    // Abre modal
+    openReportModal();
+  }catch(err){
+    console.error(err);
+    alert(err?.message || String(err));
+  }
+});
 
   $("btnPrint")?.addEventListener("click", ()=>{
     if(state.saving) return;
