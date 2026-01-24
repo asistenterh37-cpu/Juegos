@@ -938,7 +938,12 @@ select:focus{
           <div class="box" id="rTotal">0.00</div>
         </div>
 
-<div class="block" id="rIAPlanCapBlock" style="display:none;">
+<div class="block" id="rIAResumenBlock" style="display:none;">
+  <h2>Resumen</h2>
+  <div class="box" id="rIAResumen">—</div>
+</div>
+        
+        <div class="block" id="rIAPlanCapBlock" style="display:none;">
   <h2>Resumen del plan de capacitación</h2>
   <div class="box" id="rIAPlanCap">—</div>
 </div>
@@ -1700,6 +1705,7 @@ if(header.tipo === "resumenIA" && resumenIACache){
 // ==============================
 // ✅ Render de secciones IA (solo ResumenIA)
 // ==============================
+const bRes = $("rIAResumenBlock");
 const bCap = $("rIAPlanCapBlock");
 const bDev = $("rIAPlanDevBlock");
 const bCon = $("rIAConclusionesBlock");
@@ -1708,13 +1714,16 @@ const bRec = $("rIARecomendacionesBlock");
 if(header.tipo === "resumenIA" && resumenIACache?.printable){
   const printable = resumenIACache.printable;
 
-  const planCap = String(printable["Plan de capacitación"] || "").trim();
-  const planDev = String(printable["Plan de desarrollo"] || "").trim();
-  const concl   = String(printable["Conclusiones"] || "").trim();
-  const recom   = String(printable["Recomendaciones"] || "").trim();
+const resumen = String(printable["Resumen"] || "").trim();
+const planCap = String(printable["Plan de capacitación"] || "").trim();
+const planDev = String(printable["Plan de desarrollo"] || "").trim();
+const concl   = String(printable["Conclusiones"] || "").trim();
+const recom   = String(printable["Recomendaciones"] || "").trim();
 
-  if(bCap) bCap.style.display = planCap ? "block" : "none";
-  if($("rIAPlanCap")) $("rIAPlanCap").textContent = planCap || "—";
+  if(bRes) bRes.style.display = resumen ? "block" : "none";
+if($("rIAResumen")) $("rIAResumen").textContent = resumen || "—";
+if(bCap) bCap.style.display = planCap ? "block" : "none";
+if($("rIAPlanCap")) $("rIAPlanCap").textContent = planCap || "—";
 
   if(bDev) bDev.style.display = planDev ? "block" : "none";
   if($("rIAPlanDev")) $("rIAPlanDev").textContent = planDev || "—";
@@ -1726,10 +1735,12 @@ if(header.tipo === "resumenIA" && resumenIACache?.printable){
   if($("rIARecomendaciones")) $("rIARecomendaciones").textContent = recom || "—";
 }else{
   // Si no aplica, ocultamos
-  if(bCap) bCap.style.display = "none";
-  if(bDev) bDev.style.display = "none";
-  if(bCon) bCon.style.display = "none";
-  if(bRec) bRec.style.display = "none";
+if(bRes) bRes.style.display = "none";
+
+if(bCap) bCap.style.display = "none";
+if(bDev) bDev.style.display = "none";
+if(bCon) bCon.style.display = "none";
+if(bRec) bRec.style.display = "none";
 }
 
   // ✅ Ítems/rúbricas SOLO en autoevaluación y desempeño
