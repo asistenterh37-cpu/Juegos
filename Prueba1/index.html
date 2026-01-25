@@ -581,6 +581,21 @@ select:focus{
       .print-area{display:block !important}
       .report{border:none; border-radius:0; padding:0}
     }
+  
+  /* ✅ Firma al pie (derecha) */
+.form-byline{
+  margin-top: 12px;
+  text-align: right;
+  font-size: 12px;
+  color: rgba(234,240,255,.72);
+  font-weight: 800;
+}
+@media print{
+  .form-byline{
+    color:#111;
+    font-weight:700;
+  }
+}
   </style>
 </head>
 
@@ -624,23 +639,25 @@ select:focus{
 
     <div class="grid no-print">
       
-      <div class="card">
-        <h2>Formulario</h2>
-        <p>Seleccione la fase del proceso de evaluación del desempeño</p>
+<div class="card">
+  <h2>Formulario</h2>
+  <p>Seleccione la fase del proceso de evaluación del desempeño</p>
 
-        <div class="form-grid" style="grid-template-columns: 1fr;">
-          <div>
-            <label>Fase</label>
-            <select id="tipoFormulario">
-              <option value="autoevaluacion" selected>Formulario de autoevaluación</option>
-              <option value="clientes">Formulario evaluación clientes</option>
-              <option value="desempeno">Formulario de evaluación del desempeño</option>
-              <option value="resumenIA">ResumenIA</option>
-            </select>
-            <div class="hint">El guardado siempre va a Google Sheets (Web App de Apps Script).</div>
-          </div>
-        </div>
-      </div>
+  <div class="form-grid" style="grid-template-columns: 1fr;">
+    <div>
+      <label>Fase</label>
+      <select id="tipoFormulario">
+        <option value="autoevaluacion" selected>Formulario de autoevaluación</option>
+        <option value="clientes">Formulario evaluación clientes</option>
+        <option value="desempeno">Formulario de evaluación del desempeño</option>
+        <option value="resumenIA">ResumenIA</option>
+      </select>
+      <div class="hint">El guardado siempre va a Google Sheets (Web App de Apps Script).</div>
+    </div>
+  </div>
+
+  <div class="form-byline">Por: Soamy Lanza</div>
+</div>
 
       <div class="card">
         <h2>Datos del colaborador</h2>
@@ -683,8 +700,10 @@ select:focus{
           </div>
         </div>
 
-        <div class="hint">Estado API: <span id="apiHint" class="warn">Verificando conexión…</span></div>
-      </div>
+      <div class="hint">Estado API: <span id="apiHint" class="warn">Verificando conexión…</span></div>
+
+<div class="form-byline">Por: Soamy Lanza</div>
+</div>
 
       <div class="card" id="evalCard">
         <div class="section-title">
