@@ -3063,6 +3063,13 @@ assertApiUrl();
 // ✅ Usa el mismo mecanismo robusto que ya usas en "resumen_ia"
 // ✅ GitHub Pages no tiene google.script.run. Guardar vía POST por formulario (sin CORS)
 
+if(!payload.no_personal || !payload.periodo || !payload.version){
+  $("apiHint").className = "err";
+  $("apiHint").textContent = "Faltan llaves: No. personal, Periodo y Versión.";
+  alert("No se puede guardar. Completa: No. personal, Periodo y Versión.");
+  return;
+}
+
      await apiPostGuardar(payload);
 
     // ✅ Verificación REAL por GET (JSONP/fetch) para confirmar que la fila ya existe
@@ -3096,17 +3103,13 @@ assertApiUrl();
       // alert("Enviado, pero no confirmado. Revisa _LOG en el Sheet.");
     }
    
-setDirty(false);
-
-// ✅ Limpia UNA sola vez
-clearForm();
-applyTipoUI();
-
-// ✅ Si ya verificaste arriba, NO lo tapes.
-// Solo si NO se verificó, deja un mensaje “enviado”.
-if(!verified || !(verified.ok && verified.found)){
-  $("apiHint").className = "ok";
-  $("apiHint").textContent = "Guardado enviado ✅ (verifica en Google Sheets)";
+if (verified && verified.ok && verified.found) {
+  setDirty(false);
+  clearForm();
+  applyTipoUI();
+} else {
+  // No limpiar si no se confirmó: así no se “pierde” lo digitado
+  throw new Error("No se confirmó el guardado en Google Sheets. Revisa la pestaña _LOG del Spreadsheet (Apps Script).");
 }
 
   }catch(e){
