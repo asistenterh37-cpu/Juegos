@@ -2972,11 +2972,23 @@ async function saveCurrent(){
 
     const body = new URLSearchParams(payload).toString();
 
-    await fetch(API_URL, {
-    method: "POST",
-    mode: "no-cors",
-    body
-    });
+ // ✅ Asegura URL
+assertApiUrl();
+
+// ✅ Usa el mismo mecanismo robusto que ya usas en "resumen_ia"
+const data = await apiRequestWithFallback(payload);
+
+if(!data) throw new Error("Respuesta vacía del servidor.");
+if(data.ok === false) throw new Error(data.error || "Error guardando.");
+
+$("apiHint").className = "ok";
+$("apiHint").textContent = `Guardado ✅ (${data.sheetUsed || "Sheet"})`;
+
+setDirty(false);
+
+// Limpia igual que "Nuevo"
+clearForm();
+applyTipoUI();
 
       $("apiHint").className = "ok";
     $("apiHint").textContent = "Guardado enviado ✅ (verifica en Google Sheets)";
