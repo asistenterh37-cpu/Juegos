@@ -1235,26 +1235,32 @@ async function apiPing(){
   }
 }
 
-  async function apiPostGuardar(payload){
+ async function apiPostGuardar(payload){
   assertApiUrl();
 
   return new Promise((resolve, reject) => {
     try{
-      // iframe oculto
       const iframeName = "if_save_" + Math.random().toString(36).slice(2);
       const iframe = document.createElement("iframe");
       iframe.name = iframeName;
       iframe.style.display = "none";
       document.body.appendChild(iframe);
 
-      // form POST oculto
+      const baseUrl = normalizeApiUrl(API_URL);
+
+      // ✅ Extra compat: manda action también en querystring
+      const actionUrl = baseUrl + (baseUrl.includes("?") ? "&" : "?") + "action=guardar";
+
       const form = document.createElement("form");
       form.method = "POST";
-      form.action = normalizeApiUrl(API_URL);
+      form.action = actionUrl;
       form.target = iframeName;
       form.style.display = "none";
 
-      // payload -> inputs hidden
+      // ✅ Extra compat: UTF-8 siempre
+      form.setAttribute("accept-charset", "UTF-8");
+      form.enctype = "application/x-www-form-urlencoded";
+
       Object.keys(payload || {}).forEach(k => {
         const v = payload[k];
         if(v === undefined || v === null) return;
@@ -1268,12 +1274,15 @@ async function apiPing(){
 
       document.body.appendChild(form);
 
-      // si el iframe carga, damos por enviado
+      let done = false;
+
+      // ✅ Dale un poquito más: Apps Script a veces redirige
       const t = setTimeout(() => {
+        if(done) return;
+        done = true;
         cleanup();
-        // Ojo: esto significa “enviado”, no “confirmado por respuesta”
-        resolve({ ok:true, note:"POST enviado (form/iframe)" });
-      }, 1200);
+        resolve({ ok:true, note:"POST enviado (timeout)" });
+      }, 2500);
 
       function cleanup(){
         clearTimeout(t);
@@ -1282,9 +1291,17 @@ async function apiPing(){
       }
 
       iframe.onload = () => {
-        // puede disparar rápido por redirects; igual sirve como “ya salió”
+        if(done) return;
+        done = true;
         cleanup();
         resolve({ ok:true, note:"POST enviado (iframe onload)" });
+      };
+
+      iframe.onerror = () => {
+        if(done) return;
+        done = true;
+        cleanup();
+        reject(new Error("Error iframe POST. Posible bloqueo del navegador/red."));
       };
 
       form.submit();
@@ -2992,17 +3009,26 @@ async function saveCurrent(){
   const extra  = getExtraFields();
   const answersText = flattenAnswersSelectedText();
 
-  const payload = {
+const payload = {
   action: "guardar",
-  ...header,
+
+  // ✅ llaves y header “blindados”
+  tipo: String(header.tipo || "").trim(),
+  no_personal: String(header.no_personal || "").trim(),
+  periodo: String(header.periodo || "").trim(),
+  version: String(header.version || "").trim(),
+
+  // resto del header
+  nombre: header.nombre,
+  posicion: header.posicion,
+  departamento: header.departamento,
+  fecha: header.fecha || todayYMDLocal(),
+
   ...extra,
   ...answersText,
 
-  // ✅ CLAVE: esto mapea directo a la columna Puntaje
   puntaje: (header.tipo === "clientes") ? 0 : computeTotal(),
-
-  // (Opcional) conservar "total" por compatibilidad, pero ya no dependes de él
-  total: (header.tipo === "clientes") ? 0 : computeTotal()
+  total:   (header.tipo === "clientes") ? 0 : computeTotal()
 };
 
   function _isEmpty(v){
@@ -3072,21 +3098,16 @@ assertApiUrl();
    
 setDirty(false);
 
-// Limpia igual que "Nuevo"
+// ✅ Limpia UNA sola vez
 clearForm();
 applyTipoUI();
 
-      $("apiHint").className = "ok";
-    $("apiHint").textContent = "Guardado enviado ✅ (verifica en Google Sheets)";
-    setDirty(false);
-
-    // ✅ NUEVO: al guardar, limpiar campos igual que "Nuevo"
-    clearForm();
-    applyTipoUI();
-
-    // (Opcional) Volver a mostrar el mensaje de guardado
-    $("apiHint").className = "ok";
-    $("apiHint").textContent = "Guardado enviado ✅ (verifica en Google Sheets)";
+// ✅ Si ya verificaste arriba, NO lo tapes.
+// Solo si NO se verificó, deja un mensaje “enviado”.
+if(!verified || !(verified.ok && verified.found)){
+  $("apiHint").className = "ok";
+  $("apiHint").textContent = "Guardado enviado ✅ (verifica en Google Sheets)";
+}
 
   }catch(e){
     console.error(e);
