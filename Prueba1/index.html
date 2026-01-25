@@ -538,6 +538,35 @@ select:focus{
   line-height:1.75;
   padding:14px 14px;
 }
+
+/* ✅ Firmas (Evaluado / Evaluador) */
+.sig-spacer{
+  height: 8.5em; /* ~ “8 líneas” visuales */
+}
+
+.signatures{
+  display:flex;
+  gap:40px;
+  justify-content:space-between;
+  align-items:flex-end;
+  margin-top:0; /* el espacio lo da .sig-spacer */
+}
+
+.sig{
+  flex:1;
+}
+
+.sig-line{
+  border-bottom:2px solid #111;
+  height:0;
+  margin-bottom:8px;
+}
+
+.sig-label{
+  font-size:12px;
+  color:#111;
+  font-weight:700;
+}
     
     @media print{
       body{background:#fff}
@@ -992,7 +1021,22 @@ select:focus{
   <h2>Recomendaciones</h2>
   <div class="box" id="rIARecomendaciones">—</div>
 </div>
-        
+
+<!-- ✅ Firmas debajo de Recomendaciones -->
+<div class="sig-spacer"></div>
+
+<div class="signatures">
+  <div class="sig">
+    <div class="sig-line"></div>
+    <div class="sig-label">Evaluado</div>
+  </div>
+
+  <div class="sig">
+    <div class="sig-line"></div>
+    <div class="sig-label">Evaluador</div>
+  </div>
+</div>
+
         <div class="block" id="rComentariosBlock" style="display:none;">
           <h2>Comentarios del colaborador</h2>
           <div class="box" id="rComentarios">—</div>
@@ -1012,24 +1056,8 @@ select:focus{
           <h2>Justificación y comentarios</h2>
           <div class="box" id="rJustifAll">—</div>
         </div>
-      <!-- ✅ Firmas SOLO para reporte/PDF -->
-<div class="sig-spacer"></div>
 
-<div class="signatures">
-  <div class="sig">
-    <div class="sig-line"></div>
-    <div class="sig-label">Evaluado</div>
-  </div>
-
-  <div class="sig">
-    <div class="sig-line"></div>
-    <div class="sig-label">Evaluador</div>
-  </div>
-</div>
-
-      </div>
-    </div>
-    
+<!-- (Firmas movidas debajo de Recomendaciones) --> 
 <script>
 /************************************************************
  * ✅ FIX CRÍTICO:
