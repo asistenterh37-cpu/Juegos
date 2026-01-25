@@ -2976,7 +2976,7 @@ async function saveCurrent(){
 assertApiUrl();
 
 // ✅ Usa el mismo mecanismo robusto que ya usas en "resumen_ia"
-const data = await apiRequestWithFallback(payload);
+const data = await apiPostGuardar(payload);
 
 if(!data) throw new Error("Respuesta vacía del servidor.");
 if(data.ok === false) throw new Error(data.error || "Error guardando.");
