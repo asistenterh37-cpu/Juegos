@@ -1096,7 +1096,7 @@ select:focus{
 /************************************************************
  * 1) URL COMPLETA DEL APPS SCRIPT (/exec)
  ************************************************************/
-const API_URL = "https://script.google.com/macros/s/AKfycbwTjTDLmRDTf5mj-J8btPCF6Lvf7h_mfwL7aOPG4N9HXhxqbqM1-OkkW2nGsSj31TjP/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbwGAo3A6bAGR9hBS5Eb-exnDDcCpJX-Mz7lstUokrX2kU9LwE3iDsEbG7UxCrLSGuyc/exec";
 
 function normalizeApiUrl(u){
   let x = String(u || "").trim();
@@ -1235,29 +1235,65 @@ async function apiPing(){
   }
 }
 
-async function apiPostGuardar(payload){
-  const body = new URLSearchParams(payload).toString();
+  async function apiPostGuardar(payload){
+  assertApiUrl();
 
-  const res = await fetch(API_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"
-    },
-    body
+  return new Promise((resolve, reject) => {
+    try{
+      // iframe oculto
+      const iframeName = "if_save_" + Math.random().toString(36).slice(2);
+      const iframe = document.createElement("iframe");
+      iframe.name = iframeName;
+      iframe.style.display = "none";
+      document.body.appendChild(iframe);
+
+      // form POST oculto
+      const form = document.createElement("form");
+      form.method = "POST";
+      form.action = normalizeApiUrl(API_URL);
+      form.target = iframeName;
+      form.style.display = "none";
+
+      // payload -> inputs hidden
+      Object.keys(payload || {}).forEach(k => {
+        const v = payload[k];
+        if(v === undefined || v === null) return;
+
+        const input = document.createElement("input");
+        input.type = "hidden";
+        input.name = k;
+        input.value = String(v);
+        form.appendChild(input);
+      });
+
+      document.body.appendChild(form);
+
+      // si el iframe carga, damos por enviado
+      const t = setTimeout(() => {
+        cleanup();
+        // Ojo: esto significa “enviado”, no “confirmado por respuesta”
+        resolve({ ok:true, note:"POST enviado (form/iframe)" });
+      }, 1200);
+
+      function cleanup(){
+        clearTimeout(t);
+        try{ form.remove(); }catch(_){}
+        try{ iframe.remove(); }catch(_){}
+      }
+
+      iframe.onload = () => {
+        // puede disparar rápido por redirects; igual sirve como “ya salió”
+        cleanup();
+        resolve({ ok:true, note:"POST enviado (iframe onload)" });
+      };
+
+      form.submit();
+    }catch(err){
+      reject(err);
+    }
   });
-
-  const text = await res.text();
-
-  let data;
-  try{
-    data = JSON.parse(text);
-  }catch(e){
-    throw new Error("Respuesta no-JSON desde GS: " + text.slice(0, 200));
-  }
-
-  return data;
 }
-  
+
 /************************************************************
  * ✅ ITEMS COMPLETO (19 ítems) — KEYS = Look.gs
  ************************************************************/
@@ -2999,13 +3035,11 @@ async function saveCurrent(){
 assertApiUrl();
 
 // ✅ Usa el mismo mecanismo robusto que ya usas en "resumen_ia"
-const data = await new Promise((resolve, reject) => {
-  google.script.run
-    .withSuccessHandler(resolve)
-    .withFailureHandler(err => reject(new Error(err && err.message ? err.message : String(err))))
-    .ui_guardar(payload);
-});
+// ✅ GitHub Pages no tiene google.script.run. Guardar vía POST por formulario (sin CORS)
+await apiPostGuardar(payload);
 
+// Como no leemos respuesta (por CORS), asumimos OK si el POST se envió
+const data = { ok: true, sheetUsed: payload.tipo || "Sheet" };
 if(!data) throw new Error("Respuesta vacía del servidor.");
 if(data.ok === false) throw new Error(data.error || "Error guardando.");
 
