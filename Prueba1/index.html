@@ -468,13 +468,18 @@ select:focus{
     }
 
     .print-area{margin-top:20px; display:none;}
-    .report{
-      background:#fff;
-      color:var(--p-ink);
-      border-radius:18px;
-      padding:20px;
-      border:1px solid #e8e8e8;
-    }
+   .report{
+  background:#fff;
+  color:var(--p-ink);
+  border-radius:18px;
+  padding:20px;
+  border:1px solid #e8e8e8;
+
+  /* 🔥 AUMENTO GLOBAL DE LETRA DEL REPORTE */
+  font-size:16px;
+  line-height:1.45;
+}
+
     .report-head{
       display:flex; justify-content:space-between; align-items:flex-start; gap:12px;
       margin-bottom:10px;
@@ -985,6 +990,21 @@ select:focus{
       </div>
     </div>
 
+<!-- ✅ Firmas (6 líneas abajo) -->
+<div class="sig-spacer"></div>
+
+<div class="signatures">
+  <div class="sig">
+    <div class="sig-line"></div>
+    <div class="sig-label">Evaluado</div>
+  </div>
+
+  <div class="sig">
+    <div class="sig-line"></div>
+    <div class="sig-label">Evaluador</div>
+  </div>
+</div>
+   
   </div>
 <script>
 /************************************************************
