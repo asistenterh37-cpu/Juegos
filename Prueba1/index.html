@@ -468,12 +468,17 @@ select:focus{
     }
 
     .print-area{margin-top:20px; display:none;}
-   .report{
+ .report{
   background:#fff;
   color:var(--p-ink);
   border-radius:18px;
   padding:20px;
   border:1px solid #e8e8e8;
+
+  /* ✅ Tamaño general del reporte */
+  font-size:16px;
+  line-height:1.5;
+}
 
   /* 🔥 AUMENTO GLOBAL DE LETRA DEL REPORTE */
   font-size:16px;
@@ -948,8 +953,8 @@ select:focus{
   <div class="box" id="rIAResumen">—</div>
 </div>
         
-        <div class="block" id="rIAPlanCapBlock" style="display:none;">
-  <h2>Resumen del plan de capacitación</h2>
+      <div class="block" id="rIAPlanCapBlock" style="display:none;">
+  <h2>Plan de capacitación</h2>
   <div class="box" id="rIAPlanCap">—</div>
 </div>
 
@@ -987,6 +992,21 @@ select:focus{
           <h2>Justificación y comentarios</h2>
           <div class="box" id="rJustifAll">—</div>
         </div>
+      <!-- ✅ Firmas SOLO para reporte/PDF -->
+<div class="sig-spacer"></div>
+
+<div class="signatures">
+  <div class="sig">
+    <div class="sig-line"></div>
+    <div class="sig-label">Evaluado</div>
+  </div>
+
+  <div class="sig">
+    <div class="sig-line"></div>
+    <div class="sig-label">Evaluador</div>
+  </div>
+</div>
+
       </div>
     </div>
 
