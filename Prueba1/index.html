@@ -1096,7 +1096,7 @@ select:focus{
 /************************************************************
  * 1) URL COMPLETA DEL APPS SCRIPT (/exec)
  ************************************************************/
-const API_URL = "https://script.google.com/macros/s/AKfycbwGAo3A6bAGR9hBS5Eb-exnDDcCpJX-Mz7lstUokrX2kU9LwE3iDsEbG7UxCrLSGuyc/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbzflcPM9F34tX61wQ24JqYYkSwSYSHmnEJwGblJIAovXoi4TfqQw28VaIgmjO0jJFx6/exec";
 
 function normalizeApiUrl(u){
   let x = String(u || "").trim();
@@ -3036,16 +3036,40 @@ assertApiUrl();
 
 // ✅ Usa el mismo mecanismo robusto que ya usas en "resumen_ia"
 // ✅ GitHub Pages no tiene google.script.run. Guardar vía POST por formulario (sin CORS)
-await apiPostGuardar(payload);
 
-// Como no leemos respuesta (por CORS), asumimos OK si el POST se envió
-const data = { ok: true, sheetUsed: payload.tipo || "Sheet" };
-if(!data) throw new Error("Respuesta vacía del servidor.");
-if(data.ok === false) throw new Error(data.error || "Error guardando.");
+     await apiPostGuardar(payload);
 
-$("apiHint").className = "ok";
-$("apiHint").textContent = `Guardado ✅ (${data.sheetUsed || "Sheet"})`;
+    // ✅ Verificación REAL por GET (JSONP/fetch) para confirmar que la fila ya existe
+    async function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
 
+    let verified = null;
+    for (let i = 0; i < 5; i++) {
+      try{
+        verified = await apiRequestWithFallback({
+          action: "verificar_guardado",
+          tipo: payload.tipo,
+          no_personal: payload.no_personal,
+          periodo: payload.periodo,
+          version: payload.version
+        });
+      }catch(_e){
+        verified = null;
+      }
+
+      if (verified && verified.ok && verified.found) break;
+      await sleep(450); // pequeño delay para dar tiempo a SpreadsheetApp.flush()
+    }
+
+    if (verified && verified.ok && verified.found) {
+      $("apiHint").className = "ok";
+      $("apiHint").textContent = `Guardado ✅ (${verified.sheetUsed || payload.tipo || "Sheet"} | fila ${verified.rowNumber})`;
+    } else {
+      $("apiHint").className = "warn";
+      $("apiHint").textContent = "Guardado enviado ✅, pero no pude confirmarlo en la hoja. Revisa la pestaña _LOG.";
+      // (Opcional) alert suave:
+      // alert("Enviado, pero no confirmado. Revisa _LOG en el Sheet.");
+    }
+   
 setDirty(false);
 
 // Limpia igual que "Nuevo"
