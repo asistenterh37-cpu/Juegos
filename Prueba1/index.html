@@ -468,21 +468,16 @@ select:focus{
     }
 
     .print-area{margin-top:20px; display:none;}
- .report{
+.report{
   background:#fff;
   color:var(--p-ink);
   border-radius:18px;
   padding:20px;
   border:1px solid #e8e8e8;
 
-  /* ✅ Tamaño general del reporte */
+  /* ✅ Tamaño general del reporte (base) */
   font-size:16px;
-  line-height:1.5;
-}
-
-  /* 🔥 AUMENTO GLOBAL DE LETRA DEL REPORTE */
-  font-size:16px;
-  line-height:1.45;
+  line-height:1.55;
 }
 
     .report-head{
@@ -519,6 +514,31 @@ select:focus{
       white-space:pre-wrap;
     }
 
+/* ✅ SOLO para Reporte "Resumen IA" (letra más grande) */
+.report.is-resumenIA{
+  font-size:18px;
+  line-height:1.7;
+}
+
+.report.is-resumenIA .report-head h1{
+  font-size:36px;
+}
+
+.report.is-resumenIA .kv .v{
+  font-size:15px;
+  font-weight:700;
+}
+
+.report.is-resumenIA .block h2{
+  font-size:18px;
+}
+
+.report.is-resumenIA .block .box{
+  font-size:15px;
+  line-height:1.75;
+  padding:14px 14px;
+}
+    
     @media print{
       body{background:#fff}
       .wrap{max-width:none; margin:0; padding:0}
@@ -1695,6 +1715,12 @@ function buildReport(){
   const header = getHeaderData();
   const extra = getExtraFields();
   const total = computeTotal();
+
+  // ✅ Estilo especial solo para "Resumen IA"
+  const reportEl = $("report");
+  if(reportEl){
+    reportEl.classList.toggle("is-resumenIA", header.tipo === "resumenIA");
+  }
 
   $("rTitle").textContent =
     (header.tipo === "resumenIA") ? "Resumen IA" :
