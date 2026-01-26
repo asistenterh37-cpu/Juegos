@@ -650,7 +650,7 @@ select:focus{
         <option value="autoevaluacion" selected>Formulario de autoevaluación</option>
         <option value="clientes">Formulario evaluación clientes</option>
         <option value="desempeno">Formulario de evaluación del desempeño</option>
-        <option value="resumenIA">ResumenIA</option>
+       <option value="resumenIA">Informe consolidado</option> 
       </select>
       <div class="hint">El guardado siempre va a Google Sheets (Web App de Apps Script).</div>
     </div>
@@ -994,7 +994,6 @@ select:focus{
         <div class="report-head">
           <div>
             <h1 id="rTitle">Evaluación del desempeño</h1>
-            <p class="report-sub">Generado automáticamente desde el formulario.</p>
           </div>
           <div class="small">
             <div><b>Generado:</b> <span id="rGenerated"></span></div>
@@ -1024,11 +1023,11 @@ select:focus{
           <div class="box" id="rTotal">0.00</div>
         </div>
 
-<div class="block" id="rIAResumenBlock" style="display:none;">
-  <h2>Resumen</h2>
+        <div class="block" id="rIAResumenBlock" style="display:none;">
+  <h2>Resumen de desempeño</h2>
   <div class="box" id="rIAResumen">—</div>
 </div>
-        
+
       <div class="block" id="rIAPlanCapBlock" style="display:none;">
   <h2>Plan de capacitación</h2>
   <div class="box" id="rIAPlanCap">—</div>
