@@ -486,6 +486,11 @@ select:focus{
     }
     .report-head h1{margin:0; font-size:32px; letter-spacing:.2px;}
     .report-head .small{font-size:12px; color:var(--p-sub); text-align:right;}
+    /* ✅ Evita que el bloque derecho crezca y robe espacio al título */
+.report-head .small{
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
     .report-sub{margin:0 0 14px; color:var(--p-sub)}
     .report-kv{display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:10px;}
     .kv-row{display:grid; grid-template-columns: 1fr 1fr; gap:10px;}
@@ -520,8 +525,23 @@ select:focus{
   line-height:1.7;
 }
 
+/* ✅ Resumen IA: título en 1 sola línea (sin salto) */
+.report.is-resumenIA .report-head{
+  flex-wrap: nowrap;           /* evita que el header “se parta” */
+  align-items: flex-start;
+}
+
+.report.is-resumenIA .report-head > div:first-child{
+  flex: 1;                     /* deja que el título use el ancho disponible */
+  min-width: 0;                /* clave para que funcione ellipsis en flex */
+}
+
 .report.is-resumenIA .report-head h1{
-  font-size:36px;
+  font-size: 30px;             /* baja un poco para que quepa */
+  line-height: 1.1;
+  white-space: nowrap;         /* 👈 1 sola línea */
+  overflow: hidden;
+  text-overflow: ellipsis;     /* si no cabe, “…” en vez de saltar */
 }
 
 .report.is-resumenIA .kv .v{
