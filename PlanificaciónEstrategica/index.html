@@ -1,1 +1,904 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Módulo | Planificación Estratégica — Recolección de datos</title>
+  <style>
+    :root{
+      --bg:#0b1220;
+      --panel:#0f1b33;
+      --card:#0f203f;
+      --muted:#9fb3d9;
+      --text:#eaf1ff;
+      --line:rgba(255,255,255,.10);
+      --accent:#6aa6ff;
+      --ok:#3ddc97;
+      --warn:#ffd36a;
+      --bad:#ff6a8b;
+      --shadow: 0 18px 60px rgba(0,0,0,.35);
+      --radius:18px;
+      --radius2:12px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue", sans-serif;
+      background: radial-gradient(1200px 800px at 10% 10%, rgba(106,166,255,.14), transparent 55%),
+                  radial-gradient(1000px 700px at 90% 20%, rgba(61,220,151,.10), transparent 55%),
+                  radial-gradient(900px 700px at 60% 90%, rgba(255,211,106,.10), transparent 55%),
+                  var(--bg);
+      color:var(--text);
+    }
+    a{color:inherit}
+    .app{
+      display:grid;
+      grid-template-columns: 320px 1fr;
+      min-height:100vh;
+    }
+    .sidebar{
+      position:sticky;
+      top:0;
+      height:100vh;
+      padding:22px 18px;
+      border-right:1px solid var(--line);
+      background: linear-gradient(180deg, rgba(15,27,51,.95), rgba(15,27,51,.72));
+      backdrop-filter: blur(10px);
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      padding:10px 10px 16px;
+      border-bottom:1px solid var(--line);
+      margin-bottom:14px;
+    }
+    .logo{
+      width:42px;height:42px;border-radius:14px;
+      background: linear-gradient(135deg, rgba(106,166,255,.95), rgba(61,220,151,.85));
+      box-shadow: 0 10px 30px rgba(106,166,255,.25);
+      display:grid;place-items:center;
+      font-weight:800;
+      color:#081022;
+      letter-spacing:.5px;
+      user-select:none;
+    }
+    .brand h1{
+      font-size:14px;
+      margin:0;
+      line-height:1.2;
+    }
+    .brand p{
+      margin:4px 0 0;
+      font-size:12px;
+      color:var(--muted);
+    }
+
+    .status{
+      margin:14px 10px 10px;
+      padding:12px 12px;
+      border:1px solid var(--line);
+      border-radius: var(--radius2);
+      background: rgba(255,255,255,.03);
+    }
+    .status .row{display:flex; align-items:center; justify-content:space-between; gap:10px}
+    .pill{
+      font-size:12px;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.04);
+      color:var(--muted);
+      white-space:nowrap;
+    }
+    .progress{
+      margin-top:10px;
+      height:10px;
+      border-radius:999px;
+      background: rgba(255,255,255,.06);
+      overflow:hidden;
+      border:1px solid var(--line);
+    }
+    .progress > div{
+      height:100%;
+      width:0%;
+      background: linear-gradient(90deg, rgba(106,166,255,.95), rgba(61,220,151,.85));
+      transition: width .25s ease;
+    }
+
+    nav{
+      margin-top:12px;
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      padding:8px;
+    }
+    .navbtn{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      width:100%;
+      border:1px solid transparent;
+      background: transparent;
+      color: var(--text);
+      text-align:left;
+      padding:10px 10px;
+      border-radius: 12px;
+      cursor:pointer;
+      transition: .15s ease;
+    }
+    .navbtn small{color:var(--muted)}
+    .navbtn:hover{background: rgba(255,255,255,.04); border-color: rgba(255,255,255,.06)}
+    .navbtn.active{
+      background: rgba(106,166,255,.12);
+      border-color: rgba(106,166,255,.30);
+    }
+
+    .side-actions{
+      margin-top:auto;
+      padding:10px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    .btn{
+      width:100%;
+      border:1px solid var(--line);
+      border-radius: 14px;
+      padding:10px 12px;
+      background: rgba(255,255,255,.04);
+      color: var(--text);
+      cursor:pointer;
+      transition: .15s ease;
+      display:flex; align-items:center; justify-content:center; gap:10px;
+      font-weight:600;
+    }
+    .btn:hover{transform: translateY(-1px); background: rgba(255,255,255,.06)}
+    .btn.primary{
+      border-color: rgba(106,166,255,.35);
+      background: rgba(106,166,255,.16);
+    }
+    .btn.danger{
+      border-color: rgba(255,106,139,.35);
+      background: rgba(255,106,139,.12);
+    }
+    .hint{
+      font-size:12px;
+      color: var(--muted);
+      line-height:1.4;
+      padding:0 10px 8px;
+    }
+
+    .main{
+      padding:26px 26px 40px;
+    }
+    .topbar{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:16px;
+      margin-bottom:16px;
+    }
+    .title h2{
+      margin:0;
+      font-size:20px;
+      letter-spacing:.2px;
+    }
+    .title p{
+      margin:6px 0 0;
+      color:var(--muted);
+      max-width: 70ch;
+      line-height:1.45;
+      font-size:13px;
+    }
+    .toast{
+      min-width: 260px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.03);
+      padding:10px 12px;
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      display:none;
+    }
+    .toast strong{font-size:13px}
+    .toast div{font-size:12px; color:var(--muted); margin-top:4px}
+
+    form{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:14px;
+      max-width: 1050px;
+    }
+    .section{
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, rgba(15,32,63,.82), rgba(15,32,63,.52));
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .section header{
+      padding:16px 16px 12px;
+      border-bottom:1px solid var(--line);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      cursor:pointer;
+      user-select:none;
+    }
+    .section header .left{
+      display:flex; flex-direction:column; gap:3px;
+    }
+    .section header h3{
+      margin:0;
+      font-size:15px;
+    }
+    .section header span{
+      font-size:12px;
+      color:var(--muted);
+    }
+    .chev{
+      width:34px;height:34px;border-radius:12px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.03);
+      display:grid;place-items:center;
+      transition:.15s ease;
+      flex:0 0 auto;
+    }
+    .section[data-open="true"] .chev{transform: rotate(180deg)}
+    .section .body{
+      padding:16px;
+      display:none;
+    }
+    .section[data-open="true"] .body{display:block}
+
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap:12px;
+    }
+    .field{
+      grid-column: span 12;
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+    .field.col-6{grid-column: span 6}
+    .field.col-4{grid-column: span 4}
+    .field.col-3{grid-column: span 3}
+    label{
+      font-size:12px;
+      color: var(--muted);
+    }
+    input, textarea, select{
+      width:100%;
+      border:1px solid rgba(255,255,255,.12);
+      border-radius: 14px;
+      background: rgba(255,255,255,.04);
+      color: var(--text);
+      padding:10px 12px;
+      outline:none;
+      transition: .15s ease;
+    }
+    input:focus, textarea:focus, select:focus{
+      border-color: rgba(106,166,255,.45);
+      box-shadow: 0 0 0 3px rgba(106,166,255,.14);
+    }
+    textarea{min-height:110px; resize:vertical}
+    .meta{
+      font-size:12px;
+      color: var(--muted);
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:8px;
+    }
+    .req::after{
+      content:" *";
+      color: var(--warn);
+      font-weight:700;
+    }
+    .error{
+      border-color: rgba(255,106,139,.55) !important;
+      box-shadow: 0 0 0 3px rgba(255,106,139,.12) !important;
+    }
+    .footer{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+      margin-top:8px;
+    }
+    .footer .right{display:flex; gap:10px; flex-wrap:wrap}
+    .kbd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size:11px;
+      padding:2px 6px;
+      border:1px solid var(--line);
+      border-radius:8px;
+      background: rgba(255,255,255,.03);
+      color: var(--muted);
+    }
+
+    /* responsive */
+    @media (max-width: 980px){
+      .app{grid-template-columns: 1fr}
+      .sidebar{position:relative; height:auto}
+      .main{padding:18px}
+      .field.col-6, .field.col-4, .field.col-3{grid-column: span 12}
+      .toast{display:none !important}
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo">PE</div>
+      <div>
+        <h1>Planificación Estratégica</h1>
+        <p>Recolección de datos • versión inicial</p>
+      </div>
+    </div>
+
+    <div class="status" aria-live="polite">
+      <div class="row">
+        <div>
+          <div style="font-weight:700;font-size:13px;">Progreso</div>
+          <div style="color:var(--muted);font-size:12px;margin-top:2px;">
+            Campos completos: <span id="filledCount">0</span>/<span id="totalCount">0</span>
+          </div>
+        </div>
+        <div class="pill" id="autosavePill">Auto-guardado: ON</div>
+      </div>
+      <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+        <div id="progressBar"></div>
+      </div>
+    </div>
+
+    <nav aria-label="Secciones">
+      <button class="navbtn active" data-target="sec-empresa">
+        <span>1) Datos generales<br><small>Empresa y contexto</small></span>
+        <small>↩</small>
+      </button>
+      <button class="navbtn" data-target="sec-identidad">
+        <span>2) Identidad<br><small>Misión, visión, valores</small></span>
+        <small>↩</small>
+      </button>
+      <button class="navbtn" data-target="sec-interno">
+        <span>3) Análisis interno<br><small>Fortalezas / debilidades</small></span>
+        <small>↩</small>
+      </button>
+      <button class="navbtn" data-target="sec-externo">
+        <span>4) Análisis externo<br><small>Oportunidades / amenazas</small></span>
+        <small>↩</small>
+      </button>
+      <button class="navbtn" data-target="sec-mercado">
+        <span>5) Mercado & Competencia<br><small>Cliente, canales, rivalidad</small></span>
+        <small>↩</small>
+      </button>
+      <button class="navbtn" data-target="sec-metas">
+        <span>6) Metas & Control<br><small>Logros, seguimiento</small></span>
+        <small>↩</small>
+      </button>
+    </nav>
+
+    <div class="hint">
+      Tip rápido: exporta tu captura a JSON para que el siguiente módulo (FODA/PESTEL/KPIs) lo consuma sin drama.  
+      Porque el drama ya lo pone el mercado. 😅
+    </div>
+
+    <div class="side-actions">
+      <button class="btn primary" id="btnExport" type="button">⬇️ Exportar JSON</button>
+      <button class="btn" id="btnCopy" type="button">📋 Copiar JSON</button>
+      <button class="btn danger" id="btnReset" type="button">🧨 Limpiar formulario</button>
+      <div class="hint" style="padding-bottom:0;">
+        Auto-guardado en tu navegador. Si cambias de PC, exporta el JSON.
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div class="title">
+        <h2>Pantalla inicial — Recolección de datos</h2>
+        <p>
+          Completa esta ficha para levantar insumos del plan estratégico.
+          Todo queda guardado localmente y puedes exportarlo para integrarlo con tu pipeline en GitHub.
+        </p>
+        <div class="meta">
+          <span>Guardado: <span class="kbd">localStorage</span></span>
+          <span>Formato salida: <span class="kbd">JSON</span></span>
+          <span>Atajo: <span class="kbd">Ctrl</span> + <span class="kbd">S</span> exporta</span>
+        </div>
+      </div>
+
+      <div class="toast" id="toast">
+        <strong id="toastTitle">Listo</strong>
+        <div id="toastMsg">Acción completada.</div>
+      </div>
+    </div>
+
+    <form id="strategyForm" novalidate>
+      <!-- 1) DATOS GENERALES -->
+      <section class="section" id="sec-empresa" data-open="true">
+        <header role="button" tabindex="0" aria-controls="body-empresa" aria-expanded="true">
+          <div class="left">
+            <h3>1) Datos generales</h3>
+            <span>Información base de la organización</span>
+          </div>
+          <div class="chev" aria-hidden="true">⌄</div>
+        </header>
+        <div class="body" id="body-empresa">
+          <div class="grid">
+            <div class="field col-4">
+              <label for="marcaTemporal" class="req">Marca temporal</label>
+              <input id="marcaTemporal" name="marcaTemporal" type="datetime-local" required />
+            </div>
+            <div class="field col-4">
+              <label for="periodo" class="req">Período</label>
+              <input id="periodo" name="periodo" type="text" placeholder="Ej: 2026-2028" required />
+            </div>
+            <div class="field col-4">
+              <label for="codigo">Código</label>
+              <input id="codigo" name="codigo" type="text" placeholder="Ej: PE-001" />
+            </div>
+
+            <div class="field col-6">
+              <label for="nombreEmpresa" class="req">Nombre de la empresa</label>
+              <input id="nombreEmpresa" name="nombreEmpresa" type="text" placeholder="Razón social / nombre comercial" required />
+            </div>
+            <div class="field col-6">
+              <label for="sectorIndustria" class="req">Sector o industria</label>
+              <input id="sectorIndustria" name="sectorIndustria" type="text" placeholder="Ej: Laboratorio / Alimentos / Servicios" required />
+            </div>
+
+            <div class="field col-6">
+              <label for="productosServicios" class="req">Productos o servicios principales</label>
+              <textarea id="productosServicios" name="productosServicios" placeholder="Describe lo principal que ofreces." required></textarea>
+            </div>
+            <div class="field col-3">
+              <label for="tiempoOperacion">Tiempo de operación</label>
+              <input id="tiempoOperacion" name="tiempoOperacion" type="text" placeholder="Ej: 5 años" />
+            </div>
+            <div class="field col-3">
+              <label for="numeroEmpleados">No. de empleados</label>
+              <input id="numeroEmpleados" name="numeroEmpleados" type="number" min="0" step="1" placeholder="Ej: 35" />
+            </div>
+
+            <div class="field">
+              <label for="ubicacionAlcance" class="req">Ubicación y alcance</label>
+              <textarea id="ubicacionAlcance" name="ubicacionAlcance" placeholder="País/ciudad, cobertura (local/nacional/regional), segmentos atendidos." required></textarea>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2) IDENTIDAD -->
+      <section class="section" id="sec-identidad" data-open="true">
+        <header role="button" tabindex="0" aria-controls="body-identidad" aria-expanded="true">
+          <div class="left">
+            <h3>2) Identidad organizacional</h3>
+            <span>Misión, visión y valores</span>
+          </div>
+          <div class="chev" aria-hidden="true">⌄</div>
+        </header>
+        <div class="body" id="body-identidad">
+          <div class="grid">
+            <div class="field">
+              <label for="mision" class="req">Misión (¿Por qué existe la empresa? ¿Qué busca ofrecer y a quién?)</label>
+              <textarea id="mision" name="mision" required placeholder="Ej: Brindar análisis confiables para..."></textarea>
+            </div>
+            <div class="field">
+              <label for="vision" class="req">Visión (¿Cómo te gustaría que se vea tu empresa en 3 a 5 años?)</label>
+              <textarea id="vision" name="vision" required></textarea>
+            </div>
+            <div class="field">
+              <label for="valores" class="req">Valores (¿Qué principios rigen su actuar?)</label>
+              <textarea id="valores" name="valores" required placeholder="Ej: Integridad, calidad, enfoque al cliente, mejora continua..."></textarea>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3) ANÁLISIS INTERNO -->
+      <section class="section" id="sec-interno" data-open="true">
+        <header role="button" tabindex="0" aria-controls="body-interno" aria-expanded="true">
+          <div class="left">
+            <h3>3) Análisis interno</h3>
+            <span>Fortalezas y debilidades (RRHH, finanzas, tecnología, procesos, innovación, cultura)</span>
+          </div>
+          <div class="chev" aria-hidden="true">⌄</div>
+        </header>
+        <div class="body" id="body-interno">
+          <div class="grid">
+            <div class="field col-6">
+              <label for="fortalezas" class="req">Fortalezas (recursos + capacidades)</label>
+              <textarea id="fortalezas" name="fortalezas" required placeholder="Incluye RRHH, financieros, tecnológicos, procesos, innovación y cultura."></textarea>
+            </div>
+            <div class="field col-6">
+              <label for="debilidades" class="req">Debilidades (brechas + limitantes)</label>
+              <textarea id="debilidades" name="debilidades" required placeholder="Incluye RRHH, financieros, tecnológicos, procesos, innovación y cultura."></textarea>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4) ANÁLISIS EXTERNO -->
+      <section class="section" id="sec-externo" data-open="true">
+        <header role="button" tabindex="0" aria-controls="body-externo" aria-expanded="true">
+          <div class="left">
+            <h3>4) Análisis externo</h3>
+            <span>Oportunidades y amenazas (competencia, tendencias, PESTEL, regulación)</span>
+          </div>
+          <div class="chev" aria-hidden="true">⌄</div>
+        </header>
+        <div class="body" id="body-externo">
+          <div class="grid">
+            <div class="field col-6">
+              <label for="oportunidades" class="req">Oportunidades</label>
+              <textarea id="oportunidades" name="oportunidades" required placeholder="Competencia, tendencias de mercado, PESTEL, cambios regulatorios..."></textarea>
+            </div>
+            <div class="field col-6">
+              <label for="amenazas" class="req">Amenazas</label>
+              <textarea id="amenazas" name="amenazas" required placeholder="Competencia, tendencias, PESTEL, cambios en normativa..."></textarea>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5) MERCADO & COMPETENCIA -->
+      <section class="section" id="sec-mercado" data-open="true">
+        <header role="button" tabindex="0" aria-controls="body-mercado" aria-expanded="true">
+          <div class="left">
+            <h3>5) Mercado y competencia</h3>
+            <span>Cliente, canales, posicionamiento, competidores, diferenciación, benchmarking</span>
+          </div>
+          <div class="chev" aria-hidden="true">⌄</div>
+        </header>
+        <div class="body" id="body-mercado">
+          <div class="grid">
+            <div class="field">
+              <label for="publicoObjetivo" class="req">Público objetivo (buyer persona)</label>
+              <textarea id="publicoObjetivo" name="publicoObjetivo" required placeholder="¿Quién compra? perfil, necesidades, decisión de compra, criterios."></textarea>
+            </div>
+
+            <div class="field col-6">
+              <label for="comportamientoCliente" class="req">Comportamiento del cliente</label>
+              <textarea id="comportamientoCliente" name="comportamientoCliente" required placeholder="Frecuencia, motivadores, objeciones, estacionalidad, etc."></textarea>
+            </div>
+            <div class="field col-6">
+              <label for="canalesVenta" class="req">Canales de venta y distribución</label>
+              <textarea id="canalesVenta" name="canalesVenta" required placeholder="Directo, distribuidores, online, alianzas, etc."></textarea>
+            </div>
+
+            <div class="field col-6">
+              <label for="posicionamientoActual" class="req">Posicionamiento actual</label>
+              <textarea id="posicionamientoActual" name="posicionamientoActual" required placeholder="¿Cómo te perciben hoy? precio/calidad, rapidez, especialidad, servicio..."></textarea>
+            </div>
+            <div class="field col-6">
+              <label for="competidoresPrincipales" class="req">¿Quiénes son los principales competidores?</label>
+              <textarea id="competidoresPrincipales" name="competidoresPrincipales" required placeholder="Nombres, tipo, fortalezas visibles."></textarea>
+            </div>
+
+            <div class="field col-6">
+              <label for="diferenciacion" class="req">¿Qué nos diferencia con relación a nuestros competidores?</label>
+              <textarea id="diferenciacion" name="diferenciacion" required placeholder="Propuesta de valor, ventajas, capacidades únicas."></textarea>
+            </div>
+            <div class="field col-6">
+              <label for="benchmarking">Análisis comparativo (Benchmarking)</label>
+              <textarea id="benchmarking" name="benchmarking" placeholder="Qué prácticas/indicadores comparas y qué hallazgos surgieron."></textarea>
+            </div>
+
+            <div class="field col-6">
+              <label for="logros12m" class="req">Logros esperados en los próximos 12 meses</label>
+              <textarea id="logros12m" name="logros12m" required placeholder="3–7 resultados medibles, por ejemplo: ventas, calidad, productividad, certificaciones, etc."></textarea>
+            </div>
+            <div class="field col-6">
+              <label for="logros3a5" class="req">Logros esperados en los próximos 3 - 5 años</label>
+              <textarea id="logros3a5" name="logros3a5" required placeholder="Resultados estratégicos: expansión, innovación, liderazgo, sostenibilidad..."></textarea>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 6) METAS & CONTROL -->
+      <section class="section" id="sec-metas" data-open="true">
+        <header role="button" tabindex="0" aria-controls="body-metas" aria-expanded="true">
+          <div class="left">
+            <h3>6) Metas, control y seguimiento</h3>
+            <span>Gobernanza del plan: control, revisiones y contacto</span>
+          </div>
+          <div class="chev" aria-hidden="true">⌄</div>
+        </header>
+        <div class="body" id="body-metas">
+          <div class="grid">
+            <div class="field col-6">
+              <label for="sistemaControl" class="req">¿Tiene la organización un sistema de control o seguimiento de metas actualmente?</label>
+              <select id="sistemaControl" name="sistemaControl" required>
+                <option value="">Selecciona…</option>
+                <option>Sí</option>
+                <option>No</option>
+                <option>Parcial / En construcción</option>
+              </select>
+            </div>
+            <div class="field col-6">
+              <label for="frecuenciaRevision" class="req">¿Cada cuánto tiempo te gustaría hacer revisiones del plan?</label>
+              <select id="frecuenciaRevision" name="frecuenciaRevision" required>
+                <option value="">Selecciona…</option>
+                <option>Mensual</option>
+                <option>Bimestral</option>
+                <option>Trimestral</option>
+                <option>Semestral</option>
+                <option>Anual</option>
+              </select>
+            </div>
+
+            <div class="field col-6">
+              <label for="correo" class="req">Correo</label>
+              <input id="correo" name="correo" type="email" required placeholder="nombre@empresa.com" />
+            </div>
+
+            <div class="field col-6">
+              <label for="notas">Notas adicionales (opcional)</label>
+              <input id="notas" name="notas" type="text" placeholder="Algo que quieras agregar antes de pasar a FODA/KPIs…" />
+            </div>
+          </div>
+
+          <div class="footer">
+            <div class="meta">
+              <span id="lastSaved">Último guardado: —</span>
+              <span>Tip: completa primero lo “doloroso” (amenazas/debilidades). Lo bonito se escribe solo.</span>
+            </div>
+            <div class="right">
+              <button class="btn" type="button" id="btnValidate">✅ Validar</button>
+              <button class="btn primary" type="submit">🚀 Guardar y exportar</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </form>
+  </main>
+</div>
+
+<script>
+  // ===== Utilidades =====
+  const $ = (sel, root=document) => root.querySelector(sel);
+  const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
+  const STORAGE_KEY = "strategic_planning_intake_v1";
+
+  const toast = (title, msg, type="ok") => {
+    const t = $("#toast");
+    $("#toastTitle").textContent = title;
+    $("#toastMsg").textContent = msg;
+    t.style.display = "block";
+    t.style.borderColor =
+      type==="ok" ? "rgba(61,220,151,.35)" :
+      type==="warn" ? "rgba(255,211,106,.35)" :
+      "rgba(255,106,139,.35)";
+    setTimeout(()=> t.style.display = "none", 2200);
+  };
+
+  const nowLocalDatetime = () => {
+    const d = new Date();
+    const pad = (n) => String(n).padStart(2,"0");
+    const yyyy = d.getFullYear();
+    const mm = pad(d.getMonth()+1);
+    const dd = pad(d.getDate());
+    const hh = pad(d.getHours());
+    const mi = pad(d.getMinutes());
+    return `${yyyy}-${mm}-${dd}T${hh}:${mi}`;
+  };
+
+  // ===== Secciones colapsables =====
+  const sectionToggle = (sec) => {
+    const isOpen = sec.getAttribute("data-open") === "true";
+    sec.setAttribute("data-open", String(!isOpen));
+    const header = sec.querySelector("header");
+    header.setAttribute("aria-expanded", String(!isOpen));
+  };
+
+  $$(".section header").forEach(h => {
+    h.addEventListener("click", () => sectionToggle(h.parentElement));
+    h.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); sectionToggle(h.parentElement); }
+    });
+  });
+
+  // ===== Navegación lateral =====
+  $$(".navbtn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      $$(".navbtn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      const target = document.getElementById(btn.dataset.target);
+      if (!target) return;
+      // asegurar abierto
+      target.setAttribute("data-open", "true");
+      target.querySelector("header").setAttribute("aria-expanded","true");
+      target.scrollIntoView({behavior:"smooth", block:"start"});
+    });
+  });
+
+  // ===== Recolección / serialización =====
+  const getFormData = () => {
+    const data = {};
+    const inputs = $$("input, textarea, select", $("#strategyForm"));
+    inputs.forEach(el => {
+      data[el.name] = el.value ?? "";
+    });
+    data._meta = {
+      schema: "strategic_planning_intake_v1",
+      exportedAt: new Date().toISOString(),
+      userAgent: navigator.userAgent
+    };
+    return data;
+  };
+
+  const setFormData = (data) => {
+    if (!data) return;
+    const inputs = $$("input, textarea, select", $("#strategyForm"));
+    inputs.forEach(el => {
+      if (data[el.name] !== undefined) el.value = data[el.name];
+    });
+  };
+
+  const saveLocal = () => {
+    const payload = getFormData();
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+    $("#lastSaved").textContent = "Último guardado: " + new Date().toLocaleString();
+    updateProgress();
+  };
+
+  const loadLocal = () => {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return false;
+    try{
+      const data = JSON.parse(raw);
+      setFormData(data);
+      $("#lastSaved").textContent = "Último guardado: " + new Date().toLocaleString();
+      return true;
+    }catch{
+      return false;
+    }
+  };
+
+  // ===== Progreso =====
+  const isFilled = (el) => {
+    const val = (el.value || "").trim();
+    if (el.type === "email") return val.length > 0; // validación separada
+    return val.length > 0;
+  };
+
+  const updateProgress = () => {
+    const els = $$("input, textarea, select", $("#strategyForm"))
+      .filter(el => el.name && el.type !== "hidden");
+    const total = els.length;
+    const filled = els.reduce((acc, el) => acc + (isFilled(el) ? 1 : 0), 0);
+    $("#filledCount").textContent = String(filled);
+    $("#totalCount").textContent = String(total);
+
+    const pct = total ? Math.round((filled/total)*100) : 0;
+    $("#progressBar").style.width = pct + "%";
+    $(".progress").setAttribute("aria-valuenow", String(pct));
+  };
+
+  // ===== Validación =====
+  const validate = () => {
+    let ok = true;
+    const required = $$("[required]", $("#strategyForm"));
+    required.forEach(el => {
+      el.classList.remove("error");
+      const val = (el.value || "").trim();
+      if (!val) { ok=false; el.classList.add("error"); return; }
+      if (el.type === "email") {
+        const good = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
+        if (!good) { ok=false; el.classList.add("error"); }
+      }
+    });
+
+    if (!ok) {
+      toast("Faltan campos", "Revisa los campos marcados en rojo/rosado.", "warn");
+      const first = $(".error");
+      if (first) first.scrollIntoView({behavior:"smooth", block:"center"});
+    } else {
+      toast("Validación OK", "Todo listo para exportar.", "ok");
+    }
+    return ok;
+  };
+
+  // ===== Exportar / copiar =====
+  const downloadJSON = (obj) => {
+    const pretty = JSON.stringify(obj, null, 2);
+    const blob = new Blob([pretty], {type:"application/json"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    const safeName = (obj.nombreEmpresa || "planificacion").toString()
+      .toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/(^-|-$)/g,"");
+    a.href = url;
+    a.download = `${safeName || "planificacion"}-intake.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  };
+
+  const copyJSON = async (obj) => {
+    const pretty = JSON.stringify(obj, null, 2);
+    try{
+      await navigator.clipboard.writeText(pretty);
+      toast("Copiado", "JSON copiado al portapapeles.", "ok");
+    }catch{
+      toast("Ups", "No pude copiar. Exporta a archivo mejor.", "warn");
+    }
+  };
+
+  // ===== Eventos =====
+  // Marca temporal por defecto si está vacío
+  if (!$("#marcaTemporal").value) $("#marcaTemporal").value = nowLocalDatetime();
+
+  // Cargar datos previos
+  const loaded = loadLocal();
+  if (loaded) toast("Recuperado", "Cargué lo que tenías guardado localmente.", "ok");
+
+  updateProgress();
+
+  // Autosave
+  $$("input, textarea, select", $("#strategyForm")).forEach(el => {
+    el.addEventListener("input", () => {
+      // quitar error al escribir
+      el.classList.remove("error");
+      saveLocal();
+    });
+    el.addEventListener("change", saveLocal);
+  });
+
+  $("#btnValidate").addEventListener("click", validate);
+
+  $("#btnExport").addEventListener("click", () => {
+    const ok = validate();
+    const data = getFormData();
+    if (!ok) return;
+    downloadJSON(data);
+    toast("Exportado", "Se descargó el JSON.", "ok");
+  });
+
+  $("#btnCopy").addEventListener("click", () => {
+    const data = getFormData();
+    copyJSON(data);
+  });
+
+  $("#btnReset").addEventListener("click", () => {
+    if (!confirm("¿Seguro que quieres limpiar el formulario y borrar el guardado local?")) return;
+    localStorage.removeItem(STORAGE_KEY);
+    $("#strategyForm").reset();
+    $("#marcaTemporal").value = nowLocalDatetime();
+    $("#lastSaved").textContent = "Último guardado: —";
+    updateProgress();
+    toast("Listo", "Formulario limpio.", "ok");
+  });
+
+  // Submit: validar + exportar
+  $("#strategyForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const ok = validate();
+    if (!ok) return;
+    saveLocal();
+    downloadJSON(getFormData());
+    toast("Listo", "Guardado y exportado.", "ok");
+  });
+
+  // Atajo Ctrl+S / Cmd+S exporta
+  window.addEventListener("keydown", (e) => {
+    const isSave = (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s";
+    if (isSave) {
+      e.preventDefault();
+      $("#btnExport").click();
+    }
+  });
+</script>
+</body>
+</html>
 
