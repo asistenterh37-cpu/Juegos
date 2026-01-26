@@ -11,7 +11,7 @@
       --card:#0f203f;
       --muted:#9fb3d9;
       --text:#eaf1ff;
-      --line:rgba(255,255,255,.10);
+      --line: rgba(255,255,255,.16);
       --accent:#6aa6ff;
       --ok:#3ddc97;
       --warn:#ffd36a;
@@ -215,13 +215,15 @@
       gap:14px;
       max-width: 1050px;
     }
-    .section{
-      border:1px solid var(--line);
-      border-radius: var(--radius);
-      background: linear-gradient(180deg, rgba(15,32,63,.82), rgba(15,32,63,.52));
-      box-shadow: var(--shadow);
-      overflow:hidden;
-    }
+   .section{
+  border: 1px solid rgba(255,255,255,.18);
+  border-radius: var(--radius);
+  background: linear-gradient(180deg, rgba(15,32,63,.82), rgba(15,32,63,.52));
+  box-shadow:
+    var(--shadow),
+    0 0 0 1px rgba(106,166,255,.06) inset;
+  overflow:hidden;
+}
     .section header{
       padding:16px 16px 12px;
       border-bottom:1px solid var(--line);
@@ -276,21 +278,28 @@
       font-size:14px;
       color: var(--muted);
     }
-    input, textarea, select{
+  input, textarea, select{
   width:100%;
-  border:1px solid rgba(255,255,255,.12);
+  border: 1px solid rgba(255,255,255,.18);
   border-radius: 14px;
-  background: rgba(255,255,255,.04);
+  background: rgba(255,255,255,.045);
   color: var(--text);
-  font-size: 16px;        /* ↑ */
-  padding:12px 14px;      /* ↑ */
+  font-size: 16px;
+  padding:12px 14px;
   outline:none;
-  transition: .15s ease;
+  box-shadow: 0 0 0 1px rgba(0,0,0,.18) inset;
+  transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
 }
-    input:focus, textarea:focus, select:focus{
-      border-color: rgba(106,166,255,.45);
-      box-shadow: 0 0 0 3px rgba(106,166,255,.14);
-    }
+input:hover, textarea:hover, select:hover{
+  border-color: rgba(255,255,255,.26);
+  background: rgba(255,255,255,.06);
+}    
+   input:focus, textarea:focus, select:focus{
+  border-color: rgba(106,166,255,.60);
+  box-shadow:
+    0 0 0 3px rgba(106,166,255,.18),
+    0 0 0 1px rgba(106,166,255,.25) inset;
+}
     textarea{min-height:110px; resize:vertical}
     .meta{
       font-size:12px;
