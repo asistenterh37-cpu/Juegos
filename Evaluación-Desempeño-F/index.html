@@ -1853,10 +1853,10 @@ function buildReport(){
   }
 
   $("rTitle").textContent =
-    (header.tipo === "resumenIA") ? "Resumen IA" :
-    (header.tipo === "autoevaluacion") ? "Autoevaluación del desempeño" :
-    (header.tipo === "clientes") ? "Formulario evaluación clientes" :
-    "Evaluación del desempeño";
+  (header.tipo === "resumenIA") ? "Resumen de evaluación del desempeño" :
+  (header.tipo === "autoevaluacion") ? "Autoevaluación del desempeño" :
+  (header.tipo === "clientes") ? "Formulario evaluación clientes" :
+  "Evaluación del desempeño";
 
   $("rGenerated").textContent = new Date().toLocaleString();
 
