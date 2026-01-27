@@ -894,15 +894,41 @@ input:hover, textarea:hover, select:hover{
     toast("Listo", "Formulario limpio.", "ok");
   });
 
-  // Submit: validar + exportar
-  $("#strategyForm").addEventListener("submit", (e) => {
-    e.preventDefault();
-    const ok = validate();
-    if (!ok) return;
+ // Submit: validar + guardar en Sheets + exportar
+$("#strategyForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const ok = validate();
+  if (!ok) return;
+
+  // UI: deshabilitar botón submit mientras guarda
+  const submitBtn = document.querySelector('#strategyForm button[type="submit"]');
+  const prevText = submitBtn ? submitBtn.textContent : "";
+  if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = "Guardando..."; }
+
+  try {
     saveLocal();
+
+    // 1) Guardar en Google Sheets (Empresas)
+    const out = await guardarEnGoogleSheetsEmpresas();
+
+    if (!out || !out.ok) {
+      console.error("Respuesta WebApp:", out);
+      toast("No guardó en Sheets", "Revisa permisos/despliegue del WebApp. Mira la consola.", "warn");
+      return; // importante: NO exportar si no guardó
+    }
+
+    // 2) Exportar JSON
     downloadJSON(getFormData());
-    toast("Listo", "Guardado y exportado.", "ok");
-  });
+    toast("Listo", "Guardado en Sheets y exportado.", "ok");
+
+  } catch (err) {
+    console.error(err);
+    toast("Error", "Fallo de red/CORS o permisos del WebApp. Revisa consola.", "bad");
+  } finally {
+    if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = prevText || "🚀 Guardar y exportar"; }
+  }
+});
 
   // Atajo Ctrl+S / Cmd+S exporta
   window.addEventListener("keydown", (e) => {
@@ -913,13 +939,13 @@ input:hover, textarea:hover, select:hover{
     }
   });
 </script>
-<script>
+
 <script>
   // ============================
   // ✅ CONFIG (ya pegado con tus enlaces)
   // ============================
-  const APPS_SCRIPT_WEBAPP_URL =
-    "https://script.google.com/macros/s/AKfycbwJMMDz6tk_YPSUu6r5DFkl8Kxfn6-ZoPJYIJV-MWRqJ2qX21UDG9bE4gwQPDwt3M_2sQ/exec";
+  const APPS_SCRIPT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwb_jN5zLI-yxecCr5CYCqaa6-N2fwGiZmUX4g-BfwIXcCfhP9LGB1J9ZJ0nqUSOQ0IIQ/exec";
+    
 
   // (Referencia útil para ti / tu equipo. El front no la “usa” directo para escribir,
   // porque quien escribe es el WebApp. Igual la dejamos guardada aquí.)
@@ -938,10 +964,26 @@ input:hover, textarea:hover, select:hover{
     const marcaTemporal = now.toLocaleString("es-HN");
 
     return {
-      "Marca temporal": pick("marcaTemporal") || marcaTemporal,
-      "Periodo": pick("periodo"),
-      "Código": pick("codigo"),
-      "Nombre de la empresa": pick("nombreEmpresa"),
+return {
+  // manda variantes para empatar encabezados con/ sin acentos
+  "Marca temporal": pick("marcaTemporal") || marcaTemporal,
+  "Marca Temporal": pick("marcaTemporal") || marcaTemporal,
+
+  "Período": pick("periodo"),
+  "Periodo": pick("periodo"),
+
+  "Código": pick("codigo"),
+  "Codigo": pick("codigo"),
+
+  "Nombre de la empresa": pick("nombreEmpresa"),
+  "Nombre Empresa": pick("nombreEmpresa"),
+
+  "Sector o industria": pick("sectorIndustria"),
+  "Sector o Industria": pick("sectorIndustria"),
+
+  "Productos o servicios principales": pick("productosServicios"),
+  "Productos o Servicios principales": pick("productosServicios"),
+
       "Sector o industria": pick("sectorIndustria"),
       "Productos o servicios principales": pick("productosServicios"),
       "Tiempo de operación": pick("tiempoOperacion"),
@@ -1017,62 +1059,6 @@ input:hover, textarea:hover, select:hover{
     return out;
   }
 
-  // ============================
-  // 🟦 Botón “Guardar en Sheets + Exportar JSON”
-  // ============================
-  // ============================
-// 🟦 Enganchar botón “Guardar” existente para guardar en Sheets
-// ============================
-document.addEventListener("DOMContentLoaded", () => {
-
-  // 1) Intenta por IDs típicos (ajusta si el tuyo es otro)
-  let btnGuardar =
-    document.getElementById("btnGuardar") ||
-    document.getElementById("btnSave") ||
-    document.querySelector('button[type="submit"]');
-
-  // 2) Fallback: buscar un botón que diga "Guardar"
-  if (!btnGuardar) {
-    const allBtns = Array.from(document.querySelectorAll("button"));
-    btnGuardar = allBtns.find(b => (b.textContent || "").trim().toLowerCase() === "guardar") || null;
-  }
-
-  if (!btnGuardar) return; // no tocamos nada si no existe
-
-  // Si el botón era submit, evitamos que recargue la página
-  btnGuardar.addEventListener("click", async (ev) => {
-    if (btnGuardar.type === "submit") ev.preventDefault();
-
-    const okForm = (typeof validate === "function") ? validate() : true;
-    if (!okForm) return;
-
-    // UI: evitar doble click
-    const prevText = btnGuardar.textContent;
-    btnGuardar.disabled = true;
-    btnGuardar.textContent = "Guardando...";
-
-    try {
-      if (typeof saveLocal === "function") saveLocal();
-
-      const out = await guardarEnGoogleSheetsEmpresas();
-
-      if (out && out.ok) {
-        if (typeof toast === "function") toast("Guardado", "Se guardó en Google Sheets (Empresas).", "ok");
-      } else {
-        console.error("Error Apps Script:", out);
-        alert("No se pudo guardar en Sheets. Revisa consola y permisos del WebApp.");
-        return;
-      }
-
-    } catch (err) {
-      console.error(err);
-      alert("Error de red/CORS o permisos. Revisa el despliegue del WebApp.");
-    } finally {
-      btnGuardar.disabled = false;
-      btnGuardar.textContent = prevText || "Guardar";
-    }
-  });
-});
 </script>
 </body>
 </html>
