@@ -950,81 +950,65 @@ $("#strategyForm").addEventListener("submit", async (e) => {
   // (Referencia útil para ti / tu equipo. El front no la “usa” directo para escribir,
   // porque quien escribe es el WebApp. Igual la dejamos guardada aquí.)
   const EMPRESAS_SHEET_URL =
-    "https://docs.google.com/spreadsheets/d/1bGHsMeYgUGyNpnvwDVIkn6c4oGMF6sADTH9LROy9WXg/edit?usp=sharing";
+    "https://script.google.com/macros/s/AKfycbwKnRYMrG83QJPWq37rd7eb5lGSS3Dk_hLw4eDxb0ipGWX4iFW-q2nY67SZKbSfLtijdw/exec";
 
   const EMPRESAS_SHEET_NAME = "Empresas";
 
+<script>
   // ============================
-  // 🧱 Payload desde TU formulario real (IDs correctos)
+  // 🧱 Payload desde TU formulario (keys internas)
   // ============================
   function buildEmpresasPayloadFromForm() {
     const pick = (id) => (document.getElementById(id)?.value || "").trim();
 
-    const now = new Date();
-    const marcaTemporal = now.toLocaleString("es-HN");
-
     return {
-return {
-  // manda variantes para empatar encabezados con/ sin acentos
-  "Marca temporal": pick("marcaTemporal") || marcaTemporal,
-  "Marca Temporal": pick("marcaTemporal") || marcaTemporal,
+      marcaTemporal: pick("marcaTemporal"),
+      periodo: pick("periodo"),
+      codigo: pick("codigo"),
+      nombreEmpresa: pick("nombreEmpresa"),
+      sectorIndustria: pick("sectorIndustria"),
+      productosServicios: pick("productosServicios"),
+      tiempoOperacion: pick("tiempoOperacion"),
+      numeroEmpleados: pick("numeroEmpleados"),
+      ubicacionAlcance: pick("ubicacionAlcance"),
 
-  "Período": pick("periodo"),
-  "Periodo": pick("periodo"),
+      mision: pick("mision"),
+      vision: pick("vision"),
+      valores: pick("valores"),
 
-  "Código": pick("codigo"),
-  "Codigo": pick("codigo"),
+      fortalezas: pick("fortalezas"),
+      debilidades: pick("debilidades"),
 
-  "Nombre de la empresa": pick("nombreEmpresa"),
-  "Nombre Empresa": pick("nombreEmpresa"),
+      oportunidades: pick("oportunidades"),
+      amenazas: pick("amenazas"),
 
-  "Sector o industria": pick("sectorIndustria"),
-  "Sector o Industria": pick("sectorIndustria"),
+      publicoObjetivo: pick("publicoObjetivo"),
+      comportamientoCliente: pick("comportamientoCliente"),
+      canalesVenta: pick("canalesVenta"),
 
-  "Productos o servicios principales": pick("productosServicios"),
-  "Productos o Servicios principales": pick("productosServicios"),
+      posicionamientoActual: pick("posicionamientoActual"),
+      competidoresPrincipales: pick("competidoresPrincipales"),
+      diferenciacion: pick("diferenciacion"),
+      benchmarking: pick("benchmarking"),
 
-      "Sector o industria": pick("sectorIndustria"),
-      "Productos o servicios principales": pick("productosServicios"),
-      "Tiempo de operación": pick("tiempoOperacion"),
-      "No. de empleados": pick("numeroEmpleados"),
-      "Ubicación y alcance": pick("ubicacionAlcance"),
+      logros12m: pick("logros12m"),
+      logros3a5: pick("logros3a5"),
 
-      "Misión": pick("mision"),
-      "Visión": pick("vision"),
-      "Valores": pick("valores"),
+      sistemaControl: pick("sistemaControl"),
+      frecuenciaRevision: pick("frecuenciaRevision"),
 
-      "Fortalezas": pick("fortalezas"),
-      "Debilidades": pick("debilidades"),
-
-      "Oportunidades": pick("oportunidades"),
-      "Amenazas": pick("amenazas"),
-
-      "Público objetivo": pick("publicoObjetivo"),
-      "Comportamiento del cliente": pick("comportamientoCliente"),
-      "Canales de venta y distribución": pick("canalesVenta"),
-
-      "Posicionamiento actual": pick("posicionamientoActual"),
-      "Competidores principales": pick("competidoresPrincipales"),
-      "Diferenciación": pick("diferenciacion"),
-      "Benchmarking": pick("benchmarking"),
-
-      "Logros 12 meses": pick("logros12m"),
-      "Logros 3-5 años": pick("logros3a5"),
-
-      "Sistema de control": pick("sistemaControl"),
-      "Frecuencia revisión": pick("frecuenciaRevision"),
-
-      "Correo": pick("correo"),
-      "Notas": pick("notas"),
-
-      // opcional: referencia de la hoja donde cae
-      "_sheet_url_ref": EMPRESAS_SHEET_URL
+      correo: pick("correo"),
+      notas: pick("notas")
     };
   }
-
+</script>
+  
   // ============================
   // ☁️ Guardar en Google Sheets vía WebApp
+  // ============================
+<script>
+  // ============================
+  // ☁️ Guardar en Google Sheets vía WebApp (SIN preflight CORS)
   // ============================
   async function guardarEnGoogleSheetsEmpresas() {
     if (!APPS_SCRIPT_WEBAPP_URL) {
@@ -1032,25 +1016,26 @@ return {
       return { ok: false, error: "missing_webapp_url" };
     }
 
-    const payload = buildEmpresasPayloadFromForm();
+    const data = buildEmpresasPayloadFromForm();
 
-    // Mínimo viable
-    if (!payload["Periodo"] || !payload["Nombre de la empresa"]) {
+    // mínimos
+    if (!data.periodo || !data.nombreEmpresa) {
       alert("Completa al menos Período y Nombre de la empresa.");
       return { ok: false, error: "missing_required_fields" };
     }
 
+    const payload = {
+      sheetName: EMPRESAS_SHEET_NAME,
+      data
+    };
+
+    // ⚠️ CLAVE: mandar como text/plain para evitar preflight OPTIONS (CORS)
     const res = await fetch(APPS_SCRIPT_WEBAPP_URL, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        sheetName: EMPRESAS_SHEET_NAME,
-        data: payload
-      })
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(payload)
     });
-// Si tu WebApp está bien, esto debería responder JSON.
-// Si te devuelve HTML, normalmente es un tema de permisos/despliegue.
-    
+
     const text = await res.text();
     let out;
     try { out = JSON.parse(text); }
@@ -1058,7 +1043,7 @@ return {
 
     return out;
   }
-
+</script>
 </script>
 </body>
 </html>
