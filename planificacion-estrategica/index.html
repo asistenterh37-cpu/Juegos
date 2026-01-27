@@ -677,7 +677,7 @@
   // ============================
   // ✅ CONFIG (Sheets WebApp + Sheet)
   // ============================
-  const APPS_SCRIPT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxGrLRsShmuBLzJlcIofzzsBlnTor8EepavA103lpKTRFxsqqJsh608IgzGXfvUwpRsWQ/exec";
+  const APPS_SCRIPT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzqV8dLehQFbDkfGz5uELOuVe3cDaxs9UTa51P7Ba48R9Zg_RXqOlQfUuLwZ230H8JO2A/exec";
   const GOOGLE_SHEET_URL = "https://docs.google.com/spreadsheets/d/1bGHsMeYgUGyNpnvwDVIkn6c4oGMF6sADTH9LROy9WXg/edit?usp=sharing";
   const EMPRESAS_SHEET_NAME = "Empresas";
   const STORAGE_KEY = "strategic_planning_intake_v1";
@@ -860,7 +860,44 @@
     $("#progressBar").style.width = `${pct}%`;
     $(".progress").setAttribute("aria-valuenow", String(pct));
   }
+  // ============================
+  // 🧨 Limpiar formulario (reset total)
+  // ============================
+  function clearValidationUI() {
+    const form = $("#strategyForm");
+    $$("[required]", form).forEach(el => el.classList.remove("error"));
+  }
 
+  function limpiarFormulario({ confirmUser=true } = {}) {
+    if (confirmUser) {
+      const ok = confirm("¿Seguro que quieres limpiar el formulario? Se borrará lo guardado localmente (auto-guardado).");
+      if (!ok) return;
+    }
+
+    const form = $("#strategyForm");
+
+    // 1) Reset campos (respeta defaults del HTML)
+    form.reset();
+
+    // 2) Re-set marcaTemporal a ahora (porque reset lo deja vacío si no hay value por defecto)
+    const mt = $("#marcaTemporal");
+    if (mt) mt.value = nowLocalDatetime();
+
+    // 3) Limpia UI de validación
+    clearValidationUI();
+
+    // 4) Borra auto-guardado local
+    localStorage.removeItem(STORAGE_KEY);
+
+    // 5) Refresca indicadores + “huella” nueva opcional
+    updateProgress();
+    $("#lastSaved").textContent = "Último guardado: —";
+
+    // Si quieres que vuelva a quedar guardado “vacío” inmediatamente, descomenta:
+    // saveToLocalStorage();
+
+    toast("Formulario limpio", "Se borró el auto-guardado y se reiniciaron los campos.", "ok");
+  }  
   // ============================
   // ☁️ Guardar en Google Sheets vía WebApp (SIN preflight)
   // Tabula por fila (append) en hoja: Empresas
@@ -921,7 +958,12 @@
       saveToLocalStorage();
       updateProgress();
     });
-
+    // 🧨 Reset / Limpiar formulario
+    const btnReset = $("#btnReset");
+    if (btnReset) {
+      btnReset.addEventListener("click", () => limpiarFormulario({ confirmUser:true }));
+    }
+    
     // SUBMIT: Guardar en Sheets + Exportar JSON
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -955,6 +997,8 @@
     });
   }
 
+    // saveToLocalStorage(); // (opcional) no guardar hasta que el usuario escriba
+
   // ============================
   // 🚀 Init
   // ============================
@@ -962,7 +1006,7 @@
     initSectionsAndNav();
     loadFromLocalStorage();
     updateProgress();
-    saveToLocalStorage(); // deja huella inicial
+    
     initEvents();
   })();
 </script>
