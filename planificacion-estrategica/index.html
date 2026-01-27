@@ -668,7 +668,7 @@
             </div>
             <div class="right">
               <button class="btn" type="button" id="btnValidate">✅ Validar</button>
-              <button class="btn primary" type="submit">🚀 Guardar y exportar</button>
+              <button class="btn primary" type="submit" id="btnSubmit">🚀 Guardar y exportar</button>
             </div>
           </div>
         </div>
@@ -679,17 +679,18 @@
 
 <script>
   // ============================
-  // ✅ CONFIG (Sheets WebApp)
+  // ✅ CONFIG (Sheets WebApp + Sheet)
   // ============================
-  const APPS_SCRIPT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwb_jN5zLI-yxecCr5CYCqaa6-N2fwGiZmUX4g-BfwIXcCfhP9LGB1J9ZJ0nqUSOQ0IIQ/exec";
+  const APPS_SCRIPT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzZTDxwfzc-tR1Nzp9VL0o1WRJief-S0G4JJ5N3ssU_F9qOeEIO-fNwX37qs3OTWsHq7Q/exec";
+  const GOOGLE_SHEET_URL = "https://docs.google.com/spreadsheets/d/1bGHsMeYgUGyNpnvwDVIkn6c4oGMF6sADTH9LROy9WXg/edit?usp=sharing";
   const EMPRESAS_SHEET_NAME = "Empresas";
+  const STORAGE_KEY = "strategic_planning_intake_v1";
 
   // ============================
   // 🧱 Utils UI
   // ============================
   const $ = (sel, root=document) => root.querySelector(sel);
   const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
-  const STORAGE_KEY = "strategic_planning_intake_v1";
 
   const toast = (title, msg, type="ok") => {
     const t = $("#toast");
@@ -700,7 +701,7 @@
       type==="ok" ? "rgba(61,220,151,.35)" :
       type==="warn" ? "rgba(255,211,106,.35)" :
       "rgba(255,106,139,.35)";
-    setTimeout(()=> t.style.display = "none", 2200);
+    setTimeout(()=> t.style.display = "none", 2400);
   };
 
   const nowLocalDatetime = () => {
@@ -714,8 +715,45 @@
     return `${yyyy}-${mm}-${dd}T${hh}:${mi}`;
   };
 
+  const prettyNow = () => {
+    const d = new Date();
+    return d.toLocaleString();
+  };
+
   // ============================
-  // 🧱 Payload desde el formulario (para Sheets)
+  // 🧩 Secciones (abrir/cerrar) + Navegación
+  // ============================
+  function initSectionsAndNav(){
+    $$(".section > header").forEach(h => {
+      const sec = h.closest(".section");
+      const toggle = () => {
+        const isOpen = sec.getAttribute("data-open") === "true";
+        sec.setAttribute("data-open", String(!isOpen));
+        h.setAttribute("aria-expanded", String(!isOpen));
+      };
+      h.addEventListener("click", toggle);
+      h.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(); }
+      });
+    });
+
+    $$(".navbtn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        $$(".navbtn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        const id = btn.getAttribute("data-target");
+        const el = document.getElementById(id);
+        if (el){
+          el.setAttribute("data-open", "true");
+          el.scrollIntoView({ behavior:"smooth", block:"start" });
+        }
+      });
+    });
+  }
+
+  // ============================
+  // 🧱 Payload desde el formulario
+  // (coincide con los headers de tu sheet "Empresas")
   // ============================
   function buildEmpresasPayloadFromForm() {
     const pick = (id) => (document.getElementById(id)?.value || "").trim();
@@ -762,88 +800,246 @@
   }
 
   // ============================
+  // ✅ Validación (UI)
+  // ============================
+  function validateFormUI({ showToast=true } = {}) {
+    const form = $("#strategyForm");
+    const required = $$("[required]", form);
+
+    let ok = true;
+    required.forEach(el => {
+      const isEmpty = !String(el.value || "").trim();
+      el.classList.toggle("error", isEmpty);
+      if (isEmpty) ok = false;
+    });
+
+    if (showToast) {
+      if (ok) toast("Validación OK", "Campos requeridos completos.", "ok");
+      else toast("Faltan campos", "Revisa los campos marcados con borde rojo.", "warn");
+    }
+    return ok;
+  }
+
+  // ============================
+  // 🧠 Auto-guardado local (localStorage)
+  // ============================
+  function saveToLocalStorage() {
+    const data = buildEmpresasPayloadFromForm();
+    const out = {
+      version: 1,
+      savedAt: new Date().toISOString(),
+      data
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(out));
+    $("#lastSaved").textContent = `Último guardado: ${prettyNow()}`;
+  }
+
+  function loadFromLocalStorage() {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    try{
+      const obj = JSON.parse(raw);
+      const d = obj?.data || {};
+      Object.keys(d).forEach(k => {
+        const el = document.querySelector(`[name="${k}"]`);
+        if (el && typeof d[k] !== "undefined") el.value = d[k];
+      });
+      $("#lastSaved").textContent = `Último guardado: ${prettyNow()}`;
+    } catch {}
+  }
+
+  // ============================
+  // 📈 Progreso (campos completos)
+  // ============================
+  function updateProgress() {
+    const form = $("#strategyForm");
+    const fields = $$("input, textarea, select", form).filter(el => el.type !== "submit" && el.type !== "button");
+    const total = fields.length;
+    const filled = fields.filter(el => String(el.value || "").trim().length > 0).length;
+
+    $("#filledCount").textContent = String(filled);
+    $("#totalCount").textContent = String(total);
+
+    const pct = total ? Math.round((filled/total)*100) : 0;
+    $("#progressBar").style.width = `${pct}%`;
+    $(".progress").setAttribute("aria-valuenow", String(pct));
+  }
+
+  // ============================
+  // ⬇️ Exportar / Copiar JSON
+  // ============================
+  function getExportObject() {
+    return {
+      module: "Planificación Estratégica — Recolección de datos",
+      sheetName: EMPRESAS_SHEET_NAME,
+      googleSheetUrl: GOOGLE_SHEET_URL,
+      webAppUrl: APPS_SCRIPT_WEBAPP_URL,
+      exportedAt: new Date().toISOString(),
+      data: buildEmpresasPayloadFromForm()
+    };
+  }
+
+  function downloadJSON() {
+    const obj = getExportObject();
+    const blob = new Blob([JSON.stringify(obj, null, 2)], { type:"application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `plan_estrategico_recoleccion_${Date.now()}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(a.href);
+  }
+
+  async function copyJSON() {
+    const obj = getExportObject();
+    await navigator.clipboard.writeText(JSON.stringify(obj, null, 2));
+  }
+
+  // ============================
   // ☁️ Guardar en Google Sheets vía WebApp (SIN preflight)
+  // Tabula por fila (append) en hoja: Empresas
   // ============================
   async function guardarEnGoogleSheetsEmpresas() {
     if (!APPS_SCRIPT_WEBAPP_URL) {
-      return { ok: false, error: "missing_webapp_url" };
+      return { ok:false, error:"missing_webapp_url" };
     }
 
     const data = buildEmpresasPayloadFromForm();
 
     // mínimos
     if (!data.periodo || !data.nombreEmpresa) {
-      return { ok: false, error: "missing_required_fields", msg: "Completa Período y Nombre de la empresa." };
+      return { ok:false, error:"missing_required_fields", msg:"Completa Período y Nombre de la empresa." };
     }
 
     const payload = { sheetName: EMPRESAS_SHEET_NAME, data };
 
-    const res = await fetch(APPS_SCRIPT_WEBAPP_URL, {
-      method: "POST",
-      headers: { "Content-Type": "text/plain;charset=utf-8" }, // evita preflight OPTIONS
-      body: JSON.stringify(payload),
-      cache: "no-store"
-    });
-
-    const text = await res.text();
+    let res, text;
+    try{
+      res = await fetch(APPS_SCRIPT_WEBAPP_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" }, // evita preflight OPTIONS (CORS)
+        body: JSON.stringify(payload),
+        cache: "no-store"
+      });
+      text = await res.text();
+    } catch (err) {
+      return { ok:false, error:"network_error", msg:String(err?.message || err) };
+    }
 
     // Si devolvió HTML (login/permisos), lo detectamos
-    if (text.trim().startsWith("<")) {
-      return { ok: false, error: "html_response", status: res.status, raw: text.slice(0, 300) };
+    if ((text || "").trim().startsWith("<")) {
+      return { ok:false, error:"html_response", status: res?.status, raw: (text || "").slice(0, 300) };
     }
 
-    try
-      return JSON.parse(text);
+    try{
+      const out = JSON.parse(text);
+      return out;
     } catch {
-      return { ok: false, error: "non_json_response", status: res.status, raw: text };
+      return { ok:false, error:"non_json_response", status: res?.status, raw: text };
     }
   }
-</script>
- 
+
   // ============================
-  // ☁️ Guardar en Google Sheets vía WebApp
+  // 🧷 Eventos
   // ============================
-<script>
-  // ============================
-  // ☁️ Guardar en Google Sheets vía WebApp (SIN preflight CORS)
-  // ============================
-  async function guardarEnGoogleSheetsEmpresas() {
-    if (!APPS_SCRIPT_WEBAPP_URL) {
-      alert("Falta la URL del WebApp (Apps Script).");
-      return { ok: false, error: "missing_webapp_url" };
-    }
+  function initEvents(){
+    const form = $("#strategyForm");
 
-    const data = buildEmpresasPayloadFromForm();
+    // Default marcaTemporal
+    const mt = $("#marcaTemporal");
+    if (mt && !mt.value) mt.value = nowLocalDatetime();
 
-    // mínimos
-    if (!data.periodo || !data.nombreEmpresa) {
-      alert("Completa al menos Período y Nombre de la empresa.");
-      return { ok: false, error: "missing_required_fields" };
-    }
+    // Auto-save on input
+    form.addEventListener("input", () => {
+      saveToLocalStorage();
+      updateProgress();
+    });
 
-    const payload = {
-      sheetName: EMPRESAS_SHEET_NAME,
-      data
-    };
+    // Botones laterales
+    $("#btnExport").addEventListener("click", () => {
+      downloadJSON();
+      toast("Exportado", "JSON descargado.", "ok");
+    });
 
-    // ⚠️ CLAVE: mandar como text/plain para evitar preflight OPTIONS (CORS)
-  const res = await fetch(APPS_SCRIPT_WEBAPP_URL, {
-  method: "POST",
-  headers: { "Content-Type": "text/plain;charset=utf-8" }, // <-- clave
-const payload = { sheetName: EMPRESAS_SHEET_NAME, data };
-body: JSON.stringify(payload),
-  cache: "no-store"
-});
+    $("#btnCopy").addEventListener("click", async () => {
+      try{
+        await copyJSON();
+        toast("Copiado", "JSON copiado al portapapeles.", "ok");
+      } catch {
+        toast("Ups", "No pude copiar. Tu navegador lo bloqueó.", "warn");
+      }
+    });
 
-    const text = await res.text();
-    let out;
-    try { out = JSON.parse(text); }
-    catch { out = { ok: res.ok, raw: text }; }
+    $("#btnReset").addEventListener("click", () => {
+      if (!confirm("¿Seguro que quieres limpiar el formulario? Esto también borra el auto-guardado local.")) return;
+      form.reset();
+      localStorage.removeItem(STORAGE_KEY);
+      const mt2 = $("#marcaTemporal");
+      if (mt2) mt2.value = nowLocalDatetime();
+      updateProgress();
+      $("#lastSaved").textContent = "Último guardado: —";
+      toast("Listo", "Formulario limpio.", "ok");
+    });
 
-    return out;
+    $("#btnValidate").addEventListener("click", () => {
+      validateFormUI({ showToast:true });
+      updateProgress();
+    });
+
+    // Ctrl+S exporta (como tu hint)
+    window.addEventListener("keydown", (e) => {
+      if ((e.ctrlKey || e.metaKey) && (e.key === "s" || e.key === "S")) {
+        e.preventDefault();
+        downloadJSON();
+        toast("Exportado", "JSON descargado (Ctrl+S).", "ok");
+      }
+    });
+
+    // SUBMIT: Guardar en Sheets + Exportar JSON
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const ok = validateFormUI({ showToast:true });
+      if (!ok) return;
+
+      // UX: deshabilitar botón mientras guarda
+      const btn = $("#btnSubmit");
+      const old = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = "⏳ Guardando…";
+
+      const out = await guardarEnGoogleSheetsEmpresas();
+
+      btn.disabled = false;
+      btn.textContent = old;
+
+      if (out?.ok) {
+        toast("Guardado", "Enviado a Google Sheets y exportado a JSON.", "ok");
+        saveToLocalStorage();
+        downloadJSON();
+      } else {
+        const msg =
+          out?.msg ||
+          (out?.error === "html_response"
+            ? "El WebApp devolvió HTML (normalmente permisos/login). Revisa que el WebApp esté desplegado con acceso 'Cualquiera' y que doPost responda JSON."
+            : "No se pudo guardar. Revisa consola/Apps Script.");
+        toast("Error al guardar", msg, "bad");
+        console.error("guardarEnGoogleSheetsEmpresas():", out);
+      }
+    });
   }
-</script>
+
+  // ============================
+  // 🚀 Init
+  // ============================
+  (function init(){
+    initSectionsAndNav();
+    loadFromLocalStorage();
+    updateProgress();
+    saveToLocalStorage(); // deja huella inicial
+    initEvents();
+  })();
 </script>
 </body>
 </html>
-
