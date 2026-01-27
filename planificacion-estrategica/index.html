@@ -919,7 +919,7 @@ input:hover, textarea:hover, select:hover{
   // ✅ CONFIG (ya pegado con tus enlaces)
   // ============================
   const APPS_SCRIPT_WEBAPP_URL =
-    "https://script.google.com/macros/s/AKfycbyoycIhl6TTFzbjbzed8_tvtGpDPUXKIaw0fdCnTvEKztsRhOVqij95mLFX90FTmVJK0Q/exec";
+    "https://script.google.com/macros/s/AKfycbwJMMDz6tk_YPSUu6r5DFkl8Kxfn6-ZoPJYIJV-MWRqJ2qX21UDG9bE4gwQPDwt3M_2sQ/exec";
 
   // (Referencia útil para ti / tu equipo. El front no la “usa” directo para escribir,
   // porque quien escribe es el WebApp. Igual la dejamos guardada aquí.)
@@ -1006,7 +1006,9 @@ input:hover, textarea:hover, select:hover{
         data: payload
       })
     });
-
+// Si tu WebApp está bien, esto debería responder JSON.
+// Si te devuelve HTML, normalmente es un tema de permisos/despliegue.
+    
     const text = await res.text();
     let out;
     try { out = JSON.parse(text); }
@@ -1018,52 +1020,59 @@ input:hover, textarea:hover, select:hover{
   // ============================
   // 🟦 Botón “Guardar en Sheets + Exportar JSON”
   // ============================
-  document.addEventListener("DOMContentLoaded", () => {
-    // Creamos botón en la columna izquierda (sin tocar tu HTML)
-    const actions = document.querySelector(".side-actions");
-    if (!actions) return;
+  // ============================
+// 🟦 Enganchar botón “Guardar” existente para guardar en Sheets
+// ============================
+document.addEventListener("DOMContentLoaded", () => {
 
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = "btn primary";
-    btn.id = "btnGuardarSheetsExportar";
-    btn.textContent = "☁️ Guardar en Sheets + Exportar";
+  // 1) Intenta por IDs típicos (ajusta si el tuyo es otro)
+  let btnGuardar =
+    document.getElementById("btnGuardar") ||
+    document.getElementById("btnSave") ||
+    document.querySelector('button[type="submit"]');
 
-    // Lo ponemos arriba de “Limpiar formulario”
-    const resetBtn = document.getElementById("btnReset");
-    actions.insertBefore(btn, resetBtn || null);
+  // 2) Fallback: buscar un botón que diga "Guardar"
+  if (!btnGuardar) {
+    const allBtns = Array.from(document.querySelectorAll("button"));
+    btnGuardar = allBtns.find(b => (b.textContent || "").trim().toLowerCase() === "guardar") || null;
+  }
 
-    btn.addEventListener("click", async () => {
-      // Usa tus funciones ya existentes (del script grande):
-      // validate(), saveLocal(), getFormData(), downloadJSON(), toast()
-      const okForm = (typeof validate === "function") ? validate() : true;
-      if (!okForm) return;
+  if (!btnGuardar) return; // no tocamos nada si no existe
 
-      try {
-        if (typeof saveLocal === "function") saveLocal();
+  // Si el botón era submit, evitamos que recargue la página
+  btnGuardar.addEventListener("click", async (ev) => {
+    if (btnGuardar.type === "submit") ev.preventDefault();
 
-        const out = await guardarEnGoogleSheetsEmpresas();
+    const okForm = (typeof validate === "function") ? validate() : true;
+    if (!okForm) return;
 
-        if (out && out.ok) {
-          if (typeof toast === "function") toast("Guardado", "Se guardó en Google Sheets (Empresas).", "ok");
-        } else {
-          console.error("Error Apps Script:", out);
-          alert("No se pudo guardar en Sheets. Revisa consola y permisos del WebApp.");
-          return;
-        }
+    // UI: evitar doble click
+    const prevText = btnGuardar.textContent;
+    btnGuardar.disabled = true;
+    btnGuardar.textContent = "Guardando...";
 
-        // Exportar JSON (lo mismo que tu botón actual)
-        if (typeof downloadJSON === "function" && typeof getFormData === "function") {
-          downloadJSON(getFormData());
-          if (typeof toast === "function") toast("Exportado", "También se descargó el JSON.", "ok");
-        }
+    try {
+      if (typeof saveLocal === "function") saveLocal();
 
-      } catch (err) {
-        console.error(err);
-        alert("Error de red/CORS o permisos. Revisa el despliegue del WebApp.");
+      const out = await guardarEnGoogleSheetsEmpresas();
+
+      if (out && out.ok) {
+        if (typeof toast === "function") toast("Guardado", "Se guardó en Google Sheets (Empresas).", "ok");
+      } else {
+        console.error("Error Apps Script:", out);
+        alert("No se pudo guardar en Sheets. Revisa consola y permisos del WebApp.");
+        return;
       }
-    });
+
+    } catch (err) {
+      console.error(err);
+      alert("Error de red/CORS o permisos. Revisa el despliegue del WebApp.");
+    } finally {
+      btnGuardar.disabled = false;
+      btnGuardar.textContent = prevText || "Guardar";
+    }
   });
+});
 </script>
 </body>
 </html>
