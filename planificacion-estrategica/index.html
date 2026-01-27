@@ -681,7 +681,7 @@
   // ============================
   // ✅ CONFIG (Sheets WebApp + Sheet)
   // ============================
-  const APPS_SCRIPT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzZTDxwfzc-tR1Nzp9VL0o1WRJief-S0G4JJ5N3ssU_F9qOeEIO-fNwX37qs3OTWsHq7Q/exec";
+  const APPS_SCRIPT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyXUOx99jQ7-tS06ybWN-rUlx4bfl3slS_ecRJA5ejh9SIC1A5od1PGr97-hrAVqvTbDw/exec";
   const GOOGLE_SHEET_URL = "https://docs.google.com/spreadsheets/d/1bGHsMeYgUGyNpnvwDVIkn6c4oGMF6sADTH9LROy9WXg/edit?usp=sharing";
   const EMPRESAS_SHEET_NAME = "Empresas";
   const STORAGE_KEY = "strategic_planning_intake_v1";
@@ -914,29 +914,30 @@
 
     const payload = { sheetName: EMPRESAS_SHEET_NAME, data };
 
-    let res, text;
+    // ✅ En GitHub Pages => Apps Script WebApp: lo más estable es NO-CORS (evita el bloqueo del navegador).
+    // Nota: la respuesta será "opaque" y no se puede leer JSON de vuelta.
     try{
-      res = await fetch(APPS_SCRIPT_WEBAPP_URL, {
+      await fetch(APPS_SCRIPT_WEBAPP_URL, {
         method: "POST",
-        headers: { "Content-Type": "text/plain;charset=utf-8" }, // evita preflight OPTIONS (CORS)
+        mode: "no-cors",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: JSON.stringify(payload),
-        cache: "no-store"
+        cache: "no-store",
+        keepalive: true
       });
-      text = await res.text();
+
+      // Si llega aquí, el navegador envió el request.
+      return { ok:true, action:"sent_no_cors" };
+
     } catch (err) {
+      // Fallback: sendBeacon (también ignora respuesta, pero es muy resiliente)
+      try{
+        const blob = new Blob([JSON.stringify(payload)], { type: "text/plain;charset=utf-8" });
+        const queued = navigator.sendBeacon(APPS_SCRIPT_WEBAPP_URL, blob);
+        if (queued) return { ok:true, action:"beacon_queued" };
+      } catch {}
+
       return { ok:false, error:"network_error", msg:String(err?.message || err) };
-    }
-
-    // Si devolvió HTML (login/permisos), lo detectamos
-    if ((text || "").trim().startsWith("<")) {
-      return { ok:false, error:"html_response", status: res?.status, raw: (text || "").slice(0, 300) };
-    }
-
-    try{
-      const out = JSON.parse(text);
-      return out;
-    } catch {
-      return { ok:false, error:"non_json_response", status: res?.status, raw: text };
     }
   }
 
@@ -1014,8 +1015,8 @@
       btn.disabled = false;
       btn.textContent = old;
 
-      if (out?.ok) {
-        toast("Guardado", "Enviado a Google Sheets y exportado a JSON.", "ok");
+    if (out?.ok) {
+        toast("Guardado", "Datos enviados a Google Sheets. También exporté el JSON.", "ok");
         saveToLocalStorage();
         downloadJSON();
       } else {
