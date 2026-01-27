@@ -4,6 +4,10 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Módulo | Planificación Estratégica — Recolección de datos</title>
+
+  <!-- Evita 404 de favicon en GitHub Pages -->
+  <link rel="icon" href="data:," />
+
   <style>
     :root{
       --bg:#0b1220;
@@ -22,17 +26,17 @@
     }
     *{box-sizing:border-box}
     html,body{height:100%}
-   body{
-  margin:0;
-  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue", sans-serif;
-  font-size: 16px;           /* ↑ antes implícito ~14px */
-  line-height: 1.5;          /* ↑ mejora legibilidad */
-  background: radial-gradient(1200px 800px at 10% 10%, rgba(106,166,255,.14), transparent 55%),
-              radial-gradient(1000px 700px at 90% 20%, rgba(61,220,151,.10), transparent 55%),
-              radial-gradient(900px 700px at 60% 90%, rgba(255,211,106,.10), transparent 55%),
-              var(--bg);
-  color:var(--text);
-}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue", sans-serif;
+      font-size: 16px;
+      line-height: 1.5;
+      background: radial-gradient(1200px 800px at 10% 10%, rgba(106,166,255,.14), transparent 55%),
+                  radial-gradient(1000px 700px at 90% 20%, rgba(61,220,151,.10), transparent 55%),
+                  radial-gradient(900px 700px at 60% 90%, rgba(255,211,106,.10), transparent 55%),
+                  var(--bg);
+      color:var(--text);
+    }
     a{color:inherit}
     .app{
       display:grid;
@@ -47,6 +51,8 @@
       border-right:1px solid var(--line);
       background: linear-gradient(180deg, rgba(15,27,51,.95), rgba(15,27,51,.72));
       backdrop-filter: blur(10px);
+      display:flex;
+      flex-direction:column;
     }
     .brand{
       display:flex;
@@ -130,10 +136,9 @@
       border-radius: 12px;
       cursor:pointer;
       transition: .15s ease;
+      font-size: 15px;
     }
-    .navbtn small{color:var(--muted)}
-    .navbtn{ font-size: 15px; }
-    .navbtn small{ font-size: 13px; }
+    .navbtn small{color:var(--muted); font-size: 13px;}
     .navbtn:hover{background: rgba(255,255,255,.04); border-color: rgba(255,255,255,.06)}
     .navbtn.active{
       background: rgba(106,166,255,.12);
@@ -190,13 +195,13 @@
       font-size:26px;
       letter-spacing:.2px;
     }
-  .title p{
-  margin:6px 0 0;
-  color:var(--muted);
-  max-width: 70ch;
-  line-height:1.55;
-  font-size:15px;
-}
+    .title p{
+      margin:6px 0 0;
+      color:var(--muted);
+      max-width: 70ch;
+      line-height:1.55;
+      font-size:15px;
+    }
     .toast{
       min-width: 260px;
       border:1px solid var(--line);
@@ -215,15 +220,15 @@
       gap:14px;
       max-width: 1050px;
     }
-   .section{
-  border: 1px solid rgba(255,255,255,.18);
-  border-radius: var(--radius);
-  background: linear-gradient(180deg, rgba(15,32,63,.82), rgba(15,32,63,.52));
-  box-shadow:
-    var(--shadow),
-    0 0 0 1px rgba(106,166,255,.06) inset;
-  overflow:hidden;
-}
+    .section{
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, rgba(15,32,63,.82), rgba(15,32,63,.52));
+      box-shadow:
+        var(--shadow),
+        0 0 0 1px rgba(106,166,255,.06) inset;
+      overflow:hidden;
+    }
     .section header{
       padding:16px 16px 12px;
       border-bottom:1px solid var(--line);
@@ -237,14 +242,8 @@
     .section header .left{
       display:flex; flex-direction:column; gap:3px;
     }
-    .section header h3{
-  margin:0;
-  font-size:18px;
-}
-.section header span{
-  font-size:14px;
-  color:var(--muted);
-}
+    .section header h3{ margin:0; font-size:18px; }
+    .section header span{ font-size:14px; color:var(--muted); }
     .chev{
       width:34px;height:34px;border-radius:12px;
       border:1px solid var(--line);
@@ -278,28 +277,28 @@
       font-size:14px;
       color: var(--muted);
     }
-  input, textarea, select{
-  width:100%;
-  border: 1px solid rgba(255,255,255,.18);
-  border-radius: 14px;
-  background: rgba(255,255,255,.045);
-  color: var(--text);
-  font-size: 16px;
-  padding:12px 14px;
-  outline:none;
-  box-shadow: 0 0 0 1px rgba(0,0,0,.18) inset;
-  transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
-}
-input:hover, textarea:hover, select:hover{
-  border-color: rgba(255,255,255,.26);
-  background: rgba(255,255,255,.06);
-}    
-   input:focus, textarea:focus, select:focus{
-  border-color: rgba(106,166,255,.60);
-  box-shadow:
-    0 0 0 3px rgba(106,166,255,.18),
-    0 0 0 1px rgba(106,166,255,.25) inset;
-}
+    input, textarea, select{
+      width:100%;
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: 14px;
+      background: rgba(255,255,255,.045);
+      color: var(--text);
+      font-size: 16px;
+      padding:12px 14px;
+      outline:none;
+      box-shadow: 0 0 0 1px rgba(0,0,0,.18) inset;
+      transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
+    }
+    input:hover, textarea:hover, select:hover{
+      border-color: rgba(255,255,255,.26);
+      background: rgba(255,255,255,.06);
+    }
+    input:focus, textarea:focus, select:focus{
+      border-color: rgba(106,166,255,.60);
+      box-shadow:
+        0 0 0 3px rgba(106,166,255,.18),
+        0 0 0 1px rgba(106,166,255,.25) inset;
+    }
     textarea{min-height:110px; resize:vertical}
     .meta{
       font-size:12px;
@@ -337,7 +336,6 @@ input:hover, textarea:hover, select:hover{
       color: var(--muted);
     }
 
-    /* responsive */
     @media (max-width: 980px){
       .app{grid-template-columns: 1fr}
       .sidebar{position:relative; height:auto}
@@ -347,6 +345,7 @@ input:hover, textarea:hover, select:hover{
     }
   </style>
 </head>
+
 <body>
 <div class="app">
   <aside class="sidebar">
@@ -374,34 +373,34 @@ input:hover, textarea:hover, select:hover{
     </div>
 
     <nav aria-label="Secciones">
-      <button class="navbtn active" data-target="sec-empresa">
+      <button class="navbtn active" data-target="sec-empresa" type="button">
         <span>1) Datos generales<br><small>Empresa y contexto</small></span>
         <small>↩</small>
       </button>
-      <button class="navbtn" data-target="sec-identidad">
+      <button class="navbtn" data-target="sec-identidad" type="button">
         <span>2) Identidad<br><small>Misión, visión, valores</small></span>
         <small>↩</small>
       </button>
-      <button class="navbtn" data-target="sec-interno">
+      <button class="navbtn" data-target="sec-interno" type="button">
         <span>3) Análisis interno<br><small>Fortalezas / debilidades</small></span>
         <small>↩</small>
       </button>
-      <button class="navbtn" data-target="sec-externo">
+      <button class="navbtn" data-target="sec-externo" type="button">
         <span>4) Análisis externo<br><small>Oportunidades / amenazas</small></span>
         <small>↩</small>
       </button>
-      <button class="navbtn" data-target="sec-mercado">
+      <button class="navbtn" data-target="sec-mercado" type="button">
         <span>5) Mercado & Competencia<br><small>Cliente, canales, rivalidad</small></span>
         <small>↩</small>
       </button>
-      <button class="navbtn" data-target="sec-metas">
+      <button class="navbtn" data-target="sec-metas" type="button">
         <span>6) Metas & Control<br><small>Logros, seguimiento</small></span>
         <small>↩</small>
       </button>
     </nav>
 
     <div class="hint">
-      Tip rápido: exporta tu captura a JSON para que el siguiente módulo (FODA/PESTEL/KPIs) lo consuma sin drama.  
+      Tip rápido: exporta tu captura a JSON para que el siguiente módulo (FODA/PESTEL/KPIs) lo consuma sin drama.
       Porque el drama ya lo pone el mercado. 😅
     </div>
 
@@ -679,7 +678,15 @@ input:hover, textarea:hover, select:hover{
 </div>
 
 <script>
-  // ===== Utilidades =====
+  // ============================
+  // ✅ CONFIG (Sheets WebApp)
+  // ============================
+  const APPS_SCRIPT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwb_jN5zLI-yxecCr5CYCqaa6-N2fwGiZmUX4g-BfwIXcCfhP9LGB1J9ZJ0nqUSOQ0IIQ/exec";
+  const EMPRESAS_SHEET_NAME = "Empresas";
+
+  // ============================
+  // 🧱 Utils UI
+  // ============================
   const $ = (sel, root=document) => root.querySelector(sel);
   const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
   const STORAGE_KEY = "strategic_planning_intake_v1";
@@ -707,262 +714,8 @@ input:hover, textarea:hover, select:hover{
     return `${yyyy}-${mm}-${dd}T${hh}:${mi}`;
   };
 
-  // ===== Secciones colapsables =====
-  const sectionToggle = (sec) => {
-    const isOpen = sec.getAttribute("data-open") === "true";
-    sec.setAttribute("data-open", String(!isOpen));
-    const header = sec.querySelector("header");
-    header.setAttribute("aria-expanded", String(!isOpen));
-  };
-
-  $$(".section header").forEach(h => {
-    h.addEventListener("click", () => sectionToggle(h.parentElement));
-    h.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); sectionToggle(h.parentElement); }
-    });
-  });
-
-  // ===== Navegación lateral =====
-  $$(".navbtn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      $$(".navbtn").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      const target = document.getElementById(btn.dataset.target);
-      if (!target) return;
-      // asegurar abierto
-      target.setAttribute("data-open", "true");
-      target.querySelector("header").setAttribute("aria-expanded","true");
-      target.scrollIntoView({behavior:"smooth", block:"start"});
-    });
-  });
-
-  // ===== Recolección / serialización =====
-  const getFormData = () => {
-    const data = {};
-    const inputs = $$("input, textarea, select", $("#strategyForm"));
-    inputs.forEach(el => {
-      data[el.name] = el.value ?? "";
-    });
-    data._meta = {
-      schema: "strategic_planning_intake_v1",
-      exportedAt: new Date().toISOString(),
-      userAgent: navigator.userAgent
-    };
-    return data;
-  };
-
-  const setFormData = (data) => {
-    if (!data) return;
-    const inputs = $$("input, textarea, select", $("#strategyForm"));
-    inputs.forEach(el => {
-      if (data[el.name] !== undefined) el.value = data[el.name];
-    });
-  };
-
-  const saveLocal = () => {
-    const payload = getFormData();
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
-    $("#lastSaved").textContent = "Último guardado: " + new Date().toLocaleString();
-    updateProgress();
-  };
-
-  const loadLocal = () => {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return false;
-    try{
-      const data = JSON.parse(raw);
-      setFormData(data);
-      $("#lastSaved").textContent = "Último guardado: " + new Date().toLocaleString();
-      return true;
-    }catch{
-      return false;
-    }
-  };
-
-  // ===== Progreso =====
-  const isFilled = (el) => {
-    const val = (el.value || "").trim();
-    if (el.type === "email") return val.length > 0; // validación separada
-    return val.length > 0;
-  };
-
-  const updateProgress = () => {
-    const els = $$("input, textarea, select", $("#strategyForm"))
-      .filter(el => el.name && el.type !== "hidden");
-    const total = els.length;
-    const filled = els.reduce((acc, el) => acc + (isFilled(el) ? 1 : 0), 0);
-    $("#filledCount").textContent = String(filled);
-    $("#totalCount").textContent = String(total);
-
-    const pct = total ? Math.round((filled/total)*100) : 0;
-    $("#progressBar").style.width = pct + "%";
-    $(".progress").setAttribute("aria-valuenow", String(pct));
-  };
-
-  // ===== Validación =====
-  const validate = () => {
-    let ok = true;
-    const required = $$("[required]", $("#strategyForm"));
-    required.forEach(el => {
-      el.classList.remove("error");
-      const val = (el.value || "").trim();
-      if (!val) { ok=false; el.classList.add("error"); return; }
-      if (el.type === "email") {
-        const good = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
-        if (!good) { ok=false; el.classList.add("error"); }
-      }
-    });
-
-    if (!ok) {
-      toast("Faltan campos", "Revisa los campos marcados en rojo/rosado.", "warn");
-      const first = $(".error");
-      if (first) first.scrollIntoView({behavior:"smooth", block:"center"});
-    } else {
-      toast("Validación OK", "Todo listo para exportar.", "ok");
-    }
-    return ok;
-  };
-
-  // ===== Exportar / copiar =====
-  const downloadJSON = (obj) => {
-    const pretty = JSON.stringify(obj, null, 2);
-    const blob = new Blob([pretty], {type:"application/json"});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    const safeName = (obj.nombreEmpresa || "planificacion").toString()
-      .toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/(^-|-$)/g,"");
-    a.href = url;
-    a.download = `${safeName || "planificacion"}-intake.json`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
-  };
-
-  const copyJSON = async (obj) => {
-    const pretty = JSON.stringify(obj, null, 2);
-    try{
-      await navigator.clipboard.writeText(pretty);
-      toast("Copiado", "JSON copiado al portapapeles.", "ok");
-    }catch{
-      toast("Ups", "No pude copiar. Exporta a archivo mejor.", "warn");
-    }
-  };
-
-  // ===== Eventos =====
-  // Marca temporal por defecto si está vacío
-  if (!$("#marcaTemporal").value) $("#marcaTemporal").value = nowLocalDatetime();
-
-  // Cargar datos previos
-  const loaded = loadLocal();
-  if (loaded) toast("Recuperado", "Cargué lo que tenías guardado localmente.", "ok");
-
-  updateProgress();
-
-  // Autosave
-  $$("input, textarea, select", $("#strategyForm")).forEach(el => {
-    el.addEventListener("input", () => {
-      // quitar error al escribir
-      el.classList.remove("error");
-      saveLocal();
-    });
-    el.addEventListener("change", saveLocal);
-  });
-
-  $("#btnValidate").addEventListener("click", validate);
-
-  $("#btnExport").addEventListener("click", () => {
-    const ok = validate();
-    const data = getFormData();
-    if (!ok) return;
-    downloadJSON(data);
-    toast("Exportado", "Se descargó el JSON.", "ok");
-  });
-
-  $("#btnCopy").addEventListener("click", () => {
-    const data = getFormData();
-    copyJSON(data);
-  });
-
-  $("#btnReset").addEventListener("click", () => {
-    if (!confirm("¿Seguro que quieres limpiar el formulario y borrar el guardado local?")) return;
-    localStorage.removeItem(STORAGE_KEY);
-    $("#strategyForm").reset();
-    $("#marcaTemporal").value = nowLocalDatetime();
-    $("#lastSaved").textContent = "Último guardado: —";
-    updateProgress();
-    toast("Listo", "Formulario limpio.", "ok");
-  });
-
- // Submit: validar + guardar en Sheets + exportar
-$("#strategyForm").addEventListener("submit", async (e) => {
-  e.preventDefault();
-
-  const ok = validate();
-  if (!ok) return;
-
-  // UI: deshabilitar botón submit mientras guarda
-  const submitBtn = document.querySelector('#strategyForm button[type="submit"]');
-  const prevText = submitBtn ? submitBtn.textContent : "";
-  if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = "Guardando..."; }
-
-  try {
-    saveLocal();
-
-    // 1) Guardar en Google Sheets (Empresas)
-    const out = await guardarEnGoogleSheetsEmpresas();
-
-    if (!out || !out.ok) {
-      console.error("Respuesta WebApp:", out);
-      toast("No guardó en Sheets", "Revisa permisos/despliegue del WebApp. Mira la consola.", "warn");
-      return; // importante: NO exportar si no guardó
-    }
-
-    // 2) Exportar JSON
-    downloadJSON(getFormData());
-    toast("Listo", "Guardado en Sheets y exportado.", "ok");
-
-  } catch (err) {
-    console.error(err);
-    toast("Error", "Fallo de red/CORS o permisos del WebApp. Revisa consola.", "bad");
-  } finally {
-    if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = prevText || "🚀 Guardar y exportar"; }
-  }
-});
-
-  // Atajo Ctrl+S / Cmd+S exporta
-  window.addEventListener("keydown", (e) => {
-    const isSave = (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s";
-    if (isSave) {
-      e.preventDefault();
-      $("#btnExport").click();
-    }
-  });
-</script>
-
-<script>
   // ============================
-  // ✅ CONFIG (ya pegado con tus enlaces)
-  // ============================
-  const APPS_SCRIPT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwb_jN5zLI-yxecCr5CYCqaa6-N2fwGiZmUX4g-BfwIXcCfhP9LGB1J9ZJ0nqUSOQ0IIQ/exec";
-    
-
-  // (Referencia útil para ti / tu equipo. El front no la “usa” directo para escribir,
-  // porque quien escribe es el WebApp. Igual la dejamos guardada aquí.)
-  const EMPRESAS_SHEET_URL =
-    "https://script.google.com/macros/s/AKfycbwKnRYMrG83QJPWq37rd7eb5lGSS3Dk_hLw4eDxb0ipGWX4iFW-q2nY67SZKbSfLtijdw/exec";
-
-  const EMPRESAS_SHEET_NAME = "Empresas";
-
- <script>
-  // ============================
-  // ✅ CONFIG
-  // ============================
-  const APPS_SCRIPT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycby1HsX6DyDgVznEi-9VXyETdIL8YEsuC3NZrl8Vx8_FBLSN7S2XWD5cgAgSwcW5RyKytQ/exec";
-  const EMPRESAS_SHEET_NAME = "Empresas";
-
-  // ============================
-  // 🧱 Payload desde el formulario
+  // 🧱 Payload desde el formulario (para Sheets)
   // ============================
   function buildEmpresasPayloadFromForm() {
     const pick = (id) => (document.getElementById(id)?.value || "").trim();
@@ -1009,7 +762,7 @@ $("#strategyForm").addEventListener("submit", async (e) => {
   }
 
   // ============================
-  // ☁️ Guardar en Google Sheets vía WebApp
+  // ☁️ Guardar en Google Sheets vía WebApp (SIN preflight)
   // ============================
   async function guardarEnGoogleSheetsEmpresas() {
     if (!APPS_SCRIPT_WEBAPP_URL) {
@@ -1023,24 +776,23 @@ $("#strategyForm").addEventListener("submit", async (e) => {
       return { ok: false, error: "missing_required_fields", msg: "Completa Período y Nombre de la empresa." };
     }
 
-    // IMPORTANTE: payload correcto (NO anidar payload dentro de payload)
     const payload = { sheetName: EMPRESAS_SHEET_NAME, data };
 
     const res = await fetch(APPS_SCRIPT_WEBAPP_URL, {
       method: "POST",
-      headers: { "Content-Type": "text/plain;charset=utf-8" }, // evita preflight
+      headers: { "Content-Type": "text/plain;charset=utf-8" }, // evita preflight OPTIONS
       body: JSON.stringify(payload),
       cache: "no-store"
     });
 
     const text = await res.text();
 
-    // Si Apps Script devuelve HTML (login / permiso), aquí lo detectamos
+    // Si devolvió HTML (login/permisos), lo detectamos
     if (text.trim().startsWith("<")) {
       return { ok: false, error: "html_response", status: res.status, raw: text.slice(0, 300) };
     }
 
-    try {
+    try
       return JSON.parse(text);
     } catch {
       return { ok: false, error: "non_json_response", status: res.status, raw: text };
