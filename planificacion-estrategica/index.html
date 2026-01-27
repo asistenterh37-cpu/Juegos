@@ -1030,11 +1030,15 @@ $("#strategyForm").addEventListener("submit", async (e) => {
     };
 
     // ⚠️ CLAVE: mandar como text/plain para evitar preflight OPTIONS (CORS)
-    const res = await fetch(APPS_SCRIPT_WEBAPP_URL, {
-      method: "POST",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify(payload)
-    });
+  const res = await fetch(APPS_SCRIPT_WEBAPP_URL, {
+  method: "POST",
+  headers: { "Content-Type": "text/plain;charset=utf-8" }, // <-- clave
+  body: JSON.stringify({
+    sheetName: EMPRESAS_SHEET_NAME,
+    data: payload
+  }),
+  cache: "no-store"
+});
 
     const text = await res.text();
     let out;
