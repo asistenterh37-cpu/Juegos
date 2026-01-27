@@ -677,9 +677,9 @@
   // ============================
   // ✅ CONFIG (Sheets WebApp + Sheet)
   // ============================
-  const APPS_SCRIPT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzqV8dLehQFbDkfGz5uELOuVe3cDaxs9UTa51P7Ba48R9Zg_RXqOlQfUuLwZ230H8JO2A/exec";
-  const GOOGLE_SHEET_URL = "https://docs.google.com/spreadsheets/d/1bGHsMeYgUGyNpnvwDVIkn6c4oGMF6sADTH9LROy9WXg/edit?usp=sharing",
-  const EMPRESAS_SHEET_NAME = "Empresas";
+  const APPS_SCRIPT_WEBAPP_URL =  "https://script.google.com/macros/s/AKfycbwNgheRFDwKNckJT1-m0i4aNBxZTlh-jXTfin-wC8zNpCdD4ZsdRS_2IeYvDqc9eh3I/exec"; 
+  const GOOGLE_SHEET_URL = "https://docs.google.com/spreadsheets/d/1bGHsMeYgUGyNpnvwDVIkn6c4oGMF6sADTH9LROy9WXg/edit?usp=sharing";
+  const EMPRESAS_SHEET_NAME = "Empresas"; // si tu pestaña se llama "empresa", el GS (abajo) ya lo tolera
   const STORAGE_KEY = "strategic_planning_intake_v1";
 
   // ============================
@@ -958,6 +958,11 @@
       saveToLocalStorage();
       updateProgress();
     });
+    // ✅ Validar
+const btnValidate = $("#btnValidate");
+if (btnValidate) {
+  btnValidate.addEventListener("click", () => validateFormUI({ showToast:true }));
+}
     // 🧨 Reset / Limpiar formulario
     const btnReset = $("#btnReset");
     if (btnReset) {
