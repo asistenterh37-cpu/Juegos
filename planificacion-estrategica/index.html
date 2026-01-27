@@ -954,9 +954,15 @@ $("#strategyForm").addEventListener("submit", async (e) => {
 
   const EMPRESAS_SHEET_NAME = "Empresas";
 
-<script>
+ <script>
   // ============================
-  // 🧱 Payload desde TU formulario (keys internas)
+  // ✅ CONFIG
+  // ============================
+  const APPS_SCRIPT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycby1HsX6DyDgVznEi-9VXyETdIL8YEsuC3NZrl8Vx8_FBLSN7S2XWD5cgAgSwcW5RyKytQ/exec";
+  const EMPRESAS_SHEET_NAME = "Empresas";
+
+  // ============================
+  // 🧱 Payload desde el formulario
   // ============================
   function buildEmpresasPayloadFromForm() {
     const pick = (id) => (document.getElementById(id)?.value || "").trim();
@@ -1001,8 +1007,47 @@ $("#strategyForm").addEventListener("submit", async (e) => {
       notas: pick("notas")
     };
   }
+
+  // ============================
+  // ☁️ Guardar en Google Sheets vía WebApp
+  // ============================
+  async function guardarEnGoogleSheetsEmpresas() {
+    if (!APPS_SCRIPT_WEBAPP_URL) {
+      return { ok: false, error: "missing_webapp_url" };
+    }
+
+    const data = buildEmpresasPayloadFromForm();
+
+    // mínimos
+    if (!data.periodo || !data.nombreEmpresa) {
+      return { ok: false, error: "missing_required_fields", msg: "Completa Período y Nombre de la empresa." };
+    }
+
+    // IMPORTANTE: payload correcto (NO anidar payload dentro de payload)
+    const payload = { sheetName: EMPRESAS_SHEET_NAME, data };
+
+    const res = await fetch(APPS_SCRIPT_WEBAPP_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" }, // evita preflight
+      body: JSON.stringify(payload),
+      cache: "no-store"
+    });
+
+    const text = await res.text();
+
+    // Si Apps Script devuelve HTML (login / permiso), aquí lo detectamos
+    if (text.trim().startsWith("<")) {
+      return { ok: false, error: "html_response", status: res.status, raw: text.slice(0, 300) };
+    }
+
+    try {
+      return JSON.parse(text);
+    } catch {
+      return { ok: false, error: "non_json_response", status: res.status, raw: text };
+    }
+  }
 </script>
-  
+ 
   // ============================
   // ☁️ Guardar en Google Sheets vía WebApp
   // ============================
@@ -1033,10 +1078,8 @@ $("#strategyForm").addEventListener("submit", async (e) => {
   const res = await fetch(APPS_SCRIPT_WEBAPP_URL, {
   method: "POST",
   headers: { "Content-Type": "text/plain;charset=utf-8" }, // <-- clave
-  body: JSON.stringify({
-    sheetName: EMPRESAS_SHEET_NAME,
-    data: payload
-  }),
+const payload = { sheetName: EMPRESAS_SHEET_NAME, data };
+body: JSON.stringify(payload),
   cache: "no-store"
 });
 
