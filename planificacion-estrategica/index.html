@@ -677,7 +677,7 @@
   // ============================
   // ✅ CONFIG (Sheets WebApp + Sheet)
   // ============================
-  const APPS_SCRIPT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyXUOx99jQ7-tS06ybWN-rUlx4bfl3slS_ecRJA5ejh9SIC1A5od1PGr97-hrAVqvTbDw/exec";
+  const APPS_SCRIPT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxGrLRsShmuBLzJlcIofzzsBlnTor8EepavA103lpKTRFxsqqJsh608IgzGXfvUwpRsWQ/exec";
   const GOOGLE_SHEET_URL = "https://docs.google.com/spreadsheets/d/1bGHsMeYgUGyNpnvwDVIkn6c4oGMF6sADTH9LROy9WXg/edit?usp=sharing";
   const EMPRESAS_SHEET_NAME = "Empresas";
   const STORAGE_KEY = "strategic_planning_intake_v1";
@@ -862,37 +862,6 @@
   }
 
   // ============================
-  // ⬇️ Exportar / Copiar JSON
-  // ============================
-  function getExportObject() {
-    return {
-      module: "Planificación Estratégica — Recolección de datos",
-      sheetName: EMPRESAS_SHEET_NAME,
-      googleSheetUrl: GOOGLE_SHEET_URL,
-      webAppUrl: APPS_SCRIPT_WEBAPP_URL,
-      exportedAt: new Date().toISOString(),
-      data: buildEmpresasPayloadFromForm()
-    };
-  }
-
-  function downloadJSON() {
-    const obj = getExportObject();
-    const blob = new Blob([JSON.stringify(obj, null, 2)], { type:"application/json" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = `plan_estrategico_recoleccion_${Date.now()}.json`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(a.href);
-  }
-
-  async function copyJSON() {
-    const obj = getExportObject();
-    await navigator.clipboard.writeText(JSON.stringify(obj, null, 2));
-  }
-
-  // ============================
   // ☁️ Guardar en Google Sheets vía WebApp (SIN preflight)
   // Tabula por fila (append) en hoja: Empresas
   // ============================
@@ -953,46 +922,6 @@
       updateProgress();
     });
 
-    // Botones laterales
-    $("#btnExport").addEventListener("click", () => {
-      downloadJSON();
-      toast("Exportado", "JSON descargado.", "ok");
-    });
-
-    $("#btnCopy").addEventListener("click", async () => {
-      try{
-        await copyJSON();
-        toast("Copiado", "JSON copiado al portapapeles.", "ok");
-      } catch {
-        toast("Ups", "No pude copiar. Tu navegador lo bloqueó.", "warn");
-      }
-    });
-
-    $("#btnReset").addEventListener("click", () => {
-      if (!confirm("¿Seguro que quieres limpiar el formulario? Esto también borra el auto-guardado local.")) return;
-      form.reset();
-      localStorage.removeItem(STORAGE_KEY);
-      const mt2 = $("#marcaTemporal");
-      if (mt2) mt2.value = nowLocalDatetime();
-      updateProgress();
-      $("#lastSaved").textContent = "Último guardado: —";
-      toast("Listo", "Formulario limpio.", "ok");
-    });
-
-    $("#btnValidate").addEventListener("click", () => {
-      validateFormUI({ showToast:true });
-      updateProgress();
-    });
-
-    // Ctrl+S exporta (como tu hint)
-    window.addEventListener("keydown", (e) => {
-      if ((e.ctrlKey || e.metaKey) && (e.key === "s" || e.key === "S")) {
-        e.preventDefault();
-        downloadJSON();
-        toast("Exportado", "JSON descargado (Ctrl+S).", "ok");
-      }
-    });
-
     // SUBMIT: Guardar en Sheets + Exportar JSON
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -1011,11 +940,10 @@
       btn.disabled = false;
       btn.textContent = old;
 
-    if (out?.ok) {
-        toast("Guardado", "Datos enviados a Google Sheets. También exporté el JSON.", "ok");
-        saveToLocalStorage();
-        downloadJSON();
-      } else {
+  if (out?.ok) {
+  toast("Guardado", "Datos enviados a Google Sheets.", "ok");
+  saveToLocalStorage();
+} else {
         const msg =
           out?.msg ||
           (out?.error === "html_response"
