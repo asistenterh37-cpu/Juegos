@@ -399,19 +399,16 @@
       </button>
     </nav>
 
-    <div class="hint">
-      Tip rápido: exporta tu captura a JSON para que el siguiente módulo (FODA/PESTEL/KPIs) lo consuma sin drama.
-      Porque el drama ya lo pone el mercado. 😅
-    </div>
+   <div class="hint">
+  Tip rápido: llena primero lo “doloroso” (amenazas/debilidades). Lo bonito se escribe solo. 😅
+</div>
 
-    <div class="side-actions">
-      <button class="btn primary" id="btnExport" type="button">⬇️ Exportar JSON</button>
-      <button class="btn" id="btnCopy" type="button">📋 Copiar JSON</button>
-      <button class="btn danger" id="btnReset" type="button">🧨 Limpiar formulario</button>
-      <div class="hint" style="padding-bottom:0;">
-        Auto-guardado en tu navegador. Si cambias de PC, exporta el JSON.
-      </div>
-    </div>
+<div class="side-actions">
+  <button class="btn danger" id="btnReset" type="button">🧨 Limpiar formulario</button>
+  <div class="hint" style="padding-bottom:0;">
+    Auto-guardado en tu navegador.
+  </div>
+</div>
   </aside>
 
   <main class="main">
@@ -422,11 +419,10 @@
           Completa esta ficha para levantar insumos del plan estratégico.
           Todo queda guardado localmente y puedes exportarlo para integrarlo con tu pipeline en GitHub.
         </p>
-        <div class="meta">
-          <span>Guardado: <span class="kbd">localStorage</span></span>
-          <span>Formato salida: <span class="kbd">JSON</span></span>
-          <span>Atajo: <span class="kbd">Ctrl</span> + <span class="kbd">S</span> exporta</span>
-        </div>
+       <div class="meta">
+  <span>Guardado: <span class="kbd">localStorage</span></span>
+  <span>Envío: <span class="kbd">Google Sheets</span></span>
+</div>
       </div>
 
       <div class="toast" id="toast">
@@ -668,7 +664,7 @@
             </div>
             <div class="right">
               <button class="btn" type="button" id="btnValidate">✅ Validar</button>
-              <button class="btn primary" type="submit" id="btnSubmit">🚀 Guardar y exportar</button>
+              <button class="btn primary" type="submit" id="btnSubmit">💾 Guardar</button>
             </div>
           </div>
         </div>
