@@ -913,6 +913,142 @@ input:hover, textarea:hover, select:hover{
     }
   });
 </script>
+<script>
+  // 🔗 Pega aquí la URL del Web App (Apps Script desplegado)
+  const APPS_SCRIPT_WEBAPP_URL = "PASTE_YOUR_WEBAPP_URL_HERE";
+</script>
+<script>
+  <button id="btnGuardarExportar">Guardar y exportar</button>
+    const now = new Date();
+    const marcaTemporal = now.toLocaleString("es-HN");
+
+    return {
+      "Marca temporal": marcaTemporal,
+      "Periodo": (document.getElementById("periodo")?.value || "").trim(),
+      "Código": (document.getElementById("codigo")?.value || "").trim(),
+      "Nombre de la empresa": (document.getElementById("nombreEmpresa")?.value || "").trim(),
+      "Sector o industria": (document.getElementById("sectorIndustria")?.value || "").trim(),
+      "Productos o servicios principales": (document.getElementById("productosServicios")?.value || "").trim(),
+      "Tiempo de operación": (document.getElementById("tiempoOperacion")?.value || "").trim(),
+      "No de empleados": (document.getElementById("noEmpleados")?.value || "").trim(),
+      "Ubicación y alcance": (document.getElementById("ubicacionAlcance")?.value || "").trim(),
+
+      "Misión (¿Por qué existe la empresa? ¿Qué busca ofrecer y a quién?)":
+        (document.getElementById("mision")?.value || "").trim(),
+
+      "Visión (¿Cómo te gustaría que se vea tu empresa en 3 a 5 años?)":
+        (document.getElementById("vision")?.value || "").trim(),
+
+      "Valores (¿Qué principios rigen su actuar?)":
+        (document.getElementById("valores")?.value || "").trim(),
+
+      "Análisis interno (Fortalezas): Recursos humanos; financieros, tecnológicos; procesos operativos; Capacidad de innovación; Cultura organizacional":
+        (document.getElementById("fortalezas")?.value || "").trim(),
+
+      "Análisis interno (Debilidades): Recursos humanos; financieros, tecnológicos; procesos operativos; Capacidad de innovación; Cultura organizacional":
+        (document.getElementById("debilidades")?.value || "").trim(),
+
+      "Análisis externo (Oportunidades): Competencia; Tendencias del mercado; Factores económicos, políticos,sociales, tecnológicos (Análisis PESTEL); Cambios en regulación o normativas":
+        (document.getElementById("oportunidades")?.value || "").trim(),
+
+      "Análisis externo (Amenazas): Competencia; Tendencias del mercado; Factores económicos, políticos,sociales, tecnológicos (Análisis PESTEL); Cambios en regulación o normativas":
+        (document.getElementById("amenazas")?.value || "").trim(),
+
+      "Público objetivo (buyer persona)":
+        (document.getElementById("publicoObjetivo")?.value || "").trim(),
+
+      "Comportamiento del cliente":
+        (document.getElementById("comportamientoCliente")?.value || "").trim(),
+
+      "Canales de venta y distribución":
+        (document.getElementById("canalesVenta")?.value || "").trim(),
+
+      "Posicionamiento actual":
+        (document.getElementById("posicionamientoActual")?.value || "").trim(),
+
+      "¿Quiénes son los principales competidores?":
+        (document.getElementById("competidores")?.value || "").trim(),
+
+      "¿Qué nos diferencia con relación a nuestros competidores?":
+        (document.getElementById("diferenciadores")?.value || "").trim(),
+
+      "Análisis comparativo (Benchmarking)":
+        (document.getElementById("benchmarking")?.value || "").trim(),
+
+      "Logros esperados en los próximos 12 meses?":
+        (document.getElementById("logros12m")?.value || "").trim(),
+
+      "Logros esperados en los próximos 3 - 5 años?":
+        (document.getElementById("logros35a")?.value || "").trim(),
+
+      "¿Tiene la organización un sistema de control o seguimiento de metas actualmente?":
+        (document.getElementById("sistemaControl")?.value || "").trim(),
+
+      "¿Cada cuánto tiempo te gustaría hacer revisiones del plan?":
+        (document.getElementById("frecuenciaRevision")?.value || "").trim(),
+
+      "Correo":
+        (document.getElementById("correo")?.value || "").trim(),
+
+      "Notas adicionales":
+        (document.getElementById("notasAdicionales")?.value || "").trim()
+    };
+  }
+
+  async function guardarEnGoogleSheetsEmpresas() {
+    if (!APPS_SCRIPT_WEBAPP_URL || APPS_SCRIPT_WEBAPP_URL.includes("PASTE_YOUR_WEBAPP_URL_HERE")) {
+      alert("Falta pegar la URL del Web App de Apps Script en APPS_SCRIPT_WEBAPP_URL.");
+      return false;
+    }
+
+    const payload = buildEmpresasPayload();
+
+    if (!payload["Periodo"] || !payload["Nombre de la empresa"]) {
+      alert("Completa al menos Periodo y Nombre de la empresa.");
+      return false;
+    }
+
+    try {
+      const res = await fetch(APPS_SCRIPT_WEBAPP_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sheetName: "Empresas", data: payload })
+      });
+
+      const text = await res.text();
+      let out;
+      try { out = JSON.parse(text); } catch { out = { ok: res.ok, raw: text }; }
+
+      if (!out.ok) {
+        console.error("Error Apps Script:", out);
+        alert("No se pudo guardar. Revisa consola y permisos del Web App.");
+        return false;
+      }
+
+      alert("✅ Guardado en Google Sheets (Empresas).");
+      return true;
+
+    } catch (err) {
+      console.error(err);
+      alert("Error de red/CORS. Revisa despliegue del Web App y permisos.");
+      return false;
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const btn = document.getElementById("btnGuardarExportar") || document.getElementById("btnGuardar");
+    if (!btn) return;
+
+    btn.addEventListener("click", async (e) => {
+      e.preventDefault();
+
+      const ok = await guardarEnGoogleSheetsEmpresas();
+
+      // Si ya tienes función exportar JSON, descomenta:
+      // if (ok && typeof exportarJSON === "function") exportarJSON();
+    });
+  });
+</script>
 </body>
 </html>
 
