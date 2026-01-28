@@ -1,1 +1,851 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Encuesta de clima organizacional</title>
+  <link rel="icon" href="data:," />
+
+  <style>
+    :root{
+      --bg:#0b1220;
+      --panel:#0f1b33;
+      --card:#0f203f;
+      --muted:#9fb3d9;
+      --text:#eaf1ff;
+      --line: rgba(255,255,255,.14);
+      --accent:#6aa6ff;
+      --ok:#3ddc97;
+      --warn:#ffd36a;
+      --bad:#ff6a8b;
+      --shadow: 0 18px 60px rgba(0,0,0,.35);
+      --radius:18px;
+      --radius2:14px;
+    }
+
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+      background: radial-gradient(1200px 700px at 20% 0%, rgba(106,166,255,.18), transparent 55%),
+                  radial-gradient(900px 600px at 90% 20%, rgba(61,220,151,.10), transparent 55%),
+                  var(--bg);
+      color:var(--text);
+    }
+
+    header{
+      position:sticky;
+      top:0;
+      z-index:10;
+      backdrop-filter: blur(10px);
+      background: rgba(11,18,32,.72);
+      border-bottom:1px solid var(--line);
+    }
+
+    .wrap{ max-width:1100px; margin:0 auto; padding:18px 18px; }
+
+    .topbar{
+      display:flex;
+      gap:14px;
+      align-items:center;
+      justify-content:space-between;
+      flex-wrap:wrap;
+    }
+
+    h1{
+      margin:0;
+      font-size:18px;
+      letter-spacing:.2px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      font-weight:800;
+    }
+    .pill{
+      font-size:12px;
+      padding:6px 10px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      color:var(--muted);
+      background: rgba(255,255,255,.03);
+    }
+
+    nav{
+      display:flex;
+      gap:8px;
+      align-items:center;
+    }
+    .tab{
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.03);
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:999px;
+      cursor:pointer;
+      font-weight:700;
+      letter-spacing:.2px;
+    }
+    .tab[aria-selected="true"]{
+      border-color: rgba(106,166,255,.55);
+      box-shadow: 0 0 0 3px rgba(106,166,255,.10);
+    }
+
+    main{ padding:22px 0 40px; }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:14px;
+    }
+    @media (min-width: 980px){
+      .grid{ grid-template-columns: 420px 1fr; align-items:start; }
+    }
+
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      border:1px solid var(--line);
+      box-shadow: var(--shadow);
+      border-radius: var(--radius);
+      padding:16px;
+    }
+    .card h2{
+      margin:0 0 10px 0;
+      font-size:14px;
+      color:var(--muted);
+      letter-spacing:.4px;
+      text-transform:uppercase;
+    }
+
+    .hint{
+      margin:6px 0 0;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.35;
+    }
+
+    .form-row{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:10px;
+      margin-top:10px;
+    }
+    @media (min-width: 520px){
+      .form-row.two{ grid-template-columns: 1fr 1fr; }
+    }
+
+    label{
+      display:block;
+      font-size:12px;
+      color:var(--muted);
+      margin:0 0 6px;
+      font-weight:700;
+      letter-spacing:.2px;
+    }
+    select, input[type="text"]{
+      width:100%;
+      padding:12px 12px;
+      border-radius: 12px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.25);
+      color:var(--text);
+      outline:none;
+    }
+    select:focus, input[type="text"]:focus{
+      border-color: rgba(106,166,255,.65);
+      box-shadow: 0 0 0 3px rgba(106,166,255,.12);
+    }
+
+    .items{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      margin-top:8px;
+    }
+    .item{
+      border:1px solid var(--line);
+      border-radius: var(--radius2);
+      padding:12px;
+      background: rgba(0,0,0,.18);
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:10px;
+    }
+    @media(min-width: 760px){
+      .item{ grid-template-columns: 1fr 220px; align-items:center; }
+    }
+    .q{
+      font-size:14px;
+      line-height:1.35;
+      font-weight:750;
+    }
+    .meta{
+      font-size:12px;
+      color:var(--muted);
+      margin-top:6px;
+    }
+
+    .actions{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+      margin-top:14px;
+    }
+    .btn{
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.03);
+      color:var(--text);
+      padding:10px 12px;
+      border-radius: 12px;
+      cursor:pointer;
+      font-weight:800;
+      letter-spacing:.2px;
+    }
+    .btn.primary{
+      border-color: rgba(61,220,151,.45);
+      box-shadow: 0 0 0 3px rgba(61,220,151,.10);
+    }
+    .btn.danger{
+      border-color: rgba(255,106,139,.45);
+      box-shadow: 0 0 0 3px rgba(255,106,139,.10);
+    }
+    .btn:disabled{
+      opacity:.55;
+      cursor:not-allowed;
+    }
+
+    .note{
+      font-size:12px;
+      color:var(--muted);
+      margin:10px 0 0;
+    }
+
+    .divider{
+      height:1px;
+      background: var(--line);
+      margin:12px 0;
+    }
+
+    .kpis{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:10px;
+      margin-top:10px;
+    }
+    @media(min-width: 760px){
+      .kpis{ grid-template-columns: 1fr 1fr 1fr; }
+    }
+    .kpi{
+      border:1px solid var(--line);
+      border-radius: var(--radius2);
+      padding:12px;
+      background: rgba(0,0,0,.18);
+    }
+    .kpi .v{
+      font-size:22px;
+      font-weight:900;
+      letter-spacing:.3px;
+      margin-top:2px;
+    }
+    .kpi .t{
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+      text-transform:uppercase;
+      letter-spacing:.35px;
+    }
+
+    table{
+      width:100%;
+      border-collapse:separate;
+      border-spacing:0;
+      margin-top:10px;
+      overflow:hidden;
+      border:1px solid var(--line);
+      border-radius: var(--radius2);
+    }
+    th, td{
+      padding:10px 10px;
+      border-bottom:1px solid var(--line);
+      font-size:13px;
+      text-align:left;
+    }
+    th{
+      color:var(--muted);
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.35px;
+      font-weight:900;
+      background: rgba(255,255,255,.03);
+    }
+    tr:last-child td{ border-bottom:none; }
+
+    .bar{
+      height:10px;
+      border-radius:999px;
+      background: rgba(255,255,255,.10);
+      overflow:hidden;
+    }
+    .bar > i{
+      display:block;
+      height:100%;
+      width:0%;
+      background: linear-gradient(90deg, rgba(106,166,255,.95), rgba(61,220,151,.85));
+    }
+
+    .small{ font-size:12px; color:var(--muted); }
+    .hidden{ display:none !important; }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="wrap">
+      <div class="topbar">
+        <h1>
+          Encuesta de clima organizacional
+          <span class="pill" id="storagePill">Local</span>
+        </h1>
+
+        <nav aria-label="Menú">
+          <button class="tab" id="tab-encuesta" aria-selected="true" type="button">Encuesta</button>
+          <button class="tab" id="tab-resultados" aria-selected="false" type="button">Resultados</button>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <!-- ====================== VISTA ENCUESTA ====================== -->
+    <section id="view-encuesta">
+      <div class="grid">
+        <div class="card">
+          <h2>Datos demográficos</h2>
+          <p class="hint">
+            Estos campos son configurables desde el arreglo <b>DEMOGRAPHICS</b> en el script.
+            (Cambias opciones, agregas o quitas y la UI se adapta sola.)
+          </p>
+
+          <div class="form-row" id="demoContainer"></div>
+
+          <div class="divider"></div>
+
+          <h2>Escala</h2>
+          <p class="hint" id="scaleHint"></p>
+        </div>
+
+        <div class="card">
+          <h2>Encuesta</h2>
+          <p class="hint">
+            Cada ítem se define en el arreglo <b>ITEMS</b> (incluye <i>factor</i> interno para clasificar,
+            pero <b>NO</b> se muestra al usuario).
+          </p>
+
+          <form id="surveyForm">
+            <div class="items" id="itemsContainer"></div>
+
+            <div class="actions">
+              <button class="btn primary" id="btnGuardar" type="submit">Guardar</button>
+              <button class="btn" id="btnLimpiar" type="button">Limpiar</button>
+              <button class="btn" id="btnExportJSON" type="button">Exportar JSON</button>
+              <button class="btn" id="btnExportCSV" type="button">Exportar CSV</button>
+            </div>
+
+            <p class="note" id="saveNote"></p>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================== VISTA RESULTADOS ====================== -->
+    <section id="view-resultados" class="hidden">
+      <div class="card">
+        <h2>Resultados (guardados en este navegador)</h2>
+        <p class="hint">
+          Aquí ves resumen general y promedios por factor (interno). Si necesitas mandar esto a un backend,
+          luego conectamos un endpoint y listo—pero por ahora es 100% GitHub Pages friendly.
+        </p>
+
+        <div class="kpis">
+          <div class="kpi">
+            <div class="t">Respuestas guardadas</div>
+            <div class="v" id="kpiCount">0</div>
+          </div>
+          <div class="kpi">
+            <div class="t">Promedio general</div>
+            <div class="v" id="kpiAvg">—</div>
+            <div class="small">Escala 1 a 5</div>
+          </div>
+          <div class="kpi">
+            <div class="t">Última respuesta</div>
+            <div class="v" id="kpiLast">—</div>
+            <div class="small">fecha/hora</div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <h2>Promedios por factor</h2>
+        <div id="factorTableWrap"></div>
+
+        <div class="divider"></div>
+
+        <h2>Historial</h2>
+        <div class="actions">
+          <button class="btn danger" id="btnClearAll" type="button">Borrar todo</button>
+        </div>
+        <div id="historyWrap"></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    /**********************************************************************
+     * CONFIGURACIÓN (fácil de editar)
+     *********************************************************************/
+
+    // 1) Variables demográficas (fácil agregar/quitar)
+    // id: clave interna; label: texto; options: opciones del selector
+    const DEMOGRAPHICS = [
+      { id: "genero",      label: "Género",      options: ["Masculino","Femenino"] },
+      { id: "antiguedad",  label: "Antigüedad",  options: ["De 0 a 5 años","De 6 a 10 años","De 11 a 20 años","Más de 20 años"] },
+      { id: "localidad",   label: "Localidad",   options: ["Tegucigalpa","San Pedro Sula","La Ceiba"] },
+      { id: "departamento",label: "Departamento",options: ["Recursos Humanos","Contabilidad","Compras","Ventas"] },
+      { id: "nivel",       label: "Nivel",       options: ["Operativo","Administrativo","Jefe - Gerente"] },
+      // Ejemplo para agregar rápido:
+      // { id:"turno", label:"Turno", options:["Día","Noche"] },
+    ];
+
+    // 2) Escala (Likert) con selector
+    const SCALE = [
+      { value: 1, label: "Muy en desacuerdo" },
+      { value: 2, label: "En desacuerdo" },
+      { value: 3, label: "Ni de acuerdo ni en desacuerdo" },
+      { value: 4, label: "De acuerdo" },
+      { value: 5, label: "Totalmente de acuerdo" },
+    ];
+
+    // 3) Ítems: factor es INTERNO (no se muestra)
+    // id: clave; text: enunciado; factor: clasificación interna
+    const ITEMS = [
+      { id:"q1",  text:"Mi jefe proporciona supervisión clara y consistente.", factor:"Liderazgo / Supervisión" },
+      { id:"q2",  text:"La comunicación con mi jefe es abierta y efectiva.", factor:"Comunicación / Liderazgo" },
+      { id:"q3",  text:"Los salarios en esta empresa son justos.", factor:"Compensación / Equidad salarial" },
+      { id:"q4",  text:"Mis compañeros ayudan a crear un ambiente de trabajo positivo.", factor:"Clima laboral / Relaciones interpersonales" },
+      { id:"q5",  text:"Mi jefe reconoce y valora mi trabajo.", factor:"Reconocimiento / Liderazgo" },
+      { id:"q6",  text:"Mis horarios de trabajo son adecuados para mi vida personal.", factor:"Equilibrio vida-trabajo / Condiciones laborales" },
+      { id:"q8",  text:"Siento confianza para hablar con mi jefe sobre problemas del trabajo.", factor:"Confianza / Comunicación con liderazgo" },
+      { id:"q9",  text:"La colaboración con mis compañeros es positiva.", factor:"Trabajo en equipo / Colaboración" },
+      { id:"q10", text:"La colaboración con mis compañeros es positiva.", factor:"Trabajo en equipo / Colaboración" }, // (sí, aparece duplicado en tu captura)
+      { id:"q11", text:"El plan de beneficios de mi empresa es competitivo.", factor:"Beneficios / Compensación total" },
+      { id:"q12", text:"Los horarios de trabajo me permiten mantener un buen equilibrio laboral y personal.", factor:"Equilibrio vida-trabajo / Bienestar" },
+    ];
+
+    // 4) Storage key
+    const STORAGE_KEY = "clima_org_respuestas_v1";
+
+    /**********************************************************************
+     * UTILIDADES
+     *********************************************************************/
+    const $ = (sel, root=document) => root.querySelector(sel);
+    const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
+
+    function nowISO(){
+      return new Date().toISOString();
+    }
+
+    function niceDate(iso){
+      try{
+        const d = new Date(iso);
+        return d.toLocaleString();
+      }catch{
+        return iso;
+      }
+    }
+
+    function loadAll(){
+      try{
+        return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+      }catch{
+        return [];
+      }
+    }
+
+    function saveAll(rows){
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(rows));
+    }
+
+    function downloadText(filename, text){
+      const blob = new Blob([text], {type:"text/plain;charset=utf-8"});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function avg(nums){
+      const arr = nums.filter(n => typeof n === "number" && !Number.isNaN(n));
+      if(!arr.length) return null;
+      return arr.reduce((a,b)=>a+b,0) / arr.length;
+    }
+
+    function clamp(n, a, b){ return Math.max(a, Math.min(b, n)); }
+
+    /**********************************************************************
+     * RENDER: ENCUESTA
+     *********************************************************************/
+    function renderScaleHint(){
+      $("#scaleHint").innerHTML = SCALE.map(s => `<b>${s.value}</b> = ${s.label}`).join("<br>");
+    }
+
+    function renderDemographics(){
+      const c = $("#demoContainer");
+      c.innerHTML = "";
+
+      // Layout: 2 columnas en pantallas medianas
+      c.className = "form-row two";
+
+      DEMOGRAPHICS.forEach(d => {
+        const w = document.createElement("div");
+        w.innerHTML = `
+          <label for="demo_${d.id}">${escapeHtml(d.label)}</label>
+          <select id="demo_${d.id}" name="${d.id}" required>
+            <option value="" selected disabled>Selecciona…</option>
+            ${d.options.map(opt => `<option value="${escapeAttr(opt)}">${escapeHtml(opt)}</option>`).join("")}
+          </select>
+        `;
+        c.appendChild(w);
+      });
+    }
+
+    function renderItems(){
+      const c = $("#itemsContainer");
+      c.innerHTML = "";
+
+      ITEMS.forEach((it, idx) => {
+        const w = document.createElement("div");
+        w.className = "item";
+        w.innerHTML = `
+          <div>
+            <div class="q">${idx+1}. ${escapeHtml(it.text)}</div>
+          </div>
+
+          <div>
+            <label for="item_${it.id}">Respuesta</label>
+            <select id="item_${it.id}" name="${it.id}" required>
+              <option value="" selected disabled>Selecciona…</option>
+              ${SCALE.map(s => `<option value="${s.value}">${s.value} — ${escapeHtml(s.label)}</option>`).join("")}
+            </select>
+          </div>
+        `;
+        c.appendChild(w);
+      });
+    }
+
+    function clearForm(){
+      // Demográficos
+      DEMOGRAPHICS.forEach(d => {
+        const el = $(`#demo_${d.id}`);
+        if(el) el.value = "";
+      });
+      // Ítems
+      ITEMS.forEach(it => {
+        const el = $(`#item_${it.id}`);
+        if(el) el.value = "";
+      });
+      $("#saveNote").textContent = "";
+    }
+
+    function collectResponse(){
+      const demo = {};
+      for(const d of DEMOGRAPHICS){
+        const v = $(`#demo_${d.id}`)?.value ?? "";
+        if(!v) return { ok:false, message:`Falta completar: ${d.label}` };
+        demo[d.id] = v;
+      }
+
+      const answers = {};
+      for(const it of ITEMS){
+        const v = $(`#item_${it.id}`)?.value ?? "";
+        if(!v) return { ok:false, message:`Falta responder un ítem.` };
+        answers[it.id] = Number(v);
+      }
+
+      const itemValues = Object.values(answers);
+      const overall = avg(itemValues);
+
+      return {
+        ok:true,
+        data:{
+          id: crypto?.randomUUID ? crypto.randomUUID() : String(Date.now()),
+          createdAt: nowISO(),
+          demographics: demo,
+          answers,
+          overallAvg: overall,
+        }
+      };
+    }
+
+    function escapeHtml(str){
+      return String(str)
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+    function escapeAttr(str){
+      return escapeHtml(str);
+    }
+
+    /**********************************************************************
+     * RESULTADOS: cálculos y render
+     *********************************************************************/
+    function computeFactorAverages(responses){
+      // Agrupar items por factor
+      const factorMap = new Map(); // factor -> array of itemIds
+      for(const it of ITEMS){
+        if(!factorMap.has(it.factor)) factorMap.set(it.factor, []);
+        factorMap.get(it.factor).push(it.id);
+      }
+
+      // Para cada factor, juntar todas las respuestas de todos los envíos
+      const rows = [];
+      for(const [factor, ids] of factorMap.entries()){
+        const values = [];
+        for(const r of responses){
+          for(const id of ids){
+            const v = r.answers?.[id];
+            if(typeof v === "number") values.push(v);
+          }
+        }
+        const a = avg(values);
+        rows.push({
+          factor,
+          avg: a,
+          n: values.length
+        });
+      }
+
+      // Orden: peor a mejor (para ver “qué duele” primero 😅)
+      rows.sort((x,y) => (x.avg ?? 999) - (y.avg ?? 999));
+      return rows;
+    }
+
+    function renderResults(){
+      const responses = loadAll();
+
+      $("#kpiCount").textContent = String(responses.length);
+
+      const overall = avg(responses.map(r => r.overallAvg).filter(v => typeof v === "number"));
+      $("#kpiAvg").textContent = overall ? overall.toFixed(2) : "—";
+
+      const last = responses[responses.length-1];
+      $("#kpiLast").textContent = last ? niceDate(last.createdAt) : "—";
+
+      // Tabla por factor
+      const factorRows = computeFactorAverages(responses);
+      const factorHtml = `
+        <table>
+          <thead>
+            <tr>
+              <th>Factor (interno)</th>
+              <th style="width:140px;">Promedio</th>
+              <th style="width:220px;">Visual</th>
+              <th style="width:90px;">N</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${factorRows.map(r => {
+              const val = (r.avg ?? 0);
+              const pct = r.avg ? clamp((val/5)*100, 0, 100) : 0;
+              return `
+                <tr>
+                  <td>${escapeHtml(r.factor)}</td>
+                  <td><b>${r.avg ? r.avg.toFixed(2) : "—"}</b></td>
+                  <td>
+                    <div class="bar" aria-label="barra">
+                      <i style="width:${pct}%;"></i>
+                    </div>
+                  </td>
+                  <td>${r.n}</td>
+                </tr>
+              `;
+            }).join("")}
+          </tbody>
+        </table>
+      `;
+      $("#factorTableWrap").innerHTML = factorHtml;
+
+      // Historial (últimos 10)
+      const last10 = responses.slice().reverse().slice(0,10);
+      if(!last10.length){
+        $("#historyWrap").innerHTML = `<p class="hint">Aún no hay respuestas guardadas.</p>`;
+        return;
+      }
+
+      const hist = `
+        <table>
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Promedio</th>
+              <th>Detalle</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${last10.map(r => `
+              <tr>
+                <td>${escapeHtml(niceDate(r.createdAt))}</td>
+                <td><b>${typeof r.overallAvg === "number" ? r.overallAvg.toFixed(2) : "—"}</b></td>
+                <td class="small">
+                  ${DEMOGRAPHICS.map(d => `${escapeHtml(d.label)}: <b>${escapeHtml(r.demographics?.[d.id] ?? "—")}</b>`).join(" · ")}
+                </td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+        <p class="note">Mostrando las últimas 10 respuestas (para no hacerte scroll eterno).</p>
+      `;
+      $("#historyWrap").innerHTML = hist;
+    }
+
+    /**********************************************************************
+     * EXPORTS
+     *********************************************************************/
+    function exportJSON(){
+      const rows = loadAll();
+      downloadText("encuesta_clima_organizacional_respuestas.json", JSON.stringify(rows, null, 2));
+    }
+
+    function exportCSV(){
+      const rows = loadAll();
+      if(!rows.length){
+        alert("No hay datos para exportar.");
+        return;
+      }
+
+      // Cabeceras: demográficos + items + meta
+      const headers = [
+        "id","createdAt",
+        ...DEMOGRAPHICS.map(d => d.id),
+        ...ITEMS.map(it => it.id),
+        "overallAvg"
+      ];
+
+      const csvLines = [];
+      csvLines.push(headers.join(","));
+
+      for(const r of rows){
+        const line = [];
+        line.push(csvSafe(r.id));
+        line.push(csvSafe(r.createdAt));
+
+        for(const d of DEMOGRAPHICS){
+          line.push(csvSafe(r.demographics?.[d.id] ?? ""));
+        }
+        for(const it of ITEMS){
+          line.push(csvSafe(r.answers?.[it.id] ?? ""));
+        }
+        line.push(csvSafe(typeof r.overallAvg === "number" ? r.overallAvg.toFixed(4) : ""));
+
+        csvLines.push(line.join(","));
+      }
+
+      downloadText("encuesta_clima_organizacional_respuestas.csv", csvLines.join("\n"));
+
+      function csvSafe(v){
+        const s = String(v ?? "");
+        const needs = /[",\n]/.test(s);
+        const t = s.replaceAll('"','""');
+        return needs ? `"${t}"` : t;
+      }
+    }
+
+    /**********************************************************************
+     * NAVEGACIÓN (tabs)
+     *********************************************************************/
+    function setView(view){
+      const encuesta = $("#view-encuesta");
+      const resultados = $("#view-resultados");
+      const t1 = $("#tab-encuesta");
+      const t2 = $("#tab-resultados");
+
+      if(view === "resultados"){
+        encuesta.classList.add("hidden");
+        resultados.classList.remove("hidden");
+        t1.setAttribute("aria-selected","false");
+        t2.setAttribute("aria-selected","true");
+        renderResults();
+      }else{
+        resultados.classList.add("hidden");
+        encuesta.classList.remove("hidden");
+        t2.setAttribute("aria-selected","false");
+        t1.setAttribute("aria-selected","true");
+      }
+    }
+
+    /**********************************************************************
+     * INIT
+     *********************************************************************/
+    (function init(){
+      // Render UI
+      renderScaleHint();
+      renderDemographics();
+      renderItems();
+
+      // Tabs
+      $("#tab-encuesta").addEventListener("click", () => setView("encuesta"));
+      $("#tab-resultados").addEventListener("click", () => setView("resultados"));
+
+      // Guardar
+      $("#surveyForm").addEventListener("submit", (e) => {
+        e.preventDefault();
+
+        const res = collectResponse();
+        if(!res.ok){
+          $("#saveNote").textContent = res.message;
+          $("#saveNote").style.color = "var(--warn)";
+          return;
+        }
+
+        const rows = loadAll();
+        rows.push(res.data);
+        saveAll(rows);
+
+        $("#saveNote").textContent = "✅ Guardado. (Se almacenó en este navegador.)";
+        $("#saveNote").style.color = "var(--ok)";
+
+        // Si querés: limpiar tras guardar
+        // clearForm();
+      });
+
+      // Limpiar
+      $("#btnLimpiar").addEventListener("click", () => clearForm());
+
+      // Export
+      $("#btnExportJSON").addEventListener("click", exportJSON);
+      $("#btnExportCSV").addEventListener("click", exportCSV);
+
+      // Borrar todo
+      $("#btnClearAll").addEventListener("click", () => {
+        const ok = confirm("¿Borrar TODAS las respuestas guardadas en este navegador?");
+        if(!ok) return;
+        saveAll([]);
+        renderResults();
+      });
+
+      // Storage pill
+      $("#storagePill").textContent = "LocalStorage";
+
+      // Default view
+      setView("encuesta");
+    })();
+  </script>
+</body>
+</html>
 
