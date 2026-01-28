@@ -141,19 +141,23 @@
       font-weight:700;
       letter-spacing:.2px;
     }
-    select, input[type="text"]{
-      width:100%;
-      padding:12px 12px;
-      border-radius: 12px;
-      border:1px solid var(--line);
-      background: rgba(0,0,0,.25);
-      color:var(--text);
-      outline:none;
-    }
-    select:focus, input[type="text"]:focus{
-      border-color: rgba(106,166,255,.65);
-      box-shadow: 0 0 0 3px rgba(106,166,255,.12);
-    }
+    select, input[type="text"], textarea{
+  width:100%;
+  padding:12px 12px;
+  border-radius: 12px;
+  border:1px solid var(--line);
+  background: rgba(0,0,0,.25);
+  color:var(--text);
+  outline:none;
+}
+select:focus, input[type="text"]:focus, textarea:focus{
+  border-color: rgba(106,166,255,.65);
+  box-shadow: 0 0 0 3px rgba(106,166,255,.12);
+}
+textarea{
+  min-height:110px;
+  resize:vertical;
+}
 
     .items{
       display:flex;
@@ -343,6 +347,17 @@
 
           <form id="surveyForm">
             <div class="items" id="itemsContainer"></div>
+<div class="item">
+  <div>
+    <div class="q">Comentarios</div>
+    <div class="meta">Opcional: comparte cualquier comentario adicional.</div>
+  </div>
+
+  <div>
+    <label for="comments">Escribe aquí</label>
+    <textarea id="comments" name="comments" placeholder="Escribe tus comentarios..."></textarea>
+  </div>
+</div>
 
             <div class="actions">
               <button class="btn primary" id="btnGuardar" type="submit">Guardar</button>
@@ -427,19 +442,20 @@
 
     // 3) Ítems: factor es INTERNO (no se muestra)
     // id: clave; text: enunciado; factor: clasificación interna
-    const ITEMS = [
-      { id:"q1",  text:"Mi jefe proporciona supervisión clara y consistente.", factor:"Liderazgo / Supervisión" },
-      { id:"q2",  text:"La comunicación con mi jefe es abierta y efectiva.", factor:"Comunicación / Liderazgo" },
-      { id:"q3",  text:"Los salarios en esta empresa son justos.", factor:"Compensación / Equidad salarial" },
-      { id:"q4",  text:"Mis compañeros ayudan a crear un ambiente de trabajo positivo.", factor:"Clima laboral / Relaciones interpersonales" },
-      { id:"q5",  text:"Mi jefe reconoce y valora mi trabajo.", factor:"Reconocimiento / Liderazgo" },
-      { id:"q6",  text:"Mis horarios de trabajo son adecuados para mi vida personal.", factor:"Equilibrio vida-trabajo / Condiciones laborales" },
-      { id:"q8",  text:"Siento confianza para hablar con mi jefe sobre problemas del trabajo.", factor:"Confianza / Comunicación con liderazgo" },
-      { id:"q9",  text:"La colaboración con mis compañeros es positiva.", factor:"Trabajo en equipo / Colaboración" },
-      { id:"q10", text:"La colaboración con mis compañeros es positiva.", factor:"Trabajo en equipo / Colaboración" }, // (sí, aparece duplicado en tu captura)
-      { id:"q11", text:"El plan de beneficios de mi empresa es competitivo.", factor:"Beneficios / Compensación total" },
-      { id:"q12", text:"Los horarios de trabajo me permiten mantener un buen equilibrio laboral y personal.", factor:"Equilibrio vida-trabajo / Bienestar" },
-    ];
+   const ITEMS = [
+  { id:"q1",  text:"Mi jefe proporciona supervisión clara y consistente.", factor:"Liderazgo / Supervisión" },
+  { id:"q2",  text:"La comunicación con mi jefe es abierta y efectiva.", factor:"Comunicación / Liderazgo" },
+  { id:"q3",  text:"Los salarios en esta empresa son justos.", factor:"Compensación / Equidad salarial" },
+  { id:"q4",  text:"Mis compañeros ayudan a crear un ambiente de trabajo positivo.", factor:"Clima laboral / Relaciones interpersonales" },
+  { id:"q5",  text:"Mi jefe reconoce y valora mi trabajo.", factor:"Reconocimiento / Liderazgo" },
+  { id:"q6",  text:"Mis horarios de trabajo son adecuados para mi vida personal.", factor:"Equilibrio vida-trabajo / Condiciones laborales" },
+  { id:"q7",  text:"Mi jefe reconoce y valora mi trabajo.", factor:"Reconocimiento / Liderazgo" }, // (duplicado como en tu Excel)
+  { id:"q8",  text:"Siento confianza para hablar con mi jefe sobre problemas del trabajo.", factor:"Confianza / Comunicación con liderazgo" },
+  { id:"q9",  text:"La colaboración con mis compañeros es positiva.", factor:"Trabajo en equipo / Colaboración" },
+  { id:"q10", text:"La colaboración con mis compañeros es positiva.", factor:"Trabajo en equipo / Colaboración" }, // (sí, aparece duplicado en tu captura)
+  { id:"q11", text:"El plan de beneficios de mi empresa es competitivo.", factor:"Beneficios / Compensación total" },
+  { id:"q12", text:"Los horarios de trabajo me permiten mantener un buen equilibrio laboral y personal.", factor:"Equilibrio vida-trabajo / Bienestar" },
+];
 
     // 4) Storage key
     const STORAGE_KEY = "clima_org_respuestas_v1";
@@ -558,6 +574,8 @@
         if(el) el.value = "";
       });
       $("#saveNote").textContent = "";
+      const c = $("#comments");
+       if(c) c.value = "";
     }
 
     function collectResponse(){
@@ -578,17 +596,19 @@
       const itemValues = Object.values(answers);
       const overall = avg(itemValues);
 
-      return {
-        ok:true,
-        data:{
-          id: crypto?.randomUUID ? crypto.randomUUID() : String(Date.now()),
-          createdAt: nowISO(),
-          demographics: demo,
-          answers,
-          overallAvg: overall,
-        }
-      };
-    }
+     const comments = ($("#comments")?.value ?? "").trim();
+
+return {
+  ok:true,
+  data:{
+    id: crypto?.randomUUID ? crypto.randomUUID() : String(Date.now()),
+    createdAt: nowISO(),
+    demographics: demo,
+    answers,
+    comments, // nuevo
+    overallAvg: overall,
+  }
+};
 
     function escapeHtml(str){
       return String(str)
@@ -729,14 +749,13 @@
         return;
       }
 
-      // Cabeceras: demográficos + items + meta
-      const headers = [
-        "id","createdAt",
-        ...DEMOGRAPHICS.map(d => d.id),
-        ...ITEMS.map(it => it.id),
-        "overallAvg"
-      ];
-
+  const headers = [
+  "id","createdAt",
+  ...DEMOGRAPHICS.map(d => d.id),
+  ...ITEMS.map(it => it.id),
+  "comments",
+  "overallAvg"
+];
       const csvLines = [];
       csvLines.push(headers.join(","));
 
@@ -748,10 +767,11 @@
         for(const d of DEMOGRAPHICS){
           line.push(csvSafe(r.demographics?.[d.id] ?? ""));
         }
-        for(const it of ITEMS){
-          line.push(csvSafe(r.answers?.[it.id] ?? ""));
-        }
-        line.push(csvSafe(typeof r.overallAvg === "number" ? r.overallAvg.toFixed(4) : ""));
+       for(const it of ITEMS){
+  line.push(csvSafe(r.answers?.[it.id] ?? ""));
+}
+line.push(csvSafe(r.comments ?? ""));
+line.push(csvSafe(typeof r.overallAvg === "number" ? r.overallAvg.toFixed(4) : ""));
 
         csvLines.push(line.join(","));
       }
