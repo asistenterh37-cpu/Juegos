@@ -141,23 +141,24 @@
       font-weight:700;
       letter-spacing:.2px;
     }
+
     select, input[type="text"], textarea{
-  width:100%;
-  padding:12px 12px;
-  border-radius: 12px;
-  border:1px solid var(--line);
-  background: rgba(0,0,0,.25);
-  color:var(--text);
-  outline:none;
-}
-select:focus, input[type="text"]:focus, textarea:focus{
-  border-color: rgba(106,166,255,.65);
-  box-shadow: 0 0 0 3px rgba(106,166,255,.12);
-}
-textarea{
-  min-height:110px;
-  resize:vertical;
-}
+      width:100%;
+      padding:12px 12px;
+      border-radius: 12px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.25);
+      color:var(--text);
+      outline:none;
+    }
+    select:focus, input[type="text"]:focus, textarea:focus{
+      border-color: rgba(106,166,255,.65);
+      box-shadow: 0 0 0 3px rgba(106,166,255,.12);
+    }
+    textarea{
+      min-height:110px;
+      resize:vertical;
+    }
 
     .items{
       display:flex;
@@ -347,17 +348,19 @@ textarea{
 
           <form id="surveyForm">
             <div class="items" id="itemsContainer"></div>
-<div class="item">
-  <div>
-    <div class="q">Comentarios</div>
-    <div class="meta">Opcional: comparte cualquier comentario adicional.</div>
-  </div>
 
-  <div>
-    <label for="comments">Escribe aquí</label>
-    <textarea id="comments" name="comments" placeholder="Escribe tus comentarios..."></textarea>
-  </div>
-</div>
+            <!-- Comentarios SIEMPRE visible -->
+            <div class="item">
+              <div>
+                <div class="q">Comentarios</div>
+                <div class="meta">Opcional: comparte cualquier comentario adicional.</div>
+              </div>
+
+              <div>
+                <label for="comments">Escribe aquí</label>
+                <textarea id="comments" name="comments" placeholder="Escribe tus comentarios..."></textarea>
+              </div>
+            </div>
 
             <div class="actions">
               <button class="btn primary" id="btnGuardar" type="submit">Guardar</button>
@@ -419,19 +422,14 @@ textarea{
      * CONFIGURACIÓN (fácil de editar)
      *********************************************************************/
 
-    // 1) Variables demográficas (fácil agregar/quitar)
-    // id: clave interna; label: texto; options: opciones del selector
     const DEMOGRAPHICS = [
       { id: "genero",      label: "Género",      options: ["Masculino","Femenino"] },
       { id: "antiguedad",  label: "Antigüedad",  options: ["De 0 a 5 años","De 6 a 10 años","De 11 a 20 años","Más de 20 años"] },
       { id: "localidad",   label: "Localidad",   options: ["Tegucigalpa","San Pedro Sula","La Ceiba"] },
       { id: "departamento",label: "Departamento",options: ["Recursos Humanos","Contabilidad","Compras","Ventas"] },
       { id: "nivel",       label: "Nivel",       options: ["Operativo","Administrativo","Jefe - Gerente"] },
-      // Ejemplo para agregar rápido:
-      // { id:"turno", label:"Turno", options:["Día","Noche"] },
     ];
 
-    // 2) Escala (Likert) con selector
     const SCALE = [
       { value: 1, label: "Muy en desacuerdo" },
       { value: 2, label: "En desacuerdo" },
@@ -440,24 +438,21 @@ textarea{
       { value: 5, label: "Totalmente de acuerdo" },
     ];
 
-    // 3) Ítems: factor es INTERNO (no se muestra)
-    // id: clave; text: enunciado; factor: clasificación interna
-   const ITEMS = [
-  { id:"q1",  text:"Mi jefe proporciona supervisión clara y consistente.", factor:"Liderazgo / Supervisión" },
-  { id:"q2",  text:"La comunicación con mi jefe es abierta y efectiva.", factor:"Comunicación / Liderazgo" },
-  { id:"q3",  text:"Los salarios en esta empresa son justos.", factor:"Compensación / Equidad salarial" },
-  { id:"q4",  text:"Mis compañeros ayudan a crear un ambiente de trabajo positivo.", factor:"Clima laboral / Relaciones interpersonales" },
-  { id:"q5",  text:"Mi jefe reconoce y valora mi trabajo.", factor:"Reconocimiento / Liderazgo" },
-  { id:"q6",  text:"Mis horarios de trabajo son adecuados para mi vida personal.", factor:"Equilibrio vida-trabajo / Condiciones laborales" },
-  { id:"q7",  text:"Mi jefe reconoce y valora mi trabajo.", factor:"Reconocimiento / Liderazgo" }, // (duplicado como en tu Excel)
-  { id:"q8",  text:"Siento confianza para hablar con mi jefe sobre problemas del trabajo.", factor:"Confianza / Comunicación con liderazgo" },
-  { id:"q9",  text:"La colaboración con mis compañeros es positiva.", factor:"Trabajo en equipo / Colaboración" },
-  { id:"q10", text:"La colaboración con mis compañeros es positiva.", factor:"Trabajo en equipo / Colaboración" }, // (sí, aparece duplicado en tu captura)
-  { id:"q11", text:"El plan de beneficios de mi empresa es competitivo.", factor:"Beneficios / Compensación total" },
-  { id:"q12", text:"Los horarios de trabajo me permiten mantener un buen equilibrio laboral y personal.", factor:"Equilibrio vida-trabajo / Bienestar" },
-];
+    const ITEMS = [
+      { id:"q1",  text:"Mi jefe proporciona supervisión clara y consistente.", factor:"Liderazgo / Supervisión" },
+      { id:"q2",  text:"La comunicación con mi jefe es abierta y efectiva.", factor:"Comunicación / Liderazgo" },
+      { id:"q3",  text:"Los salarios en esta empresa son justos.", factor:"Compensación / Equidad salarial" },
+      { id:"q4",  text:"Mis compañeros ayudan a crear un ambiente de trabajo positivo.", factor:"Clima laboral / Relaciones interpersonales" },
+      { id:"q5",  text:"Mi jefe reconoce y valora mi trabajo.", factor:"Reconocimiento / Liderazgo" },
+      { id:"q6",  text:"Mis horarios de trabajo son adecuados para mi vida personal.", factor:"Equilibrio vida-trabajo / Condiciones laborales" },
+      { id:"q7",  text:"Mi jefe reconoce y valora mi trabajo.", factor:"Reconocimiento / Liderazgo" },
+      { id:"q8",  text:"Siento confianza para hablar con mi jefe sobre problemas del trabajo.", factor:"Confianza / Comunicación con liderazgo" },
+      { id:"q9",  text:"La colaboración con mis compañeros es positiva.", factor:"Trabajo en equipo / Colaboración" },
+      { id:"q10", text:"La colaboración con mis compañeros es positiva.", factor:"Trabajo en equipo / Colaboración" },
+      { id:"q11", text:"El plan de beneficios de mi empresa es competitivo.", factor:"Beneficios / Compensación total" },
+      { id:"q12", text:"Los horarios de trabajo me permiten mantener un buen equilibrio laboral y personal.", factor:"Equilibrio vida-trabajo / Bienestar" },
+    ];
 
-    // 4) Storage key
     const STORAGE_KEY = "clima_org_respuestas_v1";
 
     /**********************************************************************
@@ -466,9 +461,17 @@ textarea{
     const $ = (sel, root=document) => root.querySelector(sel);
     const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
 
-    function nowISO(){
-      return new Date().toISOString();
+    function escapeHtml(str){
+      return String(str)
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
     }
+    function escapeAttr(str){ return escapeHtml(str); }
+
+    function nowISO(){ return new Date().toISOString(); }
 
     function niceDate(iso){
       try{
@@ -480,11 +483,8 @@ textarea{
     }
 
     function loadAll(){
-      try{
-        return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
-      }catch{
-        return [];
-      }
+      try{ return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"); }
+      catch{ return []; }
     }
 
     function saveAll(rows){
@@ -515,21 +515,19 @@ textarea{
      * RENDER: ENCUESTA
      *********************************************************************/
     function renderScaleHint(){
-      $("#scaleHint").innerHTML = SCALE.map(s => `<b>${s.value}</b> = ${s.label}`).join("<br>");
+      $("#scaleHint").innerHTML = SCALE.map(s => `<b>${s.value}</b> = ${escapeHtml(s.label)}`).join("<br>");
     }
 
     function renderDemographics(){
       const c = $("#demoContainer");
       c.innerHTML = "";
-
-      // Layout: 2 columnas en pantallas medianas
       c.className = "form-row two";
 
       DEMOGRAPHICS.forEach(d => {
         const w = document.createElement("div");
         w.innerHTML = `
           <label for="demo_${d.id}">${escapeHtml(d.label)}</label>
-          <select id="demo_${d.id}" name="${d.id}" required>
+          <select id="demo_${d.id}" name="${escapeAttr(d.id)}" required>
             <option value="" selected disabled>Selecciona…</option>
             ${d.options.map(opt => `<option value="${escapeAttr(opt)}">${escapeHtml(opt)}</option>`).join("")}
           </select>
@@ -552,7 +550,7 @@ textarea{
 
           <div>
             <label for="item_${it.id}">Respuesta</label>
-            <select id="item_${it.id}" name="${it.id}" required>
+            <select id="item_${it.id}" name="${escapeAttr(it.id)}" required>
               <option value="" selected disabled>Selecciona…</option>
               ${SCALE.map(s => `<option value="${s.value}">${s.value} — ${escapeHtml(s.label)}</option>`).join("")}
             </select>
@@ -563,19 +561,10 @@ textarea{
     }
 
     function clearForm(){
-      // Demográficos
-      DEMOGRAPHICS.forEach(d => {
-        const el = $(`#demo_${d.id}`);
-        if(el) el.value = "";
-      });
-      // Ítems
-      ITEMS.forEach(it => {
-        const el = $(`#item_${it.id}`);
-        if(el) el.value = "";
-      });
+      DEMOGRAPHICS.forEach(d => { const el = $(`#demo_${d.id}`); if(el) el.value = ""; });
+      ITEMS.forEach(it => { const el = $(`#item_${it.id}`); if(el) el.value = ""; });
+      const c = $("#comments"); if(c) c.value = "";
       $("#saveNote").textContent = "";
-      const c = $("#comments");
-       if(c) c.value = "";
     }
 
     function collectResponse(){
@@ -593,47 +582,32 @@ textarea{
         answers[it.id] = Number(v);
       }
 
-      const itemValues = Object.values(answers);
-      const overall = avg(itemValues);
+      const overall = avg(Object.values(answers));
+      const comments = ($("#comments")?.value ?? "").trim();
 
-     const comments = ($("#comments")?.value ?? "").trim();
-
-return {
-  ok:true,
-  data:{
-    id: crypto?.randomUUID ? crypto.randomUUID() : String(Date.now()),
-    createdAt: nowISO(),
-    demographics: demo,
-    answers,
-    comments, // nuevo
-    overallAvg: overall,
-  }
-};
-
-    function escapeHtml(str){
-      return String(str)
-        .replaceAll("&","&amp;")
-        .replaceAll("<","&lt;")
-        .replaceAll(">","&gt;")
-        .replaceAll('"',"&quot;")
-        .replaceAll("'","&#039;");
-    }
-    function escapeAttr(str){
-      return escapeHtml(str);
+      return {
+        ok:true,
+        data:{
+          id: (crypto?.randomUUID ? crypto.randomUUID() : String(Date.now())),
+          createdAt: nowISO(),
+          demographics: demo,
+          answers,
+          comments,
+          overallAvg: overall,
+        }
+      };
     }
 
     /**********************************************************************
-     * RESULTADOS: cálculos y render
+     * RESULTADOS
      *********************************************************************/
     function computeFactorAverages(responses){
-      // Agrupar items por factor
-      const factorMap = new Map(); // factor -> array of itemIds
+      const factorMap = new Map();
       for(const it of ITEMS){
         if(!factorMap.has(it.factor)) factorMap.set(it.factor, []);
         factorMap.get(it.factor).push(it.id);
       }
 
-      // Para cada factor, juntar todas las respuestas de todos los envíos
       const rows = [];
       for(const [factor, ids] of factorMap.entries()){
         const values = [];
@@ -643,15 +617,9 @@ return {
             if(typeof v === "number") values.push(v);
           }
         }
-        const a = avg(values);
-        rows.push({
-          factor,
-          avg: a,
-          n: values.length
-        });
+        rows.push({ factor, avg: avg(values), n: values.length });
       }
 
-      // Orden: peor a mejor (para ver “qué duele” primero 😅)
       rows.sort((x,y) => (x.avg ?? 999) - (y.avg ?? 999));
       return rows;
     }
@@ -667,9 +635,8 @@ return {
       const last = responses[responses.length-1];
       $("#kpiLast").textContent = last ? niceDate(last.createdAt) : "—";
 
-      // Tabla por factor
       const factorRows = computeFactorAverages(responses);
-      const factorHtml = `
+      $("#factorTableWrap").innerHTML = `
         <table>
           <thead>
             <tr>
@@ -687,11 +654,7 @@ return {
                 <tr>
                   <td>${escapeHtml(r.factor)}</td>
                   <td><b>${r.avg ? r.avg.toFixed(2) : "—"}</b></td>
-                  <td>
-                    <div class="bar" aria-label="barra">
-                      <i style="width:${pct}%;"></i>
-                    </div>
-                  </td>
+                  <td><div class="bar"><i style="width:${pct}%;"></i></div></td>
                   <td>${r.n}</td>
                 </tr>
               `;
@@ -699,16 +662,14 @@ return {
           </tbody>
         </table>
       `;
-      $("#factorTableWrap").innerHTML = factorHtml;
 
-      // Historial (últimos 10)
       const last10 = responses.slice().reverse().slice(0,10);
       if(!last10.length){
         $("#historyWrap").innerHTML = `<p class="hint">Aún no hay respuestas guardadas.</p>`;
         return;
       }
 
-      const hist = `
+      $("#historyWrap").innerHTML = `
         <table>
           <thead>
             <tr>
@@ -731,7 +692,6 @@ return {
         </table>
         <p class="note">Mostrando las últimas 10 respuestas (para no hacerte scroll eterno).</p>
       `;
-      $("#historyWrap").innerHTML = hist;
     }
 
     /**********************************************************************
@@ -749,13 +709,14 @@ return {
         return;
       }
 
-  const headers = [
-  "id","createdAt",
-  ...DEMOGRAPHICS.map(d => d.id),
-  ...ITEMS.map(it => it.id),
-  "comments",
-  "overallAvg"
-];
+      const headers = [
+        "id","createdAt",
+        ...DEMOGRAPHICS.map(d => d.id),
+        ...ITEMS.map(it => it.id),
+        "comments",
+        "overallAvg"
+      ];
+
       const csvLines = [];
       csvLines.push(headers.join(","));
 
@@ -763,16 +724,10 @@ return {
         const line = [];
         line.push(csvSafe(r.id));
         line.push(csvSafe(r.createdAt));
-
-        for(const d of DEMOGRAPHICS){
-          line.push(csvSafe(r.demographics?.[d.id] ?? ""));
-        }
-       for(const it of ITEMS){
-  line.push(csvSafe(r.answers?.[it.id] ?? ""));
-}
-line.push(csvSafe(r.comments ?? ""));
-line.push(csvSafe(typeof r.overallAvg === "number" ? r.overallAvg.toFixed(4) : ""));
-
+        for(const d of DEMOGRAPHICS) line.push(csvSafe(r.demographics?.[d.id] ?? ""));
+        for(const it of ITEMS) line.push(csvSafe(r.answers?.[it.id] ?? ""));
+        line.push(csvSafe(r.comments ?? ""));
+        line.push(csvSafe(typeof r.overallAvg === "number" ? r.overallAvg.toFixed(4) : ""));
         csvLines.push(line.join(","));
       }
 
@@ -787,7 +742,7 @@ line.push(csvSafe(typeof r.overallAvg === "number" ? r.overallAvg.toFixed(4) : "
     }
 
     /**********************************************************************
-     * NAVEGACIÓN (tabs)
+     * NAVEGACIÓN
      *********************************************************************/
     function setView(view){
       const encuesta = $("#view-encuesta");
@@ -813,16 +768,13 @@ line.push(csvSafe(typeof r.overallAvg === "number" ? r.overallAvg.toFixed(4) : "
      * INIT
      *********************************************************************/
     (function init(){
-      // Render UI
       renderScaleHint();
       renderDemographics();
       renderItems();
 
-      // Tabs
       $("#tab-encuesta").addEventListener("click", () => setView("encuesta"));
       $("#tab-resultados").addEventListener("click", () => setView("resultados"));
 
-      // Guardar
       $("#surveyForm").addEventListener("submit", (e) => {
         e.preventDefault();
 
@@ -839,19 +791,12 @@ line.push(csvSafe(typeof r.overallAvg === "number" ? r.overallAvg.toFixed(4) : "
 
         $("#saveNote").textContent = "✅ Guardado. (Se almacenó en este navegador.)";
         $("#saveNote").style.color = "var(--ok)";
-
-        // Si querés: limpiar tras guardar
-        // clearForm();
       });
 
-      // Limpiar
-      $("#btnLimpiar").addEventListener("click", () => clearForm());
-
-      // Export
+      $("#btnLimpiar").addEventListener("click", clearForm);
       $("#btnExportJSON").addEventListener("click", exportJSON);
       $("#btnExportCSV").addEventListener("click", exportCSV);
 
-      // Borrar todo
       $("#btnClearAll").addEventListener("click", () => {
         const ok = confirm("¿Borrar TODAS las respuestas guardadas en este navegador?");
         if(!ok) return;
@@ -859,13 +804,9 @@ line.push(csvSafe(typeof r.overallAvg === "number" ? r.overallAvg.toFixed(4) : "
         renderResults();
       });
 
-      // Storage pill
       $("#storagePill").textContent = "LocalStorage";
-
-      // Default view
       setView("encuesta");
     })();
   </script>
 </body>
 </html>
-
