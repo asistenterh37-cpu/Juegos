@@ -677,7 +677,7 @@
   // ============================
   // ✅ CONFIG (Sheets WebApp + Sheet)
   // ============================
-  const APPS_SCRIPT_WEBAPP_URL =  "https://script.google.com/macros/s/AKfycbwNgheRFDwKNckJT1-m0i4aNBxZTlh-jXTfin-wC8zNpCdD4ZsdRS_2IeYvDqc9eh3I/exec"; 
+  const APPS_SCRIPT_WEBAPP_URL =  "https://script.google.com/macros/s/AKfycbxQy157xCBeBav0DKH9deu9XNXOFV89kaICNDxM1SutY5s6fmMgvrZb6JFVFWY40eZXXQ/exec";
   const GOOGLE_SHEET_URL = "https://docs.google.com/spreadsheets/d/1bGHsMeYgUGyNpnvwDVIkn6c4oGMF6sADTH9LROy9WXg/edit?usp=sharing";
   const EMPRESAS_SHEET_NAME = "Empresas"; // si tu pestaña se llama "empresa", el GS (abajo) ya lo tolera
   const STORAGE_KEY = "strategic_planning_intake_v1";
@@ -903,46 +903,48 @@
   // Tabula por fila (append) en hoja: Empresas
   // ============================
   async function guardarEnGoogleSheetsEmpresas() {
-    if (!APPS_SCRIPT_WEBAPP_URL) {
-      return { ok:false, error:"missing_webapp_url" };
-    }
-
-    const data = buildEmpresasPayloadFromForm();
-
-    // mínimos
-    if (!data.periodo || !data.nombreEmpresa) {
-      return { ok:false, error:"missing_required_fields", msg:"Completa Período y Nombre de la empresa." };
-    }
-
-    const payload = { sheetName: EMPRESAS_SHEET_NAME, data };
-
-    // ✅ En GitHub Pages => Apps Script WebApp: lo más estable es NO-CORS (evita el bloqueo del navegador).
-    // Nota: la respuesta será "opaque" y no se puede leer JSON de vuelta.
-    try{
-      await fetch(APPS_SCRIPT_WEBAPP_URL, {
-        method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify(payload),
-        cache: "no-store",
-        keepalive: true
-      });
-
-      // Si llega aquí, el navegador envió el request.
-      return { ok:true, action:"sent_no_cors" };
-
-    } catch (err) {
-      // Fallback: sendBeacon (también ignora respuesta, pero es muy resiliente)
-      try{
-        const blob = new Blob([JSON.stringify(payload)], { type: "text/plain;charset=utf-8" });
-        const queued = navigator.sendBeacon(APPS_SCRIPT_WEBAPP_URL, blob);
-        if (queued) return { ok:true, action:"beacon_queued" };
-      } catch {}
-
-      return { ok:false, error:"network_error", msg:String(err?.message || err) };
-    }
+  if (!APPS_SCRIPT_WEBAPP_URL) {
+    return { ok:false, error:"missing_webapp_url" };
   }
 
+  const data = buildEmpresasPayloadFromForm();
+
+  // mínimos
+  if (!data.periodo || !data.nombreEmpresa) {
+    return { ok:false, error:"missing_required_fields", msg:"Completa Período y Nombre de la empresa." };
+  }
+
+  const payloadObj = { sheetName: EMPRESAS_SHEET_NAME, data };
+
+  // ✅ Forma MÁS compatible para GitHub Pages → Apps Script (sin preflight):
+  // Content-Type simple: application/x-www-form-urlencoded
+  // Body: payload=<json_urlencoded>
+  const body = "payload=" + encodeURIComponent(JSON.stringify(payloadObj));
+
+  try{
+    await fetch(APPS_SCRIPT_WEBAPP_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+      body,
+      cache: "no-store",
+      keepalive: true
+    });
+
+    // No podemos leer respuesta por no-cors, pero al menos enviamos en el formato correcto
+    return { ok:true, action:"sent_form_urlencoded" };
+
+  } catch (err) {
+    // Fallback: sendBeacon
+    try{
+      const blob = new Blob([body], { type: "application/x-www-form-urlencoded;charset=UTF-8" });
+      const queued = navigator.sendBeacon(APPS_SCRIPT_WEBAPP_URL, blob);
+      if (queued) return { ok:true, action:"beacon_queued" };
+    } catch {}
+
+    return { ok:false, error:"network_error", msg:String(err?.message || err) };
+  }
+}
   // ============================
   // 🧷 Eventos
   // ============================
