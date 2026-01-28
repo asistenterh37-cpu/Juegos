@@ -677,9 +677,11 @@
   // ============================
   // ✅ CONFIG (Sheets WebApp + Sheet)
   // ============================
-  const APPS_SCRIPT_WEBAPP_URL =  "https://script.google.com/macros/s/AKfycbxQy157xCBeBav0DKH9deu9XNXOFV89kaICNDxM1SutY5s6fmMgvrZb6JFVFWY40eZXXQ/exec";
-  const GOOGLE_SHEET_URL = "https://docs.google.com/spreadsheets/d/1bGHsMeYgUGyNpnvwDVIkn6c4oGMF6sADTH9LROy9WXg/edit?usp=sharing";
-  const EMPRESAS_SHEET_NAME = "Empresas"; // si tu pestaña se llama "empresa", el GS (abajo) ya lo tolera
+  const APPS_SCRIPT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzCcRCEZnsXGv6YnjH5KCi0BGzAOPoGJ2ami4Wo5yFoT3sacaE11Kfgrgy-kEiioOexBw/exec";
+// ✅ Tu spreadsheet real (PlanEstrategico1)
+const GOOGLE_SHEET_URL = "https://docs.google.com/spreadsheets/d/1NbYSAFO8p9Vget0hmmXxZMp-Q6u0Or8UpyJkxZs6YBY/edit?usp=sharing";
+// ✅ Tu pestaña real
+const ENCUESTAS_SHEET_NAME = "Encuestas";
   const STORAGE_KEY = "strategic_planning_intake_v1";
 
   // ============================
@@ -914,7 +916,7 @@
     return { ok:false, error:"missing_required_fields", msg:"Completa Período y Nombre de la empresa." };
   }
 
-  const payloadObj = { sheetName: EMPRESAS_SHEET_NAME, data };
+  const payloadObj = { sheetName: ENCUESTAS_SHEET_NAME, data };
 
   // ✅ Forma MÁS compatible para GitHub Pages → Apps Script (sin preflight):
   // Content-Type simple: application/x-www-form-urlencoded
@@ -922,14 +924,23 @@
   const body = "payload=" + encodeURIComponent(JSON.stringify(payloadObj));
 
   try{
-    await fetch(APPS_SCRIPT_WEBAPP_URL, {
-      method: "POST",
-      mode: "no-cors",
-      headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
-      body,
-      cache: "no-store",
-      keepalive: true
-    });
+   const res = await fetch(APPS_SCRIPT_WEBAPP_URL, {
+  method: "POST",
+  mode: "cors",
+  headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+  body,
+  cache: "no-store",
+  keepalive: true
+});
+
+const text = await res.text();
+let json = null;
+try { json = JSON.parse(text); } catch {}
+
+if (!res.ok || !json?.ok) {
+  return { ok:false, error:"apps_script_error", msg: json?.error || text || "Respuesta inválida" };
+}
+return { ok:true, action:"saved", row: json.row || null };
 
     // No podemos leer respuesta por no-cors, pero al menos enviamos en el formato correcto
     return { ok:true, action:"sent_form_urlencoded" };
