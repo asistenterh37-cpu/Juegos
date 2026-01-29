@@ -458,7 +458,7 @@
     const STORAGE_KEY = "clima_org_respuestas_v1";
 
     /**********************************************************************
-     * ✅ AQUÍ VA LA URL REAL DEL WEB APP "https://script.google.com/macros/s/AKfycbzy2s2r1uvD44vEYpECiv_DsMLnl4qvtUUp_RA2c89SaWAobNpgIZd5UydczQiKlTedvA/exec TERMINADA EN /exec";
+     * ✅ Pega aquí la URL REAL del Web App de Apps Script "https://script.google.com/macros/s/AKfycbxBVg1W95hOAYLrvgoyjA2W4fXZM4ak7w0-qugICiXDUq4Dtm2MTFpz7HrYJdX_sfssIw/exec";
      * Ejemplo:
      * https://script.google.com/macros/s/AKfycbxxxxxxxxxxxxxxxxxxxx/exec
      *********************************************************************/
@@ -504,6 +504,13 @@
       a.click();
       a.remove();
       URL.revokeObjectURL(url);
+    }
+
+    function isValidExecUrl(url){
+      if(!url) return false;
+      const u = String(url).trim();
+      // Debe ser script.google.com/macros/s/.../exec
+      return /^https:\/\/script\.google\.com\/macros\/s\/[-\w]+\/exec(\?.*)?$/i.test(u);
     }
 
     /**********************************************************************
@@ -757,20 +764,21 @@
      * ENVÍO A GOOGLE SHEETS (WEB APP)
      *********************************************************************/
     async function sendToGoogleSheet(payload){
-      if(!GAS_WEBAPP_URL || GAS_WEBAPP_URL.includes("PEGAR_AQUI")){
-        return { ok:false, message:"No se ha configurado la URL del Web App (/exec)." };
+      const url = String(GAS_WEBAPP_URL || "").trim();
+
+      if(!isValidExecUrl(url)){
+        return { ok:false, message:"GAS_WEBAPP_URL inválida. Debe ser el Web App de Apps Script y terminar en /exec (NO el link del Google Sheet)." };
       }
 
       try{
-        // ✅ Evita CORS/preflight: text/plain + no-cors
-        await fetch(GAS_WEBAPP_URL, {
+        // ✅ Evita preflight: text/plain + no-cors
+        await fetch(url, {
           method: "POST",
           mode: "no-cors",
           headers: { "Content-Type": "text/plain;charset=utf-8" },
           body: JSON.stringify(payload),
         });
 
-        // En no-cors no podemos leer respuesta, pero el WebApp sí recibe y guarda.
         return { ok:true };
       }catch(err){
         return { ok:false, message: String(err?.message ?? err) };
@@ -786,9 +794,9 @@
       renderItems();
 
       $("#integrationHint").textContent =
-        (!GAS_WEBAPP_URL || GAS_WEBAPP_URL.includes("PEGAR_AQUI"))
-          ? "⚠️ Falta pegar la URL del WebApp de Apps Script (/exec)."
-          : "✅ WebApp configurado (envío por POST).";
+        isValidExecUrl(GAS_WEBAPP_URL)
+          ? "✅ WebApp configurado (envío por POST)."
+          : "⚠️ Falta pegar la URL del WebApp de Apps Script (/exec). (Ahorita tienes un link que no es /exec).";
 
       $("#tab-encuesta").addEventListener("click", () => setView("encuesta"));
       $("#tab-resultados").addEventListener("click", () => setView("resultados"));
