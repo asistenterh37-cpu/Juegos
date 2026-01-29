@@ -929,164 +929,197 @@ for(let i=0; i<catCount; i++){
     }
 
     function renderResults(){
-      const all = getAllResponses_();
-      $("#kpiCount").textContent = String(all.length);
+  const all = getAllResponses_();
 
-     const overall = avg(all.map(r => r.overallAvg).filter(v => typeof v === "number"));
-     const overallPct = (overall == null) ? null : (overall / 5) * 100;
-      $("#kpiAvg").textContent = overallPct == null ? "—" : overallPct.toFixed(1) + "%";
+  const dim = $("#resDimension")?.value || "general";
+  const val = $("#resValue")?.value || "";
 
-      const last = all[all.length-1];
-      $("#kpiLast").textContent = last ? niceDate(last.createdAt) : "—";
+  // --- etiquetas bonitas ---
+  const dimLabel = (dim === "general")
+    ? "General"
+    : (DEMOGRAPHICS.find(d => d.id === dim)?.label || dim);
 
-      const dim = $("#resDimension")?.value || "general";
-      const val = $("#resValue")?.value || "";
+  // ✅ base filtrada SOLO cuando hay variable seleccionada
+  const baseFiltered = (dim !== "general" && val)
+    ? all.filter(r => String(r.demographics?.[dim] ?? "") === String(val))
+    : all;
 
-            // --- Títulos bonitos ---
-      const dimLabel = (dim === "general")
-        ? "General"
-        : (DEMOGRAPHICS.find(d => d.id === dim)?.label || dim);
+  // =========================
+  // KPIs (si hay variable, muestran SOLO esa variable)
+  // =========================
+  $("#kpiCount").textContent = String(baseFiltered.length);
 
-      // =========================
-      // 1) TABLA (solo filtra si hay Variable seleccionada)
-      // =========================
-      if(dim !== "general" && !val){
-        $("#factorTableWrap").innerHTML = `<p class="hint">Selecciona una <b>Variable</b> para ver la tabla filtrada.</p>`;
-      }else{
-        const itemRows = computeItemScoresByDimension_(all, dim, val);
+  const overall = avg(baseFiltered.map(r => r.overallAvg).filter(v => typeof v === "number"));
+  const overallPct = (overall == null) ? null : (overall / 5) * 100;
+  $("#kpiAvg").textContent = overallPct == null ? "—" : overallPct.toFixed(1) + "%";
 
-        $("#factorTableWrap").innerHTML = `
-          <table>
-            <thead>
+  const last = baseFiltered[baseFiltered.length - 1];
+  $("#kpiLast").textContent = last ? niceDate(last.createdAt) : "—";
+
+  // =========================
+  // TABLA (solo filtra si hay Variable seleccionada)
+  // =========================
+  if(dim !== "general" && !val){
+    $("#factorTableWrap").innerHTML =
+      `<p class="hint">Selecciona una <b>Variable</b> para ver la tabla filtrada.</p>`;
+  }else{
+    const itemRows = computeItemScoresByDimension_(all, dim, val);
+
+    $("#factorTableWrap").innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>Ítem</th>
+            <th>Pregunta</th>
+            <th style="width:140px;">Puntaje</th>
+            <th style="width:220px;">Visual</th>
+            <th style="width:90px;">N</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${itemRows.map(r => {
+            const v = (r.score ?? 0);
+            const pct = (r.score == null) ? 0 : clamp((v/5)*100, 0, 100);
+            return `
               <tr>
-                <th>Ítem</th>
-                <th>Pregunta</th>
-                <th style="width:140px;">Puntaje</th>
-                <th style="width:220px;">Visual</th>
-                <th style="width:90px;">N</th>
+                <td><b>${escapeHtml(r.itemId.toUpperCase())}</b></td>
+                <td class="small">
+                  ${escapeHtml(r.text)}
+                  <div class="small">Factor: ${escapeHtml(r.factor)}</div>
+                </td>
+                <td><b>${r.score == null ? "—" : r.score.toFixed(2)}</b></td>
+                <td><div class="bar"><i style="width:${pct}%;"></i></div></td>
+                <td>${r.n}</td>
               </tr>
-            </thead>
-            <tbody>
-              ${itemRows.map(r => {
-                const v = (r.score ?? 0);
-                const pct = (r.score == null) ? 0 : clamp((v/5)*100, 0, 100);
-                return `
-                  <tr>
-                    <td><b>${escapeHtml(r.itemId.toUpperCase())}</b></td>
-                    <td class="small">
-                      ${escapeHtml(r.text)}
-                      <div class="small">Factor: ${escapeHtml(r.factor)}</div>
-                    </td>
-                    <td><b>${r.score == null ? "—" : r.score.toFixed(2)}</b></td>
-                    <td><div class="bar"><i style="width:${pct}%;"></i></div></td>
-                    <td>${r.n}</td>
-                  </tr>
-                `;
-              }).join("")}
-            </tbody>
-          </table>
-        `;
-      }
+            `;
+          }).join("")}
+        </tbody>
+      </table>
+    `;
+  }
 
-      // =========================
-      // 2) GRÁFICO
-      //    - General: una sola serie
-      //    - Cualquier dimensión: TODAS las variables (series por grupo)
-      // =========================
-      const chartsWrap = $("#chartsWrap");
-      chartsWrap.innerHTML = "";
+  // =========================
+  // GRÁFICO
+  // - General: 1 serie
+  // - Dimensión SIN variable: todas las variables (series)
+  // - Dimensión CON variable: solo esa variable (1 serie)
+  // =========================
+  const chartsWrap = $("#chartsWrap");
+  chartsWrap.innerHTML = "";
 
-      if(dim === "general"){
-        const labels = ITEMS.map(it => it.id.toUpperCase());
-        const points = ITEMS.map(it => scoreItem_(all, it.id).scorePct);
-        const series = [{ name: "General", points, n: all.length }];
+  if(dim === "general"){
+    const labels = ITEMS.map(it => it.id.toUpperCase());
+    const points = ITEMS.map(it => scoreItem_(all, it.id).scorePct);
+    const series = [{ name: "General", points, n: all.length }];
 
-        renderBarChart_(chartsWrap, "Resultados por Ítem (General)", labels, series);
+    renderBarChart_(chartsWrap, "Resultados por Ítem (General)", labels, series);
+  }else{
+    // Si eligió Variable => solo 1 serie
+    if(val){
+      const labels = ITEMS.map(it => it.id.toUpperCase());
+      const points = ITEMS.map(it => scoreItem_(baseFiltered, it.id).scorePct);
+      const series = [{
+        name: String(val),
+        points,
+        n: baseFiltered.length
+      }];
+
+      renderBarChart_(
+        chartsWrap,
+        `Resultados por Ítem (${escapeHtml(dimLabel)}: ${escapeHtml(String(val))})`,
+        labels,
+        series
+      );
+    }else{
+      // SIN variable => todas las variables (series por grupo)
+      const grouped = computeGroupedItemScores_(all, dim);
+
+      if(!grouped?.series?.length){
+        chartsWrap.innerHTML =
+          `<p class="hint">No hay datos para mostrar en <b>${escapeHtml(dimLabel)}</b>.</p>`;
       }else{
-        const grouped = computeGroupedItemScores_(all, dim);
-
-        if(!grouped?.series?.length){
-          chartsWrap.innerHTML = `<p class="hint">No hay datos para mostrar en <b>${escapeHtml(dimLabel)}</b>.</p>`;
-        }else{
-          // grouped.labels ya viene como Q1..Q12 (uppercase)
-          renderBarChart_(
-            chartsWrap,
-            `Resultados por Ítem (${escapeHtml(dimLabel)})`,
-            grouped.labels,
-            grouped.series
-          );
-        }
+        renderBarChart_(
+          chartsWrap,
+          `Resultados por Ítem (${escapeHtml(dimLabel)})`,
+          grouped.labels,
+          grouped.series
+        );
       }
+    }
+  }
 
-      const last10 = all.slice().reverse().slice(0,10);
-      if(!last10.length){
-        $("#historyWrap").innerHTML = `<p class="hint">Aún no hay respuestas.</p>`;
-        return;
-      }
+  // =========================
+  // HISTORIAL (lo dejo global como lo tenías)
+  // =========================
+  const last10 = all.slice().reverse().slice(0,10);
+  if(!last10.length){
+    $("#historyWrap").innerHTML = `<p class="hint">Aún no hay respuestas.</p>`;
+    return;
+  }
 
-              $("#historyWrap").innerHTML = `
-        <table>
-          <thead>
+  $("#historyWrap").innerHTML = `
+    <table>
+      <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>Promedio</th>
+          <th>Resultado</th>
+          <th>Demográficos</th>
+          <th>Comentarios</th>
+          <th>Respuestas</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${last10.map(r => {
+          const raw = (r.flat ?? r) || {};
+
+          const resultado =
+            raw.Resultado ?? raw.resultado ??
+            raw.result ?? raw.RESULTADO ??
+            r.Resultado ?? r.resultado ??
+            r.result ?? r.RESULTADO ??
+            "—";
+
+          const demoTxt = DEMOGRAPHICS
+            .map(d => `${escapeHtml(d.label)}: <b>${escapeHtml(r.demographics?.[d.id] ?? raw?.[d.id] ?? "—")}</b>`)
+            .join("<br>");
+
+          const ansTxt = ITEMS
+            .map(it => {
+              const val = r.answers?.[it.id] ?? raw?.[it.id] ?? "—";
+              return `${escapeHtml(it.id.toUpperCase())}: <b>${escapeHtml(val)}</b>`;
+            })
+            .join("<br>");
+
+          return `
             <tr>
-              <th>Fecha</th>
-              <th>Promedio</th>
-              <th>Resultado</th>
-              <th>Demográficos</th>
-              <th>Comentarios</th>
-              <th>Respuestas</th>
+              <td>${escapeHtml(niceDate(r.createdAt))}</td>
+              <td><b>${typeof r.overallAvg === "number" ? r.overallAvg.toFixed(2) : "—"}</b></td>
+              <td class="small">${escapeHtml(String(resultado ?? "—"))}</td>
+              <td class="small">${demoTxt}</td>
+              <td class="small">${escapeHtml((r.comments ?? raw.comments ?? "").trim() || "—")}</td>
+              <td class="small">
+                <details>
+                  <summary style="cursor:pointer;color:var(--accent);font-weight:800;">Ver</summary>
+                  <div style="margin-top:8px;line-height:1.4;">${ansTxt}</div>
+                  <div style="margin-top:10px;" class="small">
+                    <b>Resultado:</b> ${escapeHtml(String(resultado ?? "—"))}
+                  </div>
+                </details>
+
+                <details style="margin-top:8px;">
+                  <summary style="cursor:pointer;color:var(--accent);font-weight:800;">Ver todos los campos</summary>
+                  <pre class="note" style="margin-top:8px;overflow:auto;max-height:260px;">${escapeHtml(JSON.stringify(raw, null, 2))}</pre>
+                </details>
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            ${last10.map(r => {
-              const raw = (r.flat ?? r) || {};
-
-              const resultado =
-                raw.Resultado ?? raw.resultado ??
-                raw.result ?? raw.RESULTADO ??
-                r.Resultado ?? r.resultado ??
-                r.result ?? r.RESULTADO ??
-                "—";
-
-              const demoTxt = DEMOGRAPHICS
-                .map(d => `${escapeHtml(d.label)}: <b>${escapeHtml(r.demographics?.[d.id] ?? raw?.[d.id] ?? "—")}</b>`)
-                .join("<br>");
-
-              const ansTxt = ITEMS
-                .map(it => {
-                  const val = r.answers?.[it.id] ?? raw?.[it.id] ?? "—";
-                  return `${escapeHtml(it.id.toUpperCase())}: <b>${escapeHtml(val)}</b>`;
-                })
-                .join("<br>");
-
-              return `
-                <tr>
-                  <td>${escapeHtml(niceDate(r.createdAt))}</td>
-                  <td><b>${typeof r.overallAvg === "number" ? r.overallAvg.toFixed(2) : "—"}</b></td>
-                  <td class="small">${escapeHtml(String(resultado ?? "—"))}</td>
-                  <td class="small">${demoTxt}</td>
-                  <td class="small">${escapeHtml((r.comments ?? raw.comments ?? "").trim() || "—")}</td>
-                  <td class="small">
-                    <details>
-                      <summary style="cursor:pointer;color:var(--accent);font-weight:800;">Ver</summary>
-                      <div style="margin-top:8px;line-height:1.4;">${ansTxt}</div>
-                      <div style="margin-top:10px;" class="small">
-                        <b>Resultado:</b> ${escapeHtml(String(resultado ?? "—"))}
-                      </div>
-                    </details>
-
-                    <details style="margin-top:8px;">
-                      <summary style="cursor:pointer;color:var(--accent);font-weight:800;">Ver todos los campos</summary>
-                      <pre class="note" style="margin-top:8px;overflow:auto;max-height:260px;">${escapeHtml(JSON.stringify(raw, null, 2))}</pre>
-                    </details>
-                  </td>
-                </tr>
-              `;
-            }).join("")}
-          </tbody>
-        </table>
-        <p class="note">Mostrando las últimas 10 respuestas.</p>
-      `;
-    } // ✅ CIERRE CORRECTO DE renderResults()
+          `;
+        }).join("")}
+      </tbody>
+    </table>
+    <p class="note">Mostrando las últimas 10 respuestas.</p>
+  `;
+}
 
     /**********************************************************************
      * EXPORTS
