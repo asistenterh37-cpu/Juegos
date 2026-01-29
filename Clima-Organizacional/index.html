@@ -436,12 +436,12 @@
 
         <div class="divider"></div>
 
-        <h2>Calificación por factor (barras)</h2>
+        <h2>Calificación por ítem (barras)</h2>
         <div id="chartsWrap"></div>
 
         <div class="divider"></div>
 
-        <h2>Promedios por factor (tabla)</h2>
+        <h2>Promedios por ítem (tabla)</h2>
         <div id="factorTableWrap"></div>
 
         <div class="divider"></div>
@@ -580,6 +580,7 @@
         w.innerHTML = `
           <div>
             <div class="q">${idx+1}. ${escapeHtml(it.text)}</div>
+            <div class="meta">Factor: ${escapeHtml(it.factor)}</div>
           </div>
           <div>
             <label for="item_${it.id}">Respuesta</label>
@@ -644,11 +645,10 @@
     }
 
     /**********************************************************************
-     * RESULTADOS (NUEVO)
+     * RESULTADOS
      *********************************************************************/
-
     // ---- Remote cache (Google Sheets) ----
-    let REMOTE_CACHE = null;       // Array de responses
+    let REMOTE_CACHE = null;       // Array de responses normalizadas
     let REMOTE_STATUS = "—";
 
     function normalizeResponse_(r){
@@ -735,74 +735,67 @@
     }
 
     // =========================
-// RESULTADOS POR ÍTEM (q1..q12)
-// =========================
-
-// Puntaje por ÍTEM (1..5):
-// scoreItem = sum(respuestas del ítem) / N_encuestas_con_respuesta
-function scoreItem_(responses, itemId){
-  let sum = 0;
-  let seen = 0;
-
-  for(const r of responses){
-    const v = r.answers?.[itemId];
-    if(typeof v === "number" && Number.isFinite(v)){
-      sum += v;
-      seen++;
+    // RESULTADOS POR ÍTEM (q1..q12)
+    // =========================
+    function scoreItem_(responses, itemId){
+      let sum = 0;
+      let seen = 0;
+      for(const r of responses){
+        const v = r.answers?.[itemId];
+        if(typeof v === "number" && Number.isFinite(v)){
+          sum += v;
+          seen++;
+        }
+      }
+      if(!seen) return null;
+      return sum / seen; // 1..5
     }
-  }
-  if(!seen) return null;
-  return sum / seen; // 1..5
-}
 
-// Tabla por ítem (general o filtrada por dimensión/valor)
-function computeItemScoresByDimension_(responses, dimension, valueFilter){
-  let base = responses.slice();
+    function computeItemScoresByDimension_(responses, dimension, valueFilter){
+      let base = responses.slice();
 
-  if(dimension && dimension !== "general"){
-    base = base.filter(r => String(r.demographics?.[dimension] ?? "") === String(valueFilter ?? ""));
-  }
+      if(dimension && dimension !== "general"){
+        base = base.filter(r => String(r.demographics?.[dimension] ?? "") === String(valueFilter ?? ""));
+      }
 
-  const rows = ITEMS.map(it => ({
-    itemId: it.id,
-    text: it.text,
-    factor: it.factor,
-    score: scoreItem_(base, it.id),
-    n: base.length
-  }));
+      const rows = ITEMS.map(it => ({
+        itemId: it.id,
+        text: it.text,
+        factor: it.factor,
+        score: scoreItem_(base, it.id),
+        n: base.length
+      }));
 
-  // Opcional: ordenar de menor a mayor
-  rows.sort((a,b) => ((a.score ?? 999) - (b.score ?? 999)));
-  return rows;
-}
+      // Ordenar: menor a mayor (los más “dolorosos” arriba 😅)
+      rows.sort((a,b) => ((a.score ?? 999) - (b.score ?? 999)));
+      return rows;
+    }
 
-// Gráfico por ítem agrupado por dimensión (Masculino vs Femenino, etc.)
-function computeGroupedItemScores_(responses, dimension){
-  const groups = new Map();
+    function computeGroupedItemScores_(responses, dimension){
+      const groups = new Map();
+      for(const r of responses){
+        const g = String(r.demographics?.[dimension] ?? "");
+        if(!g) continue;
+        if(!groups.has(g)) groups.set(g, []);
+        groups.get(g).push(r);
+      }
 
-  for(const r of responses){
-    const g = String(r.demographics?.[dimension] ?? "");
-    if(!g) continue;
-    if(!groups.has(g)) groups.set(g, []);
-    groups.get(g).push(r);
-  }
+      const groupNames = Array.from(groups.keys()).sort((a,b)=>a.localeCompare(b));
+      const labels = ITEMS.map(it => it.id.toUpperCase()); // q1..q12
+      const series = groupNames.map(g => {
+        const rs = groups.get(g) || [];
+        const points = ITEMS.map(it => {
+          const s = scoreItem_(rs, it.id);
+          return (s == null) ? null : s;
+        });
+        return { name: g, points, n: rs.length };
+      });
 
-  const groupNames = Array.from(groups.keys()).sort((a,b)=>a.localeCompare(b));
-  const labels = ITEMS.map(it => `${it.id.toUpperCase()}`); // q1..q12
-  const series = groupNames.map(g => {
-    const rs = groups.get(g) || [];
-    const points = ITEMS.map(it => {
-      const s = scoreItem_(rs, it.id);
-      return (s == null) ? null : s;
-    });
-    return { name: g, points, n: rs.length };
-  });
-
-  return { labels, series };
-}
+      return { labels, series };
+    }
 
     // Render gráfico barras (SVG)
-    function renderBarChart_(targetEl, title, factors, series){
+    function renderBarChart_(targetEl, title, xLabels, series){
       const W = 980;
       const H = 420;
       const padL = 64, padR = 22, padT = 42, padB = 64;
@@ -813,7 +806,7 @@ function computeGroupedItemScores_(responses, dimension){
       const minY = 0;
 
       const groups = series.length;
-      const catCount = factors.length;
+      const catCount = xLabels.length;
 
       const catGap = 14;
       const catW = (innerW - catGap*(catCount-1)) / Math.max(1, catCount);
@@ -839,7 +832,7 @@ function computeGroupedItemScores_(responses, dimension){
         return `<line x1="${padL}" y1="${y}" x2="${W-padR}" y2="${y}" stroke="rgba(255,255,255,.10)" stroke-width="1"/>`;
       }).join("");
 
-      const yLabels = yTicks.map(t => {
+      const yLabelsSvg = yTicks.map(t => {
         const y = yToPx(t);
         return `<text x="${padL-10}" y="${y+4}" text-anchor="end" font-size="12" fill="rgba(159,179,217,.95)">${t}</text>`;
       }).join("");
@@ -864,7 +857,7 @@ function computeGroupedItemScores_(responses, dimension){
         }
       }
 
-      const xLabels = factors.map((f, i) => {
+      const xLabelsSvg = xLabels.map((f, i) => {
         const x = xCat(i) + catW/2;
         const y = padT + innerH + 28;
         return `<text x="${x}" y="${y}" text-anchor="end" transform="rotate(-35 ${x} ${y})"
@@ -885,16 +878,16 @@ function computeGroupedItemScores_(responses, dimension){
         <div class="item" style="grid-template-columns: 1fr; gap:10px;">
           <div>
             <div class="q">${escapeHtml(title)}</div>
-            <div class="meta">Escala 0–5. Barras por grupo (variable) y factor.</div>
+            <div class="meta">Escala 0–5. Barras por grupo (variable) y por ítem.</div>
           </div>
           <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;">${legend}</div>
           <div style="overflow:auto;border:1px solid var(--line);border-radius:14px;background: rgba(0,0,0,.18);padding:10px;">
-            <svg viewBox="0 0 ${W} ${H}" width="100%" height="420" role="img" aria-label="Gráfico de barras por factor">
+            <svg viewBox="0 0 ${W} ${H}" width="100%" height="420" role="img" aria-label="Gráfico de barras por ítem">
               <text x="${padL}" y="22" font-size="14" fill="rgba(234,241,255,.95)" font-weight="800">${escapeHtml(title)}</text>
               ${gridLines}
-              ${yLabels}
+              ${yLabelsSvg}
               ${bars.join("")}
-              ${xLabels}
+              ${xLabelsSvg}
             </svg>
           </div>
         </div>
@@ -934,72 +927,55 @@ function computeGroupedItemScores_(responses, dimension){
       const dim = $("#resDimension")?.value || "general";
       const val = $("#resValue")?.value || "";
 
-      const itemRows = computeItemScoresByDimension_(all, dim, val);
+      // Si no se ha seleccionado variable (cuando dim != general), no rendereamos segmentación aún.
+      if(dim !== "general" && !val){
+        $("#chartsWrap").innerHTML = `<p class="hint">Selecciona una <b>Variable</b> para ver la segmentación.</p>`;
+        $("#factorTableWrap").innerHTML = `<p class="hint">Selecciona una <b>Variable</b> para ver la tabla filtrada.</p>`;
+      }else{
+        // Tabla por ítem
+        const itemRows = computeItemScoresByDimension_(all, dim, val);
 
-$("#factorTableWrap").innerHTML = `
-  <table>
-    <thead>
-      <tr>
-        <th>Ítem</th>
-        <th>Pregunta</th>
-        <th style="width:140px;">Puntaje</th>
-        <th style="width:220px;">Visual</th>
-        <th style="width:90px;">N</th>
-      </tr>
-    </thead>
-    <tbody>
-      ${itemRows.map(r => {
-        const v = (r.score ?? 0);
-        const pct = (r.score == null) ? 0 : clamp((v/5)*100, 0, 100);
-        return `
-          <tr>
-            <td><b>${escapeHtml(r.itemId.toUpperCase())}</b></td>
-            <td class="small">${escapeHtml(r.text)}</td>
-            <td><b>${r.score == null ? "—" : r.score.toFixed(2)}</b></td>
-            <td><div class="bar"><i style="width:${pct}%;"></i></div></td>
-            <td>${r.n}</td>
-          </tr>
+        $("#factorTableWrap").innerHTML = `
+          <table>
+            <thead>
+              <tr>
+                <th>Ítem</th>
+                <th>Pregunta</th>
+                <th style="width:140px;">Puntaje</th>
+                <th style="width:220px;">Visual</th>
+                <th style="width:90px;">N</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${itemRows.map(r => {
+                const v = (r.score ?? 0);
+                const pct = (r.score == null) ? 0 : clamp((v/5)*100, 0, 100);
+                return `
+                  <tr>
+                    <td><b>${escapeHtml(r.itemId.toUpperCase())}</b></td>
+                    <td class="small">
+                      ${escapeHtml(r.text)}
+                      <div class="small">Factor: ${escapeHtml(r.factor)}</div>
+                    </td>
+                    <td><b>${r.score == null ? "—" : r.score.toFixed(2)}</b></td>
+                    <td><div class="bar"><i style="width:${pct}%;"></i></div></td>
+                    <td>${r.n}</td>
+                  </tr>
+                `;
+              }).join("")}
+            </tbody>
+          </table>
         `;
-      }).join("")}
-    </tbody>
-  </table>
-`;
-        <table>
-          <thead>
-            <tr>
-              <th>Factor</th>
-              <th style="width:140px;">Calificación</th>
-              <th style="width:220px;">Visual</th>
-              <th style="width:90px;">N</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${factorRows.map(r => {
-              const v = (r.score ?? 0);
-              const pct = (r.score == null) ? 0 : clamp((v/5)*100, 0, 100);
-              return `
-                <tr>
-                  <td>${escapeHtml(r.factor)}</td>
-                  <td><b>${r.score == null ? "—" : r.score.toFixed(2)}</b></td>
-                  <td><div class="bar"><i style="width:${pct}%;"></i></div></td>
-                  <td>${r.n}</td>
-                </tr>
-              `;
-            }).join("")}
-          </tbody>
-        </table>
-      `;
 
-      const chartsWrap = $("#chartsWrap");
-      chartsWrap.innerHTML = "";
+        // Gráfico
+        const chartsWrap = $("#chartsWrap");
+        chartsWrap.innerHTML = "";
 
-      const chartsWrap = $("#chartsWrap");
-chartsWrap.innerHTML = "";
+        if(dim === "general"){
+          const labels = ITEMS.map(it => it.id.toUpperCase());
+          const points = ITEMS.map(it => scoreItem_(all, it.id));
+          const series = [{]()
 
-if(dim === "general"){
-  // Serie única: General (q1..q12)
-  const labels = ITEMS.map(it => it.id.toUpperCase());
-  const points = ITEMS.map(it => scoreItem_(all, it.id));
   const series = [{ name: "General", points, n: all.length }];
 
   renderBarChart_(chartsWrap, "Resultados por Ítem (General)", labels, series);
