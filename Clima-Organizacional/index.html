@@ -223,6 +223,7 @@
       font-size:12px;
       color:var(--muted);
       margin:10px 0 0;
+      white-space:pre-wrap;
     }
 
     .divider{
@@ -309,7 +310,7 @@
       <div class="topbar">
         <h1>
           Encuesta de clima organizacional
-          <span class="pill" id="storagePill">Local</span>
+          <span class="pill" id="storagePill">LocalStorage</span>
         </h1>
 
         <nav aria-label="Menú">
@@ -327,8 +328,7 @@
         <div class="card">
           <h2>Datos demográficos</h2>
           <p class="hint">
-            Estos campos son configurables desde el arreglo <b>DEMOGRAPHICS</b> en el script.
-            (Cambias opciones, agregas o quitas y la UI se adapta sola.)
+            Estos campos son configurables desde el arreglo <b>DEMOGRAPHICS</b>.
           </p>
 
           <div class="form-row" id="demoContainer"></div>
@@ -337,19 +337,23 @@
 
           <h2>Escala</h2>
           <p class="hint" id="scaleHint"></p>
+
+          <div class="divider"></div>
+
+          <h2>Integración</h2>
+          <p class="hint" id="integrationHint"></p>
         </div>
 
         <div class="card">
           <h2>Encuesta</h2>
           <p class="hint">
-            Cada ítem se define en el arreglo <b>ITEMS</b> (incluye <i>factor</i> interno para clasificar,
-            pero <b>NO</b> se muestra al usuario).
+            Cada ítem se define en el arreglo <b>ITEMS</b>.
           </p>
 
           <form id="surveyForm">
             <div class="items" id="itemsContainer"></div>
 
-            <!-- Comentarios SIEMPRE visible -->
+            <!-- Comentarios -->
             <div class="item">
               <div>
                 <div class="q">Comentarios</div>
@@ -380,8 +384,7 @@
       <div class="card">
         <h2>Resultados (guardados en este navegador)</h2>
         <p class="hint">
-          Aquí ves resumen general y promedios por factor (interno). Si necesitas mandar esto a un backend,
-          luego conectamos un endpoint y listo—pero por ahora es 100% GitHub Pages friendly.
+          Resumen general y promedios por factor (interno).
         </p>
 
         <div class="kpis">
@@ -419,9 +422,8 @@
 
   <script>
     /**********************************************************************
-     * CONFIGURACIÓN (fácil de editar)
+     * CONFIG
      *********************************************************************/
-
     const DEMOGRAPHICS = [
       { id: "genero",      label: "Género",      options: ["Masculino","Femenino"] },
       { id: "antiguedad",  label: "Antigüedad",  options: ["De 0 a 5 años","De 6 a 10 años","De 11 a 20 años","Más de 20 años"] },
@@ -454,15 +456,15 @@
     ];
 
     const STORAGE_KEY = "clima_org_respuestas_v1";
-    // === URL del Web App de Google Apps Script =  "https://script.google.com/macros/s/AKfycby9McVEhJ2e2BJ-mtTr_pJIu5pPdMDt29gx3vZ0ZSKupO9ZOymOlNOFvE7eecv5ECBdng/exec";
-// Ejemplo: https://script.google.com/macros/s/AKfycbxxxxxxx/exec
-const GAS_WEBAPP_URL = "https://docs.google.com/spreadsheets/d/18lsqCYA49KdHglScd9QuqmJoCtVJ4JMUVuPBo1yuTdc/edit?usp=sharing";
+
+    // ✅ AQUÍ va la URL del WEB APP de Apps Script "https://script.google.com/macros/s/AKfycbz-u3I0Ube_vNdnOHZLnjIWMyrdKipG3PO_odvLTXHtF6kiBIpbtQVgSnTM3brp-uFSFg/exec";
+    // Ej: https://script.google.com/macros/s/AKfycbxxxxxxxxxxxxxxxxxxxx/exec
+    const GAS_WEBAPP_URL = "https://docs.google.com/spreadsheets/d/18lsqCYA49KdHglScd9QuqmJoCtVJ4JMUVuPBo1yuTdc/edit?usp=sharing";
 
     /**********************************************************************
-     * UTILIDADES
+     * UTILS
      *********************************************************************/
     const $ = (sel, root=document) => root.querySelector(sel);
-    const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
 
     function escapeHtml(str){
       return String(str)
@@ -473,26 +475,21 @@ const GAS_WEBAPP_URL = "https://docs.google.com/spreadsheets/d/18lsqCYA49KdHglSc
         .replaceAll("'","&#039;");
     }
     function escapeAttr(str){ return escapeHtml(str); }
-
     function nowISO(){ return new Date().toISOString(); }
-
     function niceDate(iso){
-      try{
-        const d = new Date(iso);
-        return d.toLocaleString();
-      }catch{
-        return iso;
-      }
+      try{ return new Date(iso).toLocaleString(); }catch{ return iso; }
     }
-
     function loadAll(){
       try{ return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"); }
       catch{ return []; }
     }
-
-    function saveAll(rows){
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(rows));
+    function saveAll(rows){ localStorage.setItem(STORAGE_KEY, JSON.stringify(rows)); }
+    function avg(nums){
+      const arr = nums.filter(n => typeof n === "number" && !Number.isNaN(n));
+      if(!arr.length) return null;
+      return arr.reduce((a,b)=>a+b,0) / arr.length;
     }
+    function clamp(n, a, b){ return Math.max(a, Math.min(b, n)); }
 
     function downloadText(filename, text){
       const blob = new Blob([text], {type:"text/plain;charset=utf-8"});
@@ -506,16 +503,8 @@ const GAS_WEBAPP_URL = "https://docs.google.com/spreadsheets/d/18lsqCYA49KdHglSc
       URL.revokeObjectURL(url);
     }
 
-    function avg(nums){
-      const arr = nums.filter(n => typeof n === "number" && !Number.isNaN(n));
-      if(!arr.length) return null;
-      return arr.reduce((a,b)=>a+b,0) / arr.length;
-    }
-
-    function clamp(n, a, b){ return Math.max(a, Math.min(b, n)); }
-
     /**********************************************************************
-     * RENDER: ENCUESTA
+     * RENDER
      *********************************************************************/
     function renderScaleHint(){
       $("#scaleHint").innerHTML = SCALE.map(s => `<b>${s.value}</b> = ${escapeHtml(s.label)}`).join("<br>");
@@ -550,7 +539,6 @@ const GAS_WEBAPP_URL = "https://docs.google.com/spreadsheets/d/18lsqCYA49KdHglSc
           <div>
             <div class="q">${idx+1}. ${escapeHtml(it.text)}</div>
           </div>
-
           <div>
             <label for="item_${it.id}">Respuesta</label>
             <select id="item_${it.id}" name="${escapeAttr(it.id)}" required>
@@ -629,7 +617,6 @@ const GAS_WEBAPP_URL = "https://docs.google.com/spreadsheets/d/18lsqCYA49KdHglSc
 
     function renderResults(){
       const responses = loadAll();
-
       $("#kpiCount").textContent = String(responses.length);
 
       const overall = avg(responses.map(r => r.overallAvg).filter(v => typeof v === "number"));
@@ -693,7 +680,7 @@ const GAS_WEBAPP_URL = "https://docs.google.com/spreadsheets/d/18lsqCYA49KdHglSc
             `).join("")}
           </tbody>
         </table>
-        <p class="note">Mostrando las últimas 10 respuestas (para no hacerte scroll eterno).</p>
+        <p class="note">Mostrando las últimas 10 respuestas.</p>
       `;
     }
 
@@ -701,16 +688,12 @@ const GAS_WEBAPP_URL = "https://docs.google.com/spreadsheets/d/18lsqCYA49KdHglSc
      * EXPORTS
      *********************************************************************/
     function exportJSON(){
-      const rows = loadAll();
-      downloadText("encuesta_clima_organizacional_respuestas.json", JSON.stringify(rows, null, 2));
+      downloadText("encuesta_clima_organizacional_respuestas.json", JSON.stringify(loadAll(), null, 2));
     }
 
     function exportCSV(){
       const rows = loadAll();
-      if(!rows.length){
-        alert("No hay datos para exportar.");
-        return;
-      }
+      if(!rows.length){ alert("No hay datos para exportar."); return; }
 
       const headers = [
         "id","createdAt",
@@ -745,7 +728,7 @@ const GAS_WEBAPP_URL = "https://docs.google.com/spreadsheets/d/18lsqCYA49KdHglSc
     }
 
     /**********************************************************************
-     * NAVEGACIÓN
+     * NAV
      *********************************************************************/
     function setView(view){
       const encuesta = $("#view-encuesta");
@@ -768,6 +751,30 @@ const GAS_WEBAPP_URL = "https://docs.google.com/spreadsheets/d/18lsqCYA49KdHglSc
     }
 
     /**********************************************************************
+     * ENVÍO A GOOGLE SHEETS (WEB APP)
+     *********************************************************************/
+    async function sendToGoogleSheet(payload){
+      if(!GAS_WEBAPP_URL || GAS_WEBAPP_URL.includes("PEGAR_AQUI")){
+        return { ok:false, message:"No se ha configurado la URL del Web App (/exec)." };
+      }
+
+      try{
+        // Evita preflight/CORS usando text/plain + no-cors
+        await fetch(GAS_WEBAPP_URL, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify(payload),
+        });
+
+        // En no-cors el navegador no deja leer respuesta, pero igual se guarda en Sheets.
+        return { ok:true };
+      }catch(err){
+        return { ok:false, message: String(err?.message ?? err) };
+      }
+    }
+
+    /**********************************************************************
      * INIT
      *********************************************************************/
     (function init(){
@@ -775,70 +782,54 @@ const GAS_WEBAPP_URL = "https://docs.google.com/spreadsheets/d/18lsqCYA49KdHglSc
       renderDemographics();
       renderItems();
 
+      $("#integrationHint").textContent =
+        GAS_WEBAPP_URL.includes("PEGAR_AQUI")
+          ? "⚠️ Falta pegar la URL del WebApp de Apps Script (/exec)."
+          : "✅ WebApp configurado (envío por POST).";
+
       $("#tab-encuesta").addEventListener("click", () => setView("encuesta"));
       $("#tab-resultados").addEventListener("click", () => setView("resultados"));
 
-      async function sendToGoogleSheet(payload){
-  // Si no has pegado la URL del WebApp, no intentamos enviar
-  if(!GAS_WEBAPP_URL || GAS_WEBAPP_URL.includes("PEGAR_AQUI")) {
-    return { ok:false, message:"No se ha configurado la URL del Web App." };
-  }
+      $("#surveyForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
 
-  try{
-    // IMPORTANTE: para GitHub Pages -> Apps Script, usamos no-cors
-    // (el registro se guarda igual en la hoja, pero el navegador no deja leer la respuesta)
-    await fetch(GAS_WEBAPP_URL, {
-      method: "POST",
-      mode: "no-cors",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify(payload),
-    });
+        const btn = $("#btnGuardar");
+        btn.disabled = true;
 
-    return { ok:true };
-  }catch(err){
-    return { ok:false, message: String(err?.message ?? err) };
-  }
-}
+        const res = collectResponse();
+        if(!res.ok){
+          $("#saveNote").textContent = res.message;
+          $("#saveNote").style.color = "var(--warn)";
+          btn.disabled = false;
+          return;
+        }
 
-$("#surveyForm").addEventListener("submit", async (e) => {
-  e.preventDefault();
+        // 1) Guardar local
+        const rows = loadAll();
+        rows.push(res.data);
+        saveAll(rows);
 
-  const btn = $("#btnGuardar");
-  btn.disabled = true;
+        // 2) Enviar a Sheets
+        $("#saveNote").textContent = "⏳ Guardando en Google Sheets…";
+        $("#saveNote").style.color = "var(--muted)";
 
-  const res = collectResponse();
-  if(!res.ok){
-    $("#saveNote").textContent = res.message;
-    $("#saveNote").style.color = "var(--warn)";
-    btn.disabled = false;
-    return;
-  }
+        const remote = await sendToGoogleSheet({
+          source: "clima-org-html",
+          ...res.data
+        });
 
-  // 1) Guarda local (igual que antes)
-  const rows = loadAll();
-  rows.push(res.data);
-  saveAll(rows);
+        if(remote.ok){
+          $("#saveNote").textContent =
+            "✅ Guardado local y enviado a Google Sheets.\n(Si no aparece, revisa despliegue del WebApp y permisos.)";
+          $("#saveNote").style.color = "var(--ok)";
+        }else{
+          $("#saveNote").textContent =
+            `⚠️ Guardado local, pero no se pudo enviar a Sheets: ${remote.message || "Error"}`;
+          $("#saveNote").style.color = "var(--warn)";
+        }
 
-  // 2) Envía a Google Sheets
-  $("#saveNote").textContent = "⏳ Guardando en Google Sheets…";
-  $("#saveNote").style.color = "var(--muted)";
-
-  const remote = await sendToGoogleSheet({
-    source: "clima-org-html",
-    ...res.data
-  });
-
-  if(remote.ok){
-    $("#saveNote").textContent = "✅ Guardado y enviado a Google Sheets.";
-    $("#saveNote").style.color = "var(--ok)";
-  }else{
-    // OJO: aunque falle el envío, ya quedó guardado local
-    $("#saveNote").textContent = `⚠️ Guardado local, pero no se pudo enviar a Sheets: ${remote.message || "Error"}`;
-    $("#saveNote").style.color = "var(--warn)";
-  }
-
-  btn.disabled = false;
-});
+        btn.disabled = false;
+      });
 
       $("#btnLimpiar").addEventListener("click", clearForm);
       $("#btnExportJSON").addEventListener("click", exportJSON);
@@ -851,7 +842,6 @@ $("#surveyForm").addEventListener("submit", async (e) => {
         renderResults();
       });
 
-      $("#storagePill").textContent = "LocalStorage";
       setView("encuesta");
     })();
   </script>
