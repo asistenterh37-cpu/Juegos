@@ -934,18 +934,37 @@ for(let i=0; i<catCount; i++){
   const dim = $("#resDimension")?.value || "general";
   const val = $("#resValue")?.value || "";
 
-  // --- etiquetas bonitas ---
   const dimLabel = (dim === "general")
     ? "General"
     : (DEMOGRAPHICS.find(d => d.id === dim)?.label || dim);
 
-  // ✅ base filtrada SOLO cuando hay variable seleccionada
+  const chartsWrap = $("#chartsWrap");
+  const tableWrap  = $("#factorTableWrap");
+  const historyWrap = $("#historyWrap");
+
+  // =========================
+  // GUARD: sin datos todavía
+  // =========================
+  if(!Array.isArray(all) || all.length === 0){
+    $("#kpiCount").textContent = "0";
+    $("#kpiAvg").textContent = "—";
+    $("#kpiLast").textContent = "—";
+
+    chartsWrap.innerHTML = `<p class="hint">Aún no hay datos para graficar. Presiona <b>Refrescar</b> o guarda al menos una encuesta.</p>`;
+    tableWrap.innerHTML  = `<p class="hint">Aún no hay datos para mostrar.</p>`;
+    historyWrap.innerHTML = `<p class="hint">Aún no hay respuestas.</p>`;
+    return;
+  }
+
+  // =========================
+  // BASE FILTRADA (solo si eligió Variable)
+  // =========================
   const baseFiltered = (dim !== "general" && val)
     ? all.filter(r => String(r.demographics?.[dim] ?? "") === String(val))
     : all;
 
   // =========================
-  // KPIs (si hay variable, muestran SOLO esa variable)
+  // KPIs (si hay variable: solo esa base)
   // =========================
   $("#kpiCount").textContent = String(baseFiltered.length);
 
@@ -957,15 +976,20 @@ for(let i=0; i<catCount; i++){
   $("#kpiLast").textContent = last ? niceDate(last.createdAt) : "—";
 
   // =========================
-  // TABLA (solo filtra si hay Variable seleccionada)
+  // TABLA
+  // - General: siempre
+  // - Dimensión sin variable: pedir variable
+  // - Dimensión con variable: solo filtrada
   // =========================
   if(dim !== "general" && !val){
-    $("#factorTableWrap").innerHTML =
-      `<p class="hint">Selecciona una <b>Variable</b> para ver la tabla filtrada.</p>`;
+    tableWrap.innerHTML =
+      `<p class="hint">Selecciona una <b>Variable</b> para ver la tabla filtrada de <b>${escapeHtml(dimLabel)}</b>.</p>`;
   }else{
-    const itemRows = computeItemScoresByDimension_(all, dim, val);
+    const rowsForTable = (dim === "general")
+      ? computeItemScoresByDimension_(all, "general", "")
+      : computeItemScoresByDimension_(baseFiltered, "general", ""); // <- ya viene filtrado
 
-    $("#factorTableWrap").innerHTML = `
+    tableWrap.innerHTML = `
       <table>
         <thead>
           <tr>
@@ -977,7 +1001,7 @@ for(let i=0; i<catCount; i++){
           </tr>
         </thead>
         <tbody>
-          ${itemRows.map(r => {
+          ${rowsForTable.map(r => {
             const v = (r.score ?? 0);
             const pct = (r.score == null) ? 0 : clamp((v/5)*100, 0, 100);
             return `
@@ -999,13 +1023,17 @@ for(let i=0; i<catCount; i++){
   }
 
   // =========================
-  // GRÁFICO
+  // GRÁFICO (robusto)
   // - General: 1 serie
-  // - Dimensión SIN variable: todas las variables (series)
-  // - Dimensión CON variable: solo esa variable (1 serie)
+  // - Dimensión SIN variable: series por cada variable (todas)
+  // - Dimensión CON variable: 1 serie (solo esa variable)
   // =========================
-  const chartsWrap = $("#chartsWrap");
   chartsWrap.innerHTML = "";
+
+  // Helper: si la base filtrada quedó vacía (p.ej. variable sin data)
+  function renderNoDataChart(msg){
+    chartsWrap.innerHTML = `<p class="hint">${msg}</p>`;
+  }
 
   if(dim === "general"){
     const labels = ITEMS.map(it => it.id.toUpperCase());
@@ -1014,29 +1042,27 @@ for(let i=0; i<catCount; i++){
 
     renderBarChart_(chartsWrap, "Resultados por Ítem (General)", labels, series);
   }else{
-    // Si eligió Variable => solo 1 serie
     if(val){
-      const labels = ITEMS.map(it => it.id.toUpperCase());
-      const points = ITEMS.map(it => scoreItem_(baseFiltered, it.id).scorePct);
-      const series = [{
-        name: String(val),
-        points,
-        n: baseFiltered.length
-      }];
+      if(baseFiltered.length === 0){
+        renderNoDataChart(`No hay respuestas para <b>${escapeHtml(dimLabel)}: ${escapeHtml(String(val))}</b>.`);
+      }else{
+        const labels = ITEMS.map(it => it.id.toUpperCase());
+        const points = ITEMS.map(it => scoreItem_(baseFiltered, it.id).scorePct);
+        const series = [{ name: String(val), points, n: baseFiltered.length }];
 
-      renderBarChart_(
-        chartsWrap,
-        `Resultados por Ítem (${escapeHtml(dimLabel)}: ${escapeHtml(String(val))})`,
-        labels,
-        series
-      );
+        renderBarChart_(
+          chartsWrap,
+          `Resultados por Ítem (${escapeHtml(dimLabel)}: ${escapeHtml(String(val))})`,
+          labels,
+          series
+        );
+      }
     }else{
-      // SIN variable => todas las variables (series por grupo)
+      // SIN variable => gráfico con TODAS las variables (series)
       const grouped = computeGroupedItemScores_(all, dim);
 
       if(!grouped?.series?.length){
-        chartsWrap.innerHTML =
-          `<p class="hint">No hay datos para mostrar en <b>${escapeHtml(dimLabel)}</b>.</p>`;
+        renderNoDataChart(`No hay datos para mostrar en <b>${escapeHtml(dimLabel)}</b>.`);
       }else{
         renderBarChart_(
           chartsWrap,
@@ -1049,15 +1075,15 @@ for(let i=0; i<catCount; i++){
   }
 
   // =========================
-  // HISTORIAL (lo dejo global como lo tenías)
+  // HISTORIAL (igual que lo tenías, pero con guard)
   // =========================
   const last10 = all.slice().reverse().slice(0,10);
   if(!last10.length){
-    $("#historyWrap").innerHTML = `<p class="hint">Aún no hay respuestas.</p>`;
+    historyWrap.innerHTML = `<p class="hint">Aún no hay respuestas.</p>`;
     return;
   }
 
-  $("#historyWrap").innerHTML = `
+  historyWrap.innerHTML = `
     <table>
       <thead>
         <tr>
@@ -1301,10 +1327,15 @@ $("#surveyForm").addEventListener("submit", async (e) => {
     $("#btnExportCSV").addEventListener("click", exportCSV);
 
     // RESULTADOS UI
-    $("#resDimension").addEventListener("change", () => {
-      refreshDimensionUI_();
-      renderResults();
-    });
+   $("#resDimension").addEventListener("change", () => {
+  refreshDimensionUI_();
+  // reset visual y lógico de variable
+  const rv = $("#resValue");
+  if(rv){
+    rv.value = "";
+  }
+  renderResults();
+});
 
     $("#resValue").addEventListener("change", () => renderResults());
     $("#btnReloadResults").addEventListener("click", async () => {
