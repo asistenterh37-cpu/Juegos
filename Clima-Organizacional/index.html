@@ -730,9 +730,10 @@
     // =========================
     // RESULTADOS POR ÍTEM (q1..q12)
     // =========================
-   function scoreItem_(responses, itemId){
+  function scoreItem_(responses, itemId){
   let sum = 0;
   let seen = 0;
+
   for(const r of responses){
     const v = r.answers?.[itemId];
     if(typeof v === "number" && Number.isFinite(v)){
@@ -740,7 +741,11 @@
       seen++;
     }
   }
-  return { avg: seen ? (sum / seen) : null, n: seen };
+
+  // Puntaje porcentual según tu fórmula
+  const scorePct = seen ? (sum / (seen * 5)) * 100 : null;
+
+  return { scorePct, n: seen };
 }
 
     function computeItemScoresByDimension_(responses, dimension, valueFilter){
@@ -756,7 +761,7 @@
       itemId: it.id,
       text: it.text,
       factor: it.factor,
-      score: s.avg,
+      score: s.scorePct,
       n: s.n
     };
   });
@@ -783,7 +788,7 @@
     const rs = groups.get(name) || [];
     const points = ITEMS.map(it => {
       const s = scoreItem_(rs, it.id);
-      return (s && typeof s.avg === "number") ? s.avg : null;
+      return (s && typeof s.scorePct === "number") ? s.scorePct : null;
     });
     return { name, points, n: rs.length };
   });
