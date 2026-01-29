@@ -787,12 +787,9 @@
       const series = groupNames.map(g => {
         const rs = groups.get(g) || [];
         const points = ITEMS.map(it => {
-          const s = scoreItem_(rs, it.id);
-          return (s == null) ? null : s;
-        });
-        return { name: g, points, n: rs.length };
-      });
-
+  const s = scoreItem_(rs, it.id);
+  return (s && typeof s.avg === "number") ? s.avg : null;
+});
       return { labels, series };
     }
 
@@ -990,13 +987,6 @@
         }
       }
 
-        if(!grouped.series.length){
-          chartsWrap.innerHTML = `<p class="hint">No hay datos para esa segmentación.</p>`;
-        }else{
-          renderBarChart_(chartsWrap, `Resultados por ${escapeHtml(dim)}`, grouped.factors, grouped.series);
-        }
-      }
-
       const last10 = all.slice().reverse().slice(0,10);
       if(!last10.length){
         $("#historyWrap").innerHTML = `<p class="hint">Aún no hay respuestas.</p>`;
@@ -1043,7 +1033,9 @@
         </table>
         <p class="note">Mostrando las últimas 10 respuestas.</p>
       `;
+    }
 
+    
     /**********************************************************************
      * EXPORTS
      *********************************************************************/
@@ -1138,10 +1130,18 @@
     /**********************************************************************
      * INIT
      *********************************************************************/
-    (function init(){
-      renderScaleHint();
-      renderDemographics();
-      renderItems();
+   (function init(){
+  try{
+    renderScaleHint();
+    renderDemographics();
+    renderItems();
+    // ... (deja el resto igual)
+    setView("encuesta");
+  }catch(err){
+    console.error("Error en init()", err);
+    alert("Hay un error en el script. Abre Console (F12) para ver detalles.");
+  }
+})();
 
       // Inicializa selector de resultados
       refreshDimensionUI_();
