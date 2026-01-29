@@ -403,9 +403,10 @@
         </div>
 
         <div class="actions" style="margin-top:12px;">
-          <button class="btn" id="btnReloadResults" type="button">Refrescar</button>
-      
-        <div class="divider"></div>
+  <button class="btn" id="btnReloadResults" type="button">Refrescar</button>
+</div>
+
+<div class="divider"></div>
 
         <div class="kpis">
           <div class="kpi">
@@ -1080,31 +1081,29 @@
      * NAV
      *********************************************************************/
     function setView(view){
-      const encuesta = $("#view-encuesta");
-      const resultados = $("#view-resultados");
-      const t1 = $("#tab-encuesta");
-      const t2 = $("#tab-resultados");
+  const encuesta = $("#view-encuesta");
+  const resultados = $("#view-resultados");
+  const t1 = $("#tab-encuesta");
+  const t2 = $("#tab-resultados");
 
-     if(view === "resultados"){
-  encuesta.classList.add("hidden");
-  resultados.classList.remove("hidden");
-  t1.setAttribute("aria-selected","false");
-  t2.setAttribute("aria-selected","true");
+  if(view === "resultados"){
+    encuesta.classList.add("hidden");
+    resultados.classList.remove("hidden");
+    t1.setAttribute("aria-selected","false");
+    t2.setAttribute("aria-selected","true");
 
-  refreshDimensionUI_();
+    refreshDimensionUI_();
 
-  // asegurar datos desde Sheets antes de calcular
-  $("#remotePill").textContent = "Remote: ⏳ cargando…";
-  loadRemoteFromGAS().then(() => renderResults());
+    // asegurar datos desde Sheets antes de calcular
+    $("#remotePill").textContent = "Remote: ⏳ cargando…";
+    loadRemoteFromGAS().then(() => renderResults());
+  }else{
+    resultados.classList.add("hidden");
+    encuesta.classList.remove("hidden");
+    t2.setAttribute("aria-selected","false");
+    t1.setAttribute("aria-selected","true");
+  }
 }
-
-      }else{
-        resultados.classList.add("hidden");
-        encuesta.classList.remove("hidden");
-        t2.setAttribute("aria-selected","false");
-        t1.setAttribute("aria-selected","true");
-      }
-    }
 
     /**********************************************************************
      * ENVÍO A GOOGLE SHEETS (WEB APP)
@@ -1190,11 +1189,21 @@ const payload = {
 
 const remote = await sendToGoogleSheet(payload);
 
-      $("#saveNote").style.color = "var(--muted)";
+if(remote.ok){
+  $("#saveNote").textContent =
+    "✅ Guardado en Google Sheets.\n(Si no aparece, suele ser despliegue/permisos del WebApp 😅)";
+  $("#saveNote").style.color = "var(--ok)";
 
-      const remote = await sendToGoogleSheet(res.data);
+  clearForm();
 
-     if(remote.ok){
+  // refrescar cache remoto para que Resultados use lo registrado en la hoja
+  await loadRemoteFromGAS();
+}else{
+  $("#saveNote").textContent =
+    `⚠️ No se pudo enviar a Sheets: ${remote.message || "Error"}`;
+  $("#saveNote").style.color = "var(--warn)";
+}
+
   $("#saveNote").textContent =
     "✅ Guardado en Google Sheets.\n(Si no aparece, suele ser despliegue/permisos del WebApp 😅)";
   $("#saveNote").style.color = "var(--ok)";
@@ -1227,17 +1236,13 @@ const remote = await sendToGoogleSheet(payload);
     });
 
     $("#resValue").addEventListener("change", () => renderResults());
-    $("#btnReloadResults").addEventListener("click", () => renderResults());
+    $("#btnReloadResults").addEventListener("click", async () => {
+  $("#remotePill").textContent = "Remote: ⏳ cargando…";
+  await loadRemoteFromGAS();
+  renderResults();
+});
 
-    $("#btnLoadRemote").addEventListener("click", async () => {
-      $("#remotePill").textContent = "Remote: ⏳ cargando…";
-      await loadRemoteFromGAS();
-      renderResDimensionOptions_();   // por si cambiaste DEMOGRAPHICS
-      refreshDimensionUI_();
-      renderResults();
-    });
-
-    // Vista inicial
+      // Vista inicial
     setView("encuesta");
   }catch(err){
     console.error("Error en initApp()", err);
