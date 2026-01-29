@@ -413,12 +413,11 @@
           <div class="kpi">
             <div class="t">Encuestas consideradas</div>
             <div class="v" id="kpiCount">0</div>
-          </div>
-          <div class="kpi">
-            <div class="t">Promedio general</div>
-            <div class="v" id="kpiAvg">—</div>
-            ass="small">Escala 0–100%</div>
-          </div>
+        <div class="kpi">
+  <div class="t">Promedio general</div>
+  <div class="v" id="kpiAvg">—</div>
+  <div class="small">Escala 0–100%</div>
+</div>
           <div class="kpi">
             <div class="t">Última respuesta</div>
             <div class="v" id="kpiLast">—</div>
@@ -834,10 +833,10 @@ return rows;
         return `<text x="${padL-10}" y="${y+4}" text-anchor="end" font-size="12" fill="rgba(159,179,217,.95)">${t}</text>`;
       }).join("");
 
-const bars = [];
-for(let i=0;i<catCount;i++){
+      const bars = [];
+for(let i=0; i<catCount; i++){
   for(let g=0; g<groups; g++){
-    const val = series[g].points[i];
+    const val = series[g]?.points?.[i];
     if(val == null) continue;
 
     const x = xCat(i) + g*(barW + barGap);
@@ -865,7 +864,8 @@ for(let i=0;i<catCount;i++){
           ${valInt}%
         </text>
       </g>
-    `);    
+    `);
+  }
 }
 
       const xLabelsSvg = xLabels.map((f, i) => {
@@ -1007,51 +1007,64 @@ for(let i=0;i<catCount;i++){
       }
 
             $("#historyWrap").innerHTML = `
-        <table>
-          <thead>
-            <tr>
-              <th>Fecha</th>
-              <th>Promedio</th>
-              <th>Demográficos</th>
-              <th>Comentarios</th>
-              <th>Respuestas</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${last10.map(r => {
-              const demoTxt = DEMOGRAPHICS
-                .map(d => `${escapeHtml(d.label)}: <b>${escapeHtml(r.demographics?.[d.id] ?? "—")}</b>`)
-                .join("<br>");
+  <table>
+    <thead>
+      <tr>
+        <th>Fecha</th>
+        <th>Promedio</th>
+        <th>Resultado</th>
+        <th>Demográficos</th>
+        <th>Comentarios</th>
+        <th>Respuestas</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${last10.map(r => {
+        const raw = (r.flat ?? r) || {};
+        const resultado =
+          raw.Resultado ?? raw.resultado ??
+          r.Resultado ?? r.resultado ??
+          "—";
 
-              const ansTxt = ITEMS
-                .map(it => `${escapeHtml(it.id.toUpperCase())}: <b>${escapeHtml(r.answers?.[it.id] ?? "—")}</b>`)
-                .join("<br>");
+        const demoTxt = DEMOGRAPHICS
+          .map(d => `${escapeHtml(d.label)}: <b>${escapeHtml(r.demographics?.[d.id] ?? raw?.[d.id] ?? "—")}</b>`)
+          .join("<br>");
 
-              return `
-                <tr>
-                  <td>${escapeHtml(niceDate(r.createdAt))}</td>
-                  <td><b>${typeof r.overallAvg === "number" ? r.overallAvg.toFixed(2) : "—"}</b></td>
-                  <td class="small">${demoTxt}</td>
-                  <td class="small">${escapeHtml((r.comments ?? "").trim() || "—")}</td>
-                  <td class="small">
-                    <details>
-                      <summary style="cursor:pointer;color:var(--accent);font-weight:800;">Ver</summary>
-                      <div style="margin-top:8px;line-height:1.4;">${ansTxt}</div>     
-                    </details>
-                    <details style="margin-top:8px;">
-                    <summary style="cursor:pointer;color:var(--accent);font-weight:800;">Ver todos los campos</summary>
-                    <pre class="note" style="margin-top:8px;overflow:auto;max-height:260px;">${escapeHtml(JSON.stringify(r.flat ?? r, null, 2))}</pre>
-                    </details>
-                   </td>
-                </tr>
-              `;
-            }).join("")}
-          </tbody>
-        </table>
-        <p class="note">Mostrando las últimas 10 respuestas.</p>
-      `;
-    }
+        const ansTxt = ITEMS
+          .map(it => {
+            const val = r.answers?.[it.id] ?? raw?.[it.id] ?? "—";
+            return `${escapeHtml(it.id.toUpperCase())}: <b>${escapeHtml(val)}</b>`;
+          })
+          .join("<br>");
 
+        return `
+          <tr>
+            <td>${escapeHtml(niceDate(r.createdAt))}</td>
+            <td><b>${typeof r.overallAvg === "number" ? r.overallAvg.toFixed(2) : "—"}</b></td>
+            <td class="small">${escapeHtml(String(resultado ?? "—"))}</td>
+            <td class="small">${demoTxt}</td>
+            <td class="small">${escapeHtml((r.comments ?? raw.comments ?? "").trim() || "—")}</td>
+            <td class="small">
+              <details>
+                <summary style="cursor:pointer;color:var(--accent);font-weight:800;">Ver</summary>
+                <div style="margin-top:8px;line-height:1.4;">${ansTxt}</div>
+                <div style="margin-top:10px;" class="small">
+                  <b>Resultado:</b> ${escapeHtml(String(resultado ?? "—"))}
+                </div>
+              </details>
+
+              <details style="margin-top:8px;">
+                <summary style="cursor:pointer;color:var(--accent);font-weight:800;">Ver todos los campos</summary>
+                <pre class="note" style="margin-top:8px;overflow:auto;max-height:260px;">${escapeHtml(JSON.stringify(raw, null, 2))}</pre>
+              </details>
+            </td>
+          </tr>
+        `;
+      }).join("")}
+    </tbody>
+  </table>
+  <p class="note">Mostrando las últimas 10 respuestas.</p>
+`;
     
     /**********************************************************************
      * EXPORTS
