@@ -454,6 +454,9 @@
     ];
 
     const STORAGE_KEY = "clima_org_respuestas_v1";
+    // === URL del Web App de Google Apps Script =  "https://script.google.com/macros/s/AKfycby9McVEhJ2e2BJ-mtTr_pJIu5pPdMDt29gx3vZ0ZSKupO9ZOymOlNOFvE7eecv5ECBdng/exec";
+// Ejemplo: https://script.google.com/macros/s/AKfycbxxxxxxx/exec
+const GAS_WEBAPP_URL = "https://docs.google.com/spreadsheets/d/18lsqCYA49KdHglScd9QuqmJoCtVJ4JMUVuPBo1yuTdc/edit?usp=sharing";
 
     /**********************************************************************
      * UTILIDADES
@@ -775,23 +778,67 @@
       $("#tab-encuesta").addEventListener("click", () => setView("encuesta"));
       $("#tab-resultados").addEventListener("click", () => setView("resultados"));
 
-      $("#surveyForm").addEventListener("submit", (e) => {
-        e.preventDefault();
+      async function sendToGoogleSheet(payload){
+  // Si no has pegado la URL del WebApp, no intentamos enviar
+  if(!GAS_WEBAPP_URL || GAS_WEBAPP_URL.includes("PEGAR_AQUI")) {
+    return { ok:false, message:"No se ha configurado la URL del Web App." };
+  }
 
-        const res = collectResponse();
-        if(!res.ok){
-          $("#saveNote").textContent = res.message;
-          $("#saveNote").style.color = "var(--warn)";
-          return;
-        }
+  try{
+    // IMPORTANTE: para GitHub Pages -> Apps Script, usamos no-cors
+    // (el registro se guarda igual en la hoja, pero el navegador no deja leer la respuesta)
+    await fetch(GAS_WEBAPP_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(payload),
+    });
 
-        const rows = loadAll();
-        rows.push(res.data);
-        saveAll(rows);
+    return { ok:true };
+  }catch(err){
+    return { ok:false, message: String(err?.message ?? err) };
+  }
+}
 
-        $("#saveNote").textContent = "✅ Guardado. (Se almacenó en este navegador.)";
-        $("#saveNote").style.color = "var(--ok)";
-      });
+$("#surveyForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const btn = $("#btnGuardar");
+  btn.disabled = true;
+
+  const res = collectResponse();
+  if(!res.ok){
+    $("#saveNote").textContent = res.message;
+    $("#saveNote").style.color = "var(--warn)";
+    btn.disabled = false;
+    return;
+  }
+
+  // 1) Guarda local (igual que antes)
+  const rows = loadAll();
+  rows.push(res.data);
+  saveAll(rows);
+
+  // 2) Envía a Google Sheets
+  $("#saveNote").textContent = "⏳ Guardando en Google Sheets…";
+  $("#saveNote").style.color = "var(--muted)";
+
+  const remote = await sendToGoogleSheet({
+    source: "clima-org-html",
+    ...res.data
+  });
+
+  if(remote.ok){
+    $("#saveNote").textContent = "✅ Guardado y enviado a Google Sheets.";
+    $("#saveNote").style.color = "var(--ok)";
+  }else{
+    // OJO: aunque falle el envío, ya quedó guardado local
+    $("#saveNote").textContent = `⚠️ Guardado local, pero no se pudo enviar a Sheets: ${remote.message || "Error"}`;
+    $("#saveNote").style.color = "var(--warn)";
+  }
+
+  btn.disabled = false;
+});
 
       $("#btnLimpiar").addEventListener("click", clearForm);
       $("#btnExportJSON").addEventListener("click", exportJSON);
