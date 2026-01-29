@@ -831,19 +831,24 @@
       }).join("");
 
       const bars = [];
-      for(let i=0;i<catCount;i++){
-        for(let g=0; g<groups; g++){
-          const val = series[g].points[i];
-          if(val == null) continue;
+for(let i=0;i<catCount;i++){
+  for(let g=0; g<groups; g++){
+    const val = series[g].points[i];
+    if(val == null) continue;
 
-          const x = xCat(i) + g*(barW + barGap);
-          const y = yToPx(val);
-          const h = (padT + innerH) - y;
-          const fill = baseColors[g % baseColors.length];
+    const x = xCat(i) + g*(barW + barGap);
+    const y = yToPx(val);
+    const h = (padT + innerH) - y;
+    const fill = baseColors[g % baseColors.length];
 
-          {val.toFixed(1)}
-        }
-      }
+    bars.push(`
+      <rect x="${x}" y="${y}" width="${barW}" height="${h}"
+            rx="6" ry="6" fill="${fill}">
+        <title>${escapeHtml(series[g].name)} • ${escapeHtml(xLabels[i])}: ${val.toFixed(1)}%</title>
+      </rect>
+    `);
+  }
+}
 
       const xLabelsSvg = xLabels.map((f, i) => {
         const x = xCat(i) + catW/2;
