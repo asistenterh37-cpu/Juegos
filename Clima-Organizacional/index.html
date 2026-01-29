@@ -391,8 +391,8 @@
 
         <div class="form-row two" style="margin-top:12px;">
           <div>
-         <label for="resDimension">Resultados por</label>
-          <select id="resDimension"></select>
+            <label for="resDimension">Resultados por</label>
+            <select id="resDimension"></select>
           </div>
 
           <div>
@@ -404,29 +404,29 @@
         </div>
 
         <div class="actions" style="margin-top:12px;">
-  <button class="btn" id="btnReloadResults" type="button">Refrescar</button>
-</div>
+          <button class="btn" id="btnReloadResults" type="button">Refrescar</button>
+        </div>
 
-<div class="divider"></div>
+        <div class="divider"></div>
 
         <div class="kpis">
-  <div class="kpi">
-    <div class="t">Encuestas consideradas</div>
-    <div class="v" id="kpiCount">0</div>
-  </div>
+          <div class="kpi">
+            <div class="t">Encuestas consideradas</div>
+            <div class="v" id="kpiCount">0</div>
+          </div>
 
-  <div class="kpi">
-    <div class="t">Promedio general</div>
-    <div class="v" id="kpiAvg">—</div>
-    <div class="small">Escala 0–100%</div>
-  </div>
+          <div class="kpi">
+            <div class="t">Promedio general</div>
+            <div class="v" id="kpiAvg">—</div>
+            <div class="small">Escala 0–100%</div>
+          </div>
 
-  <div class="kpi">
-    <div class="t">Última respuesta</div>
-    <div class="v" id="kpiLast">—</div>
-    <div class="small">fecha/hora</div>
-  </div>
-</div>
+          <div class="kpi">
+            <div class="t">Última respuesta</div>
+            <div class="v" id="kpiLast">—</div>
+            <div class="small">fecha/hora</div>
+          </div>
+        </div>
 
         <div class="divider"></div>
 
@@ -441,14 +441,14 @@
         <div class="divider"></div>
 
         <h2>Historial</h2>
-<div class="actions">
-  <span class="hint">El historial se calcula desde Google Sheets.</span>
-</div>
-<div id="historyWrap"></div>
+        <div class="actions">
+          <span class="hint">El historial se calcula desde Google Sheets.</span>
+        </div>
+        <div id="historyWrap"></div>
       </div>
     </section>
   </main>
-  
+
   <script>
     /**********************************************************************
      * CONFIG
@@ -507,7 +507,7 @@
     function niceDate(iso){
       try{ return new Date(iso).toLocaleString(); }catch{ return iso; }
     }
-    
+
     function avg(nums){
       const arr = nums.filter(n => typeof n === "number" && !Number.isNaN(n));
       if(!arr.length) return null;
@@ -639,6 +639,9 @@
     let REMOTE_CACHE = null;       // Array de responses normalizadas
     let REMOTE_STATUS = "—";
 
+    // ✅ NUEVO: evita que renderResults corra antes de tener data (o que haga 10 cargas seguidas)
+    let REMOTE_LOADING = null;
+
     function normalizeResponse_(r){
       if(!r || typeof r !== "object") return null;
       if(r.demographics && r.answers) return r;
@@ -716,82 +719,92 @@
       });
     }
 
+    // ✅ NUEVO: “asegurar data” antes de renderizar (Resultado por / Variable)
+    function ensureRemoteLoaded_(){
+      if(Array.isArray(REMOTE_CACHE)) return Promise.resolve({ ok:true, rows: REMOTE_CACHE });
+      if(REMOTE_LOADING) return REMOTE_LOADING;
+
+      $("#remotePill").textContent = "Remote: ⏳ cargando…";
+      REMOTE_LOADING = loadRemoteFromGAS().finally(() => { REMOTE_LOADING = null; });
+      return REMOTE_LOADING;
+    }
+
     function getAllResponses_(){
-  // Solo Google Sheets (hoja Respuestas)
-  return Array.isArray(REMOTE_CACHE) ? REMOTE_CACHE : [];
-}
+      // Solo Google Sheets (hoja Respuestas)
+      return Array.isArray(REMOTE_CACHE) ? REMOTE_CACHE : [];
+    }
 
     // =========================
     // RESULTADOS POR ÍTEM (q1..q12)
     // =========================
-  function scoreItem_(responses, itemId){
-  let sum = 0;
-  let seen = 0;
+    function scoreItem_(responses, itemId){
+      let sum = 0;
+      let seen = 0;
 
-  for(const r of responses){
-    const v = r.answers?.[itemId];
-    if(typeof v === "number" && Number.isFinite(v)){
-      sum += v;
-      seen++;
+      for(const r of responses){
+        const v = r.answers?.[itemId];
+        if(typeof v === "number" && Number.isFinite(v)){
+          sum += v;
+          seen++;
+        }
+      }
+
+      const avg5 = seen ? (sum / seen) : null;                 // 0–5
+      const scorePct = seen ? (avg5 / 5) * 100 : null;         // 0–100
+
+      return { avg: avg5, scorePct, n: seen };
     }
-  }
-
-  const avg5 = seen ? (sum / seen) : null;                 // 0–5
-  const scorePct = seen ? (avg5 / 5) * 100 : null;         // 0–100
-
-  return { avg: avg5, scorePct, n: seen };
-}
 
     function computeItemScoresByDimension_(responses, dimension, valueFilter){
-  let base = responses.slice();
+      let base = responses.slice();
 
-  if(dimension && dimension !== "general"){
-    base = base.filter(r => String(r.demographics?.[dimension] ?? "") === String(valueFilter ?? ""));
-  }
+      if(dimension && dimension !== "general"){
+        base = base.filter(r => String(r.demographics?.[dimension] ?? "") === String(valueFilter ?? ""));
+      }
 
-  const rows = ITEMS.map(it => {
-    const s = scoreItem_(base, it.id);
-  return {
-  itemId: it.id,
-  text: it.text,
-  factor: it.factor,
-  score: s.avg,
-  n: s.n
-};
-  });
+      const rows = ITEMS.map(it => {
+        const s = scoreItem_(base, it.id);
+        return {
+          itemId: it.id,
+          text: it.text,
+          factor: it.factor,
+          score: s.avg,
+          n: s.n
+        };
+      });
 
-// Ordenar por número de ítem (Q1 → Q12)
-rows.sort((a,b) => {
-  const na = Number(a.itemId.replace("q",""));
-  const nb = Number(b.itemId.replace("q",""));
-  return na - nb;
-});
-return rows;
-}
+      // Ordenar por número de ítem (Q1 → Q12)
+      rows.sort((a,b) => {
+        const na = Number(a.itemId.replace("q",""));
+        const nb = Number(b.itemId.replace("q",""));
+        return na - nb;
+      });
+      return rows;
+    }
 
     function computeGroupedItemScores_(responses, dimension){
-  const groups = new Map();
+      const groups = new Map();
 
-  for(const r of responses){
-    const g = String(r.demographics?.[dimension] ?? "");
-    if(!g) continue;
-    if(!groups.has(g)) groups.set(g, []);
-    groups.get(g).push(r);
-  }
+      for(const r of responses){
+        const g = String(r.demographics?.[dimension] ?? "");
+        if(!g) continue;
+        if(!groups.has(g)) groups.set(g, []);
+        groups.get(g).push(r);
+      }
 
-  const groupNames = Array.from(groups.keys()).sort((a,b)=>a.localeCompare(b));
-  const labels = ITEMS.map(it => it.id.toUpperCase());
+      const groupNames = Array.from(groups.keys()).sort((a,b)=>a.localeCompare(b));
+      const labels = ITEMS.map(it => it.id.toUpperCase());
 
- const series = groupNames.map(name => {
-  const rs = groups.get(name) || [];
-  const points = ITEMS.map(it => {
-  const s = scoreItem_(rs, it.id);
-  return (s && typeof s.scorePct === "number") ? s.scorePct : null; // 0–100
-   });
-  return { name, points, n: rs.length };
-});
-  return { labels, series };
-}
+      const series = groupNames.map(name => {
+        const rs = groups.get(name) || [];
+        const points = ITEMS.map(it => {
+          const s = scoreItem_(rs, it.id);
+          return (s && typeof s.scorePct === "number") ? s.scorePct : null; // 0–100
+        });
+        return { name, points, n: rs.length };
+      });
+      return { labels, series };
+    }
 
     // Render gráfico barras (SVG)
     function renderBarChart_(targetEl, title, xLabels, series){
@@ -837,45 +850,45 @@ return rows;
       }).join("");
 
       const bars = [];
-for(let i=0; i<catCount; i++){
-  for(let g=0; g<groups; g++){
-    const val = series[g]?.points?.[i];
-    if(val == null) continue;
+      for(let i=0; i<catCount; i++){
+        for(let g=0; g<groups; g++){
+          const val = series[g]?.points?.[i];
+          if(val == null) continue;
 
-    const x = xCat(i) + g*(barW + barGap);
-    const y = yToPx(val);
-    const h = (padT + innerH) - y;
-    const fill = baseColors[g % baseColors.length];
+          const x = xCat(i) + g*(barW + barGap);
+          const y = yToPx(val);
+          const h = (padT + innerH) - y;
+          const fill = baseColors[g % baseColors.length];
 
-    const labelY = (y < padT + 14) ? (y + 14) : (y - 6);
-    const valInt = Math.round(val);
+          const labelY = (y < padT + 14) ? (y + 14) : (y - 6);
+          const valInt = Math.round(val);
 
-    bars.push(`
-      <g>
-        <rect x="${x}" y="${y}" width="${barW}" height="${h}"
-              rx="6" ry="6" fill="${fill}">
-          <title>${escapeHtml(series[g].name)} • ${escapeHtml(xLabels[i])}: ${valInt}%</title>
-        </rect>
+          bars.push(`
+            <g>
+              <rect x="${x}" y="${y}" width="${barW}" height="${h}"
+                    rx="6" ry="6" fill="${fill}">
+                <title>${escapeHtml(series[g].name)} • ${escapeHtml(xLabels[i])}: ${valInt}%</title>
+              </rect>
 
-        <text
-          x="${x + barW/2}"
-          y="${labelY}"
-          text-anchor="middle"
-          font-size="11"
-          font-weight="800"
-          fill="rgba(234,241,255,.95)">
-          ${valInt}%
-        </text>
-      </g>
-    `);
-  }
-}
+              <text
+                x="${x + barW/2}"
+                y="${labelY}"
+                text-anchor="middle"
+                font-size="11"
+                font-weight="800"
+                fill="rgba(234,241,255,.95)">
+                ${valInt}%
+              </text>
+            </g>
+          `);
+        }
+      }
 
       const xLabelsSvg = xLabels.map((f, i) => {
         const x = xCat(i) + catW/2;
         const y = padT + innerH + 28;
         return `<text x="${x}" y="${y}" text-anchor="end" transform="rotate(-35 ${x} ${y})"
-                  font-size="11" fill="rgba(159,179,217,.95)">${escapeHtml(f)}</text>`;
+                    font-size="11" fill="rgba(159,179,217,.95)">${escapeHtml(f)}</text>`;
       }).join("");
 
       const legend = series.map((s, idx) => {
@@ -929,234 +942,242 @@ for(let i=0; i<catCount; i++){
     }
 
     function renderResults(){
-  const all = getAllResponses_();
+      const chartsWrap = $("#chartsWrap");
+      const tableWrap  = $("#factorTableWrap");
+      const historyWrap = $("#historyWrap");
 
-  const dim = $("#resDimension")?.value || "general";
-  const val = $("#resValue")?.value || "";
+      // ✅ NUEVO: si todavía no se cargó el remoto, lo cargamos y reintentamos
+      if(!Array.isArray(REMOTE_CACHE)){
+        $("#kpiCount").textContent = "0";
+        $("#kpiAvg").textContent = "—";
+        $("#kpiLast").textContent = "—";
 
-  const dimLabel = (dim === "general")
-    ? "General"
-    : (DEMOGRAPHICS.find(d => d.id === dim)?.label || dim);
+        if(chartsWrap) chartsWrap.innerHTML = `<p class="hint">Cargando datos desde Google Sheets…</p>`;
+        if(tableWrap)  tableWrap.innerHTML  = `<p class="hint">Cargando…</p>`;
+        if(historyWrap) historyWrap.innerHTML = `<p class="hint">Cargando…</p>`;
 
-  const chartsWrap = $("#chartsWrap");
-  const tableWrap  = $("#factorTableWrap");
-  const historyWrap = $("#historyWrap");
+        ensureRemoteLoaded_().then(() => {
+          // si el usuario está en Resultados, re-render
+          if(!$("#view-resultados")?.classList.contains("hidden")) renderResults();
+        });
+        return;
+      }
 
-  // =========================
-  // GUARD: sin datos todavía
-  // =========================
-  if(!Array.isArray(all) || all.length === 0){
-    $("#kpiCount").textContent = "0";
-    $("#kpiAvg").textContent = "—";
-    $("#kpiLast").textContent = "—";
+      const all = getAllResponses_();
 
-    chartsWrap.innerHTML = `<p class="hint">Aún no hay datos para graficar. Presiona <b>Refrescar</b> o guarda al menos una encuesta.</p>`;
-    tableWrap.innerHTML  = `<p class="hint">Aún no hay datos para mostrar.</p>`;
-    historyWrap.innerHTML = `<p class="hint">Aún no hay respuestas.</p>`;
-    return;
-  }
+      const dim = $("#resDimension")?.value || "general";
+      const val = $("#resValue")?.value || "";
 
-  // =========================
-  // BASE FILTRADA (solo si eligió Variable)
-  // =========================
-  const baseFiltered = (dim !== "general" && val)
-    ? all.filter(r => String(r.demographics?.[dim] ?? "") === String(val))
-    : all;
+      const dimLabel = (dim === "general")
+        ? "General"
+        : (DEMOGRAPHICS.find(d => d.id === dim)?.label || dim);
 
-  // =========================
-  // KPIs (si hay variable: solo esa base)
-  // =========================
-  $("#kpiCount").textContent = String(baseFiltered.length);
+      // =========================
+      // GUARD: sin datos todavía
+      // =========================
+      if(!Array.isArray(all) || all.length === 0){
+        $("#kpiCount").textContent = "0";
+        $("#kpiAvg").textContent = "—";
+        $("#kpiLast").textContent = "—";
 
-  const overall = avg(baseFiltered.map(r => r.overallAvg).filter(v => typeof v === "number"));
-  const overallPct = (overall == null) ? null : (overall / 5) * 100;
-  $("#kpiAvg").textContent = overallPct == null ? "—" : overallPct.toFixed(1) + "%";
+        chartsWrap.innerHTML = `<p class="hint">Aún no hay datos para graficar. Presiona <b>Refrescar</b> o guarda al menos una encuesta.</p>`;
+        tableWrap.innerHTML  = `<p class="hint">Aún no hay datos para mostrar.</p>`;
+        historyWrap.innerHTML = `<p class="hint">Aún no hay respuestas.</p>`;
+        return;
+      }
 
-  const last = baseFiltered[baseFiltered.length - 1];
-  $("#kpiLast").textContent = last ? niceDate(last.createdAt) : "—";
+      // =========================
+      // BASE FILTRADA (solo si eligió Variable)
+      // =========================
+      const baseFiltered = (dim !== "general" && val)
+        ? all.filter(r => String(r.demographics?.[dim] ?? "") === String(val))
+        : all;
 
-  // =========================
-  // TABLA
-  // - General: siempre
-  // - Dimensión sin variable: pedir variable
-  // - Dimensión con variable: solo filtrada
-  // =========================
-  if(dim !== "general" && !val){
-    tableWrap.innerHTML =
-      `<p class="hint">Selecciona una <b>Variable</b> para ver la tabla filtrada de <b>${escapeHtml(dimLabel)}</b>.</p>`;
-  }else{
-    const rowsForTable = (dim === "general")
-      ? computeItemScoresByDimension_(all, "general", "")
-      : computeItemScoresByDimension_(baseFiltered, "general", ""); // <- ya viene filtrado
+      // =========================
+      // KPIs (si hay variable: solo esa base)
+      // =========================
+      $("#kpiCount").textContent = String(baseFiltered.length);
 
-    tableWrap.innerHTML = `
-      <table>
-        <thead>
-          <tr>
-            <th>Ítem</th>
-            <th>Pregunta</th>
-            <th style="width:140px;">Puntaje</th>
-            <th style="width:220px;">Visual</th>
-            <th style="width:90px;">N</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${rowsForTable.map(r => {
-            const v = (r.score ?? 0);
-            const pct = (r.score == null) ? 0 : clamp((v/5)*100, 0, 100);
-            return `
+      const overall = avg(baseFiltered.map(r => r.overallAvg).filter(v => typeof v === "number"));
+      const overallPct = (overall == null) ? null : (overall / 5) * 100;
+      $("#kpiAvg").textContent = overallPct == null ? "—" : overallPct.toFixed(1) + "%";
+
+      const last = baseFiltered[baseFiltered.length - 1];
+      $("#kpiLast").textContent = last ? niceDate(last.createdAt) : "—";
+
+      // =========================
+      // TABLA
+      // =========================
+      if(dim !== "general" && !val){
+        tableWrap.innerHTML =
+          `<p class="hint">Selecciona una <b>Variable</b> para ver la tabla filtrada de <b>${escapeHtml(dimLabel)}</b>.</p>`;
+      }else{
+        const rowsForTable = (dim === "general")
+          ? computeItemScoresByDimension_(all, "general", "")
+          : computeItemScoresByDimension_(baseFiltered, "general", "");
+
+        tableWrap.innerHTML = `
+          <table>
+            <thead>
               <tr>
-                <td><b>${escapeHtml(r.itemId.toUpperCase())}</b></td>
-                <td class="small">
-                  ${escapeHtml(r.text)}
-                  <div class="small">Factor: ${escapeHtml(r.factor)}</div>
-                </td>
-                <td><b>${r.score == null ? "—" : r.score.toFixed(2)}</b></td>
-                <td><div class="bar"><i style="width:${pct}%;"></i></div></td>
-                <td>${r.n}</td>
+                <th>Ítem</th>
+                <th>Pregunta</th>
+                <th style="width:140px;">Puntaje</th>
+                <th style="width:220px;">Visual</th>
+                <th style="width:90px;">N</th>
               </tr>
-            `;
-          }).join("")}
-        </tbody>
-      </table>
-    `;
-  }
+            </thead>
+            <tbody>
+              ${rowsForTable.map(r => {
+                const v = (r.score ?? 0);
+                const pct = (r.score == null) ? 0 : clamp((v/5)*100, 0, 100);
+                return `
+                  <tr>
+                    <td><b>${escapeHtml(r.itemId.toUpperCase())}</b></td>
+                    <td class="small">
+                      ${escapeHtml(r.text)}
+                      <div class="small">Factor: ${escapeHtml(r.factor)}</div>
+                    </td>
+                    <td><b>${r.score == null ? "—" : r.score.toFixed(2)}</b></td>
+                    <td><div class="bar"><i style="width:${pct}%;"></i></div></td>
+                    <td>${r.n}</td>
+                  </tr>
+                `;
+              }).join("")}
+            </tbody>
+          </table>
+        `;
+      }
 
-  // =========================
-  // GRÁFICO (robusto)
-  // - General: 1 serie
-  // - Dimensión SIN variable: series por cada variable (todas)
-  // - Dimensión CON variable: 1 serie (solo esa variable)
-  // =========================
-  chartsWrap.innerHTML = "";
+      // =========================
+      // GRÁFICO
+      // =========================
+      chartsWrap.innerHTML = "";
 
-  // Helper: si la base filtrada quedó vacía (p.ej. variable sin data)
-  function renderNoDataChart(msg){
-    chartsWrap.innerHTML = `<p class="hint">${msg}</p>`;
-  }
+      function renderNoDataChart(msg){
+        chartsWrap.innerHTML = `<p class="hint">${msg}</p>`;
+      }
 
-  if(dim === "general"){
-    const labels = ITEMS.map(it => it.id.toUpperCase());
-    const points = ITEMS.map(it => scoreItem_(all, it.id).scorePct);
-    const series = [{ name: "General", points, n: all.length }];
-
-    renderBarChart_(chartsWrap, "Resultados por Ítem (General)", labels, series);
-  }else{
-    if(val){
-      if(baseFiltered.length === 0){
-        renderNoDataChart(`No hay respuestas para <b>${escapeHtml(dimLabel)}: ${escapeHtml(String(val))}</b>.`);
-      }else{
+      if(dim === "general"){
         const labels = ITEMS.map(it => it.id.toUpperCase());
-        const points = ITEMS.map(it => scoreItem_(baseFiltered, it.id).scorePct);
-        const series = [{ name: String(val), points, n: baseFiltered.length }];
-
-        renderBarChart_(
-          chartsWrap,
-          `Resultados por Ítem (${escapeHtml(dimLabel)}: ${escapeHtml(String(val))})`,
-          labels,
-          series
-        );
-      }
-    }else{
-      // SIN variable => gráfico con TODAS las variables (series)
-      const grouped = computeGroupedItemScores_(all, dim);
-
-      if(!grouped?.series?.length){
-        renderNoDataChart(`No hay datos para mostrar en <b>${escapeHtml(dimLabel)}</b>.`);
+        const points = ITEMS.map(it => scoreItem_(all, it.id).scorePct);
+        const series = [{ name: "General", points, n: all.length }];
+        renderBarChart_(chartsWrap, "Resultados por Ítem (General)", labels, series);
       }else{
-        renderBarChart_(
-          chartsWrap,
-          `Resultados por Ítem (${escapeHtml(dimLabel)})`,
-          grouped.labels,
-          grouped.series
-        );
+        if(val){
+          if(baseFiltered.length === 0){
+            renderNoDataChart(`No hay respuestas para <b>${escapeHtml(dimLabel)}: ${escapeHtml(String(val))}</b>.`);
+          }else{
+            const labels = ITEMS.map(it => it.id.toUpperCase());
+            const points = ITEMS.map(it => scoreItem_(baseFiltered, it.id).scorePct);
+            const series = [{ name: String(val), points, n: baseFiltered.length }];
+
+            renderBarChart_(
+              chartsWrap,
+              `Resultados por Ítem (${escapeHtml(dimLabel)}: ${escapeHtml(String(val))})`,
+              labels,
+              series
+            );
+          }
+        }else{
+          const grouped = computeGroupedItemScores_(all, dim);
+
+          if(!grouped?.series?.length){
+            renderNoDataChart(`No hay datos para mostrar en <b>${escapeHtml(dimLabel)}</b>.`);
+          }else{
+            renderBarChart_(
+              chartsWrap,
+              `Resultados por Ítem (${escapeHtml(dimLabel)})`,
+              grouped.labels,
+              grouped.series
+            );
+          }
+        }
       }
-    }
-  }
 
-  // =========================
-  // HISTORIAL (igual que lo tenías, pero con guard)
-  // =========================
-  const last10 = all.slice().reverse().slice(0,10);
-  if(!last10.length){
-    historyWrap.innerHTML = `<p class="hint">Aún no hay respuestas.</p>`;
-    return;
-  }
+      // =========================
+      // HISTORIAL
+      // =========================
+      const last10 = all.slice().reverse().slice(0,10);
+      if(!last10.length){
+        historyWrap.innerHTML = `<p class="hint">Aún no hay respuestas.</p>`;
+        return;
+      }
 
-  historyWrap.innerHTML = `
-    <table>
-      <thead>
-        <tr>
-          <th>Fecha</th>
-          <th>Promedio</th>
-          <th>Resultado</th>
-          <th>Demográficos</th>
-          <th>Comentarios</th>
-          <th>Respuestas</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${last10.map(r => {
-          const raw = (r.flat ?? r) || {};
-
-          const resultado =
-            raw.Resultado ?? raw.resultado ??
-            raw.result ?? raw.RESULTADO ??
-            r.Resultado ?? r.resultado ??
-            r.result ?? r.RESULTADO ??
-            "—";
-
-          const demoTxt = DEMOGRAPHICS
-            .map(d => `${escapeHtml(d.label)}: <b>${escapeHtml(r.demographics?.[d.id] ?? raw?.[d.id] ?? "—")}</b>`)
-            .join("<br>");
-
-          const ansTxt = ITEMS
-            .map(it => {
-              const val = r.answers?.[it.id] ?? raw?.[it.id] ?? "—";
-              return `${escapeHtml(it.id.toUpperCase())}: <b>${escapeHtml(val)}</b>`;
-            })
-            .join("<br>");
-
-          return `
+      historyWrap.innerHTML = `
+        <table>
+          <thead>
             <tr>
-              <td>${escapeHtml(niceDate(r.createdAt))}</td>
-              <td><b>${typeof r.overallAvg === "number" ? r.overallAvg.toFixed(2) : "—"}</b></td>
-              <td class="small">${escapeHtml(String(resultado ?? "—"))}</td>
-              <td class="small">${demoTxt}</td>
-              <td class="small">${escapeHtml((r.comments ?? raw.comments ?? "").trim() || "—")}</td>
-              <td class="small">
-                <details>
-                  <summary style="cursor:pointer;color:var(--accent);font-weight:800;">Ver</summary>
-                  <div style="margin-top:8px;line-height:1.4;">${ansTxt}</div>
-                  <div style="margin-top:10px;" class="small">
-                    <b>Resultado:</b> ${escapeHtml(String(resultado ?? "—"))}
-                  </div>
-                </details>
-
-                <details style="margin-top:8px;">
-                  <summary style="cursor:pointer;color:var(--accent);font-weight:800;">Ver todos los campos</summary>
-                  <pre class="note" style="margin-top:8px;overflow:auto;max-height:260px;">${escapeHtml(JSON.stringify(raw, null, 2))}</pre>
-                </details>
-              </td>
+              <th>Fecha</th>
+              <th>Promedio</th>
+              <th>Resultado</th>
+              <th>Demográficos</th>
+              <th>Comentarios</th>
+              <th>Respuestas</th>
             </tr>
-          `;
-        }).join("")}
-      </tbody>
-    </table>
-    <p class="note">Mostrando las últimas 10 respuestas.</p>
-  `;
-}
+          </thead>
+          <tbody>
+            ${last10.map(r => {
+              const raw = (r.flat ?? r) || {};
+
+              const resultado =
+                raw.Resultado ?? raw.resultado ??
+                raw.result ?? raw.RESULTADO ??
+                r.Resultado ?? r.resultado ??
+                r.result ?? r.RESULTADO ??
+                "—";
+
+              const demoTxt = DEMOGRAPHICS
+                .map(d => `${escapeHtml(d.label)}: <b>${escapeHtml(r.demographics?.[d.id] ?? raw?.[d.id] ?? "—")}</b>`)
+                .join("<br>");
+
+              const ansTxt = ITEMS
+                .map(it => {
+                  const val = r.answers?.[it.id] ?? raw?.[it.id] ?? "—";
+                  return `${escapeHtml(it.id.toUpperCase())}: <b>${escapeHtml(val)}</b>`;
+                })
+                .join("<br>");
+
+              return `
+                <tr>
+                  <td>${escapeHtml(niceDate(r.createdAt))}</td>
+                  <td><b>${typeof r.overallAvg === "number" ? r.overallAvg.toFixed(2) : "—"}</b></td>
+                  <td class="small">${escapeHtml(String(resultado ?? "—"))}</td>
+                  <td class="small">${demoTxt}</td>
+                  <td class="small">${escapeHtml((r.comments ?? raw.comments ?? "").trim() || "—")}</td>
+                  <td class="small">
+                    <details>
+                      <summary style="cursor:pointer;color:var(--accent);font-weight:800;">Ver</summary>
+                      <div style="margin-top:8px;line-height:1.4;">${ansTxt}</div>
+                      <div style="margin-top:10px;" class="small">
+                        <b>Resultado:</b> ${escapeHtml(String(resultado ?? "—"))}
+                      </div>
+                    </details>
+
+                    <details style="margin-top:8px;">
+                      <summary style="cursor:pointer;color:var(--accent);font-weight:800;">Ver todos los campos</summary>
+                      <pre class="note" style="margin-top:8px;overflow:auto;max-height:260px;">${escapeHtml(JSON.stringify(raw, null, 2))}</pre>
+                    </details>
+                  </td>
+                </tr>
+              `;
+            }).join("")}
+          </tbody>
+        </table>
+        <p class="note">Mostrando las últimas 10 respuestas.</p>
+      `;
+    }
 
     /**********************************************************************
      * EXPORTS
      *********************************************************************/
     function exportJSON(){
-  const rows = getAllResponses_();
-  downloadText("encuesta_clima_organizacional_respuestas.json", JSON.stringify(rows, null, 2));
-}
+      const rows = getAllResponses_();
+      downloadText("encuesta_clima_organizacional_respuestas.json", JSON.stringify(rows, null, 2));
+    }
 
     function exportCSV(){
-  const rows = getAllResponses_();
+      const rows = getAllResponses_();
       if(!rows.length){ alert("No hay datos para exportar."); return; }
 
       const headers = [
@@ -1195,29 +1216,28 @@ for(let i=0; i<catCount; i++){
      * NAV
      *********************************************************************/
     function setView(view){
-  const encuesta = $("#view-encuesta");
-  const resultados = $("#view-resultados");
-  const t1 = $("#tab-encuesta");
-  const t2 = $("#tab-resultados");
+      const encuesta = $("#view-encuesta");
+      const resultados = $("#view-resultados");
+      const t1 = $("#tab-encuesta");
+      const t2 = $("#tab-resultados");
 
-  if(view === "resultados"){
-    encuesta.classList.add("hidden");
-    resultados.classList.remove("hidden");
-    t1.setAttribute("aria-selected","false");
-    t2.setAttribute("aria-selected","true");
+      if(view === "resultados"){
+        encuesta.classList.add("hidden");
+        resultados.classList.remove("hidden");
+        t1.setAttribute("aria-selected","false");
+        t2.setAttribute("aria-selected","true");
 
-    refreshDimensionUI_();
+        refreshDimensionUI_();
 
-    // asegurar datos desde Sheets antes de calcular
-    $("#remotePill").textContent = "Remote: ⏳ cargando…";
-    loadRemoteFromGAS().then(() => renderResults());
-  }else{
-    resultados.classList.add("hidden");
-    encuesta.classList.remove("hidden");
-    t2.setAttribute("aria-selected","false");
-    t1.setAttribute("aria-selected","true");
-  }
-}
+        // ✅ cargar (una sola vez) y luego render
+        ensureRemoteLoaded_().then(() => renderResults());
+      }else{
+        resultados.classList.add("hidden");
+        encuesta.classList.remove("hidden");
+        t2.setAttribute("aria-selected","false");
+        t1.setAttribute("aria-selected","true");
+      }
+    }
 
     /**********************************************************************
      * ENVÍO A GOOGLE SHEETS (WEB APP)
@@ -1243,114 +1263,117 @@ for(let i=0; i<catCount; i++){
       }
     }
 
-   /**********************************************************************
- * INIT (arreglado)
- *********************************************************************/
-function renderResDimensionOptions_(){
-  const sel = $("#resDimension");
-  if(!sel) return;
+    /**********************************************************************
+     * INIT
+     *********************************************************************/
+    function renderResDimensionOptions_(){
+      const sel = $("#resDimension");
+      if(!sel) return;
 
-  sel.innerHTML = `
-    <option value="general" selected>General</option>
-    ${DEMOGRAPHICS.map(d => `<option value="${escapeAttr(d.id)}">${escapeHtml(d.label)}</option>`).join("")}
-  `;
-}
+      sel.innerHTML = `
+        <option value="general" selected>General</option>
+        ${DEMOGRAPHICS.map(d => `<option value="${escapeAttr(d.id)}">${escapeHtml(d.label)}</option>`).join("")}
+      `;
+    }
 
-(function initApp(){
-  try{
-    renderScaleHint();
-    renderDemographics();
-    renderItems();
+    (function initApp(){
+      try{
+        renderScaleHint();
+        renderDemographics();
+        renderItems();
 
-    renderResDimensionOptions_();
-    refreshDimensionUI_();
+        renderResDimensionOptions_();
+        refreshDimensionUI_();
 
-    $("#remotePill").textContent = "Remote: —";
+        $("#remotePill").textContent = "Remote: —";
 
-    $("#integrationHint").textContent =
-      isValidExecUrl(GAS_WEBAPP_URL)
-        ? "✅ WebApp configurado (envío por POST)."
-        : "⚠️ Falta pegar la URL del WebApp de Apps Script (/exec).";
+        $("#integrationHint").textContent =
+          isValidExecUrl(GAS_WEBAPP_URL)
+            ? "✅ WebApp configurado (envío por POST)."
+            : "⚠️ Falta pegar la URL del WebApp de Apps Script (/exec).";
 
-    // NAV
-    $("#tab-encuesta").addEventListener("click", () => setView("encuesta"));
-    $("#tab-resultados").addEventListener("click", () => setView("resultados"));
+        // NAV
+        $("#tab-encuesta").addEventListener("click", () => setView("encuesta"));
+        $("#tab-resultados").addEventListener("click", () => setView("resultados"));
 
-  // FORM SUBMIT
-$("#surveyForm").addEventListener("submit", async (e) => {
-  e.preventDefault();
+        // FORM SUBMIT
+        $("#surveyForm").addEventListener("submit", async (e) => {
+          e.preventDefault();
 
-  const btn = $("#btnGuardar");
-  btn.disabled = true;
+          const btn = $("#btnGuardar");
+          btn.disabled = true;
 
-  const res = collectResponse();
-  if(!res.ok){
-    $("#saveNote").textContent = res.message;
-    $("#saveNote").style.color = "var(--warn)";
-    btn.disabled = false;
-    return;
-  }
+          const res = collectResponse();
+          if(!res.ok){
+            $("#saveNote").textContent = res.message;
+            $("#saveNote").style.color = "var(--warn)";
+            btn.disabled = false;
+            return;
+          }
 
-  // 1) Enviar a Sheets (única fuente)
-  $("#saveNote").textContent = "⏳ Guardando en Google Sheets…";
-  $("#saveNote").style.color = "var(--muted)";
+          // 1) Enviar a Sheets (única fuente)
+          $("#saveNote").textContent = "⏳ Guardando en Google Sheets…";
+          $("#saveNote").style.color = "var(--muted)";
 
-  const payload = {
-    action: "save",
-    sheet: "Respuestas",
-    ...res.data
-  };
+          const payload = {
+            action: "save",
+            sheet: "Respuestas",
+            ...res.data
+          };
 
-  const remote = await sendToGoogleSheet(payload);
+          const remote = await sendToGoogleSheet(payload);
 
-  if(remote.ok){
-    $("#saveNote").textContent =
-      "✅ Guardado en Google Sheets.\n(Si no aparece, suele ser despliegue/permisos del WebApp 😅)";
-    $("#saveNote").style.color = "var(--ok)";
+          if(remote.ok){
+            $("#saveNote").textContent =
+              "✅ Guardado en Google Sheets.\n(Si no aparece, suele ser despliegue/permisos del WebApp 😅)";
+            $("#saveNote").style.color = "var(--ok)";
 
-    clearForm();
+            clearForm();
 
-    // refrescar cache remoto para que Resultados use lo registrado en la hoja
-    await loadRemoteFromGAS();
-  }else{
-    $("#saveNote").textContent =
-      `⚠️ No se pudo enviar a Sheets: ${remote.message || "Error"}`;
-    $("#saveNote").style.color = "var(--warn)";
-  }
+            // refrescar cache remoto para Resultados
+            REMOTE_CACHE = null; // ✅ fuerza recarga limpia
+            await ensureRemoteLoaded_();
+          }else{
+            $("#saveNote").textContent =
+              `⚠️ No se pudo enviar a Sheets: ${remote.message || "Error"}`;
+            $("#saveNote").style.color = "var(--warn)";
+          }
 
-  btn.disabled = false;
-});
+          btn.disabled = false;
+        });
 
-    // BOTONES
-    $("#btnLimpiar").addEventListener("click", clearForm);
-    $("#btnExportJSON").addEventListener("click", exportJSON);
-    $("#btnExportCSV").addEventListener("click", exportCSV);
+        // BOTONES
+        $("#btnLimpiar").addEventListener("click", clearForm);
+        $("#btnExportJSON").addEventListener("click", exportJSON);
+        $("#btnExportCSV").addEventListener("click", exportCSV);
 
-    // RESULTADOS UI
-   $("#resDimension").addEventListener("change", () => {
-  refreshDimensionUI_();
-  // reset visual y lógico de variable
-  const rv = $("#resValue");
-  if(rv){
-    rv.value = "";
-  }
-  renderResults();
-});
+        // RESULTADOS UI (✅ ahora asegura data antes de renderizar)
+        $("#resDimension").addEventListener("change", async () => {
+          refreshDimensionUI_();
+          const rv = $("#resValue");
+          if(rv) rv.value = "";
+          await ensureRemoteLoaded_();
+          renderResults();
+        });
 
-    $("#resValue").addEventListener("change", () => renderResults());
-    $("#btnReloadResults").addEventListener("click", async () => {
-  $("#remotePill").textContent = "Remote: ⏳ cargando…";
-  await loadRemoteFromGAS();
-  renderResults();
-});
+        $("#resValue").addEventListener("change", async () => {
+          await ensureRemoteLoaded_();
+          renderResults();
+        });
 
-      // Vista inicial
-    setView("encuesta");
-  }catch(err){
-    console.error("Error en initApp()", err);
-    alert("Hay un error en el script. Abre Console (F12) para ver detalles.");
-  }
-})();
+        $("#btnReloadResults").addEventListener("click", async () => {
+          REMOTE_CACHE = null; // ✅ fuerza recarga
+          await ensureRemoteLoaded_();
+          renderResults();
+        });
+
+        // Vista inicial
+        setView("encuesta");
+      }catch(err){
+        console.error("Error en initApp()", err);
+        alert("Hay un error en el script. Abre Console (F12) para ver detalles.");
+      }
+    })();
 
   </script>
 </body>
