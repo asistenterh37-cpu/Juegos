@@ -779,9 +779,9 @@
  const series = groupNames.map(name => {
   const rs = groups.get(name) || [];
   const points = ITEMS.map(it => {
-    const s = scoreItem_(rs, it.id);
-    return (s && typeof s.avg === "number") ? s.avg : null; // 0–5
-  });
+  const s = scoreItem_(rs, it.id);
+  return (s && typeof s.scorePct === "number") ? s.scorePct : null; // 0–100
+   });
   return { name, points, n: rs.length };
 });
   return { labels, series };
@@ -795,7 +795,7 @@
       const innerW = W - padL - padR;
       const innerH = H - padT - padB;
 
-      const maxY = 5;
+      const maxY = 100;
       const minY = 0;
 
       const groups = series.length;
@@ -818,7 +818,7 @@
         "rgba(255,255,255,.35)",
       ];
 
-      const yTicks = [0,1,2,3,4,5];
+      const yTicks =[0,20,40,60,80,100];
 
       const gridLines = yTicks.map(t => {
         const y = yToPx(t);
@@ -871,7 +871,7 @@
         <div class="item" style="grid-template-columns: 1fr; gap:10px;">
           <div>
             <div class="q">${escapeHtml(title)}</div>
-            <div class="meta">Escala 0–5. Barras por grupo (variable) y por ítem.</div>
+            <div class="meta">Escala 0–100%. Barras por grupo (variable) y por ítem.</div>
           </div>
           <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;">${legend}</div>
           <div style="overflow:auto;border:1px solid var(--line);border-radius:14px;background: rgba(0,0,0,.18);padding:10px;">
@@ -966,7 +966,7 @@
 
         if(dim === "general"){
           const labels = ITEMS.map(it => it.id.toUpperCase());
-          const points = ITEMS.map(it => scoreItem_(all, it.id).avg);
+          const points = ITEMS.map(it => scoreItem_(all, it.id).scorePct);
           const series = [{ name: "General", points, n: all.length }];
 
           renderBarChart_(chartsWrap, "Resultados por Ítem (General)", labels, series);
