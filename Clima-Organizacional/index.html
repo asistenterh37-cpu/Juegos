@@ -737,39 +737,41 @@
     // =========================
     // RESULTADOS POR ÍTEM (q1..q12)
     // =========================
-    function scoreItem_(responses, itemId){
-      let sum = 0;
-      let seen = 0;
-      for(const r of responses){
-        const v = r.answers?.[itemId];
-        if(typeof v === "number" && Number.isFinite(v)){
-          sum += v;
-          seen++;
-        }
-      }
-      if(!seen) return null;
-      return sum / seen; // 1..5
+   function scoreItem_(responses, itemId){
+  let sum = 0;
+  let seen = 0;
+  for(const r of responses){
+    const v = r.answers?.[itemId];
+    if(typeof v === "number" && Number.isFinite(v)){
+      sum += v;
+      seen++;
     }
+  }
+  return { avg: seen ? (sum / seen) : null, n: seen };
+}
 
     function computeItemScoresByDimension_(responses, dimension, valueFilter){
-      let base = responses.slice();
+  let base = responses.slice();
 
-      if(dimension && dimension !== "general"){
-        base = base.filter(r => String(r.demographics?.[dimension] ?? "") === String(valueFilter ?? ""));
-      }
+  if(dimension && dimension !== "general"){
+    base = base.filter(r => String(r.demographics?.[dimension] ?? "") === String(valueFilter ?? ""));
+  }
 
-      const rows = ITEMS.map(it => ({
-        itemId: it.id,
-        text: it.text,
-        factor: it.factor,
-        score: scoreItem_(base, it.id),
-        n: base.length
-      }));
+  const rows = ITEMS.map(it => {
+    const s = scoreItem_(base, it.id);
+    return {
+      itemId: it.id,
+      text: it.text,
+      factor: it.factor,
+      score: s.avg,
+      n: s.n
+    };
+  });
 
-      // Ordenar: menor a mayor (los más “dolorosos” arriba 😅)
-      rows.sort((a,b) => ((a.score ?? 999) - (b.score ?? 999)));
-      return rows;
-    }
+  // Ordenar: menor a mayor (los más “dolorosos” arriba 😅)
+  rows.sort((a,b) => ((a.score ?? 999) - (b.score ?? 999)));
+  return rows;
+}
 
     function computeGroupedItemScores_(responses, dimension){
       const groups = new Map();
@@ -967,27 +969,27 @@
           </table>
         `;
 
-        // Gráfico
+                // Gráfico
         const chartsWrap = $("#chartsWrap");
         chartsWrap.innerHTML = "";
 
         if(dim === "general"){
           const labels = ITEMS.map(it => it.id.toUpperCase());
-          const points = ITEMS.map(it => scoreItem_(all, it.id));
-          const series = [{]()
+          const points = ITEMS.map(it => scoreItem_(all, it.id).avg);
+          const series = [{ name: "General", points, n: all.length }];
 
-  const series = [{ name: "General", points, n: all.length }];
+          renderBarChart_(chartsWrap, "Resultados por Ítem (General)", labels, series);
+        }else{
+          const grouped = computeGroupedItemScores_(all, dim);
 
-  renderBarChart_(chartsWrap, "Resultados por Ítem (General)", labels, series);
-}else{
-  const grouped = computeGroupedItemScores_(all, dim);
+          if(!grouped.series.length){
+            chartsWrap.innerHTML = `<p class="hint">No hay datos para esa segmentación.</p>`;
+          }else{
+            renderBarChart_(chartsWrap, `Resultados por Ítem (${escapeHtml(dim)})`, grouped.labels, grouped.series);
+          }
+        }
+      }
 
-  if(!grouped.series.length){
-    chartsWrap.innerHTML = `<p class="hint">No hay datos para esa segmentación.</p>`;
-  }else{
-    renderBarChart_(chartsWrap, `Resultados por Ítem (${escapeHtml(dim)})`, grouped.labels, grouped.series);
-  }
-}
         if(!grouped.series.length){
           chartsWrap.innerHTML = `<p class="hint">No hay datos para esa segmentación.</p>`;
         }else{
@@ -1001,30 +1003,46 @@
         return;
       }
 
-      $("#historyWrap").innerHTML = `
+            $("#historyWrap").innerHTML = `
         <table>
           <thead>
             <tr>
               <th>Fecha</th>
               <th>Promedio</th>
-              <th>Detalle</th>
+              <th>Demográficos</th>
+              <th>Comentarios</th>
+              <th>Respuestas</th>
             </tr>
           </thead>
           <tbody>
-            ${last10.map(r => `
-              <tr>
-                <td>${escapeHtml(niceDate(r.createdAt))}</td>
-                <td><b>${typeof r.overallAvg === "number" ? r.overallAvg.toFixed(2) : "—"}</b></td>
-                <td class="small">
-                  ${DEMOGRAPHICS.map(d => `${escapeHtml(d.label)}: <b>${escapeHtml(r.demographics?.[d.id] ?? "—")}</b>`).join(" · ")}
-                </td>
-              </tr>
-            `).join("")}
+            ${last10.map(r => {
+              const demoTxt = DEMOGRAPHICS
+                .map(d => `${escapeHtml(d.label)}: <b>${escapeHtml(r.demographics?.[d.id] ?? "—")}</b>`)
+                .join("<br>");
+
+              const ansTxt = ITEMS
+                .map(it => `${escapeHtml(it.id.toUpperCase())}: <b>${escapeHtml(r.answers?.[it.id] ?? "—")}</b>`)
+                .join("<br>");
+
+              return `
+                <tr>
+                  <td>${escapeHtml(niceDate(r.createdAt))}</td>
+                  <td><b>${typeof r.overallAvg === "number" ? r.overallAvg.toFixed(2) : "—"}</b></td>
+                  <td class="small">${demoTxt}</td>
+                  <td class="small">${escapeHtml((r.comments ?? "").trim() || "—")}</td>
+                  <td class="small">
+                    <details>
+                      <summary style="cursor:pointer;color:var(--accent);font-weight:800;">Ver</summary>
+                      <div style="margin-top:8px;line-height:1.4;">${ansTxt}</div>
+                    </details>
+                  </td>
+                </tr>
+              `;
+            }).join("")}
           </tbody>
         </table>
         <p class="note">Mostrando las últimas 10 respuestas.</p>
       `;
-    }
 
     /**********************************************************************
      * EXPORTS
