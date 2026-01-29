@@ -846,12 +846,13 @@ for(let i=0;i<catCount;i++){
     const fill = baseColors[g % baseColors.length];
 
     const labelY = (y < padT + 14) ? (y + 14) : (y - 6);
+    const valInt = Math.round(val);
 
     bars.push(`
       <g>
         <rect x="${x}" y="${y}" width="${barW}" height="${h}"
               rx="6" ry="6" fill="${fill}">
-          <title>${escapeHtml(series[g].name)} • ${escapeHtml(xLabels[i])}: ${val.toFixed(1)}%</title>
+          <title>${escapeHtml(series[g].name)} • ${escapeHtml(xLabels[i])}: ${valInt}%</title>
         </rect>
 
         <text
@@ -861,11 +862,10 @@ for(let i=0;i<catCount;i++){
           font-size="11"
           font-weight="800"
           fill="rgba(234,241,255,.95)">
-          ${val.toFixed(1)}%
+          ${valInt}%
         </text>
       </g>
-    `);
-  }
+    `);    
 }
 
       const xLabelsSvg = xLabels.map((f, i) => {
