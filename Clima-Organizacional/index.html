@@ -734,82 +734,72 @@
       return mergeUniqueById_(local, remote);
     }
 
-    function factorItemMap_(){
-      const m = new Map();
-      for(const it of ITEMS){
-        if(!m.has(it.factor)) m.set(it.factor, []);
-        m.get(it.factor).push(it.id);
-      }
-      return m;
+    // =========================
+// RESULTADOS POR ÍTEM (q1..q12)
+// =========================
+
+// Puntaje por ÍTEM (1..5):
+// scoreItem = sum(respuestas del ítem) / N_encuestas_con_respuesta
+function scoreItem_(responses, itemId){
+  let sum = 0;
+  let seen = 0;
+
+  for(const r of responses){
+    const v = r.answers?.[itemId];
+    if(typeof v === "number" && Number.isFinite(v)){
+      sum += v;
+      seen++;
     }
+  }
+  if(!seen) return null;
+  return sum / seen; // 1..5
+}
 
-    // Puntaje por factor (1..5)
-    // sum(respuestas del factor) / (N_encuestas * N_items_factor)  (equivale al promedio real)
-    function scoreFactor_(responses, itemIds){
-      const N = responses.length;
-      const K = itemIds.length;
-      if(!N || !K) return null;
+// Tabla por ítem (general o filtrada por dimensión/valor)
+function computeItemScoresByDimension_(responses, dimension, valueFilter){
+  let base = responses.slice();
 
-      let sum = 0;
-      let seen = 0;
+  if(dimension && dimension !== "general"){
+    base = base.filter(r => String(r.demographics?.[dimension] ?? "") === String(valueFilter ?? ""));
+  }
 
-      for(const r of responses){
-        for(const id of itemIds){
-          const v = r.answers?.[id];
-          if(typeof v === "number" && Number.isFinite(v)){
-            sum += v;
-            seen++;
-          }
-        }
-      }
-      if(!seen) return null;
+  const rows = ITEMS.map(it => ({
+    itemId: it.id,
+    text: it.text,
+    factor: it.factor,
+    score: scoreItem_(base, it.id),
+    n: base.length
+  }));
 
-      return (sum / seen); // 1..5
-    }
+  // Opcional: ordenar de menor a mayor
+  rows.sort((a,b) => ((a.score ?? 999) - (b.score ?? 999)));
+  return rows;
+}
 
-    function computeFactorScoresByDimension_(responses, dimension, valueFilter){
-      const fMap = factorItemMap_();
-      let base = responses.slice();
+// Gráfico por ítem agrupado por dimensión (Masculino vs Femenino, etc.)
+function computeGroupedItemScores_(responses, dimension){
+  const groups = new Map();
 
-      if(dimension && dimension !== "general"){
-        base = base.filter(r => String(r.demographics?.[dimension] ?? "") === String(valueFilter ?? ""));
-      }
+  for(const r of responses){
+    const g = String(r.demographics?.[dimension] ?? "");
+    if(!g) continue;
+    if(!groups.has(g)) groups.set(g, []);
+    groups.get(g).push(r);
+  }
 
-      const rows = [];
-      for(const [factor, ids] of fMap.entries()){
-        const s = scoreFactor_(base, ids);
-        rows.push({ factor, score: s, n: base.length });
-      }
+  const groupNames = Array.from(groups.keys()).sort((a,b)=>a.localeCompare(b));
+  const labels = ITEMS.map(it => `${it.id.toUpperCase()}`); // q1..q12
+  const series = groupNames.map(g => {
+    const rs = groups.get(g) || [];
+    const points = ITEMS.map(it => {
+      const s = scoreItem_(rs, it.id);
+      return (s == null) ? null : s;
+    });
+    return { name: g, points, n: rs.length };
+  });
 
-      return rows.sort((a,b) => (a.factor||"").localeCompare(b.factor||""));
-    }
-
-    function computeGroupedFactorScores_(responses, dimension){
-      const fMap = factorItemMap_();
-
-      const groups = new Map();
-      for(const r of responses){
-        const g = String(r.demographics?.[dimension] ?? "");
-        if(!g) continue;
-        if(!groups.has(g)) groups.set(g, []);
-        groups.get(g).push(r);
-      }
-
-      const groupNames = Array.from(groups.keys()).sort((a,b)=>a.localeCompare(b));
-      const factors = Array.from(fMap.keys());
-
-      const series = groupNames.map(g => {
-        const rs = groups.get(g) || [];
-        const points = factors.map(f => {
-          const ids = fMap.get(f) || [];
-          const score = scoreFactor_(rs, ids);
-          return (score == null) ? null : score;
-        });
-        return { name:g, points, n: rs.length };
-      });
-
-      return { factors, series };
-    }
+  return { labels, series };
+}
 
     // Render gráfico barras (SVG)
     function renderBarChart_(targetEl, title, factors, series){
@@ -944,8 +934,36 @@
       const dim = $("#resDimension")?.value || "general";
       const val = $("#resValue")?.value || "";
 
-      const factorRows = computeFactorScoresByDimension_(all, dim, val);
-      $("#factorTableWrap").innerHTML = `
+      const itemRows = computeItemScoresByDimension_(all, dim, val);
+
+$("#factorTableWrap").innerHTML = `
+  <table>
+    <thead>
+      <tr>
+        <th>Ítem</th>
+        <th>Pregunta</th>
+        <th style="width:140px;">Puntaje</th>
+        <th style="width:220px;">Visual</th>
+        <th style="width:90px;">N</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${itemRows.map(r => {
+        const v = (r.score ?? 0);
+        const pct = (r.score == null) ? 0 : clamp((v/5)*100, 0, 100);
+        return `
+          <tr>
+            <td><b>${escapeHtml(r.itemId.toUpperCase())}</b></td>
+            <td class="small">${escapeHtml(r.text)}</td>
+            <td><b>${r.score == null ? "—" : r.score.toFixed(2)}</b></td>
+            <td><div class="bar"><i style="width:${pct}%;"></i></div></td>
+            <td>${r.n}</td>
+          </tr>
+        `;
+      }).join("")}
+    </tbody>
+  </table>
+`;
         <table>
           <thead>
             <tr>
@@ -975,14 +993,25 @@
       const chartsWrap = $("#chartsWrap");
       chartsWrap.innerHTML = "";
 
-      if(dim === "general"){
-        const fMap = factorItemMap_();
-        const factors = Array.from(fMap.keys());
-        const points = factors.map(f => scoreFactor_(all, fMap.get(f)));
-        const series = [{ name:"General", points, n: all.length }];
-        renderBarChart_(chartsWrap, "General", factors, series);
-      }else{
-        const grouped = computeGroupedFactorScores_(all, dim);
+      const chartsWrap = $("#chartsWrap");
+chartsWrap.innerHTML = "";
+
+if(dim === "general"){
+  // Serie única: General (q1..q12)
+  const labels = ITEMS.map(it => it.id.toUpperCase());
+  const points = ITEMS.map(it => scoreItem_(all, it.id));
+  const series = [{ name: "General", points, n: all.length }];
+
+  renderBarChart_(chartsWrap, "Resultados por Ítem (General)", labels, series);
+}else{
+  const grouped = computeGroupedItemScores_(all, dim);
+
+  if(!grouped.series.length){
+    chartsWrap.innerHTML = `<p class="hint">No hay datos para esa segmentación.</p>`;
+  }else{
+    renderBarChart_(chartsWrap, `Resultados por Ítem (${escapeHtml(dim)})`, grouped.labels, grouped.series);
+  }
+}
         if(!grouped.series.length){
           chartsWrap.innerHTML = `<p class="hint">No hay datos para esa segmentación.</p>`;
         }else{
