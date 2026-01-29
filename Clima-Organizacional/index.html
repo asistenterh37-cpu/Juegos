@@ -382,14 +382,44 @@
     <!-- ====================== VISTA RESULTADOS ====================== -->
     <section id="view-resultados" class="hidden">
       <div class="card">
-        <h2>Resultados (guardados en este navegador)</h2>
+        <h2>Resultados</h2>
         <p class="hint">
-          Resumen general y promedios por factor (interno).
+          Puedes ver resultados por: <b>General</b>, <b>Género</b>, <b>Antigüedad</b>, <b>Localidad</b>, <b>Departamento</b> y <b>Nivel</b>.
+          <br>Fuente: LocalStorage + (opcional) Google Sheets vía WebApp.
         </p>
+
+        <div class="form-row two" style="margin-top:12px;">
+          <div>
+            <label for="resDimension">Resultados por</label>
+            <select id="resDimension">
+              <option value="general" selected>General</option>
+              <option value="genero">Género</option>
+              <option value="antiguedad">Antigüedad</option>
+              <option value="localidad">Localidad</option>
+              <option value="departamento">Departamento</option>
+              <option value="nivel">Nivel</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="resValue">Variable</label>
+            <select id="resValue" disabled>
+              <option value="" selected>—</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="actions" style="margin-top:12px;">
+          <button class="btn" id="btnReloadResults" type="button">Refrescar</button>
+          <button class="btn" id="btnLoadRemote" type="button">Cargar desde Google Sheets</button>
+          <span class="pill" id="remotePill">Remote: —</span>
+        </div>
+
+        <div class="divider"></div>
 
         <div class="kpis">
           <div class="kpi">
-            <div class="t">Respuestas guardadas</div>
+            <div class="t">Encuestas consideradas</div>
             <div class="v" id="kpiCount">0</div>
           </div>
           <div class="kpi">
@@ -406,14 +436,19 @@
 
         <div class="divider"></div>
 
-        <h2>Promedios por factor</h2>
+        <h2>Calificación por factor (barras)</h2>
+        <div id="chartsWrap"></div>
+
+        <div class="divider"></div>
+
+        <h2>Promedios por factor (tabla)</h2>
         <div id="factorTableWrap"></div>
 
         <div class="divider"></div>
 
         <h2>Historial</h2>
         <div class="actions">
-          <button class="btn danger" id="btnClearAll" type="button">Borrar todo</button>
+          <button class="btn danger" id="btnClearAll" type="button">Borrar todo (LocalStorage)</button>
         </div>
         <div id="historyWrap"></div>
       </div>
@@ -461,7 +496,6 @@
      * ✅ URL REAL DEL WEB APP (termina en /exec)
      *********************************************************************/
     const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwku5xvlMFfLfdoXBs2YrQf1RjInM80V_7pV8VSZnPIhhdUNRndJHmVdMOlt1vLab-_BA/exec";
-
 
     /**********************************************************************
      * UTILS
@@ -584,7 +618,6 @@
       const overall = avg(Object.values(answers));
       const comments = ($("#comments")?.value ?? "").trim();
 
-      // ✅ También mandamos valores "planos" (por si luego quieres mapear directo sin objects)
       const flat = {
         createdAt: nowISO(),
         id: (crypto?.randomUUID ? crypto.randomUUID() : String(Date.now())),
@@ -605,66 +638,331 @@
           comments,
           overallAvg: overall,
           source: flat.source,
-          flat // 👈 extra
+          flat
         }
       };
     }
 
     /**********************************************************************
-     * RESULTADOS
+     * RESULTADOS (NUEVO)
      *********************************************************************/
-    function computeFactorAverages(responses){
-      const factorMap = new Map();
+
+    // ---- Remote cache (Google Sheets) ----
+    let REMOTE_CACHE = null;       // Array de responses
+    let REMOTE_STATUS = "—";
+
+    function normalizeResponse_(r){
+      if(!r || typeof r !== "object") return null;
+      if(r.demographics && r.answers) return r;
+
+      const demo = {};
+      DEMOGRAPHICS.forEach(d => { if(r[d.id] != null) demo[d.id] = String(r[d.id]); });
+
+      const ans = {};
+      ITEMS.forEach(it => {
+        const v = r[it.id];
+        if(v != null && v !== "") ans[it.id] = Number(v);
+      });
+
+      const overallAvg = (typeof r.overallAvg === "number") ? r.overallAvg : avg(Object.values(ans));
+
+      return {
+        id: String(r.id || crypto?.randomUUID?.() || Date.now()),
+        createdAt: String(r.createdAt || nowISO()),
+        demographics: demo,
+        answers: ans,
+        comments: String(r.comments || ""),
+        overallAvg,
+        source: String(r.source || "remote"),
+        flat: r.flat || r
+      };
+    }
+
+    function mergeUniqueById_(a, b){
+      const map = new Map();
+      [...(a||[]), ...(b||[])].forEach(x => {
+        const n = normalizeResponse_(x);
+        if(n && n.id) map.set(n.id, n);
+      });
+      return Array.from(map.values()).sort((x,y) => (x.createdAt||"").localeCompare(y.createdAt||""));
+    }
+
+    // JSONP loader para evitar CORS
+    function loadRemoteFromGAS(){
+      return new Promise((resolve) => {
+        const url = String(GAS_WEBAPP_URL || "").trim();
+        if(!isValidExecUrl(url)){
+          REMOTE_STATUS = "GAS_WEBAPP_URL inválida";
+          $("#remotePill").textContent = "Remote: ⚠️ URL inválida";
+          resolve({ ok:false, message:"URL inválida" });
+          return;
+        }
+
+        const cbName = "__cb_remote_" + Math.random().toString(16).slice(2);
+        window[cbName] = (payload) => {
+          try{
+            const rows = Array.isArray(payload?.rows) ? payload.rows : [];
+            REMOTE_CACHE = rows.map(normalizeResponse_).filter(Boolean);
+            REMOTE_STATUS = `OK (${REMOTE_CACHE.length})`;
+            $("#remotePill").textContent = "Remote: ✅ " + REMOTE_STATUS;
+            resolve({ ok:true, rows: REMOTE_CACHE });
+          }catch(err){
+            REMOTE_STATUS = "Error parse";
+            $("#remotePill").textContent = "Remote: ⚠️ Error";
+            resolve({ ok:false, message:String(err?.message ?? err) });
+          }finally{
+            try{ delete window[cbName]; }catch(_){}
+          }
+        };
+
+        const s = document.createElement("script");
+        const sep = url.includes("?") ? "&" : "?";
+        s.src = `${url}${sep}action=data&callback=${encodeURIComponent(cbName)}`;
+        s.onerror = () => {
+          REMOTE_STATUS = "No se pudo cargar";
+          $("#remotePill").textContent = "Remote: ⚠️ No carga";
+          try{ delete window[cbName]; }catch(_){}
+          resolve({ ok:false, message:"Script load error" });
+        };
+        document.body.appendChild(s);
+      });
+    }
+
+    function getAllResponses_(){
+      const local = loadAll();
+      const remote = Array.isArray(REMOTE_CACHE) ? REMOTE_CACHE : [];
+      return mergeUniqueById_(local, remote);
+    }
+
+    function factorItemMap_(){
+      const m = new Map();
       for(const it of ITEMS){
-        if(!factorMap.has(it.factor)) factorMap.set(it.factor, []);
-        factorMap.get(it.factor).push(it.id);
+        if(!m.has(it.factor)) m.set(it.factor, []);
+        m.get(it.factor).push(it.id);
+      }
+      return m;
+    }
+
+    // Puntaje por factor (1..5)
+    // sum(respuestas del factor) / (N_encuestas * N_items_factor)  (equivale al promedio real)
+    function scoreFactor_(responses, itemIds){
+      const N = responses.length;
+      const K = itemIds.length;
+      if(!N || !K) return null;
+
+      let sum = 0;
+      let seen = 0;
+
+      for(const r of responses){
+        for(const id of itemIds){
+          const v = r.answers?.[id];
+          if(typeof v === "number" && Number.isFinite(v)){
+            sum += v;
+            seen++;
+          }
+        }
+      }
+      if(!seen) return null;
+
+      return (sum / seen); // 1..5
+    }
+
+    function computeFactorScoresByDimension_(responses, dimension, valueFilter){
+      const fMap = factorItemMap_();
+      let base = responses.slice();
+
+      if(dimension && dimension !== "general"){
+        base = base.filter(r => String(r.demographics?.[dimension] ?? "") === String(valueFilter ?? ""));
       }
 
       const rows = [];
-      for(const [factor, ids] of factorMap.entries()){
-        const values = [];
-        for(const r of responses){
-          for(const id of ids){
-            const v = r.answers?.[id];
-            if(typeof v === "number") values.push(v);
-          }
-        }
-        rows.push({ factor, avg: avg(values), n: values.length });
+      for(const [factor, ids] of fMap.entries()){
+        const s = scoreFactor_(base, ids);
+        rows.push({ factor, score: s, n: base.length });
       }
 
-      rows.sort((x,y) => (x.avg ?? 999) - (y.avg ?? 999));
-      return rows;
+      return rows.sort((a,b) => (a.factor||"").localeCompare(b.factor||""));
+    }
+
+    function computeGroupedFactorScores_(responses, dimension){
+      const fMap = factorItemMap_();
+
+      const groups = new Map();
+      for(const r of responses){
+        const g = String(r.demographics?.[dimension] ?? "");
+        if(!g) continue;
+        if(!groups.has(g)) groups.set(g, []);
+        groups.get(g).push(r);
+      }
+
+      const groupNames = Array.from(groups.keys()).sort((a,b)=>a.localeCompare(b));
+      const factors = Array.from(fMap.keys());
+
+      const series = groupNames.map(g => {
+        const rs = groups.get(g) || [];
+        const points = factors.map(f => {
+          const ids = fMap.get(f) || [];
+          const score = scoreFactor_(rs, ids);
+          return (score == null) ? null : score;
+        });
+        return { name:g, points, n: rs.length };
+      });
+
+      return { factors, series };
+    }
+
+    // Render gráfico barras (SVG)
+    function renderBarChart_(targetEl, title, factors, series){
+      const W = 980;
+      const H = 420;
+      const padL = 64, padR = 22, padT = 42, padB = 64;
+      const innerW = W - padL - padR;
+      const innerH = H - padT - padB;
+
+      const maxY = 5;
+      const minY = 0;
+
+      const groups = series.length;
+      const catCount = factors.length;
+
+      const catGap = 14;
+      const catW = (innerW - catGap*(catCount-1)) / Math.max(1, catCount);
+      const barGap = 6;
+      const barW = (catW - barGap*(groups-1)) / Math.max(1, groups);
+
+      const yToPx = (y) => padT + (1 - (y - minY)/(maxY - minY)) * innerH;
+      const xCat = (i) => padL + i*(catW + catGap);
+
+      const baseColors = [
+        "rgba(106,166,255,.85)",
+        "rgba(61,220,151,.75)",
+        "rgba(255,211,106,.75)",
+        "rgba(255,106,139,.70)",
+        "rgba(159,179,217,.70)",
+        "rgba(255,255,255,.35)",
+      ];
+
+      const yTicks = [0,1,2,3,4,5];
+
+      const gridLines = yTicks.map(t => {
+        const y = yToPx(t);
+        return `<line x1="${padL}" y1="${y}" x2="${W-padR}" y2="${y}" stroke="rgba(255,255,255,.10)" stroke-width="1"/>`;
+      }).join("");
+
+      const yLabels = yTicks.map(t => {
+        const y = yToPx(t);
+        return `<text x="${padL-10}" y="${y+4}" text-anchor="end" font-size="12" fill="rgba(159,179,217,.95)">${t}</text>`;
+      }).join("");
+
+      const bars = [];
+      for(let i=0;i<catCount;i++){
+        for(let g=0; g<groups; g++){
+          const val = series[g].points[i];
+          if(val == null) continue;
+
+          const x = xCat(i) + g*(barW + barGap);
+          const y = yToPx(val);
+          const h = (padT + innerH) - y;
+          const fill = baseColors[g % baseColors.length];
+
+          bars.push(`
+            <rect x="${x}" y="${y}" width="${Math.max(2,barW)}" height="${Math.max(1,h)}"
+                  rx="8" ry="8" fill="${fill}" />
+            <text x="${x + barW/2}" y="${y - 6}" text-anchor="middle"
+                  font-size="11" fill="rgba(234,241,255,.95)">${val.toFixed(2)}</text>
+          `);
+        }
+      }
+
+      const xLabels = factors.map((f, i) => {
+        const x = xCat(i) + catW/2;
+        const y = padT + innerH + 28;
+        return `<text x="${x}" y="${y}" text-anchor="end" transform="rotate(-35 ${x} ${y})"
+                  font-size="11" fill="rgba(159,179,217,.95)">${escapeHtml(f)}</text>`;
+      }).join("");
+
+      const legend = series.map((s, idx) => {
+        const fill = baseColors[idx % baseColors.length];
+        return `
+          <div class="pill" style="display:inline-flex;align-items:center;gap:8px;">
+            <span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:${fill};"></span>
+            ${escapeHtml(s.name)} <span class="small">(n=${s.n})</span>
+          </div>
+        `;
+      }).join(" ");
+
+      targetEl.innerHTML = `
+        <div class="item" style="grid-template-columns: 1fr; gap:10px;">
+          <div>
+            <div class="q">${escapeHtml(title)}</div>
+            <div class="meta">Escala 0–5. Barras por grupo (variable) y factor.</div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;">${legend}</div>
+          <div style="overflow:auto;border:1px solid var(--line);border-radius:14px;background: rgba(0,0,0,.18);padding:10px;">
+            <svg viewBox="0 0 ${W} ${H}" width="100%" height="420" role="img" aria-label="Gráfico de barras por factor">
+              <text x="${padL}" y="22" font-size="14" fill="rgba(234,241,255,.95)" font-weight="800">${escapeHtml(title)}</text>
+              ${gridLines}
+              ${yLabels}
+              ${bars.join("")}
+              ${xLabels}
+            </svg>
+          </div>
+        </div>
+      `;
+    }
+
+    function refreshDimensionUI_(){
+      const dim = $("#resDimension")?.value || "general";
+      const sel = $("#resValue");
+      if(!sel) return;
+
+      if(dim === "general"){
+        sel.innerHTML = `<option value="" selected>—</option>`;
+        sel.disabled = true;
+        return;
+      }
+
+      const def = DEMOGRAPHICS.find(d => d.id === dim);
+      const opts = def?.options || [];
+      sel.disabled = false;
+      sel.innerHTML = `
+        <option value="" selected disabled>Selecciona…</option>
+        ${opts.map(o => `<option value="${escapeAttr(o)}">${escapeHtml(o)}</option>`).join("")}
+      `;
     }
 
     function renderResults(){
-      const responses = loadAll();
-      $("#kpiCount").textContent = String(responses.length);
+      const all = getAllResponses_();
+      $("#kpiCount").textContent = String(all.length);
 
-      const overall = avg(responses.map(r => r.overallAvg).filter(v => typeof v === "number"));
+      const overall = avg(all.map(r => r.overallAvg).filter(v => typeof v === "number"));
       $("#kpiAvg").textContent = overall ? overall.toFixed(2) : "—";
 
-      const last = responses[responses.length-1];
+      const last = all[all.length-1];
       $("#kpiLast").textContent = last ? niceDate(last.createdAt) : "—";
 
-      const factorRows = computeFactorAverages(responses);
+      const dim = $("#resDimension")?.value || "general";
+      const val = $("#resValue")?.value || "";
+
+      const factorRows = computeFactorScoresByDimension_(all, dim, val);
       $("#factorTableWrap").innerHTML = `
         <table>
           <thead>
             <tr>
-              <th>Factor (interno)</th>
-              <th style="width:140px;">Promedio</th>
+              <th>Factor</th>
+              <th style="width:140px;">Calificación</th>
               <th style="width:220px;">Visual</th>
               <th style="width:90px;">N</th>
             </tr>
           </thead>
           <tbody>
             ${factorRows.map(r => {
-              const val = (r.avg ?? 0);
-              const pct = r.avg ? clamp((val/5)*100, 0, 100) : 0;
+              const v = (r.score ?? 0);
+              const pct = (r.score == null) ? 0 : clamp((v/5)*100, 0, 100);
               return `
                 <tr>
                   <td>${escapeHtml(r.factor)}</td>
-                  <td><b>${r.avg ? r.avg.toFixed(2) : "—"}</b></td>
+                  <td><b>${r.score == null ? "—" : r.score.toFixed(2)}</b></td>
                   <td><div class="bar"><i style="width:${pct}%;"></i></div></td>
                   <td>${r.n}</td>
                 </tr>
@@ -674,9 +972,27 @@
         </table>
       `;
 
-      const last10 = responses.slice().reverse().slice(0,10);
+      const chartsWrap = $("#chartsWrap");
+      chartsWrap.innerHTML = "";
+
+      if(dim === "general"){
+        const fMap = factorItemMap_();
+        const factors = Array.from(fMap.keys());
+        const points = factors.map(f => scoreFactor_(all, fMap.get(f)));
+        const series = [{ name:"General", points, n: all.length }];
+        renderBarChart_(chartsWrap, "General", factors, series);
+      }else{
+        const grouped = computeGroupedFactorScores_(all, dim);
+        if(!grouped.series.length){
+          chartsWrap.innerHTML = `<p class="hint">No hay datos para esa segmentación.</p>`;
+        }else{
+          renderBarChart_(chartsWrap, `Resultados por ${escapeHtml(dim)}`, grouped.factors, grouped.series);
+        }
+      }
+
+      const last10 = all.slice().reverse().slice(0,10);
       if(!last10.length){
-        $("#historyWrap").innerHTML = `<p class="hint">Aún no hay respuestas guardadas.</p>`;
+        $("#historyWrap").innerHTML = `<p class="hint">Aún no hay respuestas.</p>`;
         return;
       }
 
@@ -762,6 +1078,7 @@
         resultados.classList.remove("hidden");
         t1.setAttribute("aria-selected","false");
         t2.setAttribute("aria-selected","true");
+        refreshDimensionUI_();
         renderResults();
       }else{
         resultados.classList.add("hidden");
@@ -782,7 +1099,6 @@
       }
 
       try{
-        // ✅ Evita preflight: text/plain + no-cors
         await fetch(url, {
           method: "POST",
           mode: "no-cors",
@@ -803,6 +1119,10 @@
       renderScaleHint();
       renderDemographics();
       renderItems();
+
+      // Inicializa selector de resultados
+      refreshDimensionUI_();
+      $("#remotePill").textContent = "Remote: —";
 
       $("#integrationHint").textContent =
         isValidExecUrl(GAS_WEBAPP_URL)
@@ -853,6 +1173,22 @@
       $("#btnLimpiar").addEventListener("click", clearForm);
       $("#btnExportJSON").addEventListener("click", exportJSON);
       $("#btnExportCSV").addEventListener("click", exportCSV);
+
+      // Resultados - UI
+      $("#resDimension").addEventListener("change", () => {
+        refreshDimensionUI_();
+        renderResults();
+      });
+
+      $("#resValue").addEventListener("change", () => renderResults());
+      $("#btnReloadResults").addEventListener("click", () => renderResults());
+
+      $("#btnLoadRemote").addEventListener("click", async () => {
+        $("#remotePill").textContent = "Remote: ⏳ cargando…";
+        await loadRemoteFromGAS();
+        refreshDimensionUI_();
+        renderResults();
+      });
 
       $("#btnClearAll").addEventListener("click", () => {
         const ok = confirm("¿Borrar TODAS las respuestas guardadas en este navegador?");
