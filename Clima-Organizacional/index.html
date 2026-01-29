@@ -758,9 +758,13 @@
 };
   });
 
-  // Ordenar: menor a mayor (los más “dolorosos” arriba 😅)
-  rows.sort((a,b) => ((a.score ?? 999) - (b.score ?? 999)));
-  return rows;
+// Ordenar por número de ítem (Q1 → Q12)
+rows.sort((a,b) => {
+  const na = Number(a.itemId.replace("q",""));
+  const nb = Number(b.itemId.replace("q",""));
+  return na - nb;
+});
+return rows;
 }
 
     function computeGroupedItemScores_(responses, dimension){
