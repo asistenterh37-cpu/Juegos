@@ -1013,68 +1013,70 @@ for(let i=0; i<catCount; i++){
         return;
       }
 
-            $("#historyWrap").innerHTML = `
-  <table>
-    <thead>
-      <tr>
-        <th>Fecha</th>
-        <th>Promedio</th>
-        <th>Resultado</th>
-        <th>Demográficos</th>
-        <th>Comentarios</th>
-        <th>Respuestas</th>
-      </tr>
-    </thead>
-    <tbody>
-      ${last10.map(r => {
-        const raw = (r.flat ?? r) || {};
-                const resultado =
-          raw.Resultado ?? raw.resultado ??
-          raw.result ?? raw.RESULTADO ??
-          r.Resultado ?? r.resultado ??
-          r.result ?? r.RESULTADO ??
-          "—";
+              $("#historyWrap").innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Promedio</th>
+              <th>Resultado</th>
+              <th>Demográficos</th>
+              <th>Comentarios</th>
+              <th>Respuestas</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${last10.map(r => {
+              const raw = (r.flat ?? r) || {};
 
-        const demoTxt = DEMOGRAPHICS
-          .map(d => `${escapeHtml(d.label)}: <b>${escapeHtml(r.demographics?.[d.id] ?? raw?.[d.id] ?? "—")}</b>`)
-          .join("<br>");
+              const resultado =
+                raw.Resultado ?? raw.resultado ??
+                raw.result ?? raw.RESULTADO ??
+                r.Resultado ?? r.resultado ??
+                r.result ?? r.RESULTADO ??
+                "—";
 
-        const ansTxt = ITEMS
-          .map(it => {
-            const val = r.answers?.[it.id] ?? raw?.[it.id] ?? "—";
-            return `${escapeHtml(it.id.toUpperCase())}: <b>${escapeHtml(val)}</b>`;
-          })
-          .join("<br>");
+              const demoTxt = DEMOGRAPHICS
+                .map(d => `${escapeHtml(d.label)}: <b>${escapeHtml(r.demographics?.[d.id] ?? raw?.[d.id] ?? "—")}</b>`)
+                .join("<br>");
 
-        return `
-          <tr>
-            <td>${escapeHtml(niceDate(r.createdAt))}</td>
-            <td><b>${typeof r.overallAvg === "number" ? r.overallAvg.toFixed(2) : "—"}</b></td>
-            <td class="small">${escapeHtml(String(resultado ?? "—"))}</td>
-            <td class="small">${demoTxt}</td>
-            <td class="small">${escapeHtml((r.comments ?? raw.comments ?? "").trim() || "—")}</td>
-            <td class="small">
-              <details>
-                <summary style="cursor:pointer;color:var(--accent);font-weight:800;">Ver</summary>
-                <div style="margin-top:8px;line-height:1.4;">${ansTxt}</div>
-                <div style="margin-top:10px;" class="small">
-                  <b>Resultado:</b> ${escapeHtml(String(resultado ?? "—"))}
-                </div>
-              </details>
+              const ansTxt = ITEMS
+                .map(it => {
+                  const val = r.answers?.[it.id] ?? raw?.[it.id] ?? "—";
+                  return `${escapeHtml(it.id.toUpperCase())}: <b>${escapeHtml(val)}</b>`;
+                })
+                .join("<br>");
 
-              <details style="margin-top:8px;">
-                <summary style="cursor:pointer;color:var(--accent);font-weight:800;">Ver todos los campos</summary>
-                <pre class="note" style="margin-top:8px;overflow:auto;max-height:260px;">${escapeHtml(JSON.stringify(raw, null, 2))}</pre>
-              </details>
-            </td>
-          </tr>
-        `;
-      }).join("")}
-    </tbody>
-  </table>
-  <p class="note">Mostrando las últimas 10 respuestas.</p>
-`;
-    
+              return `
+                <tr>
+                  <td>${escapeHtml(niceDate(r.createdAt))}</td>
+                  <td><b>${typeof r.overallAvg === "number" ? r.overallAvg.toFixed(2) : "—"}</b></td>
+                  <td class="small">${escapeHtml(String(resultado ?? "—"))}</td>
+                  <td class="small">${demoTxt}</td>
+                  <td class="small">${escapeHtml((r.comments ?? raw.comments ?? "").trim() || "—")}</td>
+                  <td class="small">
+                    <details>
+                      <summary style="cursor:pointer;color:var(--accent);font-weight:800;">Ver</summary>
+                      <div style="margin-top:8px;line-height:1.4;">${ansTxt}</div>
+                      <div style="margin-top:10px;" class="small">
+                        <b>Resultado:</b> ${escapeHtml(String(resultado ?? "—"))}
+                      </div>
+                    </details>
+
+                    <details style="margin-top:8px;">
+                      <summary style="cursor:pointer;color:var(--accent);font-weight:800;">Ver todos los campos</summary>
+                      <pre class="note" style="margin-top:8px;overflow:auto;max-height:260px;">${escapeHtml(JSON.stringify(raw, null, 2))}</pre>
+                    </details>
+                  </td>
+                </tr>
+              `;
+            }).join("")}
+          </tbody>
+        </table>
+        <p class="note">Mostrando las últimas 10 respuestas.</p>
+      `;
+    } // ✅ CIERRE CORRECTO DE renderResults()
+
     /**********************************************************************
      * EXPORTS
      *********************************************************************/
