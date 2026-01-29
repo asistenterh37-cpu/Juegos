@@ -417,7 +417,7 @@
           <div class="kpi">
             <div class="t">Promedio general</div>
             <div class="v" id="kpiAvg">—</div>
-            <div class="small">Escala 1 a 5</div>
+            ass="small">Escala 0–100%</div>
           </div>
           <div class="kpi">
             <div class="t">Última respuesta</div>
@@ -929,8 +929,9 @@ for(let i=0;i<catCount;i++){
       const all = getAllResponses_();
       $("#kpiCount").textContent = String(all.length);
 
-      const overall = avg(all.map(r => r.overallAvg).filter(v => typeof v === "number"));
-      $("#kpiAvg").textContent = overall ? overall.toFixed(2) : "—";
+     const overall = avg(all.map(r => r.overallAvg).filter(v => typeof v === "number"));
+     const overallPct = (overall == null) ? null : (overall / 5) * 100;
+      $("#kpiAvg").textContent = overallPct == null ? "—" : overallPct.toFixed(1) + "%";
 
       const last = all[all.length-1];
       $("#kpiLast").textContent = last ? niceDate(last.createdAt) : "—";
