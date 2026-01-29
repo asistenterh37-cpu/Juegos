@@ -390,15 +390,8 @@
 
         <div class="form-row two" style="margin-top:12px;">
           <div>
-            <label for="resDimension">Resultados por</label>
-            <select id="resDimension">
-              <option value="general" selected>General</option>
-              <option value="genero">Género</option>
-              <option value="antiguedad">Antigüedad</option>
-              <option value="localidad">Localidad</option>
-              <option value="departamento">Departamento</option>
-              <option value="nivel">Nivel</option>
-            </select>
+         <label for="resDimension">Resultados por</label>
+          <select id="resDimension"></select>
           </div>
 
           <div>
@@ -774,24 +767,29 @@
 }
 
     function computeGroupedItemScores_(responses, dimension){
-      const groups = new Map();
-      for(const r of responses){
-        const g = String(r.demographics?.[dimension] ?? "");
-        if(!g) continue;
-        if(!groups.has(g)) groups.set(g, []);
-        groups.get(g).push(r);
-      }
+  const groups = new Map();
 
-      const groupNames = Array.from(groups.keys()).sort((a,b)=>a.localeCompare(b));
-      const labels = ITEMS.map(it => it.id.toUpperCase()); // q1..q12
-      const series = groupNames.map(g => {
-        const rs = groups.get(g) || [];
-        const points = ITEMS.map(it => {
-  const s = scoreItem_(rs, it.id);
-  return (s && typeof s.avg === "number") ? s.avg : null;
-});
-      return { labels, series };
-    }
+  for(const r of responses){
+    const g = String(r.demographics?.[dimension] ?? "");
+    if(!g) continue;
+    if(!groups.has(g)) groups.set(g, []);
+    groups.get(g).push(r);
+  }
+
+  const groupNames = Array.from(groups.keys()).sort((a,b)=>a.localeCompare(b));
+  const labels = ITEMS.map(it => it.id.toUpperCase());
+
+  const series = groupNames.map(name => {
+    const rs = groups.get(name) || [];
+    const points = ITEMS.map(it => {
+      const s = scoreItem_(rs, it.id);
+      return (s && typeof s.avg === "number") ? s.avg : null;
+    });
+    return { name, points, n: rs.length };
+  });
+
+  return { labels, series };
+}
 
     // Render gráfico barras (SVG)
     function renderBarChart_(targetEl, title, xLabels, series){
@@ -1127,101 +1125,115 @@
       }
     }
 
-    /**********************************************************************
-     * INIT
-     *********************************************************************/
-   (function init(){
+   /**********************************************************************
+ * INIT (arreglado)
+ *********************************************************************/
+function renderResDimensionOptions_(){
+  const sel = $("#resDimension");
+  if(!sel) return;
+
+  sel.innerHTML = `
+    <option value="general" selected>General</option>
+    ${DEMOGRAPHICS.map(d => `<option value="${escapeAttr(d.id)}">${escapeHtml(d.label)}</option>`).join("")}
+  `;
+}
+
+(function initApp(){
   try{
     renderScaleHint();
     renderDemographics();
     renderItems();
-    // ... (deja el resto igual)
+
+    renderResDimensionOptions_();
+    refreshDimensionUI_();
+
+    $("#remotePill").textContent = "Remote: —";
+
+    $("#integrationHint").textContent =
+      isValidExecUrl(GAS_WEBAPP_URL)
+        ? "✅ WebApp configurado (envío por POST)."
+        : "⚠️ Falta pegar la URL del WebApp de Apps Script (/exec).";
+
+    // NAV
+    $("#tab-encuesta").addEventListener("click", () => setView("encuesta"));
+    $("#tab-resultados").addEventListener("click", () => setView("resultados"));
+
+    // FORM SUBMIT
+    $("#surveyForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const btn = $("#btnGuardar");
+      btn.disabled = true;
+
+      const res = collectResponse();
+      if(!res.ok){
+        $("#saveNote").textContent = res.message;
+        $("#saveNote").style.color = "var(--warn)";
+        btn.disabled = false;
+        return;
+      }
+
+      // 1) Guardar local
+      const rows = loadAll();
+      rows.push(res.data);
+      saveAll(rows);
+
+      // 2) Enviar a Sheets
+      $("#saveNote").textContent = "⏳ Guardando en Google Sheets…";
+      $("#saveNote").style.color = "var(--muted)";
+
+      const remote = await sendToGoogleSheet(res.data);
+
+      if(remote.ok){
+        $("#saveNote").textContent =
+          "✅ Guardado local y enviado a Google Sheets.\n(Si no aparece, casi siempre es despliegue/permisos del WebApp 😅)";
+        $("#saveNote").style.color = "var(--ok)";
+      }else{
+        $("#saveNote").textContent =
+          `⚠️ Guardado local, pero no se pudo enviar a Sheets: ${remote.message || "Error"}`;
+        $("#saveNote").style.color = "var(--warn)";
+      }
+
+      btn.disabled = false;
+    });
+
+    // BOTONES
+    $("#btnLimpiar").addEventListener("click", clearForm);
+    $("#btnExportJSON").addEventListener("click", exportJSON);
+    $("#btnExportCSV").addEventListener("click", exportCSV);
+
+    // RESULTADOS UI
+    $("#resDimension").addEventListener("change", () => {
+      refreshDimensionUI_();
+      renderResults();
+    });
+
+    $("#resValue").addEventListener("change", () => renderResults());
+    $("#btnReloadResults").addEventListener("click", () => renderResults());
+
+    $("#btnLoadRemote").addEventListener("click", async () => {
+      $("#remotePill").textContent = "Remote: ⏳ cargando…";
+      await loadRemoteFromGAS();
+      renderResDimensionOptions_();   // por si cambiaste DEMOGRAPHICS
+      refreshDimensionUI_();
+      renderResults();
+    });
+
+    $("#btnClearAll").addEventListener("click", () => {
+      const ok = confirm("¿Borrar TODAS las respuestas guardadas en este navegador?");
+      if(!ok) return;
+      saveAll([]);
+      renderResults();
+    });
+
+    // Vista inicial
     setView("encuesta");
   }catch(err){
-    console.error("Error en init()", err);
+    console.error("Error en initApp()", err);
     alert("Hay un error en el script. Abre Console (F12) para ver detalles.");
   }
 })();
 
-      // Inicializa selector de resultados
-      refreshDimensionUI_();
-      $("#remotePill").textContent = "Remote: —";
-
-      $("#integrationHint").textContent =
-        isValidExecUrl(GAS_WEBAPP_URL)
-          ? "✅ WebApp configurado (envío por POST)."
-          : "⚠️ Falta pegar la URL del WebApp de Apps Script (/exec). (Ahorita tienes un link que no es /exec).";
-
-      $("#tab-encuesta").addEventListener("click", () => setView("encuesta"));
-      $("#tab-resultados").addEventListener("click", () => setView("resultados"));
-
-      $("#surveyForm").addEventListener("submit", async (e) => {
-        e.preventDefault();
-
-        const btn = $("#btnGuardar");
-        btn.disabled = true;
-
-        const res = collectResponse();
-        if(!res.ok){
-          $("#saveNote").textContent = res.message;
-          $("#saveNote").style.color = "var(--warn)";
-          btn.disabled = false;
-          return;
-        }
-
-        // 1) Guardar local
-        const rows = loadAll();
-        rows.push(res.data);
-        saveAll(rows);
-
-        // 2) Enviar a Sheets
-        $("#saveNote").textContent = "⏳ Guardando en Google Sheets…";
-        $("#saveNote").style.color = "var(--muted)";
-
-        const remote = await sendToGoogleSheet(res.data);
-
-        if(remote.ok){
-          $("#saveNote").textContent =
-            "✅ Guardado local y enviado a Google Sheets.\n(Si no aparece, el culpable casi siempre es el despliegue/permisos del WebApp 😅)";
-          $("#saveNote").style.color = "var(--ok)";
-        }else{
-          $("#saveNote").textContent =
-            `⚠️ Guardado local, pero no se pudo enviar a Sheets: ${remote.message || "Error"}`;
-          $("#saveNote").style.color = "var(--warn)";
-        }
-
-        btn.disabled = false;
-      });
-
-      $("#btnLimpiar").addEventListener("click", clearForm);
-      $("#btnExportJSON").addEventListener("click", exportJSON);
-      $("#btnExportCSV").addEventListener("click", exportCSV);
-
-      // Resultados - UI
-      $("#resDimension").addEventListener("change", () => {
-        refreshDimensionUI_();
-        renderResults();
-      });
-
-      $("#resValue").addEventListener("change", () => renderResults());
-      $("#btnReloadResults").addEventListener("click", () => renderResults());
-
-      $("#btnLoadRemote").addEventListener("click", async () => {
-        $("#remotePill").textContent = "Remote: ⏳ cargando…";
-        await loadRemoteFromGAS();
-        refreshDimensionUI_();
-        renderResults();
-      });
-
-      $("#btnClearAll").addEventListener("click", () => {
-        const ok = confirm("¿Borrar TODAS las respuestas guardadas en este navegador?");
-        if(!ok) return;
-        saveAll([]);
-        renderResults();
-      });
-
-      setView("encuesta");
-    })();
   </script>
 </body>
 </html>
