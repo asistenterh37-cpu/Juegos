@@ -410,20 +410,23 @@
 <div class="divider"></div>
 
         <div class="kpis">
-          <div class="kpi">
-            <div class="t">Encuestas consideradas</div>
-            <div class="v" id="kpiCount">0</div>
-        <div class="kpi">
-  <div class="t">Promedio general</div>
-  <div class="v" id="kpiAvg">—</div>
-  <div class="small">Escala 0–100%</div>
+  <div class="kpi">
+    <div class="t">Encuestas consideradas</div>
+    <div class="v" id="kpiCount">0</div>
+  </div>
+
+  <div class="kpi">
+    <div class="t">Promedio general</div>
+    <div class="v" id="kpiAvg">—</div>
+    <div class="small">Escala 0–100%</div>
+  </div>
+
+  <div class="kpi">
+    <div class="t">Última respuesta</div>
+    <div class="v" id="kpiLast">—</div>
+    <div class="small">fecha/hora</div>
+  </div>
 </div>
-          <div class="kpi">
-            <div class="t">Última respuesta</div>
-            <div class="v" id="kpiLast">—</div>
-            <div class="small">fecha/hora</div>
-          </div>
-        </div>
 
         <div class="divider"></div>
 
@@ -979,7 +982,7 @@ for(let i=0; i<catCount; i++){
           </table>
         `;
 
-                // Gráfico
+                     // Gráfico
         const chartsWrap = $("#chartsWrap");
         chartsWrap.innerHTML = "";
 
@@ -990,12 +993,16 @@ for(let i=0; i<catCount; i++){
 
           renderBarChart_(chartsWrap, "Resultados por Ítem (General)", labels, series);
         }else{
-          const grouped = computeGroupedItemScores_(all, dim);
+          // Si hay variable seleccionada, mostramos SOLO ese grupo
+          const base = all.filter(r => String(r.demographics?.[dim] ?? "") === String(val ?? ""));
+          const labels = ITEMS.map(it => it.id.toUpperCase());
+          const points = ITEMS.map(it => scoreItem_(base, it.id).scorePct);
+          const series = [{ name: String(val || dim), points, n: base.length }];
 
-          if(!grouped.series.length){
-            chartsWrap.innerHTML = `<p class="hint">No hay datos para esa segmentación.</p>`;
+          if(!base.length){
+            chartsWrap.innerHTML = `<p class="hint">No hay datos para esa variable.</p>`;
           }else{
-            renderBarChart_(chartsWrap, `Resultados por Ítem (${escapeHtml(dim)})`, grouped.labels, grouped.series);
+            renderBarChart_(chartsWrap, `Resultados por Ítem (${escapeHtml(dim)}: ${escapeHtml(String(val))})`, labels, series);
           }
         }
       }
@@ -1021,9 +1028,11 @@ for(let i=0; i<catCount; i++){
     <tbody>
       ${last10.map(r => {
         const raw = (r.flat ?? r) || {};
-        const resultado =
+                const resultado =
           raw.Resultado ?? raw.resultado ??
+          raw.result ?? raw.RESULTADO ??
           r.Resultado ?? r.resultado ??
+          r.result ?? r.RESULTADO ??
           "—";
 
         const demoTxt = DEMOGRAPHICS
