@@ -742,10 +742,10 @@
     }
   }
 
-  // Puntaje porcentual según tu fórmula
-  const scorePct = seen ? (sum / (seen * 5)) * 100 : null;
+  const avg5 = seen ? (sum / seen) : null;                 // 0–5
+  const scorePct = seen ? (avg5 / 5) * 100 : null;         // 0–100
 
-  return { scorePct, n: seen };
+  return { avg: avg5, scorePct, n: seen };
 }
 
     function computeItemScoresByDimension_(responses, dimension, valueFilter){
@@ -761,7 +761,7 @@
       itemId: it.id,
       text: it.text,
       factor: it.factor,
-      score: s.scorePct,
+      score: s.avg
       n: s.n
     };
   });
