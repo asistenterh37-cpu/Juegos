@@ -311,6 +311,7 @@
         <h1>
           Encuesta de clima organizacional
           <span class="pill" id="storagePill">Google Sheets</span>
+          <span class="pill" id="remotePill">Remote: —</span>
         </h1>
 
         <nav aria-label="Menú">
@@ -1162,67 +1163,50 @@ function renderResDimensionOptions_(){
     $("#tab-encuesta").addEventListener("click", () => setView("encuesta"));
     $("#tab-resultados").addEventListener("click", () => setView("resultados"));
 
-    // FORM SUBMIT
-    $("#surveyForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
+  // FORM SUBMIT
+$("#surveyForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
 
-      const btn = $("#btnGuardar");
-      btn.disabled = true;
+  const btn = $("#btnGuardar");
+  btn.disabled = true;
 
-      const res = collectResponse();
-      if(!res.ok){
-        $("#saveNote").textContent = res.message;
-        $("#saveNote").style.color = "var(--warn)";
-        btn.disabled = false;
-        return;
-      }
+  const res = collectResponse();
+  if(!res.ok){
+    $("#saveNote").textContent = res.message;
+    $("#saveNote").style.color = "var(--warn)";
+    btn.disabled = false;
+    return;
+  }
 
-    // 1) Enviar a Sheets (única fuente)
-$("#saveNote").textContent = "⏳ Guardando en Google Sheets…";
-$("#saveNote").style.color = "var(--muted)";
+  // 1) Enviar a Sheets (única fuente)
+  $("#saveNote").textContent = "⏳ Guardando en Google Sheets…";
+  $("#saveNote").style.color = "var(--muted)";
 
-const payload = {
-  action: "save",
-  sheet: "Respuestas",
-  ...res.data
-};
+  const payload = {
+    action: "save",
+    sheet: "Respuestas",
+    ...res.data
+  };
 
-const remote = await sendToGoogleSheet(payload);
+  const remote = await sendToGoogleSheet(payload);
 
-if(remote.ok){
-  $("#saveNote").textContent =
-    "✅ Guardado en Google Sheets.\n(Si no aparece, suele ser despliegue/permisos del WebApp 😅)";
-  $("#saveNote").style.color = "var(--ok)";
+  if(remote.ok){
+    $("#saveNote").textContent =
+      "✅ Guardado en Google Sheets.\n(Si no aparece, suele ser despliegue/permisos del WebApp 😅)";
+    $("#saveNote").style.color = "var(--ok)";
 
-  clearForm();
+    clearForm();
 
-  // refrescar cache remoto para que Resultados use lo registrado en la hoja
-  await loadRemoteFromGAS();
-}else{
-  $("#saveNote").textContent =
-    `⚠️ No se pudo enviar a Sheets: ${remote.message || "Error"}`;
-  $("#saveNote").style.color = "var(--warn)";
-}
+    // refrescar cache remoto para que Resultados use lo registrado en la hoja
+    await loadRemoteFromGAS();
+  }else{
+    $("#saveNote").textContent =
+      `⚠️ No se pudo enviar a Sheets: ${remote.message || "Error"}`;
+    $("#saveNote").style.color = "var(--warn)";
+  }
 
-  $("#saveNote").textContent =
-    "✅ Guardado en Google Sheets.\n(Si no aparece, suele ser despliegue/permisos del WebApp 😅)";
-  $("#saveNote").style.color = "var(--ok)";
-
-  clearForm();
-
-  // refrescar cache remoto para que Resultados use lo registrado en la hoja
-  await loadRemoteFromGAS();
-}else{
-        
-        $("#saveNote").style.color = "var(--ok)";
-      }else{
-        $("#saveNote").textContent =
-          `⚠️ Guardado local, pero no se pudo enviar a Sheets: ${remote.message || "Error"}`;
-        $("#saveNote").style.color = "var(--warn)";
-      }
-
-      btn.disabled = false;
-    });
+  btn.disabled = false;
+});
 
     // BOTONES
     $("#btnLimpiar").addEventListener("click", clearForm);
