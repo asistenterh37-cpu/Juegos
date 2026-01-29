@@ -310,7 +310,7 @@
       <div class="topbar">
         <h1>
           Encuesta de clima organizacional
-          <span class="pill" id="storagePill">LocalStorage</span>
+          <span class="pill" id="storagePill">Google Sheets</span>
         </h1>
 
         <nav aria-label="Menú">
@@ -385,7 +385,7 @@
         <h2>Resultados</h2>
         <p class="hint">
           Puedes ver resultados por: <b>General</b>, <b>Género</b>, <b>Antigüedad</b>, <b>Localidad</b>, <b>Departamento</b> y <b>Nivel</b>.
-          <br>Fuente: LocalStorage + (opcional) Google Sheets vía WebApp.
+          <br>Fuente: Google Sheets (hoja <b>Respuestas</b>) vía WebApp.
         </p>
 
         <div class="form-row two" style="margin-top:12px;">
@@ -404,10 +404,7 @@
 
         <div class="actions" style="margin-top:12px;">
           <button class="btn" id="btnReloadResults" type="button">Refrescar</button>
-          <button class="btn" id="btnLoadRemote" type="button">Cargar desde Google Sheets</button>
-          <span class="pill" id="remotePill">Remote: —</span>
-        </div>
-
+      
         <div class="divider"></div>
 
         <div class="kpis">
@@ -440,14 +437,14 @@
         <div class="divider"></div>
 
         <h2>Historial</h2>
-        <div class="actions">
-          <button class="btn danger" id="btnClearAll" type="button">Borrar todo (LocalStorage)</button>
-        </div>
-        <div id="historyWrap"></div>
+<div class="actions">
+  <span class="hint">El historial se calcula desde Google Sheets.</span>
+</div>
+<div id="historyWrap"></div>
       </div>
     </section>
   </main>
-
+  
   <script>
     /**********************************************************************
      * CONFIG
@@ -483,8 +480,6 @@
       { id:"q12", text:"Los horarios de trabajo me permiten mantener un buen equilibrio laboral y personal.", factor:"Equilibrio vida-trabajo / Bienestar" },
     ];
 
-    const STORAGE_KEY = "clima_org_respuestas_v1";
-
     /**********************************************************************
      * ✅ URL REAL DEL WEB APP (termina en /exec)
      *********************************************************************/
@@ -508,11 +503,7 @@
     function niceDate(iso){
       try{ return new Date(iso).toLocaleString(); }catch{ return iso; }
     }
-    function loadAll(){
-      try{ return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"); }
-      catch{ return []; }
-    }
-    function saveAll(rows){ localStorage.setItem(STORAGE_KEY, JSON.stringify(rows)); }
+    
     function avg(nums){
       const arr = nums.filter(n => typeof n === "number" && !Number.isNaN(n));
       if(!arr.length) return null;
@@ -722,10 +713,9 @@
     }
 
     function getAllResponses_(){
-      const local = loadAll();
-      const remote = Array.isArray(REMOTE_CACHE) ? REMOTE_CACHE : [];
-      return mergeUniqueById_(local, remote);
-    }
+  // Solo Google Sheets (hoja Respuestas)
+  return Array.isArray(REMOTE_CACHE) ? REMOTE_CACHE : [];
+}
 
     // =========================
     // RESULTADOS POR ÍTEM (q1..q12)
@@ -757,13 +747,13 @@
 
   const rows = ITEMS.map(it => {
     const s = scoreItem_(base, it.id);
-    return {
-      itemId: it.id,
-      text: it.text,
-      factor: it.factor,
-      score: s.avg
-      n: s.n
-    };
+  return {
+  itemId: it.id,
+  text: it.text,
+  factor: it.factor,
+  score: s.avg,
+  n: s.n
+};
   });
 
   // Ordenar: menor a mayor (los más “dolorosos” arriba 😅)
@@ -784,15 +774,14 @@
   const groupNames = Array.from(groups.keys()).sort((a,b)=>a.localeCompare(b));
   const labels = ITEMS.map(it => it.id.toUpperCase());
 
-  const series = groupNames.map(name => {
-    const rs = groups.get(name) || [];
-    const points = ITEMS.map(it => {
-      const s = scoreItem_(rs, it.id);
-      return (s && typeof s.scorePct === "number") ? s.scorePct : null;
-    });
-    return { name, points, n: rs.length };
+ const series = groupNames.map(name => {
+  const rs = groups.get(name) || [];
+  const points = ITEMS.map(it => {
+    const s = scoreItem_(rs, it.id);
+    return (s && typeof s.avg === "number") ? s.avg : null; // 0–5
   });
-
+  return { name, points, n: rs.length };
+});
   return { labels, series };
 }
 
@@ -1026,9 +1015,13 @@
                   <td class="small">
                     <details>
                       <summary style="cursor:pointer;color:var(--accent);font-weight:800;">Ver</summary>
-                      <div style="margin-top:8px;line-height:1.4;">${ansTxt}</div>
+                      <div style="margin-top:8px;line-height:1.4;">${ansTxt}</div>     
                     </details>
-                  </td>
+                    <details style="margin-top:8px;">
+                    <summary style="cursor:pointer;color:var(--accent);font-weight:800;">Ver todos los campos</summary>
+                    <pre class="note" style="margin-top:8px;overflow:auto;max-height:260px;">${escapeHtml(JSON.stringify(r.flat ?? r, null, 2))}</pre>
+                    </details>
+                   </td>
                 </tr>
               `;
             }).join("")}
@@ -1043,11 +1036,12 @@
      * EXPORTS
      *********************************************************************/
     function exportJSON(){
-      downloadText("encuesta_clima_organizacional_respuestas.json", JSON.stringify(loadAll(), null, 2));
-    }
+  const rows = getAllResponses_();
+  downloadText("encuesta_clima_organizacional_respuestas.json", JSON.stringify(rows, null, 2));
+}
 
     function exportCSV(){
-      const rows = loadAll();
+  const rows = getAllResponses_();
       if(!rows.length){ alert("No hay datos para exportar."); return; }
 
       const headers = [
@@ -1091,13 +1085,19 @@
       const t1 = $("#tab-encuesta");
       const t2 = $("#tab-resultados");
 
-      if(view === "resultados"){
-        encuesta.classList.add("hidden");
-        resultados.classList.remove("hidden");
-        t1.setAttribute("aria-selected","false");
-        t2.setAttribute("aria-selected","true");
-        refreshDimensionUI_();
-        renderResults();
+     if(view === "resultados"){
+  encuesta.classList.add("hidden");
+  resultados.classList.remove("hidden");
+  t1.setAttribute("aria-selected","false");
+  t2.setAttribute("aria-selected","true");
+
+  refreshDimensionUI_();
+
+  // asegurar datos desde Sheets antes de calcular
+  $("#remotePill").textContent = "Remote: ⏳ cargando…";
+  loadRemoteFromGAS().then(() => renderResults());
+}
+
       }else{
         resultados.classList.add("hidden");
         encuesta.classList.remove("hidden");
@@ -1178,20 +1178,33 @@ function renderResDimensionOptions_(){
         return;
       }
 
-      // 1) Guardar local
-      const rows = loadAll();
-      rows.push(res.data);
-      saveAll(rows);
+    // 1) Enviar a Sheets (única fuente)
+$("#saveNote").textContent = "⏳ Guardando en Google Sheets…";
+$("#saveNote").style.color = "var(--muted)";
 
-      // 2) Enviar a Sheets
-      $("#saveNote").textContent = "⏳ Guardando en Google Sheets…";
+const payload = {
+  action: "save",
+  sheet: "Respuestas",
+  ...res.data
+};
+
+const remote = await sendToGoogleSheet(payload);
+
       $("#saveNote").style.color = "var(--muted)";
 
       const remote = await sendToGoogleSheet(res.data);
 
-      if(remote.ok){
-        $("#saveNote").textContent =
-          "✅ Guardado local y enviado a Google Sheets.\n(Si no aparece, casi siempre es despliegue/permisos del WebApp 😅)";
+     if(remote.ok){
+  $("#saveNote").textContent =
+    "✅ Guardado en Google Sheets.\n(Si no aparece, suele ser despliegue/permisos del WebApp 😅)";
+  $("#saveNote").style.color = "var(--ok)";
+
+  clearForm();
+
+  // refrescar cache remoto para que Resultados use lo registrado en la hoja
+  await loadRemoteFromGAS();
+}else{
+        
         $("#saveNote").style.color = "var(--ok)";
       }else{
         $("#saveNote").textContent =
@@ -1221,13 +1234,6 @@ function renderResDimensionOptions_(){
       await loadRemoteFromGAS();
       renderResDimensionOptions_();   // por si cambiaste DEMOGRAPHICS
       refreshDimensionUI_();
-      renderResults();
-    });
-
-    $("#btnClearAll").addEventListener("click", () => {
-      const ok = confirm("¿Borrar TODAS las respuestas guardadas en este navegador?");
-      if(!ok) return;
-      saveAll([]);
       renderResults();
     });
 
