@@ -942,12 +942,17 @@ for(let i=0; i<catCount; i++){
       const dim = $("#resDimension")?.value || "general";
       const val = $("#resValue")?.value || "";
 
-      // Si no se ha seleccionado variable (cuando dim != general), no rendereamos segmentación aún.
+            // --- Títulos bonitos ---
+      const dimLabel = (dim === "general")
+        ? "General"
+        : (DEMOGRAPHICS.find(d => d.id === dim)?.label || dim);
+
+      // =========================
+      // 1) TABLA (solo filtra si hay Variable seleccionada)
+      // =========================
       if(dim !== "general" && !val){
-        $("#chartsWrap").innerHTML = `<p class="hint">Selecciona una <b>Variable</b> para ver la segmentación.</p>`;
         $("#factorTableWrap").innerHTML = `<p class="hint">Selecciona una <b>Variable</b> para ver la tabla filtrada.</p>`;
       }else{
-        // Tabla por ítem
         const itemRows = computeItemScoresByDimension_(all, dim, val);
 
         $("#factorTableWrap").innerHTML = `
@@ -981,29 +986,35 @@ for(let i=0; i<catCount; i++){
             </tbody>
           </table>
         `;
+      }
 
-                     // Gráfico
-        const chartsWrap = $("#chartsWrap");
-        chartsWrap.innerHTML = "";
+      // =========================
+      // 2) GRÁFICO
+      //    - General: una sola serie
+      //    - Cualquier dimensión: TODAS las variables (series por grupo)
+      // =========================
+      const chartsWrap = $("#chartsWrap");
+      chartsWrap.innerHTML = "";
 
-        if(dim === "general"){
-          const labels = ITEMS.map(it => it.id.toUpperCase());
-          const points = ITEMS.map(it => scoreItem_(all, it.id).scorePct);
-          const series = [{ name: "General", points, n: all.length }];
+      if(dim === "general"){
+        const labels = ITEMS.map(it => it.id.toUpperCase());
+        const points = ITEMS.map(it => scoreItem_(all, it.id).scorePct);
+        const series = [{ name: "General", points, n: all.length }];
 
-          renderBarChart_(chartsWrap, "Resultados por Ítem (General)", labels, series);
+        renderBarChart_(chartsWrap, "Resultados por Ítem (General)", labels, series);
+      }else{
+        const grouped = computeGroupedItemScores_(all, dim);
+
+        if(!grouped?.series?.length){
+          chartsWrap.innerHTML = `<p class="hint">No hay datos para mostrar en <b>${escapeHtml(dimLabel)}</b>.</p>`;
         }else{
-          // Si hay variable seleccionada, mostramos SOLO ese grupo
-          const base = all.filter(r => String(r.demographics?.[dim] ?? "") === String(val ?? ""));
-          const labels = ITEMS.map(it => it.id.toUpperCase());
-          const points = ITEMS.map(it => scoreItem_(base, it.id).scorePct);
-          const series = [{ name: String(val || dim), points, n: base.length }];
-
-          if(!base.length){
-            chartsWrap.innerHTML = `<p class="hint">No hay datos para esa variable.</p>`;
-          }else{
-            renderBarChart_(chartsWrap, `Resultados por Ítem (${escapeHtml(dim)}: ${escapeHtml(String(val))})`, labels, series);
-          }
+          // grouped.labels ya viene como Q1..Q12 (uppercase)
+          renderBarChart_(
+            chartsWrap,
+            `Resultados por Ítem (${escapeHtml(dimLabel)})`,
+            grouped.labels,
+            grouped.series
+          );
         }
       }
 
