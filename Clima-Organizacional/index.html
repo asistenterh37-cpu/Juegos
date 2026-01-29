@@ -458,11 +458,9 @@
     const STORAGE_KEY = "clima_org_respuestas_v1";
 
     /**********************************************************************
-     * ✅ Pega aquí la URL REAL del Web App de Apps Script https://docs.google.com/spreadsheets/d/18lsqCYA49KdHglScd9QuqmJoCtVJ4JMUVuPBo1yuTdc/edit?usp=sharing
-     * Ejemplo:
-     * https://script.google.com/macros/s/AKfycbxxxxxxxxxxxxxxxxxxxx/exec
+     * ✅ URL REAL DEL WEB APP (termina en /exec)
      *********************************************************************/
-    const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxBVg1W95hOAYLrvgoyjA2W4fXZM4ak7w0-qugICiXDUq4Dtm2MTFpz7HrYJdX_sfssIw/exec";
+    const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwku5xvlMFfLfdoXBs2YrQf1RjInM80V_7pV8VSZnPIhhdUNRndJHmVdMOlt1vLab-_BA/exec";
 
 
     /**********************************************************************
@@ -510,7 +508,6 @@
     function isValidExecUrl(url){
       if(!url) return false;
       const u = String(url).trim();
-      // Debe ser script.google.com/macros/s/.../exec
       return /^https:\/\/script\.google\.com\/macros\/s\/[-\w]+\/exec(\?.*)?$/i.test(u);
     }
 
@@ -587,15 +584,28 @@
       const overall = avg(Object.values(answers));
       const comments = ($("#comments")?.value ?? "").trim();
 
+      // ✅ También mandamos valores "planos" (por si luego quieres mapear directo sin objects)
+      const flat = {
+        createdAt: nowISO(),
+        id: (crypto?.randomUUID ? crypto.randomUUID() : String(Date.now())),
+        source: "clima-org-html",
+        comments,
+        overallAvg: overall,
+        ...demo,
+        ...answers
+      };
+
       return {
         ok:true,
         data:{
-          id: (crypto?.randomUUID ? crypto.randomUUID() : String(Date.now())),
-          createdAt: nowISO(),
+          id: flat.id,
+          createdAt: flat.createdAt,
           demographics: demo,
           answers,
           comments,
           overallAvg: overall,
+          source: flat.source,
+          flat // 👈 extra
         }
       };
     }
@@ -825,10 +835,7 @@
         $("#saveNote").textContent = "⏳ Guardando en Google Sheets…";
         $("#saveNote").style.color = "var(--muted)";
 
-        const remote = await sendToGoogleSheet({
-          source: "clima-org-html",
-          ...res.data
-        });
+        const remote = await sendToGoogleSheet(res.data);
 
         if(remote.ok){
           $("#saveNote").textContent =
