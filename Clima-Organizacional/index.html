@@ -457,8 +457,11 @@
 
     const STORAGE_KEY = "clima_org_respuestas_v1";
 
-    // ✅ AQUÍ va la URL del WEB APP de Apps Script "https://script.google.com/macros/s/AKfycbz-u3I0Ube_vNdnOHZLnjIWMyrdKipG3PO_odvLTXHtF6kiBIpbtQVgSnTM3brp-uFSFg/exec";
-    // Ej: https://script.google.com/macros/s/AKfycbxxxxxxxxxxxxxxxxxxxx/exec
+    /**********************************************************************
+     * ✅ AQUÍ VA LA URL REAL DEL WEB APP "https://script.google.com/macros/s/AKfycbzy2s2r1uvD44vEYpECiv_DsMLnl4qvtUUp_RA2c89SaWAobNpgIZd5UydczQiKlTedvA/exec TERMINADA EN /exec";
+     * Ejemplo:
+     * https://script.google.com/macros/s/AKfycbxxxxxxxxxxxxxxxxxxxx/exec
+     *********************************************************************/
     const GAS_WEBAPP_URL = "https://docs.google.com/spreadsheets/d/18lsqCYA49KdHglScd9QuqmJoCtVJ4JMUVuPBo1yuTdc/edit?usp=sharing";
 
     /**********************************************************************
@@ -759,7 +762,7 @@
       }
 
       try{
-        // Evita preflight/CORS usando text/plain + no-cors
+        // ✅ Evita CORS/preflight: text/plain + no-cors
         await fetch(GAS_WEBAPP_URL, {
           method: "POST",
           mode: "no-cors",
@@ -767,7 +770,7 @@
           body: JSON.stringify(payload),
         });
 
-        // En no-cors el navegador no deja leer respuesta, pero igual se guarda en Sheets.
+        // En no-cors no podemos leer respuesta, pero el WebApp sí recibe y guarda.
         return { ok:true };
       }catch(err){
         return { ok:false, message: String(err?.message ?? err) };
@@ -783,7 +786,7 @@
       renderItems();
 
       $("#integrationHint").textContent =
-        GAS_WEBAPP_URL.includes("PEGAR_AQUI")
+        (!GAS_WEBAPP_URL || GAS_WEBAPP_URL.includes("PEGAR_AQUI"))
           ? "⚠️ Falta pegar la URL del WebApp de Apps Script (/exec)."
           : "✅ WebApp configurado (envío por POST).";
 
@@ -820,7 +823,7 @@
 
         if(remote.ok){
           $("#saveNote").textContent =
-            "✅ Guardado local y enviado a Google Sheets.\n(Si no aparece, revisa despliegue del WebApp y permisos.)";
+            "✅ Guardado local y enviado a Google Sheets.\n(Si no aparece, el culpable casi siempre es el despliegue/permisos del WebApp 😅)";
           $("#saveNote").style.color = "var(--ok)";
         }else{
           $("#saveNote").textContent =
