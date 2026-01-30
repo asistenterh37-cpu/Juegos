@@ -1090,44 +1090,46 @@ function loadRemoteFromGAS(){
         chartsWrap.innerHTML = `<p class="hint">${msg}</p>`;
       }
 
-      if(dim === "general"){
+            if(dim === "general"){
         const labels = ITEMS.map(it => it.id.toUpperCase());
         const points = ITEMS.map(it => scoreItem_(all, it.id).scorePct);
         const series = [{ name: "General", points, n: all.length }];
         renderBarChart_(chartsWrap, "Resultados por Ítem (General)", labels, series);
-      }else{
-}else{
-  if(val){
-    if(baseFiltered.length === 0){
-      renderNoDataChart(`No hay respuestas para <b>${escapeHtml(dimLabel)}: ${escapeHtml(String(val))}</b>.`);
-    }else{
-      const labels = ITEMS.map(it => it.id.toUpperCase());
-      const points = ITEMS.map(it => scoreItem_(baseFiltered, it.id).scorePct);
-      const series = [{ name: String(val), points, n: baseFiltered.length }];
+      } else {
+        if(val){
+          if(baseFiltered.length === 0){
+            renderNoDataChart(
+              `No hay respuestas para <b>${escapeHtml(dimLabel)}: ${escapeHtml(String(val))}</b>.`
+            );
+          } else {
+            const labels = ITEMS.map(it => it.id.toUpperCase());
+            const points = ITEMS.map(it => scoreItem_(baseFiltered, it.id).scorePct);
+            const series = [{ name: String(val), points, n: baseFiltered.length }];
 
-      renderBarChart_(
-        chartsWrap,
-        `Resultados por Ítem (${escapeHtml(dimLabel)}: ${escapeHtml(String(val))})`,
-        labels,
-        series
-      );
-    }
-  }else{
-    const grouped = computeGroupedItemScores_(all, dim);
+            renderBarChart_(
+              chartsWrap,
+              `Resultados por Ítem (${escapeHtml(dimLabel)}: ${escapeHtml(String(val))})`,
+              labels,
+              series
+            );
+          }
+        } else {
+          const grouped = computeGroupedItemScores_(all, dim);
 
-    // ✅ si hay dimensión pero no hay grupos reales, evita “cargando” fantasma
-    if(!grouped || !Array.isArray(grouped.series) || grouped.series.length === 0){
-      renderNoDataChart(`Selecciona una <b>Variable</b> o asegúrate de que existan respuestas para <b>${escapeHtml(dimLabel)}</b>.`);
-    }else{
-      renderBarChart_(
-        chartsWrap,
-        `Resultados por Ítem (${escapeHtml(dimLabel)})`,
-        grouped.labels,
-        grouped.series
-      );
-    }
-  }
-}
+          if(!grouped || !Array.isArray(grouped.series) || grouped.series.length === 0){
+            renderNoDataChart(
+              `Selecciona una <b>Variable</b> o asegúrate de que existan respuestas para <b>${escapeHtml(dimLabel)}</b>.`
+            );
+          } else {
+            renderBarChart_(
+              chartsWrap,
+              `Resultados por Ítem (${escapeHtml(dimLabel)})`,
+              grouped.labels,
+              grouped.series
+            );
+          }
+        }
+      }
 
       // =========================
       // HISTORIAL
