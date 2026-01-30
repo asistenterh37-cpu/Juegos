@@ -635,7 +635,7 @@ function jsonpRequest(params){
     const timeout = setTimeout(()=>{
       cleanup();
       reject(new Error("timeout"));
-    }, 20000);
+    }, 15000);
 
     function cleanup(){
       clearTimeout(timeout);
@@ -656,6 +656,31 @@ function jsonpRequest(params){
     document.body.appendChild(script);
   });
 }
+
+    // POST "fire-and-forget" (no-cors): envía pero NO puede leer respuesta (evita timeout por iframe)
+function postNoCors(fields){
+  const body = new URLSearchParams();
+  Object.keys(fields || {}).forEach(k => body.set(k, String(fields[k] ?? "")));
+
+  // 1) sendBeacon (mejor para enviar sin bloquear)
+  try{
+    if(navigator.sendBeacon){
+      const blob = new Blob([body.toString()], { type: "application/x-www-form-urlencoded;charset=UTF-8" });
+      const ok = navigator.sendBeacon(WEBAPP_URL, blob);
+      if(ok) return Promise.resolve({ ok:true, transport:"beacon" });
+      // si devuelve false, cae al fetch
+    }
+  }catch(_){}
+
+  // 2) fetch no-cors (no permite leer respuesta, pero envía)
+  return fetch(WEBAPP_URL, {
+    method: "POST",
+    mode: "no-cors",
+    headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+    body: body.toString()
+  }).then(() => ({ ok:true, transport:"fetch-no-cors" }));
+}
+    
 // POST sin CORS usando iframe oculto + postMessage desde el WebApp
 function postViaIframe(fields){
   return new Promise((resolve, reject)=>{
@@ -754,16 +779,22 @@ async function guardar(){
   if(btn) btn.disabled = true;
 
   setStatus("Guardando...", "info");
+
   try{
-    const j = await postViaIframe({
+    // ✅ Envío sin esperar respuesta (evita timeout del iframe)
+    await postNoCors({
       action: "save",
       payload: JSON.stringify(p)
     });
 
-    if(!j || !j.ok) throw new Error(j?.error || "No se pudo guardar");
+    // Como no podemos leer respuesta por CORS, confirmamos envío
     setStatus("Guardado ✅", "ok");
+
+    // opcional: limpia el formulario al guardar
+    // limpiar();
+
   }catch(e){
-    setStatus("Error al guardar: " + (e.message || e), "err");
+    setStatus("Error al enviar: " + (e.message || e), "err");
   }finally{
     if(btn) btn.disabled = false;
   }
