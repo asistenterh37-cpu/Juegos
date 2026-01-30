@@ -388,7 +388,7 @@
     /***********************
      * CONFIG (EDITA AQUÍ)
      ***********************/
-    const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzoTseao4yfZDjBHx9YQ4745eJ-esEyIZSMMavPSNDDEMFDymNi0r3R26ecOcRxW0OMiA/exec";
+    const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxIXzVzMTpBPXz65B5O3EVe1sWPcCFnP-Q_QRc7RnOEqy6PGpe-hgft8CeTbhR6CwG7-w/exec";
 
     // Estructura según tus adjuntos: campos demográficos
     const DEMOGRAPHICS = [
@@ -742,10 +742,10 @@ async function guardar(){
 
   setStatus("Guardando...", "info");
   try{
-    const j = await postViaIframe({
+    // Guardar por JSONP (GET) => evita CORS e iframe bloqueado
+    const j = await jsonpRequest({
       action: "save",
-      payload: JSON.stringify(p),
-      transport: "iframe"
+      payload: JSON.stringify(p)
     });
 
     if(!j || !j.ok) throw new Error(j?.error || "No se pudo guardar");
