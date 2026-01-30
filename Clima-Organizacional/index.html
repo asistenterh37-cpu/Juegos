@@ -487,7 +487,7 @@
     /**********************************************************************
      * ✅ URL REAL DEL WEB APP (termina en /exec)
      *********************************************************************/
-    const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzQir02yF4PQ8u9PjJRsj9sYOACacsrQzwEj9ebV4JEfbBaYR6eYwh2Wh0jPqdQHe2rgA/exec";
+    const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycby33asaN5zLasus5OTT4mNMs7KZkL3pkp-vswymvw95db9DwBkLUYRKWMdbsVZPp4Fugg/exec";
 
     /**********************************************************************
      * UTILS
@@ -723,7 +723,7 @@ function loadRemoteFromGAS(){
       finish({ ok:false, message: msg || label });
     };
 
-    const hardTimeoutMs = 15000;
+    const hardTimeoutMs = 30000;
     const hardTimer = setTimeout(() => {
       // si ninguno resolvió, cortamos
       safeSetFail("Timeout", "Timeout: el WebApp no respondió o no pudo entregar datos (deploy/permisos/URL).");
@@ -1020,24 +1020,33 @@ function loadRemoteFromGAS(){
     }
 
     function refreshDimensionUI_(){
-      const dim = $("#resDimension")?.value || "general";
-      const sel = $("#resValue");
-      if(!sel) return;
+  const dim = $("#resDimension")?.value || "general";
+  const sel = $("#resValue");
+  if(!sel) return;
 
-      if(dim === "general"){
-        sel.innerHTML = `<option value="" selected>—</option>`;
-        sel.disabled = true;
-        return;
-      }
+  if(dim === "general"){
+    sel.innerHTML = `<option value="" selected>—</option>`;
+    sel.disabled = true;
+    return;
+  }
 
-      const def = DEMOGRAPHICS.find(d => d.id === dim);
-      const opts = def?.options || [];
-      sel.disabled = false;
-      sel.innerHTML = `
-        <option value="" selected disabled>Selecciona…</option>
-        ${opts.map(o => `<option value="${escapeAttr(o)}">${escapeHtml(o)}</option>`).join("")}
-      `;
-    }
+  // ✅ Opciones reales desde la data remota (no desde DEMOGRAPHICS)
+  const all = getAllResponses_();
+  const set = new Set();
+
+  for(const r of all){
+    const v = String(r?.demographics?.[dim] ?? "").trim();
+    if(v) set.add(v);
+  }
+
+  const opts = Array.from(set).sort((a,b)=>a.localeCompare(b, "es"));
+
+  sel.disabled = false;
+  sel.innerHTML = `
+    <option value="" selected disabled>Selecciona…</option>
+    ${opts.map(o => `<option value="${escapeAttr(o)}">${escapeHtml(o)}</option>`).join("")}
+  `;
+}
 
     function renderResults(){
       const chartsWrap = $("#chartsWrap");
@@ -1331,8 +1340,9 @@ function loadRemoteFromGAS(){
 
         refreshDimensionUI_();
 
-        // ✅ cargar (una sola vez) y luego render
-        ensureRemoteLoaded_().then(() => renderResults());
+       // ✅ cargar SIEMPRE al entrar a Resultados (y renderizar)
+REMOTE_CACHE = null;
+ensureRemoteLoaded_().then(() => renderResults());
       }else{
         resultados.classList.add("hidden");
         encuesta.classList.remove("hidden");
