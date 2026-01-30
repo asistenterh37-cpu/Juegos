@@ -668,11 +668,18 @@ function postViaIframe(fields){
 
     const form = document.createElement("form");
     form.method = "POST";
-    form.action = WEBAPP_URL;
+
+    // ✅ Fuerza transport/token por QUERY para que Apps Script lo vea seguro en e.parameter
+    const actionUrl =
+      WEBAPP_URL +
+      (WEBAPP_URL.includes("?") ? "&" : "?") +
+      "transport=iframe&token=" + encodeURIComponent(token);
+
+    form.action = actionUrl;
     form.target = iframeName;
 
-    // metemos token para identificar la respuesta del iframe
-    const payloadFields = Object.assign({}, fields, { token });
+    // payloadFields SIN token (ya va en query)
+    const payloadFields = Object.assign({}, fields);
 
     Object.keys(payloadFields).forEach(k=>{
       const inp = document.createElement("input");
@@ -695,21 +702,21 @@ function postViaIframe(fields){
     }
 
     function onMsg(ev){
-  const origin = String(ev.origin || "");
+      const origin = String(ev.origin || "");
 
-  // Acepta ambos orígenes típicos de Apps Script
-  const okOrigin =
-    origin.includes("script.google.com") ||
-    origin.includes("script.googleusercontent.com");
+      // Acepta ambos orígenes típicos de Apps Script
+      const okOrigin =
+        origin.includes("script.google.com") ||
+        origin.includes("script.googleusercontent.com");
 
-  if(!okOrigin) return;
+      if(!okOrigin) return;
 
-  const data = ev.data;
-  if(!data || data.token !== token) return;
+      const data = ev.data;
+      if(!data || data.token !== token) return;
 
-  cleanup();
-  resolve(data);
-}
+      cleanup();
+      resolve(data);
+    }
 
     window.addEventListener("message", onMsg);
 
@@ -748,10 +755,8 @@ async function guardar(){
 
   setStatus("Guardando...", "info");
   try{
-    // ✅ Guardar por POST usando iframe (evita CORS/JSONP y límites de URL)
     const j = await postViaIframe({
       action: "save",
-      transport: "iframe",
       payload: JSON.stringify(p)
     });
 
