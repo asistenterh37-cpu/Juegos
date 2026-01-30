@@ -749,6 +749,7 @@ function postViaIframe(fields){
   });
 }
 
+let saving = false; // evita doble click y corrige ReferenceError
 async function ping(){
   try{
     const j = await jsonpRequest({ action:"ping" });
@@ -777,16 +778,21 @@ async function guardar(){
   setStatus("Guardando...", "info");
 
   try{
-    await postNoCors({
+    // ✅ Mejor que no-cors: confirma respuesta del WebApp vía postMessage
+    const res = await postViaIframe({
       action: "save",
       payload: JSON.stringify(p)
     });
+
+    if(!res || res.ok !== true){
+      throw new Error(res?.error || "El WebApp no confirmó el guardado");
+    }
 
     setStatus("Guardado ✅", "ok");
     limpiar();
 
   }catch(e){
-    setStatus("Error al enviar: " + (e.message || e), "err");
+    setStatus("Error al guardar: " + (e.message || e), "err");
   }finally{
     saving = false;
     if(btn) btn.disabled = false;
