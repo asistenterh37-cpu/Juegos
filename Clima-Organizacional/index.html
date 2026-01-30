@@ -685,7 +685,7 @@ function postViaIframe(fields){
     const timeout = setTimeout(()=>{
       cleanup();
       reject(new Error("timeout"));
-    }, 20000);
+    }, 45000);
 
     function cleanup(){
       clearTimeout(timeout);
