@@ -388,7 +388,7 @@
     /***********************
      * CONFIG (EDITA AQUÍ)
      ***********************/
-    const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwDyZ1fgjbWHaIh5mig6OOq904D1u85iafm5k0W2w9EISjqntGE0NUPqX0RyhgznwkOpw/exec";
+    const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbz3WJ7cF4EbErhvEq2j2y2d4ao2yLxA5IEo9HYQqRVZsA-KQkH4IHQsfBRdabO5T0MkHg/exec";
 
     // Estructura según tus adjuntos: campos demográficos
     const DEMOGRAPHICS = [
@@ -647,6 +647,68 @@ function jsonpRequest(params){
     document.body.appendChild(script);
   });
 }
+// POST sin CORS usando iframe oculto + postMessage desde el WebApp
+function postViaIframe(fields){
+  return new Promise((resolve, reject)=>{
+    const token = "__if_" + Math.random().toString(36).slice(2);
+    const iframeName = "if_" + token;
+
+    const iframe = document.createElement("iframe");
+    iframe.name = iframeName;
+    iframe.style.display = "none";
+
+    const form = document.createElement("form");
+    form.method = "POST";
+    form.action = WEBAPP_URL;
+    form.target = iframeName;
+
+    // metemos token para identificar la respuesta del iframe
+    const payloadFields = Object.assign({}, fields, { token });
+
+    Object.keys(payloadFields).forEach(k=>{
+      const inp = document.createElement("input");
+      inp.type = "hidden";
+      inp.name = k;
+      inp.value = String(payloadFields[k] ?? "");
+      form.appendChild(inp);
+    });
+
+    const timeout = setTimeout(()=>{
+      cleanup();
+      reject(new Error("timeout"));
+    }, 20000);
+
+    function cleanup(){
+      clearTimeout(timeout);
+      window.removeEventListener("message", onMsg);
+      if(form && form.parentNode) form.parentNode.removeChild(form);
+      if(iframe && iframe.parentNode) iframe.parentNode.removeChild(iframe);
+    }
+
+    function onMsg(ev){
+      // opcional: puedes endurecer esto validando ev.origin
+      // if(ev.origin !== "https://script.google.com") return;
+
+      const data = ev.data;
+      if(!data || data.token !== token) return;
+
+      cleanup();
+      resolve(data);
+    }
+
+    window.addEventListener("message", onMsg);
+
+    document.body.appendChild(iframe);
+    document.body.appendChild(form);
+
+    try{
+      form.submit();
+    }catch(e){
+      cleanup();
+      reject(e);
+    }
+  });
+}
 
 async function ping(){
   try{
@@ -671,10 +733,12 @@ async function guardar(){
 
   setStatus("Guardando...", "info");
   try{
-    const j = await jsonpRequest({
-      action:"save",
-      payload: JSON.stringify(p)
+    const j = await postViaIframe({
+      action: "save",
+      payload: JSON.stringify(p),
+      transport: "iframe"
     });
+
     if(!j || !j.ok) throw new Error(j?.error || "No se pudo guardar");
     setStatus("Guardado ✅", "ok");
   }catch(e){
