@@ -6,1489 +6,875 @@
   <title>Encuesta de clima organizacional</title>
   <link rel="icon" href="data:," />
 
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
   <style>
     :root{
       --bg:#0b1220;
       --panel:#0f1b33;
       --card:#0f203f;
-      --muted:#9fb3d9;
-      --text:#eaf1ff;
-      --line: rgba(255,255,255,.14);
-      --accent:#6aa6ff;
-      --ok:#3ddc97;
-      --warn:#ffd36a;
-      --bad:#ff6a8b;
-      --shadow: 0 18px 60px rgba(0,0,0,.35);
+      --text:#e8eefc;
+      --muted:#9fb0d6;
+      --line:rgba(255,255,255,.10);
+      --ok:#22c55e;
+      --warn:#f59e0b;
+      --danger:#ef4444;
       --radius:18px;
-      --radius2:14px;
     }
-
-    *{ box-sizing:border-box; }
+    *{box-sizing:border-box}
     body{
       margin:0;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
-      background: radial-gradient(1200px 700px at 20% 0%, rgba(106,166,255,.18), transparent 55%),
-                  radial-gradient(900px 600px at 90% 20%, rgba(61,220,151,.10), transparent 55%),
-                  var(--bg);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: radial-gradient(1200px 600px at 40% 20%, #162447 0%, var(--bg) 55%);
       color:var(--text);
     }
-
-    header{
-      position:sticky;
-      top:0;
-      z-index:10;
-      backdrop-filter: blur(10px);
-      background: rgba(11,18,32,.72);
-      border-bottom:1px solid var(--line);
-    }
-
-    .wrap{ max-width:1100px; margin:0 auto; padding:18px 18px; }
-
     .topbar{
-      display:flex;
+      position:sticky; top:0; z-index:20;
+      background: linear-gradient(180deg, rgba(11,18,32,.92), rgba(11,18,32,.72));
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--line);
+      padding:16px 20px;
+      display:flex; align-items:center; justify-content:space-between;
       gap:14px;
-      align-items:center;
-      justify-content:space-between;
-      flex-wrap:wrap;
     }
-
-    h1{
-      margin:0;
-      font-size:18px;
-      letter-spacing:.2px;
-      display:flex;
-      align-items:center;
-      gap:10px;
-      font-weight:800;
-    }
-    .pill{
+    .brand{font-size:22px; font-weight:800; letter-spacing:.2px}
+    .chips{display:flex; align-items:center; gap:10px; flex-wrap:wrap}
+    .chip{
       font-size:12px;
       padding:6px 10px;
-      border:1px solid var(--line);
       border-radius:999px;
-      color:var(--muted);
-      background: rgba(255,255,255,.03);
-    }
-
-    nav{
-      display:flex;
-      gap:8px;
-      align-items:center;
-    }
-    .tab{
       border:1px solid var(--line);
-      background: rgba(255,255,255,.03);
+      background: rgba(255,255,255,.05);
+      color:var(--muted);
+    }
+    .chip b{color:var(--text)}
+    .remoteDot{
+      display:inline-block; width:8px; height:8px; border-radius:99px; margin-right:6px;
+      background: var(--warn);
+      box-shadow: 0 0 14px rgba(245,158,11,.6);
+      vertical-align:middle;
+    }
+    .remoteDot.ok{background:var(--ok); box-shadow:0 0 14px rgba(34,197,94,.55)}
+    .nav{
+      display:flex; gap:10px;
+    }
+    .nav button{
+      appearance:none; border:1px solid var(--line);
+      background: rgba(255,255,255,.04);
       color:var(--text);
-      padding:10px 12px;
+      padding:10px 14px;
       border-radius:999px;
       cursor:pointer;
       font-weight:700;
-      letter-spacing:.2px;
     }
-    .tab[aria-selected="true"]{
-      border-color: rgba(106,166,255,.55);
-      box-shadow: 0 0 0 3px rgba(106,166,255,.10);
+    .nav button.active{
+      background: rgba(59,130,246,.18);
+      border-color: rgba(59,130,246,.35);
     }
 
-    main{ padding:22px 0 40px; }
-
+    .wrap{max-width:1180px; margin:22px auto; padding:0 18px 40px;}
     .grid{
       display:grid;
-      grid-template-columns: 1fr;
-      gap:14px;
+      grid-template-columns: 360px 1fr;
+      gap:18px;
+      align-items:start;
     }
-    @media (min-width: 980px){
-      .grid{ grid-template-columns: 420px 1fr; align-items:start; }
+    @media (max-width: 980px){
+      .grid{grid-template-columns:1fr}
     }
 
-    .card{
-      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+    .panel{
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
       border:1px solid var(--line);
-      box-shadow: var(--shadow);
       border-radius: var(--radius);
-      padding:16px;
+      padding:18px;
+      box-shadow: 0 14px 40px rgba(0,0,0,.35);
     }
-    .card h2{
-      margin:0 0 10px 0;
-      font-size:14px;
-      color:var(--muted);
-      letter-spacing:.4px;
+    .panel h3{
+      margin:0 0 8px;
+      font-size:13px;
+      letter-spacing:.5px;
+      color:#b9c8ee;
       text-transform:uppercase;
     }
-
-    .hint{
-      margin:6px 0 0;
+    .help{
       color:var(--muted);
-      font-size:13px;
+      font-size:12px;
+      margin-bottom:12px;
       line-height:1.35;
     }
-
-    .form-row{
-      display:grid;
-      grid-template-columns: 1fr;
-      gap:10px;
-      margin-top:10px;
-    }
-    @media (min-width: 520px){
-      .form-row.two{ grid-template-columns: 1fr 1fr; }
-    }
-
+    .row{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+    .row.one{grid-template-columns:1fr}
     label{
-      display:block;
-      font-size:12px;
-      color:var(--muted);
-      margin:0 0 6px;
-      font-weight:700;
-      letter-spacing:.2px;
+      font-size:12px; color:#b9c8ee;
+      display:block; margin:10px 0 6px;
     }
-
-    select, input[type="text"], textarea{
+    select, textarea, input{
       width:100%;
-      padding:12px 12px;
-      border-radius: 12px;
-      border:1px solid var(--line);
-      background: rgba(0,0,0,.25);
+      background: rgba(0,0,0,.22);
       color:var(--text);
+      border:1px solid var(--line);
+      border-radius: 12px;
+      padding:10px 12px;
       outline:none;
     }
-    select:focus, input[type="text"]:focus, textarea:focus{
-      border-color: rgba(106,166,255,.65);
-      box-shadow: 0 0 0 3px rgba(106,166,255,.12);
-    }
-    textarea{
-      min-height:110px;
-      resize:vertical;
-    }
-
-    .items{
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-      margin-top:8px;
-    }
-    .item{
-      border:1px solid var(--line);
-      border-radius: var(--radius2);
-      padding:12px;
-      background: rgba(0,0,0,.18);
-      display:grid;
-      grid-template-columns: 1fr;
-      gap:10px;
-    }
-    @media(min-width: 760px){
-      .item{ grid-template-columns: 1fr 220px; align-items:center; }
-    }
-    .q{
-      font-size:14px;
-      line-height:1.35;
-      font-weight:750;
-    }
-    .meta{
+    textarea{min-height:86px; resize:vertical}
+    .scale{
+      margin-top:14px;
       font-size:12px;
       color:var(--muted);
-      margin-top:6px;
+      line-height:1.35;
+      border-top:1px solid var(--line);
+      padding-top:12px;
     }
-
-    .actions{
-      display:flex;
-      gap:10px;
-      align-items:center;
-      flex-wrap:wrap;
+    .items{
+      display:flex; flex-direction:column; gap:12px;
+      max-height: calc(100vh - 210px);
+      overflow:auto;
+      padding-right:6px;
+    }
+    .itemCard{
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.16);
+      border-radius: 14px;
+      padding:12px;
+    }
+    .itemTop{display:flex; gap:12px; justify-content:space-between; align-items:flex-start}
+    .itemTitle{
+      font-weight:800; font-size:13px; line-height:1.25; margin:0;
+    }
+    .itemMeta{
+      font-size:11px; color:var(--muted); margin-top:4px;
+    }
+    .itemRight{min-width:210px}
+    .footerActions{
       margin-top:14px;
+      display:flex; gap:10px; justify-content:flex-start; flex-wrap:wrap;
+      border-top:1px solid var(--line);
+      padding-top:14px;
     }
     .btn{
-      border:1px solid var(--line);
-      background: rgba(255,255,255,.03);
+      appearance:none; border:1px solid var(--line);
+      background: rgba(255,255,255,.06);
       color:var(--text);
-      padding:10px 12px;
-      border-radius: 12px;
+      padding:10px 14px;
+      border-radius: 999px;
       cursor:pointer;
       font-weight:800;
-      letter-spacing:.2px;
     }
     .btn.primary{
-      border-color: rgba(61,220,151,.45);
-      box-shadow: 0 0 0 3px rgba(61,220,151,.10);
+      background: rgba(34,197,94,.15);
+      border-color: rgba(34,197,94,.35);
     }
-    .btn.danger{
-      border-color: rgba(255,106,139,.45);
-      box-shadow: 0 0 0 3px rgba(255,106,139,.10);
+    .btn.ghost{
+      background: rgba(255,255,255,.04);
     }
-    .btn:disabled{
-      opacity:.55;
-      cursor:not-allowed;
-    }
-
-    .note{
-      font-size:12px;
-      color:var(--muted);
-      margin:10px 0 0;
-      white-space:pre-wrap;
-    }
-
-    .divider{
-      height:1px;
-      background: var(--line);
-      margin:12px 0;
-    }
-
-    .kpis{
-      display:grid;
-      grid-template-columns: 1fr;
-      gap:10px;
+    .status{
+      font-size:12px; color:var(--muted);
       margin-top:10px;
     }
-    @media(min-width: 760px){
-      .kpis{ grid-template-columns: 1fr 1fr 1fr; }
+    .status b{color:var(--text)}
+    .hidden{display:none !important}
+
+    /* Resultados */
+    .filters{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+      margin-top:10px;
+    }
+    @media (max-width: 720px){
+      .filters{grid-template-columns:1fr}
+    }
+    .cards3{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap:12px;
+      margin-top:14px;
+    }
+    @media (max-width: 900px){
+      .cards3{grid-template-columns:1fr}
     }
     .kpi{
       border:1px solid var(--line);
-      border-radius: var(--radius2);
-      padding:12px;
-      background: rgba(0,0,0,.18);
+      background: rgba(0,0,0,.16);
+      border-radius: 16px;
+      padding:14px;
     }
-    .kpi .v{
-      font-size:22px;
-      font-weight:900;
+    .kpi .k{font-size:12px; color:#b9c8ee; text-transform:uppercase; letter-spacing:.4px}
+    .kpi .v{font-size:26px; font-weight:900; margin-top:6px}
+    .kpi .s{font-size:12px; color:var(--muted); margin-top:4px}
+    .chartWrap{
+      margin-top:14px;
+      border-top:1px solid var(--line);
+      padding-top:14px;
+    }
+    .subTitle{
+      margin:0 0 8px;
+      font-size:13px; font-weight:900;
       letter-spacing:.3px;
-      margin-top:2px;
-    }
-    .kpi .t{
-      color:var(--muted);
-      font-size:12px;
-      font-weight:800;
+      color:#cfe0ff;
       text-transform:uppercase;
-      letter-spacing:.35px;
     }
-
     table{
       width:100%;
-      border-collapse:separate;
-      border-spacing:0;
+      border-collapse:collapse;
       margin-top:10px;
-      overflow:hidden;
-      border:1px solid var(--line);
-      border-radius: var(--radius2);
+      font-size:13px;
     }
     th, td{
-      padding:10px 10px;
       border-bottom:1px solid var(--line);
-      font-size:13px;
+      padding:10px 8px;
       text-align:left;
     }
-    th{
-      color:var(--muted);
-      font-size:12px;
-      text-transform:uppercase;
-      letter-spacing:.35px;
-      font-weight:900;
-      background: rgba(255,255,255,.03);
-    }
-    tr:last-child td{ border-bottom:none; }
-
-    .bar{
-      height:10px;
-      border-radius:999px;
-      background: rgba(255,255,255,.10);
-      overflow:hidden;
-    }
-    .bar > i{
-      display:block;
-      height:100%;
-      width:0%;
-      background: linear-gradient(90deg, rgba(106,166,255,.95), rgba(61,220,151,.85));
-    }
-
-    .small{ font-size:12px; color:var(--muted); }
-    .hidden{ display:none !important; }
+    th{color:#cfe0ff; font-size:12px; text-transform:uppercase; letter-spacing:.4px}
+    td{color:var(--text)}
+    .muted{color:var(--muted)}
   </style>
 </head>
 
 <body>
-  <header>
-    <div class="wrap">
-      <div class="topbar">
-        <h1>
-          Encuesta de clima organizacional
-          <span class="pill" id="storagePill">Google Sheets</span>
-          <span class="pill" id="remotePill">Remote: —</span>
-        </h1>
-
-        <nav aria-label="Menú">
-          <button class="tab" id="tab-encuesta" aria-selected="true" type="button">Encuesta</button>
-          <button class="tab" id="tab-resultados" aria-selected="false" type="button">Resultados</button>
-        </nav>
+  <header class="topbar">
+    <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
+      <div class="brand">Encuesta de clima organizacional</div>
+      <div class="chips">
+        <span class="chip"><b>Google Sheets</b></span>
+        <span class="chip"><span id="remoteDot" class="remoteDot"></span><span id="remoteText">Remote: —</span></span>
       </div>
     </div>
+    <nav class="nav">
+      <button id="tabEncuesta" class="active" onclick="showTab('encuesta')">Encuesta</button>
+      <button id="tabResultados" onclick="showTab('resultados')">Resultados</button>
+      <button id="tabResumen" onclick="showTab('resumen')">Resumen</button>
+    </nav>
   </header>
 
   <main class="wrap">
-    <!-- ====================== VISTA ENCUESTA ====================== -->
-    <section id="view-encuesta">
+    <!-- ENCUESTA -->
+    <section id="viewEncuesta">
       <div class="grid">
-        <div class="card">
-          <h2>Datos demográficos</h2>
-          <p class="hint">
-            Estos campos son configurables desde el arreglo <b>DEMOGRAPHICS</b>.
-          </p>
+        <aside class="panel">
+          <h3>Datos demográficos</h3>
+          <div class="help">
+            Selecciona tus datos. Estos valores se toman del arreglo <b>DEMOGRAPHICS</b>.
+          </div>
 
-          <div class="form-row" id="demoContainer"></div>
+          <div id="demographicsFields"></div>
 
-          <div class="divider"></div>
+          <div class="scale">
+            <div style="font-weight:900; color:#cfe0ff; margin-bottom:8px;">Escala</div>
+            <div>1 = Muy en desacuerdo</div>
+            <div>2 = En desacuerdo</div>
+            <div>3 = Ni de acuerdo ni en desacuerdo</div>
+            <div>4 = De acuerdo</div>
+            <div>5 = Totalmente de acuerdo</div>
+            <div style="margin-top:10px;">
+              <span style="display:inline-flex; align-items:center; gap:8px;">
+                <span class="remoteDot ok" style="width:10px;height:10px;"></span>
+                <span>WebApp configurado (envío por POST).</span>
+              </span>
+            </div>
+          </div>
+        </aside>
 
-          <h2>Escala</h2>
-          <p class="hint" id="scaleHint"></p>
+        <section class="panel">
+          <h3>Encuesta</h3>
+          <div class="help">
+            Cada ítem se define en el arreglo <b>ITEMS</b>. Responde del 1 al 5.
+          </div>
 
-          <div class="divider"></div>
+          <div id="itemsContainer" class="items"></div>
 
-          <h2>Integración</h2>
-          <p class="hint" id="integrationHint"></p>
+          <div style="margin-top:12px;">
+            <label>Comentarios (opcional)</label>
+            <textarea id="comentarios" placeholder="Escribe tus comentarios..."></textarea>
+          </div>
+
+          <div class="footerActions">
+            <button class="btn primary" onclick="guardar()">Guardar</button>
+            <button class="btn ghost" onclick="limpiar()">Limpiar</button>
+          </div>
+
+          <div id="saveStatus" class="status">Estado: <b>Listo</b></div>
+        </section>
+      </div>
+    </section>
+
+    <!-- RESULTADOS -->
+    <section id="viewResultados" class="hidden">
+      <div class="panel">
+        <h3>Resultados</h3>
+        <div class="help">
+          Puedes ver resultados por: <b>General, Género, Antigüedad, Localidad, Departamento y Nivel</b>.
+          Fuente: Google Sheets (hoja <b>Respuestas</b>) vía WebApp.
         </div>
 
-        <div class="card">
-          <h2>Encuesta</h2>
-          <p class="hint">
-            Cada ítem se define en el arreglo <b>ITEMS</b>.
-          </p>
+        <div class="filters">
+          <div>
+            <label>Resultados por</label>
+            <select id="groupBy" onchange="onGroupChange()"></select>
+          </div>
+          <div>
+            <label>Variable</label>
+            <select id="groupValue"></select>
+          </div>
+        </div>
 
-          <form id="surveyForm">
-            <div class="items" id="itemsContainer"></div>
+        <div style="margin-top:12px;">
+          <button class="btn" onclick="cargarResultados()">Refrescar</button>
+        </div>
 
-            <!-- Comentarios -->
-            <div class="item">
-              <div>
-                <div class="q">Comentarios</div>
-                <div class="meta">Opcional: comparte cualquier comentario adicional.</div>
-              </div>
+        <div class="cards3">
+          <div class="kpi">
+            <div class="k">Encuestas consideradas</div>
+            <div class="v" id="kpiN">0</div>
+            <div class="s muted">registros filtrados</div>
+          </div>
+          <div class="kpi">
+            <div class="k">Promedio general</div>
+            <div class="v" id="kpiAvg">—</div>
+            <div class="s muted">Escala 0–100%</div>
+          </div>
+          <div class="kpi">
+            <div class="k">Última respuesta</div>
+            <div class="v" id="kpiLast">—</div>
+            <div class="s muted">fecha/hora</div>
+          </div>
+        </div>
 
-              <div>
-                <label for="comments">Escribe aquí</label>
-                <textarea id="comments" name="comments" placeholder="Escribe tus comentarios..."></textarea>
-              </div>
-            </div>
+        <div class="chartWrap">
+          <div class="subTitle">Calificación por ítem (barras)</div>
+          <div class="help" id="noDataMsg">Aún no hay datos para graficar. Presiona <b>Refrescar</b> o guarda al menos una encuesta.</div>
+          <canvas id="chartItems" height="110"></canvas>
 
-            <div class="actions">
-              <button class="btn primary" id="btnGuardar" type="submit">Guardar</button>
-              <button class="btn" id="btnLimpiar" type="button">Limpiar</button>
-              <button class="btn" id="btnExportJSON" type="button">Exportar JSON</button>
-              <button class="btn" id="btnExportCSV" type="button">Exportar CSV</button>
-            </div>
-
-            <p class="note" id="saveNote"></p>
-          </form>
+          <div style="margin-top:18px;">
+            <div class="subTitle">Promedios por ítem (tabla)</div>
+            <div id="tableWrap" class="muted">Aún no hay datos para mostrar.</div>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- ====================== VISTA RESULTADOS ====================== -->
-    <section id="view-resultados" class="hidden">
-      <div class="card">
-        <h2>Resultados</h2>
-        <p class="hint">
-          Puedes ver resultados por: <b>General</b>, <b>Género</b>, <b>Antigüedad</b>, <b>Localidad</b>, <b>Departamento</b> y <b>Nivel</b>.
-          <br>Fuente: Google Sheets (hoja <b>Respuestas</b>) vía WebApp.
-        </p>
+    <!-- RESUMEN -->
+    <section id="viewResumen" class="hidden">
+      <div class="panel">
+        <h3>Resumen</h3>
+        <div class="help">
+          Resumen rápido según el filtro actual de Resultados.
+        </div>
 
-        <div class="form-row two" style="margin-top:12px;">
+        <div class="filters">
           <div>
-            <label for="resDimension">Resultados por</label>
-            <select id="resDimension"></select>
+            <label>Resultados por</label>
+            <select id="sumGroupBy" onchange="syncSummaryFilter()"></select>
           </div>
-
           <div>
-            <label for="resValue">Variable</label>
-            <select id="resValue" disabled>
-              <option value="" selected>—</option>
-            </select>
+            <label>Variable</label>
+            <select id="sumGroupValue"></select>
           </div>
         </div>
 
-        <div class="actions" style="margin-top:12px;">
-          <button class="btn" id="btnReloadResults" type="button">Refrescar</button>
+        <div style="margin-top:12px;">
+          <button class="btn" onclick="cargarResumen()">Refrescar</button>
         </div>
 
-        <div class="divider"></div>
-
-        <div class="kpis">
-          <div class="kpi">
-            <div class="t">Encuestas consideradas</div>
-            <div class="v" id="kpiCount">0</div>
-          </div>
-
-          <div class="kpi">
-            <div class="t">Promedio general</div>
-            <div class="v" id="kpiAvg">—</div>
-            <div class="small">Escala 0–100%</div>
-          </div>
-
-          <div class="kpi">
-            <div class="t">Última respuesta</div>
-            <div class="v" id="kpiLast">—</div>
-            <div class="small">fecha/hora</div>
-          </div>
-        </div>
-
-        <div class="divider"></div>
-
-        <h2>Calificación por ítem (barras)</h2>
-        <div id="chartsWrap"></div>
-
-        <div class="divider"></div>
-
-        <h2>Promedios por ítem (tabla)</h2>
-        <div id="factorTableWrap"></div>
-
-        <div class="divider"></div>
-
-        <h2>Historial</h2>
-        <div class="actions">
-          <span class="hint">El historial se calcula desde Google Sheets.</span>
-        </div>
-        <div id="historyWrap"></div>
+        <div id="summaryBox" style="margin-top:14px; line-height:1.5; color:var(--text);"></div>
       </div>
     </section>
   </main>
 
   <script>
-    /**********************************************************************
-     * CONFIG
-     *********************************************************************/
+    /***********************
+     * CONFIG (EDITA AQUÍ)
+     ***********************/
+    const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzavhi-jPFdFofWd7aWbQGb8BqZREsD4Cfqqg47htWraKWg_mNFD9MJUFuxqd7eCTjEqw/exec";
+
+    // Estructura según tus adjuntos: campos demográficos
     const DEMOGRAPHICS = [
-      { id: "genero",      label: "Género",      options: ["Masculino","Femenino"] },
-      { id: "antiguedad",  label: "Antigüedad",  options: ["De 0 a 5 años","De 6 a 10 años","De 11 a 20 años","Más de 20 años"] },
-      { id: "localidad",   label: "Localidad",   options: ["Tegucigalpa","San Pedro Sula","La Ceiba"] },
-      { id: "departamento",label: "Departamento",options: ["Recursos Humanos","Contabilidad","Compras","Ventas"] },
-      { id: "nivel",       label: "Nivel",       options: ["Operativo","Administrativo","Jefe - Gerente"] },
+      { key:"Genero",      label:"Género",      options:["Masculino","Femenino"] },
+      { key:"Antiguedad",  label:"Antigüedad",  options:["De 0 a 5 años","De 6 a 10 años","De 11 a 20 años","Más de 20 años"] },
+      { key:"Localidad",   label:"Localidad",   options:["Tegucigalpa","San Pedro Sula","La Ceiba"] },
+      { key:"Departamento",label:"Departamento",options:["Contabilidad","Recursos human","Ventas","Compras"] },
+      { key:"Nivel",       label:"Nivel",       options:["Operativo","Administrativo","Técnico","Jefe - Gerente"] }
     ];
 
-    const SCALE = [
-      { value: 1, label: "Muy en desacuerdo" },
-      { value: 2, label: "En desacuerdo" },
-      { value: 3, label: "Ni de acuerdo ni en desacuerdo" },
-      { value: 4, label: "De acuerdo" },
-      { value: 5, label: "Totalmente de acuerdo" },
-    ];
-
+    // 12 ítems (ajusta textos si quieres)
     const ITEMS = [
-      { id:"q1",  text:"Mi jefe proporciona supervisión clara y consistente.", factor:"Liderazgo / Supervisión" },
-      { id:"q2",  text:"La comunicación con mi jefe es abierta y efectiva.", factor:"Comunicación / Liderazgo" },
-      { id:"q3",  text:"Los salarios en esta empresa son justos.", factor:"Compensación / Equidad salarial" },
-      { id:"q4",  text:"Mis compañeros ayudan a crear un ambiente de trabajo positivo.", factor:"Clima laboral / Relaciones interpersonales" },
-      { id:"q5",  text:"Mi jefe reconoce y valora mi trabajo.", factor:"Reconocimiento / Liderazgo" },
-      { id:"q6",  text:"Mis horarios de trabajo son adecuados para mi vida personal.", factor:"Equilibrio vida-trabajo / Condiciones laborales" },
-      { id:"q7",  text:"Mi jefe reconoce y valora mi trabajo.", factor:"Reconocimiento / Liderazgo" },
-      { id:"q8",  text:"Siento confianza para hablar con mi jefe sobre problemas del trabajo.", factor:"Confianza / Comunicación con liderazgo" },
-      { id:"q9",  text:"La colaboración con mis compañeros es positiva.", factor:"Trabajo en equipo / Colaboración" },
-      { id:"q10", text:"La colaboración con mis compañeros es positiva.", factor:"Trabajo en equipo / Colaboración" },
-      { id:"q11", text:"El plan de beneficios de mi empresa es competitivo.", factor:"Beneficios / Compensación total" },
-      { id:"q12", text:"Los horarios de trabajo me permiten mantener un buen equilibrio laboral y personal.", factor:"Equilibrio vida-trabajo / Bienestar" },
+      { id:1,  text:"Mi jefe proporciona supervisión clara y consistente.", factor:"Liderazgo / Supervisión" },
+      { id:2,  text:"La comunicación con mi jefe es abierta y efectiva.", factor:"Comunicación / Liderazgo" },
+      { id:3,  text:"Los salarios en esta empresa son justos.", factor:"Compensación / Equidad salarial" },
+      { id:4,  text:"Mis compañeros ayudan a crear un ambiente de trabajo positivo.", factor:"Clima laboral / Relaciones interpersonales" },
+      { id:5,  text:"Mi jefe reconoce y valora mi trabajo.", factor:"Reconocimiento / Liderazgo" },
+      { id:6,  text:"Mis horarios de trabajo son adecuados para mi vida personal.", factor:"Equilibrio vida-trabajo / Condiciones laborales" },
+      { id:7,  text:"Mi jefe reconoce y valora mi trabajo.", factor:"Reconocimiento / Liderazgo" },
+      { id:8,  text:"Siento confianza para hablar con mi jefe sobre problemas del trabajo.", factor:"Confianza / Comunicación con liderazgo" },
+      { id:9,  text:"La colaboración con mis compañeros es positiva.", factor:"Trabajo en equipo / Colaboración" },
+      { id:10, text:"La colaboración con mis compañeros es positiva.", factor:"Trabajo en equipo / Colaboración" },
+      { id:11, text:"El plan de beneficios de mi empresa es competitivo.", factor:"Beneficios / Compensación total" },
+      { id:12, text:"Los horarios de trabajo me permiten mantener un buen equilibrio laboral y personal.", factor:"Equilibrio vida-trabajo / Bienestar" }
     ];
 
-    /**********************************************************************
-     * ✅ URL REAL DEL WEB APP (termina en /exec)
-     *********************************************************************/
-    const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycby876nyCLqxpxaWeec7i6mPfbMthjMJ5nCq048YWFA_dLVRPWo7-jy0PobCVqMpB3_2/exec";
+    const SCALE_OPTIONS = [
+      {v:"",  t:"Selecciona..."},
+      {v:1, t:"1. Totalmente en desacuerdo"},
+      {v:2, t:"2. En desacuerdo"},
+      {v:3, t:"3. Ni en desacuerdo ni de acuerdo"},
+      {v:4, t:"4. De acuerdo"},
+      {v:5, t:"5. Totalmente de acuerdo"},
+    ];
 
-    /**********************************************************************
-     * UTILS
-     *********************************************************************/
-    const $ = (sel, root=document) => root.querySelector(sel);
+    /***********************
+     * UI BUILD
+     ***********************/
+    const $ = (id)=>document.getElementById(id);
 
-    function escapeHtml(str){
-      return String(str)
-        .replaceAll("&","&amp;")
-        .replaceAll("<","&lt;")
-        .replaceAll(">","&gt;")
-        .replaceAll('"',"&quot;")
-        .replaceAll("'","&#039;");
-    }
-    function escapeAttr(str){ return escapeHtml(str); }
-    function nowISO(){ return new Date().toISOString(); }
-    function niceDate(iso){
-      try{ return new Date(iso).toLocaleString(); }catch{ return iso; }
+    function setRemote(ok, text){
+      const dot = $("remoteDot");
+      dot.classList.toggle("ok", !!ok);
+      $("remoteText").textContent = "Remote: " + (text || (ok ? "conectado" : "sin conexión"));
     }
 
-    function avg(nums){
-      const arr = nums.filter(n => typeof n === "number" && !Number.isNaN(n));
-      if(!arr.length) return null;
-      return arr.reduce((a,b)=>a+b,0) / arr.length;
-    }
-    function clamp(n, a, b){ return Math.max(a, Math.min(b, n)); }
+    function showTab(tab){
+      $("viewEncuesta").classList.toggle("hidden", tab!=="encuesta");
+      $("viewResultados").classList.toggle("hidden", tab!=="resultados");
+      $("viewResumen").classList.toggle("hidden", tab!=="resumen");
 
-    function downloadText(filename, text){
-      const blob = new Blob([text], {type:"text/plain;charset=utf-8"});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
+      $("tabEncuesta").classList.toggle("active", tab==="encuesta");
+      $("tabResultados").classList.toggle("active", tab==="resultados");
+      $("tabResumen").classList.toggle("active", tab==="resumen");
+
+      if(tab==="resultados") cargarResultados();
+      if(tab==="resumen") cargarResumen();
     }
 
-    function isValidExecUrl(url){
-      if(!url) return false;
-      const u = String(url).trim();
-      return /^https:\/\/script\.google\.com\/macros\/s\/[-\w]+\/exec(\?.*)?$/i.test(u);
-    }
-
-    /**********************************************************************
-     * RENDER
-     *********************************************************************/
-    function renderScaleHint(){
-      $("#scaleHint").innerHTML = SCALE.map(s => `<b>${s.value}</b> = ${escapeHtml(s.label)}`).join("<br>");
-    }
-
-    function renderDemographics(){
-      const c = $("#demoContainer");
-      c.innerHTML = "";
-      c.className = "form-row two";
-
-      DEMOGRAPHICS.forEach(d => {
-        const w = document.createElement("div");
-        w.innerHTML = `
-          <label for="demo_${d.id}">${escapeHtml(d.label)}</label>
-          <select id="demo_${d.id}" name="${escapeAttr(d.id)}" required>
-            <option value="" selected disabled>Selecciona…</option>
-            ${d.options.map(opt => `<option value="${escapeAttr(opt)}">${escapeHtml(opt)}</option>`).join("")}
-          </select>
-        `;
-        c.appendChild(w);
-      });
-    }
-
-    function renderItems(){
-      const c = $("#itemsContainer");
-      c.innerHTML = "";
-
-      ITEMS.forEach((it, idx) => {
-        const w = document.createElement("div");
-        w.className = "item";
-        w.innerHTML = `
-          <div>
-            <div class="q">${idx+1}. ${escapeHtml(it.text)}</div>
-            <div class="meta">Factor: ${escapeHtml(it.factor)}</div>
-          </div>
-          <div>
-            <label for="item_${it.id}">Respuesta</label>
-            <select id="item_${it.id}" name="${escapeAttr(it.id)}" required>
-              <option value="" selected disabled>Selecciona…</option>
-              ${SCALE.map(s => `<option value="${s.value}">${s.value} — ${escapeHtml(s.label)}</option>`).join("")}
-            </select>
-          </div>
-        `;
-        c.appendChild(w);
-      });
-    }
-
-    function clearForm(){
-      DEMOGRAPHICS.forEach(d => { const el = $(`#demo_${d.id}`); if(el) el.value = ""; });
-      ITEMS.forEach(it => { const el = $(`#item_${it.id}`); if(el) el.value = ""; });
-      const c = $("#comments"); if(c) c.value = "";
-      $("#saveNote").textContent = "";
-    }
-
-    function collectResponse(){
-      const demo = {};
-      for(const d of DEMOGRAPHICS){
-        const v = $(`#demo_${d.id}`)?.value ?? "";
-        if(!v) return { ok:false, message:`Falta completar: ${d.label}` };
-        demo[d.id] = v;
-      }
-
-      const answers = {};
-      for(const it of ITEMS){
-        const v = $(`#item_${it.id}`)?.value ?? "";
-        if(!v) return { ok:false, message:`Falta responder un ítem.` };
-        answers[it.id] = Number(v);
-      }
-
-      const overall = avg(Object.values(answers));
-      const comments = ($("#comments")?.value ?? "").trim();
-
-      const flat = {
-        createdAt: nowISO(),
-        id: (crypto?.randomUUID ? crypto.randomUUID() : String(Date.now())),
-        source: "clima-org-html",
-        comments,
-        overallAvg: overall,
-        ...demo,
-        ...answers
-      };
-
-      return {
-        ok:true,
-        data:{
-          id: flat.id,
-          createdAt: flat.createdAt,
-          demographics: demo,
-          answers,
-          comments,
-          overallAvg: overall,
-          source: flat.source,
-          flat
-        }
-      };
-    }
-
-    /**********************************************************************
-     * RESULTADOS
-     *********************************************************************/
-    // ---- Remote cache (Google Sheets) ----
-    let REMOTE_CACHE = null;       // Array de responses normalizadas
-    let REMOTE_STATUS = "—";
-
-    // ✅ NUEVO: evita que renderResults corra antes de tener data (o que haga 10 cargas seguidas)
-    let REMOTE_LOADING = null;
-
-    function normalizeResponse_(r){
-      if(!r || typeof r !== "object") return null;
-      if(r.demographics && r.answers) return r;
-
-      const demo = {};
-      DEMOGRAPHICS.forEach(d => { if(r[d.id] != null) demo[d.id] = String(r[d.id]); });
-
-      const ans = {};
-      ITEMS.forEach(it => {
-        const v = r[it.id];
-        if(v != null && v !== "") ans[it.id] = Number(v);
-      });
-
-      const overallAvg = (typeof r.overallAvg === "number") ? r.overallAvg : avg(Object.values(ans));
-
-      return {
-        id: String(r.id || crypto?.randomUUID?.() || Date.now()),
-        createdAt: String(r.createdAt || nowISO()),
-        demographics: demo,
-        answers: ans,
-        comments: String(r.comments || ""),
-        overallAvg,
-        source: String(r.source || "remote"),
-        flat: r.flat || r
-      };
-    }
-
-    function mergeUniqueById_(a, b){
-      const map = new Map();
-      [...(a||[]), ...(b||[])].forEach(x => {
-        const n = normalizeResponse_(x);
-        if(n && n.id) map.set(n.id, n);
-      });
-      return Array.from(map.values()).sort((x,y) => (x.createdAt||"").localeCompare(y.createdAt||""));
-    }
-
-   // ✅ Loader definitivo (JSONP con callback). Evita “cargando eterno”.
-// - No depende de window.__CLIMA_REMOTE__
-// - Si el WebApp devuelve error, igual ejecuta callback y resolvemos.
-function loadRemoteFromGAS(){
-  return new Promise((resolve) => {
-    const url = String(GAS_WEBAPP_URL || "").trim();
-
-    if(!isValidExecUrl(url)){
-      REMOTE_STATUS = "GAS_WEBAPP_URL inválida";
-      $("#remotePill").textContent = "Remote: ⚠️ URL inválida";
-      REMOTE_CACHE = [];
-      resolve({ ok:false, message:"URL inválida" });
-      return;
-    }
-
-    let done = false;
-    const finish = (result) => {
-      if(done) return;
-      done = true;
-
-      // nunca dejar null: evita “cargando eterno”
-      if(!result || result.ok !== true){
-        if(!Array.isArray(REMOTE_CACHE)) REMOTE_CACHE = [];
-      }
-      resolve(result);
-    };
-
-    const sep = url.includes("?") ? "&" : "?";
-    const bust = `t=${Date.now()}`;
-
-    // --- Estrategia A: JSONP callback (rápida cuando el WebApp responde bien)
-    const cbName = `__climaCB_${Date.now()}_${Math.random().toString(16).slice(2)}`;
-    const jsonpUrl = `${url}${sep}action=data&callback=${encodeURIComponent(cbName)}&${bust}`;
-
-    // --- Estrategia B: "as=js" (fallback): el WebApp escribe window.__CLIMA_REMOTE__ = {...}
-    const jsUrl = `${url}${sep}action=data&as=js&${bust}`;
-
-    const cleanupScript = (s) => { try{ s.remove(); }catch(_){ } };
-    const safeSetFail = (label, msg) => {
-      REMOTE_STATUS = label;
-      $("#remotePill").textContent = "Remote: ⚠️ " + label;
-      REMOTE_CACHE = [];
-      finish({ ok:false, message: msg || label });
-    };
-
-    const hardTimeoutMs = 30000;
-    const hardTimer = setTimeout(() => {
-      // si ninguno resolvió, cortamos
-      safeSetFail("Timeout", "Timeout: el WebApp no respondió o no pudo entregar datos (deploy/permisos/URL).");
-    }, hardTimeoutMs);
-
-    // ========= A) JSONP =========
-    const s1 = document.createElement("script");
-    s1.async = true;
-    s1.src = jsonpUrl;
-
-    window[cbName] = (payload) => {
-      if(done) return;
-      clearTimeout(hardTimer);
-      try{ delete window[cbName]; }catch(_){}
-
-      if(!payload || typeof payload !== "object"){
-        cleanupScript(s1);
-        safeSetFail("Inválido", "Respuesta inválida del WebApp.");
-        return;
-      }
-      if(payload.ok !== true || !Array.isArray(payload.rows)){
-        const msg = payload.error || payload.message || "El WebApp no devolvió rows (¿deploy no público?).";
-        cleanupScript(s1);
-        safeSetFail("Sin datos", String(msg));
-        return;
-      }
-
-      try{
-        REMOTE_CACHE = payload.rows.map(normalizeResponse_).filter(Boolean);
-        REMOTE_STATUS = `OK (${REMOTE_CACHE.length})`;
-        $("#remotePill").textContent = "Remote: ✅ " + REMOTE_STATUS;
-        cleanupScript(s1);
-        finish({ ok:true, rows: REMOTE_CACHE });
-      }catch(err){
-        cleanupScript(s1);
-        safeSetFail("Error parse", String(err?.message ?? err));
-      }
-    };
-
-    s1.onerror = () => {
-      // no cerramos aún: activamos fallback B
-      cleanupScript(s1);
-      try{ delete window[cbName]; }catch(_){}
-      // seguimos con fallback
-    };
-
-    document.body.appendChild(s1);
-
-    // ========= B) Fallback as=js =========
-    const s2 = document.createElement("script");
-    s2.async = true;
-    s2.src = jsUrl;
-
-    s2.onload = () => {
-      if(done) return;
-
-      const payload = window.__CLIMA_REMOTE__;
-      if(!payload || typeof payload !== "object"){
-        cleanupScript(s2);
-        return; // dejamos que hard timeout decida
-      }
-
-      if(payload.ok !== true || !Array.isArray(payload.rows)){
-        cleanupScript(s2);
-        const msg = payload.error || payload.message || "El WebApp no devolvió rows (¿deploy no público?).";
-        clearTimeout(hardTimer);
-        safeSetFail("Sin datos", String(msg));
-        return;
-      }
-
-      try{
-        REMOTE_CACHE = payload.rows.map(normalizeResponse_).filter(Boolean);
-        REMOTE_STATUS = `OK (${REMOTE_CACHE.length})`;
-        $("#remotePill").textContent = "Remote: ✅ " + REMOTE_STATUS;
-        cleanupScript(s2);
-        clearTimeout(hardTimer);
-        finish({ ok:true, rows: REMOTE_CACHE });
-      }catch(err){
-        cleanupScript(s2);
-        clearTimeout(hardTimer);
-        safeSetFail("Error parse", String(err?.message ?? err));
-      }
-    };
-
-    s2.onerror = () => {
-      cleanupScript(s2);
-      // dejamos hard timeout
-    };
-
-    document.body.appendChild(s2);
-  });
-}
-
-    // ✅ NUEVO: “asegurar data” antes de renderizar (Resultado por / Variable)
-    function ensureRemoteLoaded_(){
-      if(Array.isArray(REMOTE_CACHE)) return Promise.resolve({ ok:true, rows: REMOTE_CACHE });
-      if(REMOTE_LOADING) return REMOTE_LOADING;
-
-      $("#remotePill").textContent = "Remote: ⏳ cargando…";
-      REMOTE_LOADING = loadRemoteFromGAS().finally(() => { REMOTE_LOADING = null; });
-      return REMOTE_LOADING;
-    }
-
-    function getAllResponses_(){
-      // Solo Google Sheets (hoja Respuestas)
-      return Array.isArray(REMOTE_CACHE) ? REMOTE_CACHE : [];
-    }
-
-    // =========================
-    // RESULTADOS POR ÍTEM (q1..q12)
-    // =========================
-    function scoreItem_(responses, itemId){
-      let sum = 0;
-      let seen = 0;
-
-      for(const r of responses){
-        const v = r.answers?.[itemId];
-        if(typeof v === "number" && Number.isFinite(v)){
-          sum += v;
-          seen++;
-        }
-      }
-
-      const avg5 = seen ? (sum / seen) : null;                 // 0–5
-      const scorePct = seen ? (avg5 / 5) * 100 : null;         // 0–100
-
-      return { avg: avg5, scorePct, n: seen };
-    }
-
-    function computeItemScoresByDimension_(responses, dimension, valueFilter){
-      let base = responses.slice();
-
-      if(dimension && dimension !== "general"){
-        base = base.filter(r => String(r.demographics?.[dimension] ?? "") === String(valueFilter ?? ""));
-      }
-
-      const rows = ITEMS.map(it => {
-        const s = scoreItem_(base, it.id);
-        return {
-          itemId: it.id,
-          text: it.text,
-          factor: it.factor,
-          score: s.avg,
-          n: s.n
-        };
-      });
-
-      // Ordenar por número de ítem (Q1 → Q12)
-      rows.sort((a,b) => {
-        const na = Number(a.itemId.replace("q",""));
-        const nb = Number(b.itemId.replace("q",""));
-        return na - nb;
-      });
-      return rows;
-    }
-
-    function computeGroupedItemScores_(responses, dimension){
-      const groups = new Map();
-
-      for(const r of responses){
-        const g = String(r.demographics?.[dimension] ?? "");
-        if(!g) continue;
-        if(!groups.has(g)) groups.set(g, []);
-        groups.get(g).push(r);
-      }
-
-      const groupNames = Array.from(groups.keys()).sort((a,b)=>a.localeCompare(b));
-      const labels = ITEMS.map(it => it.id.toUpperCase());
-
-      const series = groupNames.map(name => {
-        const rs = groups.get(name) || [];
-        const points = ITEMS.map(it => {
-          const s = scoreItem_(rs, it.id);
-          return (s && typeof s.scorePct === "number") ? s.scorePct : null; // 0–100
-        });
-        return { name, points, n: rs.length };
-      });
-      return { labels, series };
-    }
-
-    // Render gráfico barras (SVG)
-    function renderBarChart_(targetEl, title, xLabels, series){
-      const W = 980;
-      const H = 420;
-      const padL = 64, padR = 22, padT = 42, padB = 64;
-      const innerW = W - padL - padR;
-      const innerH = H - padT - padB;
-
-      const maxY = 100;
-      const minY = 0;
-
-      const groups = series.length;
-      const catCount = xLabels.length;
-
-      const catGap = 14;
-      const catW = (innerW - catGap*(catCount-1)) / Math.max(1, catCount);
-      const barGap = 6;
-      const barW = (catW - barGap*(groups-1)) / Math.max(1, groups);
-
-      const yToPx = (y) => padT + (1 - (y - minY)/(maxY - minY)) * innerH;
-      const xCat = (i) => padL + i*(catW + catGap);
-
-      const baseColors = [
-        "rgba(106,166,255,.85)",
-        "rgba(61,220,151,.75)",
-        "rgba(255,211,106,.75)",
-        "rgba(255,106,139,.70)",
-        "rgba(159,179,217,.70)",
-        "rgba(255,255,255,.35)",
+    function buildDemographics(){
+      const wrap = document.createElement("div");
+      // en el formato adjunto: 2 columnas
+      const rows = [
+        ["Genero","Antiguedad"],
+        ["Localidad","Departamento"],
+        ["Nivel"]
       ];
 
-      const yTicks =[0,20,40,60,80,100];
+      rows.forEach(keys=>{
+        const row = document.createElement("div");
+        row.className = "row" + (keys.length===1 ? " one" : "");
+        keys.forEach(k=>{
+          const def = DEMOGRAPHICS.find(d=>d.key===k);
+          const box = document.createElement("div");
+          const lab = document.createElement("label");
+          lab.textContent = def.label;
+          const sel = document.createElement("select");
+          sel.id = "dem_" + def.key;
+          sel.innerHTML = `<option value="">Selecciona...</option>` + def.options.map(o=>`<option value="${escapeHtml(o)}">${escapeHtml(o)}</option>`).join("");
+          box.appendChild(lab);
+          box.appendChild(sel);
+          row.appendChild(box);
+        });
+        wrap.appendChild(row);
+      });
 
-      const gridLines = yTicks.map(t => {
-        const y = yToPx(t);
-        return `<line x1="${padL}" y1="${y}" x2="${W-padR}" y2="${y}" stroke="rgba(255,255,255,.10)" stroke-width="1"/>`;
-      }).join("");
+      $("demographicsFields").appendChild(wrap);
+    }
 
-      const yLabelsSvg = yTicks.map(t => {
-        const y = yToPx(t);
-        return `<text x="${padL-10}" y="${y+4}" text-anchor="end" font-size="12" fill="rgba(159,179,217,.95)">${t}</text>`;
-      }).join("");
+    function buildItems(){
+      const cont = $("itemsContainer");
+      cont.innerHTML = "";
+      ITEMS.forEach(it=>{
+        const card = document.createElement("div");
+        card.className = "itemCard";
 
-      const bars = [];
-      for(let i=0; i<catCount; i++){
-        for(let g=0; g<groups; g++){
-          const val = series[g]?.points?.[i];
-          if(val == null) continue;
+        const top = document.createElement("div");
+        top.className = "itemTop";
 
-          const x = xCat(i) + g*(barW + barGap);
-          const y = yToPx(val);
-          const h = (padT + innerH) - y;
-          const fill = baseColors[g % baseColors.length];
+        const left = document.createElement("div");
+        const title = document.createElement("p");
+        title.className = "itemTitle";
+        title.textContent = `${it.id}. ${it.text}`;
+        const meta = document.createElement("div");
+        meta.className = "itemMeta";
+        meta.textContent = "Factor: " + it.factor;
+        left.appendChild(title);
+        left.appendChild(meta);
 
-          const labelY = (y < padT + 14) ? (y + 14) : (y - 6);
-          const valInt = Math.round(val);
+        const right = document.createElement("div");
+        right.className = "itemRight";
+        const lab = document.createElement("label");
+        lab.textContent = "Respuesta";
+        const sel = document.createElement("select");
+        sel.id = "item_" + it.id;
+        sel.innerHTML = SCALE_OPTIONS.map(o=>`<option value="${o.v}">${escapeHtml(o.t)}</option>`).join("");
+        right.appendChild(lab);
+        right.appendChild(sel);
 
-          bars.push(`
-            <g>
-              <rect x="${x}" y="${y}" width="${barW}" height="${h}"
-                    rx="6" ry="6" fill="${fill}">
-                <title>${escapeHtml(series[g].name)} • ${escapeHtml(xLabels[i])}: ${valInt}%</title>
-              </rect>
+        top.appendChild(left);
+        top.appendChild(right);
 
-              <text
-                x="${x + barW/2}"
-                y="${labelY}"
-                text-anchor="middle"
-                font-size="11"
-                font-weight="800"
-                fill="rgba(234,241,255,.95)">
-                ${valInt}%
-              </text>
-            </g>
-          `);
-        }
+        card.appendChild(top);
+        cont.appendChild(card);
+      });
+    }
+
+    function initFilters(){
+      const opts = [
+        {v:"General", t:"General"},
+        {v:"Genero", t:"Género"},
+        {v:"Antiguedad", t:"Antigüedad"},
+        {v:"Localidad", t:"Localidad"},
+        {v:"Departamento", t:"Departamento"},
+        {v:"Nivel", t:"Nivel"},
+      ];
+      $("groupBy").innerHTML = opts.map(o=>`<option value="${o.v}">${o.t}</option>`).join("");
+      $("sumGroupBy").innerHTML = $("groupBy").innerHTML;
+
+      $("groupBy").value = "General";
+      $("sumGroupBy").value = "General";
+      onGroupChange();
+      syncSummaryFilter();
+    }
+
+    function onGroupChange(){
+      const gb = $("groupBy").value;
+      if(gb==="General"){
+        $("groupValue").innerHTML = `<option value="">—</option>`;
+        $("groupValue").disabled = true;
+      }else{
+        $("groupValue").disabled = false;
+        // se llenará al llamar cargarOpcionesFiltro
+        cargarOpcionesFiltro(gb, $("groupValue"));
+      }
+      // mantener resumen en sync
+      $("sumGroupBy").value = gb;
+      syncSummaryFilter();
+    }
+
+    function syncSummaryFilter(){
+      const gb = $("sumGroupBy").value;
+      if(gb==="General"){
+        $("sumGroupValue").innerHTML = `<option value="">—</option>`;
+        $("sumGroupValue").disabled = true;
+      }else{
+        $("sumGroupValue").disabled = false;
+        cargarOpcionesFiltro(gb, $("sumGroupValue"));
+      }
+    }
+
+    /***********************
+     * VALIDACIÓN / PAYLOAD
+     ***********************/
+    function getPayload(){
+      const dem = {};
+      for(const d of DEMOGRAPHICS){
+        dem[d.key] = ($("dem_"+d.key).value || "").trim();
+      }
+      const answers = {};
+      for(const it of ITEMS){
+        answers["I"+it.id] = Number($("item_"+it.id).value || 0);
+      }
+      const comentarios = ($("comentarios").value || "").trim();
+      return { demographics: dem, answers, comentarios };
+    }
+
+    function validatePayload(p){
+      // Demográficos obligatorios
+      for(const d of DEMOGRAPHICS){
+        if(!p.demographics[d.key]) return `Falta seleccionar: ${d.label}`;
+      }
+      // Ítems obligatorios
+      for(const it of ITEMS){
+        if(!p.answers["I"+it.id]) return `Falta responder el ítem ${it.id}`;
+      }
+      return null;
+    }
+
+    function limpiar(){
+      for(const d of DEMOGRAPHICS){
+        $("dem_"+d.key).value = "";
+      }
+      for(const it of ITEMS){
+        $("item_"+it.id).value = "";
+      }
+      $("comentarios").value = "";
+      setStatus("Listo");
+    }
+
+    function setStatus(msg, type="info"){
+      const el = $("saveStatus");
+      el.innerHTML = `Estado: <b>${escapeHtml(msg)}</b>`;
+      if(type==="ok") el.style.color = "rgba(34,197,94,.9)";
+      else if(type==="err") el.style.color = "rgba(239,68,68,.95)";
+      else el.style.color = "var(--muted)";
+    }
+
+    /***********************
+     * API CALLS
+     ***********************/
+    async function ping(){
+      try{
+        const r = await fetch(WEBAPP_URL + "?action=ping", { method:"GET" });
+        if(!r.ok) throw new Error("HTTP " + r.status);
+        const j = await r.json();
+        setRemote(true, j?.status || "conectado");
+      }catch(e){
+        setRemote(false, "timeout");
+      }
+    }
+
+    async function guardar(){
+      const p = getPayload();
+      const err = validatePayload(p);
+      if(err){
+        setStatus(err, "err");
+        return;
       }
 
-      const xLabelsSvg = xLabels.map((f, i) => {
-        const x = xCat(i) + catW/2;
-        const y = padT + innerH + 28;
-        return `<text x="${x}" y="${y}" text-anchor="end" transform="rotate(-35 ${x} ${y})"
-                    font-size="11" fill="rgba(159,179,217,.95)">${escapeHtml(f)}</text>`;
-      }).join("");
+      setStatus("Guardando...", "info");
+      try{
+        const r = await fetch(WEBAPP_URL, {
+          method:"POST",
+          headers:{ "Content-Type":"application/json" },
+          body: JSON.stringify({ action:"save", payload: p })
+        });
+        const j = await r.json();
+        if(!r.ok || !j.ok) throw new Error(j.error || "No se pudo guardar");
 
-      const legend = series.map((s, idx) => {
-        const fill = baseColors[idx % baseColors.length];
-        return `
-          <div class="pill" style="display:inline-flex;align-items:center;gap:8px;">
-            <span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:${fill};"></span>
-            ${escapeHtml(s.name)} <span class="small">(n=${s.n})</span>
-          </div>
-        `;
-      }).join(" ");
+        setStatus("Guardado ✅", "ok");
+        // opcional: limpiar tras guardar
+        // limpiar();
+      }catch(e){
+        setStatus("Error al guardar: " + e.message, "err");
+      }
+    }
 
-      targetEl.innerHTML = `
-        <div class="item" style="grid-template-columns: 1fr; gap:10px;">
-          <div>
-            <div class="q">${escapeHtml(title)}</div>
-            <div class="meta">Escala 0–100%. Barras por grupo (variable) y por ítem.</div>
+    async function cargarOpcionesFiltro(groupBy, selectEl){
+      selectEl.innerHTML = `<option value="">Cargando...</option>`;
+      try{
+        const r = await fetch(WEBAPP_URL + `?action=unique&groupBy=${encodeURIComponent(groupBy)}`);
+        const j = await r.json();
+        if(!j.ok) throw new Error(j.error || "No se pudo cargar variables");
+        const values = j.values || [];
+        selectEl.innerHTML =
+          `<option value="">Selecciona...</option>` +
+          values.map(v=>`<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join("");
+      }catch(e){
+        selectEl.innerHTML = `<option value="">(error)</option>`;
+      }
+    }
+
+    let chart;
+    async function cargarResultados(){
+      $("noDataMsg").style.display = "block";
+      $("tableWrap").innerHTML = `<div class="muted">Cargando...</div>`;
+
+      const groupBy = $("groupBy").value;
+      const groupValue = $("groupValue").disabled ? "" : ($("groupValue").value || "");
+
+      try{
+        const url = WEBAPP_URL + `?action=results&groupBy=${encodeURIComponent(groupBy)}&groupValue=${encodeURIComponent(groupValue)}`;
+        const r = await fetch(url);
+        const j = await r.json();
+        if(!j.ok) throw new Error(j.error || "No se pudo cargar resultados");
+
+        renderResults(j.data);
+      }catch(e){
+        $("kpiN").textContent = "0";
+        $("kpiAvg").textContent = "—";
+        $("kpiLast").textContent = "—";
+        $("tableWrap").innerHTML = `<div class="muted">Error: ${escapeHtml(e.message)}</div>`;
+        destroyChart();
+      }
+    }
+
+    async function cargarResumen(){
+      const groupBy = $("sumGroupBy").value;
+      const groupValue = $("sumGroupValue").disabled ? "" : ($("sumGroupValue").value || "");
+
+      $("summaryBox").innerHTML = `<div class="muted">Cargando...</div>`;
+      try{
+        const url = WEBAPP_URL + `?action=results&groupBy=${encodeURIComponent(groupBy)}&groupValue=${encodeURIComponent(groupValue)}`;
+        const r = await fetch(url);
+        const j = await r.json();
+        if(!j.ok) throw new Error(j.error || "No se pudo cargar resumen");
+        renderSummary(j.data, groupBy, groupValue);
+      }catch(e){
+        $("summaryBox").innerHTML = `<div class="muted">Error: ${escapeHtml(e.message)}</div>`;
+      }
+    }
+
+    function renderResults(data){
+      const n = data.n || 0;
+      const last = data.lastTimestamp || "";
+      const items = data.items || []; // [{id,label,percent,sum,count}]
+      const avg = data.avgPercent || null;
+
+      $("kpiN").textContent = String(n);
+      $("kpiLast").textContent = last ? last : "—";
+      $("kpiAvg").textContent = (avg==null ? "—" : (avg + "%"));
+
+      if(n<=0 || items.length===0){
+        $("noDataMsg").style.display = "block";
+        $("tableWrap").innerHTML = `<div class="muted">Aún no hay datos para mostrar.</div>`;
+        destroyChart();
+        return;
+      }
+
+      $("noDataMsg").style.display = "none";
+
+      const labels = items.map(x=>`Ítem ${x.id}`);
+      const values = items.map(x=>x.percent);
+
+      renderChart(labels, values);
+
+      // tabla
+      const rows = items.map(x=>`
+        <tr>
+          <td><b>${x.id}</b></td>
+          <td>${escapeHtml(x.label || "")}</td>
+          <td><b>${x.percent}%</b></td>
+          <td class="muted">${x.count}</td>
+        </tr>
+      `).join("");
+
+      $("tableWrap").innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>Ítem</th>
+              <th>Descripción</th>
+              <th>%</th>
+              <th>#Resp</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      `;
+    }
+
+    function renderSummary(data, groupBy, groupValue){
+      const n = data.n || 0;
+      const items = (data.items || []).slice();
+      if(n<=0 || items.length===0){
+        $("summaryBox").innerHTML = `<div class="muted">No hay datos para el filtro seleccionado.</div>`;
+        return;
+      }
+
+      items.sort((a,b)=>b.percent-a.percent);
+      const top = items.slice(0,3);
+      const bottom = items.slice(-3).reverse();
+
+      const title = (groupBy==="General")
+        ? "General"
+        : `${pretty(groupBy)} = ${groupValue || "(sin seleccionar)"}`;
+
+      $("summaryBox").innerHTML = `
+        <div style="font-weight:900; font-size:16px; margin-bottom:8px;">Resumen (${escapeHtml(title)})</div>
+        <div class="muted" style="margin-bottom:12px;">Encuestas consideradas: <b style="color:var(--text)">${n}</b></div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+          <div class="kpi">
+            <div class="k">Top 3 ítems</div>
+            <div class="s" style="margin-top:10px;">
+              ${top.map(x=>`<div>• <b>${x.percent}%</b> — Ítem ${x.id}: ${escapeHtml(x.label||"")}</div>`).join("")}
+            </div>
           </div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;">${legend}</div>
-          <div style="overflow:auto;border:1px solid var(--line);border-radius:14px;background: rgba(0,0,0,.18);padding:10px;">
-            <svg viewBox="0 0 ${W} ${H}" width="100%" height="420" role="img" aria-label="Gráfico de barras por ítem">
-              <text x="${padL}" y="22" font-size="14" fill="rgba(234,241,255,.95)" font-weight="800">${escapeHtml(title)}</text>
-              ${gridLines}
-              ${yLabelsSvg}
-              ${bars.join("")}
-              ${xLabelsSvg}
-            </svg>
+
+          <div class="kpi">
+            <div class="k">Bottom 3 ítems</div>
+            <div class="s" style="margin-top:10px;">
+              ${bottom.map(x=>`<div>• <b>${x.percent}%</b> — Ítem ${x.id}: ${escapeHtml(x.label||"")}</div>`).join("")}
+            </div>
           </div>
         </div>
       `;
     }
 
-    function refreshDimensionUI_(){
-  const dim = $("#resDimension")?.value || "general";
-  const sel = $("#resValue");
-  if(!sel) return;
+    function renderChart(labels, values){
+      const ctx = $("chartItems").getContext("2d");
+      destroyChart();
 
-  if(dim === "general"){
-    sel.innerHTML = `<option value="" selected>—</option>`;
-    sel.disabled = true;
-    return;
-  }
+      // plugin: escribir valor encima de cada barra
+      const valueLabelPlugin = {
+        id: 'valueLabelPlugin',
+        afterDatasetsDraw(chart){
+          const {ctx} = chart;
+          ctx.save();
+          ctx.font = "bold 12px system-ui, -apple-system, Segoe UI, Roboto, Arial";
+          ctx.fillStyle = "#e8eefc";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "bottom";
 
-  // ✅ Opciones reales desde la data remota (no desde DEMOGRAPHICS)
-  const all = getAllResponses_();
-  const set = new Set();
+          chart.data.datasets.forEach((dataset, i)=>{
+            const meta = chart.getDatasetMeta(i);
+            meta.data.forEach((bar, idx)=>{
+              const val = dataset.data[idx];
+              const x = bar.x;
+              const y = bar.y - 6;
+              ctx.fillText(String(val) + "%", x, y);
+            });
+          });
 
-  for(const r of all){
-    const v = String(r?.demographics?.[dim] ?? "").trim();
-    if(v) set.add(v);
-  }
-
-  const opts = Array.from(set).sort((a,b)=>a.localeCompare(b, "es"));
-
-  sel.disabled = false;
-  sel.innerHTML = `
-    <option value="" selected disabled>Selecciona…</option>
-    ${opts.map(o => `<option value="${escapeAttr(o)}">${escapeHtml(o)}</option>`).join("")}
-  `;
-}
-
-    function renderResults(){
-      const chartsWrap = $("#chartsWrap");
-      const tableWrap  = $("#factorTableWrap");
-      const historyWrap = $("#historyWrap");
-
-      // ✅ NUEVO: si todavía no se cargó el remoto, lo cargamos y reintentamos
-      if(!Array.isArray(REMOTE_CACHE)){
-        $("#kpiCount").textContent = "0";
-        $("#kpiAvg").textContent = "—";
-        $("#kpiLast").textContent = "—";
-
-        if(chartsWrap) chartsWrap.innerHTML = `<p class="hint">Cargando datos desde Google Sheets…</p>`;
-        if(tableWrap)  tableWrap.innerHTML  = `<p class="hint">Cargando…</p>`;
-        if(historyWrap) historyWrap.innerHTML = `<p class="hint">Cargando…</p>`;
-
-        ensureRemoteLoaded_().then(() => {
-          // si el usuario está en Resultados, re-render
-          if(!$("#view-resultados")?.classList.contains("hidden")) renderResults();
-        });
-        return;
-      }
-
-      const all = getAllResponses_();
-
-      const dim = $("#resDimension")?.value || "general";
-      const val = $("#resValue")?.value || "";
-
-      const dimLabel = (dim === "general")
-        ? "General"
-        : (DEMOGRAPHICS.find(d => d.id === dim)?.label || dim);
-
-      // =========================
-      // GUARD: sin datos todavía
-      // =========================
-      if(!Array.isArray(all) || all.length === 0){
-        $("#kpiCount").textContent = "0";
-        $("#kpiAvg").textContent = "—";
-        $("#kpiLast").textContent = "—";
-
-        chartsWrap.innerHTML = `<p class="hint">Aún no hay datos para graficar. Presiona <b>Refrescar</b> o guarda al menos una encuesta.</p>`;
-        tableWrap.innerHTML  = `<p class="hint">Aún no hay datos para mostrar.</p>`;
-        historyWrap.innerHTML = `<p class="hint">Aún no hay respuestas.</p>`;
-        return;
-      }
-
-      // =========================
-      // BASE FILTRADA (solo si eligió Variable)
-      // =========================
-      const baseFiltered = (dim !== "general" && val)
-        ? all.filter(r => String(r.demographics?.[dim] ?? "") === String(val))
-        : all;
-
-      // =========================
-      // KPIs (si hay variable: solo esa base)
-      // =========================
-      $("#kpiCount").textContent = String(baseFiltered.length);
-
-      const overall = avg(baseFiltered.map(r => r.overallAvg).filter(v => typeof v === "number"));
-      const overallPct = (overall == null) ? null : (overall / 5) * 100;
-      $("#kpiAvg").textContent = overallPct == null ? "—" : overallPct.toFixed(1) + "%";
-
-      const last = baseFiltered[baseFiltered.length - 1];
-      $("#kpiLast").textContent = last ? niceDate(last.createdAt) : "—";
-
-      // =========================
-      // TABLA
-      // =========================
-      if(dim !== "general" && !val){
-        tableWrap.innerHTML =
-          `<p class="hint">Selecciona una <b>Variable</b> para ver la tabla filtrada de <b>${escapeHtml(dimLabel)}</b>.</p>`;
-      }else{
-        const rowsForTable = (dim === "general")
-          ? computeItemScoresByDimension_(all, "general", "")
-          : computeItemScoresByDimension_(baseFiltered, "general", "");
-
-        tableWrap.innerHTML = `
-          <table>
-            <thead>
-              <tr>
-                <th>Ítem</th>
-                <th>Pregunta</th>
-                <th style="width:140px;">Puntaje</th>
-                <th style="width:220px;">Visual</th>
-                <th style="width:90px;">N</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${rowsForTable.map(r => {
-                const v = (r.score ?? 0);
-                const pct = (r.score == null) ? 0 : clamp((v/5)*100, 0, 100);
-                return `
-                  <tr>
-                    <td><b>${escapeHtml(r.itemId.toUpperCase())}</b></td>
-                    <td class="small">
-                      ${escapeHtml(r.text)}
-                      <div class="small">Factor: ${escapeHtml(r.factor)}</div>
-                    </td>
-                    <td><b>${r.score == null ? "—" : r.score.toFixed(2)}</b></td>
-                    <td><div class="bar"><i style="width:${pct}%;"></i></div></td>
-                    <td>${r.n}</td>
-                  </tr>
-                `;
-              }).join("")}
-            </tbody>
-          </table>
-        `;
-      }
-
-      // =========================
-      // GRÁFICO
-      // =========================
-      chartsWrap.innerHTML = "";
-
-      function renderNoDataChart(msg){
-        chartsWrap.innerHTML = `<p class="hint">${msg}</p>`;
-      }
-
-            if(dim === "general"){
-        const labels = ITEMS.map(it => it.id.toUpperCase());
-        const points = ITEMS.map(it => scoreItem_(all, it.id).scorePct);
-        const series = [{ name: "General", points, n: all.length }];
-        renderBarChart_(chartsWrap, "Resultados por Ítem (General)", labels, series);
-      } else {
-        if(val){
-          if(baseFiltered.length === 0){
-            renderNoDataChart(
-              `No hay respuestas para <b>${escapeHtml(dimLabel)}: ${escapeHtml(String(val))}</b>.`
-            );
-          } else {
-            const labels = ITEMS.map(it => it.id.toUpperCase());
-            const points = ITEMS.map(it => scoreItem_(baseFiltered, it.id).scorePct);
-            const series = [{ name: String(val), points, n: baseFiltered.length }];
-
-            renderBarChart_(
-              chartsWrap,
-              `Resultados por Ítem (${escapeHtml(dimLabel)}: ${escapeHtml(String(val))})`,
-              labels,
-              series
-            );
-          }
-        } else {
-          const grouped = computeGroupedItemScores_(all, dim);
-
-          if(!grouped || !Array.isArray(grouped.series) || grouped.series.length === 0){
-            renderNoDataChart(
-              `Selecciona una <b>Variable</b> o asegúrate de que existan respuestas para <b>${escapeHtml(dimLabel)}</b>.`
-            );
-          } else {
-            renderBarChart_(
-              chartsWrap,
-              `Resultados por Ítem (${escapeHtml(dimLabel)})`,
-              grouped.labels,
-              grouped.series
-            );
-          }
+          ctx.restore();
         }
-      }
+      };
 
-      // =========================
-      // HISTORIAL
-      // =========================
-      const last10 = all.slice().reverse().slice(0,10);
-      if(!last10.length){
-        historyWrap.innerHTML = `<p class="hint">Aún no hay respuestas.</p>`;
-        return;
-      }
-
-      historyWrap.innerHTML = `
-        <table>
-          <thead>
-            <tr>
-              <th>Fecha</th>
-              <th>Promedio</th>
-              <th>Resultado</th>
-              <th>Demográficos</th>
-              <th>Comentarios</th>
-              <th>Respuestas</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${last10.map(r => {
-              const raw = (r.flat ?? r) || {};
-
-              const resultado =
-                raw.Resultado ?? raw.resultado ??
-                raw.result ?? raw.RESULTADO ??
-                r.Resultado ?? r.resultado ??
-                r.result ?? r.RESULTADO ??
-                "—";
-
-              const demoTxt = DEMOGRAPHICS
-                .map(d => `${escapeHtml(d.label)}: <b>${escapeHtml(r.demographics?.[d.id] ?? raw?.[d.id] ?? "—")}</b>`)
-                .join("<br>");
-
-              const ansTxt = ITEMS
-                .map(it => {
-                  const val = r.answers?.[it.id] ?? raw?.[it.id] ?? "—";
-                  return `${escapeHtml(it.id.toUpperCase())}: <b>${escapeHtml(val)}</b>`;
-                })
-                .join("<br>");
-
-              return `
-                <tr>
-                  <td>${escapeHtml(niceDate(r.createdAt))}</td>
-                  <td><b>${typeof r.overallAvg === "number" ? r.overallAvg.toFixed(2) : "—"}</b></td>
-                  <td class="small">${escapeHtml(String(resultado ?? "—"))}</td>
-                  <td class="small">${demoTxt}</td>
-                  <td class="small">${escapeHtml((r.comments ?? raw.comments ?? "").trim() || "—")}</td>
-                  <td class="small">
-                    <details>
-                      <summary style="cursor:pointer;color:var(--accent);font-weight:800;">Ver</summary>
-                      <div style="margin-top:8px;line-height:1.4;">${ansTxt}</div>
-                      <div style="margin-top:10px;" class="small">
-                        <b>Resultado:</b> ${escapeHtml(String(resultado ?? "—"))}
-                      </div>
-                    </details>
-
-                    <details style="margin-top:8px;">
-                      <summary style="cursor:pointer;color:var(--accent);font-weight:800;">Ver todos los campos</summary>
-                      <pre class="note" style="margin-top:8px;overflow:auto;max-height:260px;">${escapeHtml(JSON.stringify(raw, null, 2))}</pre>
-                    </details>
-                  </td>
-                </tr>
-              `;
-            }).join("")}
-          </tbody>
-        </table>
-        <p class="note">Mostrando las últimas 10 respuestas.</p>
-      `;
+      chart = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels,
+          datasets: [{
+            label: "% por ítem",
+            data: values,
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              min: 0,
+              max: 100,
+              ticks: { callback: (v)=> v + "%" }
+            }
+          },
+          plugins: {
+            legend: { display:false },
+            tooltip: {
+              callbacks:{
+                label: (ctx)=> `${ctx.raw}%`
+              }
+            }
+          }
+        },
+        plugins:[valueLabelPlugin]
+      });
     }
 
-    /**********************************************************************
-     * EXPORTS
-     *********************************************************************/
-    function exportJSON(){
-      const rows = getAllResponses_();
-      downloadText("encuesta_clima_organizacional_respuestas.json", JSON.stringify(rows, null, 2));
+    function destroyChart(){
+      if(chart){ chart.destroy(); chart = null; }
     }
 
-    function exportCSV(){
-      const rows = getAllResponses_();
-      if(!rows.length){ alert("No hay datos para exportar."); return; }
-
-      const headers = [
-        "id","createdAt",
-        ...DEMOGRAPHICS.map(d => d.id),
-        ...ITEMS.map(it => it.id),
-        "comments",
-        "overallAvg"
-      ];
-
-      const csvLines = [];
-      csvLines.push(headers.join(","));
-
-      for(const r of rows){
-        const line = [];
-        line.push(csvSafe(r.id));
-        line.push(csvSafe(r.createdAt));
-        for(const d of DEMOGRAPHICS) line.push(csvSafe(r.demographics?.[d.id] ?? ""));
-        for(const it of ITEMS) line.push(csvSafe(r.answers?.[it.id] ?? ""));
-        line.push(csvSafe(r.comments ?? ""));
-        line.push(csvSafe(typeof r.overallAvg === "number" ? r.overallAvg.toFixed(4) : ""));
-        csvLines.push(line.join(","));
-      }
-
-      downloadText("encuesta_clima_organizacional_respuestas.csv", csvLines.join("\n"));
-
-      function csvSafe(v){
-        const s = String(v ?? "");
-        const needs = /[",\n]/.test(s);
-        const t = s.replaceAll('"','""');
-        return needs ? `"${t}"` : t;
-      }
+    /***********************
+     * UTILS
+     ***********************/
+    function escapeHtml(s){
+      return String(s).replace(/[&<>"']/g, m => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+      }[m]));
+    }
+    function pretty(k){
+      const map = {Genero:"Género", Antiguedad:"Antigüedad", Localidad:"Localidad", Departamento:"Departamento", Nivel:"Nivel"};
+      return map[k] || k;
     }
 
-    /**********************************************************************
-     * NAV
-     *********************************************************************/
-    function setView(view){
-      const encuesta = $("#view-encuesta");
-      const resultados = $("#view-resultados");
-      const t1 = $("#tab-encuesta");
-      const t2 = $("#tab-resultados");
-
-      if(view === "resultados"){
-  encuesta.classList.add("hidden");
-  resultados.classList.remove("hidden");
-  t1.setAttribute("aria-selected","false");
-  t2.setAttribute("aria-selected","true");
-
-  // ✅ Cargar data primero, luego llenar Variable con valores reales
-  REMOTE_CACHE = null;
-  ensureRemoteLoaded_().then(() => {
-    refreshDimensionUI_();
-    renderResults();
-  });
-}else{
-        resultados.classList.add("hidden");
-        encuesta.classList.remove("hidden");
-        t2.setAttribute("aria-selected","false");
-        t1.setAttribute("aria-selected","true");
-      }
-    }
-
-    /**********************************************************************
-     * ENVÍO A GOOGLE SHEETS (WEB APP)
-     *********************************************************************/
-    async function sendToGoogleSheet(payload){
-      const url = String(GAS_WEBAPP_URL || "").trim();
-
-      if(!isValidExecUrl(url)){
-        return { ok:false, message:"GAS_WEBAPP_URL inválida. Debe ser el Web App de Apps Script y terminar en /exec (NO el link del Google Sheet)." };
-      }
-
-      try{
-        await fetch(url, {
-          method: "POST",
-          mode: "no-cors",
-          headers: { "Content-Type": "text/plain;charset=utf-8" },
-          body: JSON.stringify(payload),
-        });
-
-        return { ok:true };
-      }catch(err){
-        return { ok:false, message: String(err?.message ?? err) };
-      }
-    }
-
-    /**********************************************************************
+    /***********************
      * INIT
-     *********************************************************************/
-    function renderResDimensionOptions_(){
-      const sel = $("#resDimension");
-      if(!sel) return;
-
-      sel.innerHTML = `
-        <option value="general" selected>General</option>
-        ${DEMOGRAPHICS.map(d => `<option value="${escapeAttr(d.id)}">${escapeHtml(d.label)}</option>`).join("")}
-      `;
-    }
-
-    (function initApp(){
-      try{
-        renderScaleHint();
-        renderDemographics();
-        renderItems();
-
-        renderResDimensionOptions_();
-        refreshDimensionUI_();
-
-        $("#remotePill").textContent = "Remote: —";
-
-        $("#integrationHint").textContent =
-          isValidExecUrl(GAS_WEBAPP_URL)
-            ? "✅ WebApp configurado (envío por POST)."
-            : "⚠️ Falta pegar la URL del WebApp de Apps Script (/exec).";
-
-        // NAV
-        $("#tab-encuesta").addEventListener("click", () => setView("encuesta"));
-        $("#tab-resultados").addEventListener("click", () => setView("resultados"));
-
-        // FORM SUBMIT
-        $("#surveyForm").addEventListener("submit", async (e) => {
-          e.preventDefault();
-
-          const btn = $("#btnGuardar");
-          btn.disabled = true;
-
-          const res = collectResponse();
-          if(!res.ok){
-            $("#saveNote").textContent = res.message;
-            $("#saveNote").style.color = "var(--warn)";
-            btn.disabled = false;
-            return;
-          }
-
-          // 1) Enviar a Sheets (única fuente)
-          $("#saveNote").textContent = "⏳ Guardando en Google Sheets…";
-          $("#saveNote").style.color = "var(--muted)";
-
-          const payload = {
-            action: "save",
-            sheet: "Respuestas",
-            ...res.data
-          };
-
-          const remote = await sendToGoogleSheet(payload);
-
-          if(remote.ok){
-            $("#saveNote").textContent =
-              "✅ Guardado en Google Sheets.\n(Si no aparece, suele ser despliegue/permisos del WebApp 😅)";
-            $("#saveNote").style.color = "var(--ok)";
-
-            clearForm();
-
-            // refrescar cache remoto para Resultados
-            REMOTE_CACHE = null; // ✅ fuerza recarga limpia
-            await ensureRemoteLoaded_();
-          }else{
-            $("#saveNote").textContent =
-              `⚠️ No se pudo enviar a Sheets: ${remote.message || "Error"}`;
-            $("#saveNote").style.color = "var(--warn)";
-          }
-
-          btn.disabled = false;
-        });
-
-        // BOTONES
-        $("#btnLimpiar").addEventListener("click", clearForm);
-        $("#btnExportJSON").addEventListener("click", exportJSON);
-        $("#btnExportCSV").addEventListener("click", exportCSV);
-
-        // RESULTADOS UI (✅ ahora asegura data antes de renderizar)
-       $("#resDimension").addEventListener("change", async () => {
-  const rv = $("#resValue");
-  if(rv) rv.value = "";
-
-  await ensureRemoteLoaded_();   // ✅ primero data
-  refreshDimensionUI_();         // ✅ luego opciones reales
-  renderResults();
-});
-
-        $("#resValue").addEventListener("change", async () => {
-          await ensureRemoteLoaded_();
-          renderResults();
-        });
-
-        $("#btnReloadResults").addEventListener("click", async () => {
-          REMOTE_CACHE = null; // ✅ fuerza recarga
-          await ensureRemoteLoaded_();
-          renderResults();
-        });
-
-        // Vista inicial
-        setView("encuesta");
-      }catch(err){
-        console.error("Error en initApp()", err);
-        alert("Hay un error en el script. Abre Console (F12) para ver detalles.");
-      }
-    })();
-
+     ***********************/
+    buildDemographics();
+    buildItems();
+    initFilters();
+    ping();
   </script>
 </body>
 </html>
