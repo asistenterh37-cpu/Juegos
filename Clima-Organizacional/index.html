@@ -388,7 +388,7 @@
     /***********************
      * CONFIG (EDITA AQUÍ)
      ***********************/
-    const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbz3WJ7cF4EbErhvEq2j2y2d4ao2yLxA5IEo9HYQqRVZsA-KQkH4IHQsfBRdabO5T0MkHg/exec";
+    const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzoTseao4yfZDjBHx9YQ4745eJ-esEyIZSMMavPSNDDEMFDymNi0r3R26ecOcRxW0OMiA/exec";
 
     // Estructura según tus adjuntos: campos demográficos
     const DEMOGRAPHICS = [
@@ -564,30 +564,39 @@
      * VALIDACIÓN / PAYLOAD
      ***********************/
     function getPayload(){
-      const dem = {};
-      for(const d of DEMOGRAPHICS){
-        dem[d.key] = ($("dem_"+d.key).value || "").trim();
-      }
-      const answers = {};
-      for(const it of ITEMS){
-        answers["I"+it.id] = Number($("item_"+it.id).value || 0);
-      }
-      const comentarios = ($("comentarios").value || "").trim();
-      return { demographics: dem, answers, comentarios };
-    }
+  // Payload FLAT para que el GS lo ponga exacto en columnas sin inventar headers por texto
+  const row = {};
 
-    function validatePayload(p){
-      // Demográficos obligatorios
-      for(const d of DEMOGRAPHICS){
-        if(!p.demographics[d.key]) return `Falta seleccionar: ${d.label}`;
-      }
-      // Ítems obligatorios
-      for(const it of ITEMS){
-        if(!p.answers["I"+it.id]) return `Falta responder el ítem ${it.id}`;
-      }
-      return null;
-    }
+  // Demográficos
+  for(const d of DEMOGRAPHICS){
+    row[d.key] = ($("dem_"+d.key).value || "").trim();
+  }
 
+  // Ítems (claves estables I1..I12)
+  for(const it of ITEMS){
+    row["I" + it.id] = Number($("item_" + it.id).value || 0);
+  }
+
+  // Comentarios
+  row["Comentarios"] = ($("comentarios").value || "").trim();
+
+  // opcional: versionado de esquema (útil para debugging)
+  row["_schema"] = "clima_v1";
+
+  return row;
+}
+
+function validatePayload(row){
+  // Demográficos obligatorios
+  for(const d of DEMOGRAPHICS){
+    if(!row[d.key]) return `Falta seleccionar: ${d.label}`;
+  }
+  // Ítems obligatorios
+  for(const it of ITEMS){
+    if(!(row["I"+it.id] >= 1 && row["I"+it.id] <= 5)) return `Falta responder el ítem ${it.id}`;
+  }
+  return null;
+}
     function limpiar(){
       for(const d of DEMOGRAPHICS){
         $("dem_"+d.key).value = "";
