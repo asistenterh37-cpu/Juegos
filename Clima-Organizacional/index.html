@@ -487,7 +487,7 @@
     /**********************************************************************
      * ✅ URL REAL DEL WEB APP (termina en /exec)
      *********************************************************************/
-    const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwd-Bc_N5ZpYRcr3mWxpnKFffDXRIxu7HZ3hRrxWyEQfL9qRm6upHfT7XvH4fIh-ZI3aQ/exec";
+    const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyRM6vUNb93w8pvWTzf9gH_7TT0XN_NxMHoKj7UcFM6shMAsqvdcJDffJ3JLNPwr5mV9w/exec";
 
     /**********************************************************************
      * UTILS
@@ -691,7 +691,9 @@ function loadRemoteFromGAS(){
       return;
     }
 
-  const finish = (result) => {
+let done = false;
+
+const finish = (result) => {
   if(done) return;
   done = true;
 
