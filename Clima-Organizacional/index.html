@@ -696,7 +696,7 @@ function postViaIframe(fields){
 
     function onMsg(ev){
       // opcional: puedes endurecer esto validando ev.origin
-      // if(ev.origin !== "https://script.google.com") return;
+            if(!String(ev.origin || "").includes("script.google.com")) return;
 
       const data = ev.data;
       if(!data || data.token !== token) return;
