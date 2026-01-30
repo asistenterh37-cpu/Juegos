@@ -388,7 +388,7 @@
     /***********************
      * CONFIG (EDITA AQUÍ)
      ***********************/
-    const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzavhi-jPFdFofWd7aWbQGb8BqZREsD4Cfqqg47htWraKWg_mNFD9MJUFuxqd7eCTjEqw/exec";
+    const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwzF9A75XhcMge6VN7hWC0Kl4sP0vEQjAvqfS_I1pLlT5UW0KmF-lh9hd2pirUXc_sGvw/exec";
 
     // Estructura según tus adjuntos: campos demográficos
     const DEMOGRAPHICS = [
@@ -608,99 +608,122 @@
     }
 
     /***********************
-     * API CALLS
-     ***********************/
-    async function ping(){
-      try{
-        const r = await fetch(WEBAPP_URL + "?action=ping", { method:"GET" });
-        if(!r.ok) throw new Error("HTTP " + r.status);
-        const j = await r.json();
-        setRemote(true, j?.status || "conectado");
-      }catch(e){
-        setRemote(false, "timeout");
-      }
+ * API CALLS (JSONP sin CORS)
+ ***********************/
+function jsonpRequest(params){
+  return new Promise((resolve, reject)=>{
+    const cbName = "__cb_" + Math.random().toString(36).slice(2);
+    const q = new URLSearchParams(params || {});
+    q.set("callback", cbName);
+
+    const script = document.createElement("script");
+    script.src = WEBAPP_URL + (WEBAPP_URL.includes("?") ? "&" : "?") + q.toString();
+
+    const timeout = setTimeout(()=>{
+      cleanup();
+      reject(new Error("timeout"));
+    }, 15000);
+
+    function cleanup(){
+      clearTimeout(timeout);
+      if(window[cbName]) delete window[cbName];
+      if(script && script.parentNode) script.parentNode.removeChild(script);
     }
 
-    async function guardar(){
-      const p = getPayload();
-      const err = validatePayload(p);
-      if(err){
-        setStatus(err, "err");
-        return;
-      }
+    window[cbName] = (data)=>{
+      cleanup();
+      resolve(data);
+    };
 
-      setStatus("Guardando...", "info");
-      try{
-        const r = await fetch(WEBAPP_URL, {
-          method:"POST",
-          headers:{ "Content-Type":"application/json" },
-          body: JSON.stringify({ action:"save", payload: p })
-        });
-        const j = await r.json();
-        if(!r.ok || !j.ok) throw new Error(j.error || "No se pudo guardar");
+    script.onerror = ()=>{
+      cleanup();
+      reject(new Error("network_error"));
+    };
 
-        setStatus("Guardado ✅", "ok");
-        // opcional: limpiar tras guardar
-        // limpiar();
-      }catch(e){
-        setStatus("Error al guardar: " + e.message, "err");
-      }
-    }
+    document.body.appendChild(script);
+  });
+}
 
-    async function cargarOpcionesFiltro(groupBy, selectEl){
-      selectEl.innerHTML = `<option value="">Cargando...</option>`;
-      try{
-        const r = await fetch(WEBAPP_URL + `?action=unique&groupBy=${encodeURIComponent(groupBy)}`);
-        const j = await r.json();
-        if(!j.ok) throw new Error(j.error || "No se pudo cargar variables");
-        const values = j.values || [];
-        selectEl.innerHTML =
-          `<option value="">Selecciona...</option>` +
-          values.map(v=>`<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join("");
-      }catch(e){
-        selectEl.innerHTML = `<option value="">(error)</option>`;
-      }
-    }
+async function ping(){
+  try{
+    const j = await jsonpRequest({ action:"ping" });
+    if(!j || !j.ok) throw new Error(j?.error || "ping error");
+    setRemote(true, j?.status || "conectado");
+  }catch(e){
+    setRemote(false, "sin conexión");
+  }
+}
 
-    let chart;
-    async function cargarResultados(){
-      $("noDataMsg").style.display = "block";
-      $("tableWrap").innerHTML = `<div class="muted">Cargando...</div>`;
+async function guardar(){
+  const p = getPayload();
+  const err = validatePayload(p);
+  if(err){
+    setStatus(err, "err");
+    return;
+  }
 
-      const groupBy = $("groupBy").value;
-      const groupValue = $("groupValue").disabled ? "" : ($("groupValue").value || "");
+  setStatus("Guardando...", "info");
+  try{
+    // Guardado por GET+JSONP para evitar CORS
+    const j = await jsonpRequest({
+      action:"save",
+      payload: JSON.stringify(p)
+    });
+    if(!j || !j.ok) throw new Error(j?.error || "No se pudo guardar");
+    setStatus("Guardado ✅", "ok");
+  }catch(e){
+    setStatus("Error al guardar: " + (e.message || e), "err");
+  }
+}
 
-      try{
-        const url = WEBAPP_URL + `?action=results&groupBy=${encodeURIComponent(groupBy)}&groupValue=${encodeURIComponent(groupValue)}`;
-        const r = await fetch(url);
-        const j = await r.json();
-        if(!j.ok) throw new Error(j.error || "No se pudo cargar resultados");
+async function cargarOpcionesFiltro(groupBy, selectEl){
+  selectEl.innerHTML = `<option value="">Cargando...</option>`;
+  try{
+    const j = await jsonpRequest({ action:"unique", groupBy });
+    if(!j.ok) throw new Error(j.error || "No se pudo cargar variables");
+    const values = j.values || [];
+    selectEl.innerHTML =
+      `<option value="">Selecciona...</option>` +
+      values.map(v=>`<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join("");
+  }catch(e){
+    selectEl.innerHTML = `<option value="">(error)</option>`;
+  }
+}
 
-        renderResults(j.data);
-      }catch(e){
-        $("kpiN").textContent = "0";
-        $("kpiAvg").textContent = "—";
-        $("kpiLast").textContent = "—";
-        $("tableWrap").innerHTML = `<div class="muted">Error: ${escapeHtml(e.message)}</div>`;
-        destroyChart();
-      }
-    }
+let chart;
+async function cargarResultados(){
+  $("noDataMsg").style.display = "block";
+  $("tableWrap").innerHTML = `<div class="muted">Cargando...</div>`;
 
-    async function cargarResumen(){
-      const groupBy = $("sumGroupBy").value;
-      const groupValue = $("sumGroupValue").disabled ? "" : ($("sumGroupValue").value || "");
+  const groupBy = $("groupBy").value;
+  const groupValue = $("groupValue").disabled ? "" : ($("groupValue").value || "");
 
-      $("summaryBox").innerHTML = `<div class="muted">Cargando...</div>`;
-      try{
-        const url = WEBAPP_URL + `?action=results&groupBy=${encodeURIComponent(groupBy)}&groupValue=${encodeURIComponent(groupValue)}`;
-        const r = await fetch(url);
-        const j = await r.json();
-        if(!j.ok) throw new Error(j.error || "No se pudo cargar resumen");
-        renderSummary(j.data, groupBy, groupValue);
-      }catch(e){
-        $("summaryBox").innerHTML = `<div class="muted">Error: ${escapeHtml(e.message)}</div>`;
-      }
-    }
+  try{
+    const j = await jsonpRequest({ action:"results", groupBy, groupValue });
+    if(!j.ok) throw new Error(j.error || "No se pudo cargar resultados");
+    renderResults(j.data);
+  }catch(e){
+    $("kpiN").textContent = "0";
+    $("kpiAvg").textContent = "—";
+    $("kpiLast").textContent = "—";
+    $("tableWrap").innerHTML = `<div class="muted">Error: ${escapeHtml(e.message || e)}</div>`;
+    destroyChart();
+  }
+}
+
+async function cargarResumen(){
+  const groupBy = $("sumGroupBy").value;
+  const groupValue = $("sumGroupValue").disabled ? "" : ($("sumGroupValue").value || "");
+
+  $("summaryBox").innerHTML = `<div class="muted">Cargando...</div>`;
+  try{
+    const j = await jsonpRequest({ action:"results", groupBy, groupValue });
+    if(!j.ok) throw new Error(j.error || "No se pudo cargar resumen");
+    renderSummary(j.data, groupBy, groupValue);
+  }catch(e){
+    $("summaryBox").innerHTML = `<div class="muted">Error: ${escapeHtml(e.message || e)}</div>`;
+  }
+}
 
     function renderResults(data){
       const n = data.n || 0;
