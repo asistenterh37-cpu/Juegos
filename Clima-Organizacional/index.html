@@ -695,15 +695,21 @@ function postViaIframe(fields){
     }
 
     function onMsg(ev){
-      // opcional: puedes endurecer esto validando ev.origin
-            if(!String(ev.origin || "").includes("script.google.com")) return;
+  const origin = String(ev.origin || "");
 
-      const data = ev.data;
-      if(!data || data.token !== token) return;
+  // Acepta ambos orígenes típicos de Apps Script
+  const okOrigin =
+    origin.includes("script.google.com") ||
+    origin.includes("script.googleusercontent.com");
 
-      cleanup();
-      resolve(data);
-    }
+  if(!okOrigin) return;
+
+  const data = ev.data;
+  if(!data || data.token !== token) return;
+
+  cleanup();
+  resolve(data);
+}
 
     window.addEventListener("message", onMsg);
 
@@ -742,9 +748,10 @@ async function guardar(){
 
   setStatus("Guardando...", "info");
   try{
-    // Guardar por JSONP (GET) => evita CORS e iframe bloqueado
-    const j = await jsonpRequest({
+    // ✅ Guardar por POST usando iframe (evita CORS/JSONP y límites de URL)
+    const j = await postViaIframe({
       action: "save",
+      transport: "iframe",
       payload: JSON.stringify(p)
     });
 
