@@ -487,7 +487,7 @@
     /**********************************************************************
      * ✅ URL REAL DEL WEB APP (termina en /exec)
      *********************************************************************/
-    const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxO1f4CldozTD75hOmBzlbz-ZzPkuvoRrwrxP1Bs948MaBiktZ48IF9cuauMYxNJ8PamQ/exec";
+    const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwd-Bc_N5ZpYRcr3mWxpnKFffDXRIxu7HZ3hRrxWyEQfL9qRm6upHfT7XvH4fIh-ZI3aQ/exec";
 
     /**********************************************************************
      * UTILS
@@ -691,12 +691,18 @@ function loadRemoteFromGAS(){
       return;
     }
 
-    let done = false;
-    const finish = (result) => {
-      if(done) return;
-      done = true;
-      resolve(result);
-    };
+  const finish = (result) => {
+  if(done) return;
+  done = true;
+
+  // ✅ FIX DEFINITIVO: si falla la carga, dejamos REMOTE_CACHE como array vacío
+  // para que renderResults() NO se quede en "cargando..."
+  if(!result || result.ok !== true){
+    if(!Array.isArray(REMOTE_CACHE)) REMOTE_CACHE = [];
+  }
+
+  resolve(result);
+};
 
     const cbName = `__climaCB_${Date.now()}_${Math.random().toString(16).slice(2)}`;
     const sep = url.includes("?") ? "&" : "?";
@@ -715,12 +721,16 @@ function loadRemoteFromGAS(){
     };
 
     // Timeout anti “cargando eterno”
-    const t = setTimeout(() => {
-      cleanup();
-      REMOTE_STATUS = "Timeout";
-      $("#remotePill").textContent = "Remote: ⚠️ Timeout";
-      finish({ ok:false, message:"Timeout: el WebApp no respondió (revisa deploy/permisos o URL /exec)." });
-    }, 9000);
+  const t = setTimeout(() => {
+  cleanup();
+  REMOTE_STATUS = "Timeout";
+  $("#remotePill").textContent = "Remote: ⚠️ Timeout";
+
+  // ✅ importantísimo: forzar cache a [] para salir del "cargando..."
+  REMOTE_CACHE = [];
+
+  finish({ ok:false, message:"Timeout: el WebApp no respondió (revisa deploy/permisos o URL /exec)." });
+}, 9000);
 
     window[cbName] = (payload) => {
       clearTimeout(t);
@@ -728,21 +738,28 @@ function loadRemoteFromGAS(){
 
       // Si no es payload válido, lo tratamos como fallo
       if(!payload || typeof payload !== "object"){
-        REMOTE_STATUS = "Respuesta inválida";
-        $("#remotePill").textContent = "Remote: ⚠️ Inválido";
-        finish({ ok:false, message:"Respuesta inválida del WebApp." });
-        return;
-      }
+  REMOTE_STATUS = "Respuesta inválida";
+  $("#remotePill").textContent = "Remote: ⚠️ Inválido";
+
+  // ✅ fuerza salida del estado "cargando..."
+  REMOTE_CACHE = [];
+
+  finish({ ok:false, message:"Respuesta inválida del WebApp." });
+  return;
+}
 
       // Si el GS devolvió error, lo reflejamos pero NO nos quedamos cargando
       if(payload.ok !== true || !Array.isArray(payload.rows)){
-        const msg = payload.error || payload.message || "El WebApp no devolvió rows (¿deploy no público?).";
-        REMOTE_STATUS = "No público / sin datos";
-        $("#remotePill").textContent = "Remote: ⚠️ " + REMOTE_STATUS;
-        finish({ ok:false, message:String(msg) });
-        return;
-      }
+  const msg = payload.error || payload.message || "El WebApp no devolvió rows (¿deploy no público?).";
+  REMOTE_STATUS = "No público / sin datos";
+  $("#remotePill").textContent = "Remote: ⚠️ " + REMOTE_STATUS;
 
+  // ✅ fuerza salida del estado "cargando..."
+  REMOTE_CACHE = [];
+
+  finish({ ok:false, message:String(msg) });
+  return;
+}
       try{
         REMOTE_CACHE = payload.rows.map(normalizeResponse_).filter(Boolean);
         REMOTE_STATUS = `OK (${REMOTE_CACHE.length})`;
@@ -755,13 +772,17 @@ function loadRemoteFromGAS(){
       }
     };
 
-    s.onerror = () => {
-      clearTimeout(t);
-      cleanup();
-      REMOTE_STATUS = "No carga";
-      $("#remotePill").textContent = "Remote: ⚠️ No carga";
-      finish({ ok:false, message:"Error cargando el script del WebApp (URL incorrecta o acceso denegado)." });
-    };
+   s.onerror = () => {
+  clearTimeout(t);
+  cleanup();
+  REMOTE_STATUS = "No carga";
+  $("#remotePill").textContent = "Remote: ⚠️ No carga";
+
+  // ✅ fuerza salida del estado "cargando..."
+  REMOTE_CACHE = [];
+
+  finish({ ok:false, message:"Error cargando el script del WebApp (URL incorrecta o acceso denegado)." });
+};
 
     document.body.appendChild(s);
   });
