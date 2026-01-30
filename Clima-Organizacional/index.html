@@ -678,46 +678,78 @@
       return Array.from(map.values()).sort((x,y) => (x.createdAt||"").localeCompare(y.createdAt||""));
     }
 
-    // JSONP loader para evitar CORS
-    function loadRemoteFromGAS(){
-      return new Promise((resolve) => {
-        const url = String(GAS_WEBAPP_URL || "").trim();
-        if(!isValidExecUrl(url)){
-          REMOTE_STATUS = "GAS_WEBAPP_URL inválida";
-          $("#remotePill").textContent = "Remote: ⚠️ URL inválida";
-          resolve({ ok:false, message:"URL inválida" });
-          return;
-        }
-
-        const cbName = "__cb_remote_" + Math.random().toString(16).slice(2);
-        window[cbName] = (payload) => {
-          try{
-            const rows = Array.isArray(payload?.rows) ? payload.rows : [];
-            REMOTE_CACHE = rows.map(normalizeResponse_).filter(Boolean);
-            REMOTE_STATUS = `OK (${REMOTE_CACHE.length})`;
-            $("#remotePill").textContent = "Remote: ✅ " + REMOTE_STATUS;
-            resolve({ ok:true, rows: REMOTE_CACHE });
-          }catch(err){
-            REMOTE_STATUS = "Error parse";
-            $("#remotePill").textContent = "Remote: ⚠️ Error";
-            resolve({ ok:false, message:String(err?.message ?? err) });
-          }finally{
-            try{ delete window[cbName]; }catch(_){}
-          }
-        };
-
-        const s = document.createElement("script");
-        const sep = url.includes("?") ? "&" : "?";
-        s.src = `${url}${sep}action=data&callback=${encodeURIComponent(cbName)}`;
-        s.onerror = () => {
-          REMOTE_STATUS = "No se pudo cargar";
-          $("#remotePill").textContent = "Remote: ⚠️ No carga";
-          try{ delete window[cbName]; }catch(_){}
-          resolve({ ok:false, message:"Script load error" });
-        };
-        document.body.appendChild(s);
-      });
+    // JSONP loader para evitar CORS (con timeout + cache-buster)
+function loadRemoteFromGAS(){
+  return new Promise((resolve) => {
+    const url = String(GAS_WEBAPP_URL || "").trim();
+    if(!isValidExecUrl(url)){
+      REMOTE_STATUS = "GAS_WEBAPP_URL inválida";
+      $("#remotePill").textContent = "Remote: ⚠️ URL inválida";
+      resolve({ ok:false, message:"URL inválida" });
+      return;
     }
+
+    const cbName = "__cb_remote_" + Math.random().toString(16).slice(2);
+    let done = false;
+
+    const finish = (result) => {
+      if(done) return;
+      done = true;
+      resolve(result);
+    };
+
+    // ⏱️ Timeout anti “cargando eterno”
+    const t = setTimeout(() => {
+      REMOTE_STATUS = "Timeout: no llegó callback";
+      $("#remotePill").textContent = "Remote: ⚠️ Timeout";
+      try{ delete window[cbName]; }catch(_){}
+      finish({ ok:false, message:"Timeout: el WebApp no ejecutó el callback (JSONP)." });
+    }, 12000);
+
+    window[cbName] = (payload) => {
+      clearTimeout(t);
+      try{
+        const rows = Array.isArray(payload?.rows) ? payload.rows : [];
+        REMOTE_CACHE = rows.map(normalizeResponse_).filter(Boolean);
+        REMOTE_STATUS = `OK (${REMOTE_CACHE.length})`;
+        $("#remotePill").textContent = "Remote: ✅ " + REMOTE_STATUS;
+        finish({ ok:true, rows: REMOTE_CACHE });
+      }catch(err){
+        REMOTE_STATUS = "Error parse";
+        $("#remotePill").textContent = "Remote: ⚠️ Error";
+        finish({ ok:false, message:String(err?.message ?? err) });
+      }finally{
+        try{ delete window[cbName]; }catch(_){}
+      }
+    };
+
+    const s = document.createElement("script");
+
+    // ✅ cache-buster para GitHub Pages / navegador
+    const sep = url.includes("?") ? "&" : "?";
+    const bust = `t=${Date.now()}`;
+
+    // OJO: si tu GAS usa otro parámetro (ej. cb/jsonp), aquí es donde se ajusta.
+    s.src = `${url}${sep}action=data&callback=${encodeURIComponent(cbName)}&${bust}`;
+
+    s.onerror = () => {
+      clearTimeout(t);
+      REMOTE_STATUS = "No se pudo cargar";
+      $("#remotePill").textContent = "Remote: ⚠️ No carga";
+      try{ delete window[cbName]; }catch(_){}
+      finish({ ok:false, message:"Script load error (no se pudo cargar JSONP)." });
+    };
+
+    // Limpieza: quitamos el script después de cargar
+    s.onload = () => {
+      // si el GAS devuelve JSON “crudo” (no JSONP), onload pasa pero callback no se ejecuta:
+      // el timeout se encargará de cortar el ciclo.
+      try{ setTimeout(() => s.remove(), 0); }catch(_){}
+    };
+
+    document.body.appendChild(s);
+  });
+}
 
     // ✅ NUEVO: “asegurar data” antes de renderizar (Resultado por / Variable)
     function ensureRemoteLoaded_(){
@@ -1064,36 +1096,38 @@
         const series = [{ name: "General", points, n: all.length }];
         renderBarChart_(chartsWrap, "Resultados por Ítem (General)", labels, series);
       }else{
-        if(val){
-          if(baseFiltered.length === 0){
-            renderNoDataChart(`No hay respuestas para <b>${escapeHtml(dimLabel)}: ${escapeHtml(String(val))}</b>.`);
-          }else{
-            const labels = ITEMS.map(it => it.id.toUpperCase());
-            const points = ITEMS.map(it => scoreItem_(baseFiltered, it.id).scorePct);
-            const series = [{ name: String(val), points, n: baseFiltered.length }];
+}else{
+  if(val){
+    if(baseFiltered.length === 0){
+      renderNoDataChart(`No hay respuestas para <b>${escapeHtml(dimLabel)}: ${escapeHtml(String(val))}</b>.`);
+    }else{
+      const labels = ITEMS.map(it => it.id.toUpperCase());
+      const points = ITEMS.map(it => scoreItem_(baseFiltered, it.id).scorePct);
+      const series = [{ name: String(val), points, n: baseFiltered.length }];
 
-            renderBarChart_(
-              chartsWrap,
-              `Resultados por Ítem (${escapeHtml(dimLabel)}: ${escapeHtml(String(val))})`,
-              labels,
-              series
-            );
-          }
-        }else{
-          const grouped = computeGroupedItemScores_(all, dim);
+      renderBarChart_(
+        chartsWrap,
+        `Resultados por Ítem (${escapeHtml(dimLabel)}: ${escapeHtml(String(val))})`,
+        labels,
+        series
+      );
+    }
+  }else{
+    const grouped = computeGroupedItemScores_(all, dim);
 
-          if(!grouped?.series?.length){
-            renderNoDataChart(`No hay datos para mostrar en <b>${escapeHtml(dimLabel)}</b>.`);
-          }else{
-            renderBarChart_(
-              chartsWrap,
-              `Resultados por Ítem (${escapeHtml(dimLabel)})`,
-              grouped.labels,
-              grouped.series
-            );
-          }
-        }
-      }
+    // ✅ si hay dimensión pero no hay grupos reales, evita “cargando” fantasma
+    if(!grouped || !Array.isArray(grouped.series) || grouped.series.length === 0){
+      renderNoDataChart(`Selecciona una <b>Variable</b> o asegúrate de que existan respuestas para <b>${escapeHtml(dimLabel)}</b>.`);
+    }else{
+      renderBarChart_(
+        chartsWrap,
+        `Resultados por Ítem (${escapeHtml(dimLabel)})`,
+        grouped.labels,
+        grouped.series
+      );
+    }
+  }
+}
 
       // =========================
       // HISTORIAL
