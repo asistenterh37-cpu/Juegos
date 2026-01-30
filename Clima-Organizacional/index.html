@@ -388,7 +388,7 @@
     /***********************
      * CONFIG (EDITA AQUÍ)
      ***********************/
-    const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxIXzVzMTpBPXz65B5O3EVe1sWPcCFnP-Q_QRc7RnOEqy6PGpe-hgft8CeTbhR6CwG7-w/exec";
+    const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbywxvwO8sRly5IH_YmroIV7E5iREbMMio_1s0Uw7oZHih9yWg4r5MHZ0NLA-vzPEzRByA/exec";
 
     // Estructura según tus adjuntos: campos demográficos
     const DEMOGRAPHICS = [
@@ -582,7 +582,10 @@
 
   // opcional: versionado de esquema (útil para debugging)
   row["_schema"] = "clima_v1";
-
+  // ID único para evitar duplicados (dedupe en backend)
+  row["_submissionId"] = (crypto?.randomUUID?.() 
+    || ("sub_" + Date.now() + "_" + Math.random().toString(16).slice(2)));
+      
   return row;
 }
 
@@ -658,21 +661,10 @@ function jsonpRequest(params){
 }
 
     // POST "fire-and-forget" (no-cors): envía pero NO puede leer respuesta (evita timeout por iframe)
-function postNoCors(fields){
+  function postNoCors(fields){
   const body = new URLSearchParams();
   Object.keys(fields || {}).forEach(k => body.set(k, String(fields[k] ?? "")));
 
-  // 1) sendBeacon (mejor para enviar sin bloquear)
-  try{
-    if(navigator.sendBeacon){
-      const blob = new Blob([body.toString()], { type: "application/x-www-form-urlencoded;charset=UTF-8" });
-      const ok = navigator.sendBeacon(WEBAPP_URL, blob);
-      if(ok) return Promise.resolve({ ok:true, transport:"beacon" });
-      // si devuelve false, cae al fetch
-    }
-  }catch(_){}
-
-  // 2) fetch no-cors (no permite leer respuesta, pero envía)
   return fetch(WEBAPP_URL, {
     method: "POST",
     mode: "no-cors",
@@ -680,7 +672,7 @@ function postNoCors(fields){
     body: body.toString()
   }).then(() => ({ ok:true, transport:"fetch-no-cors" }));
 }
-    
+  
 // POST sin CORS usando iframe oculto + postMessage desde el WebApp
 function postViaIframe(fields){
   return new Promise((resolve, reject)=>{
@@ -768,10 +760,14 @@ async function ping(){
 }
 
 async function guardar(){
+  if (saving) return;           // 🔒 evita doble ejecución
+  saving = true;
+
   const p = getPayload();
   const err = validatePayload(p);
   if(err){
     setStatus(err, "err");
+    saving = false;
     return;
   }
 
@@ -781,22 +777,18 @@ async function guardar(){
   setStatus("Guardando...", "info");
 
   try{
-    // ✅ Envío sin esperar respuesta (evita timeout del iframe)
     await postNoCors({
       action: "save",
       payload: JSON.stringify(p)
     });
 
-    // Como no podemos leer respuesta por CORS, confirmamos envío
     setStatus("Guardado ✅", "ok");
     limpiar();
-
-    // opcional: limpia el formulario al guardar
-    // limpiar();
 
   }catch(e){
     setStatus("Error al enviar: " + (e.message || e), "err");
   }finally{
+    saving = false;
     if(btn) btn.disabled = false;
   }
 }
