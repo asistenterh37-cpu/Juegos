@@ -487,7 +487,7 @@
     /**********************************************************************
      * ✅ URL REAL DEL WEB APP (termina en /exec)
      *********************************************************************/
-    const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzLkKQlCIO6seM40_FX_g-UeBZLX8kFIWjaleM9a1DC4pq9tuy2VhRAleGO4w7HNKXPMg/exec";
+    const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbziIFzvK18DHaSM9VTTr_zQ7_wwOveID_Ew0FBml5hdOQEfuO2uCv26av6TW1GUT0sJJA/exec";
 
     /**********************************************************************
      * UTILS
@@ -698,13 +698,30 @@ function loadRemoteFromGAS(){
       resolve(result);
     };
 
+    const sep = url.includes("?") ? "&" : "?";
+    const bust = `t=${Date.now()}`;
+    const jsonUrl = `${url}${sep}action=data&${bust}`;
+
     // ⏱️ Timeout anti “cargando eterno”
-    const t = setTimeout(() => {
-      REMOTE_STATUS = "Timeout: no llegó callback";
-      $("#remotePill").textContent = "Remote: ⚠️ Timeout";
-      try{ delete window[cbName]; }catch(_){}
-      finish({ ok:false, message:"Timeout: el WebApp no ejecutó el callback (JSONP)." });
-    }, 12000);
+    const t = setTimeout(async () => {
+      // ✅ Fallback: si JSONP no ejecutó callback, intentamos fetch directo
+      try{
+        $("#remotePill").textContent = "Remote: ⏳ fallback…";
+        const r = await fetch(jsonUrl, { method:"GET" });
+        const payload = await r.json();
+        const rows = Array.isArray(payload?.rows) ? payload.rows : [];
+        REMOTE_CACHE = rows.map(normalizeResponse_).filter(Boolean);
+        REMOTE_STATUS = `OK (${REMOTE_CACHE.length})`;
+        $("#remotePill").textContent = "Remote: ✅ " + REMOTE_STATUS;
+        try{ delete window[cbName]; }catch(_){}
+        finish({ ok:true, rows: REMOTE_CACHE, fallback:true });
+      }catch(_){
+        REMOTE_STATUS = "Timeout: no llegó callback";
+        $("#remotePill").textContent = "Remote: ⚠️ Timeout";
+        try{ delete window[cbName]; }catch(_){}
+        finish({ ok:false, message:"Timeout: JSONP no ejecutó callback y el fallback fetch falló (posible CORS/deploy)." });
+      }
+    }, 9000);
 
     window[cbName] = (payload) => {
       clearTimeout(t);
@@ -724,29 +741,18 @@ function loadRemoteFromGAS(){
     };
 
     const s = document.createElement("script");
-
-    // ✅ cache-buster para GitHub Pages / navegador
-    const sep = url.includes("?") ? "&" : "?";
-    const bust = `t=${Date.now()}`;
-
-    // OJO: si tu GAS usa otro parámetro (ej. cb/jsonp), aquí es donde se ajusta.
-    s.src = `${url}${sep}action=data&callback=${encodeURIComponent(cbName)}&${bust}`;
+    // ✅ soporta callback y jsonp (por si cambiaste el nombre del parámetro en GAS alguna vez)
+    s.src = `${url}${sep}action=data&callback=${encodeURIComponent(cbName)}&jsonp=${encodeURIComponent(cbName)}&${bust}`;
 
     s.onerror = () => {
       clearTimeout(t);
       REMOTE_STATUS = "No se pudo cargar";
       $("#remotePill").textContent = "Remote: ⚠️ No carga";
       try{ delete window[cbName]; }catch(_){}
-      finish({ ok:false, message:"Script load error (no se pudo cargar JSONP)." });
+      // dejamos que el timeout dispare el fallback (no resolvemos aquí)
     };
 
-    // Limpieza: quitamos el script después de cargar
-    s.onload = () => {
-      // si el GAS devuelve JSON “crudo” (no JSONP), onload pasa pero callback no se ejecuta:
-      // el timeout se encargará de cortar el ciclo.
-      try{ setTimeout(() => s.remove(), 0); }catch(_){}
-    };
-
+    s.onload = () => { try{ setTimeout(() => s.remove(), 0); }catch(_){ } };
     document.body.appendChild(s);
   });
 }
