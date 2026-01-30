@@ -487,7 +487,7 @@
     /**********************************************************************
      * ✅ URL REAL DEL WEB APP (termina en /exec)
      *********************************************************************/
-    const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyRM6vUNb93w8pvWTzf9gH_7TT0XN_NxMHoKj7UcFM6shMAsqvdcJDffJ3JLNPwr5mV9w/exec";
+    const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzQir02yF4PQ8u9PjJRsj9sYOACacsrQzwEj9ebV4JEfbBaYR6eYwh2Wh0jPqdQHe2rgA/exec";
 
     /**********************************************************************
      * UTILS
@@ -684,109 +684,136 @@
 function loadRemoteFromGAS(){
   return new Promise((resolve) => {
     const url = String(GAS_WEBAPP_URL || "").trim();
+
     if(!isValidExecUrl(url)){
       REMOTE_STATUS = "GAS_WEBAPP_URL inválida";
       $("#remotePill").textContent = "Remote: ⚠️ URL inválida";
+      REMOTE_CACHE = [];
       resolve({ ok:false, message:"URL inválida" });
       return;
     }
 
-let done = false;
+    let done = false;
+    const finish = (result) => {
+      if(done) return;
+      done = true;
 
-const finish = (result) => {
-  if(done) return;
-  done = true;
+      // nunca dejar null: evita “cargando eterno”
+      if(!result || result.ok !== true){
+        if(!Array.isArray(REMOTE_CACHE)) REMOTE_CACHE = [];
+      }
+      resolve(result);
+    };
 
-  // ✅ FIX DEFINITIVO: si falla la carga, dejamos REMOTE_CACHE como array vacío
-  // para que renderResults() NO se quede en "cargando..."
-  if(!result || result.ok !== true){
-    if(!Array.isArray(REMOTE_CACHE)) REMOTE_CACHE = [];
-  }
-
-  resolve(result);
-};
-
-    const cbName = `__climaCB_${Date.now()}_${Math.random().toString(16).slice(2)}`;
     const sep = url.includes("?") ? "&" : "?";
     const bust = `t=${Date.now()}`;
 
-    // JSONP: Apps Script responderá: cbName({...});
+    // --- Estrategia A: JSONP callback (rápida cuando el WebApp responde bien)
+    const cbName = `__climaCB_${Date.now()}_${Math.random().toString(16).slice(2)}`;
     const jsonpUrl = `${url}${sep}action=data&callback=${encodeURIComponent(cbName)}&${bust}`;
 
-    const s = document.createElement("script");
-    s.async = true;
-    s.src = jsonpUrl;
+    // --- Estrategia B: "as=js" (fallback): el WebApp escribe window.__CLIMA_REMOTE__ = {...}
+    const jsUrl = `${url}${sep}action=data&as=js&${bust}`;
 
-    const cleanup = () => {
-      try{ delete window[cbName]; }catch(_){}
-      try{ s.remove(); }catch(_){}
+    const cleanupScript = (s) => { try{ s.remove(); }catch(_){ } };
+    const safeSetFail = (label, msg) => {
+      REMOTE_STATUS = label;
+      $("#remotePill").textContent = "Remote: ⚠️ " + label;
+      REMOTE_CACHE = [];
+      finish({ ok:false, message: msg || label });
     };
 
-    // Timeout anti “cargando eterno”
-  const t = setTimeout(() => {
-  cleanup();
-  REMOTE_STATUS = "Timeout";
-  $("#remotePill").textContent = "Remote: ⚠️ Timeout";
+    const hardTimeoutMs = 15000;
+    const hardTimer = setTimeout(() => {
+      // si ninguno resolvió, cortamos
+      safeSetFail("Timeout", "Timeout: el WebApp no respondió o no pudo entregar datos (deploy/permisos/URL).");
+    }, hardTimeoutMs);
 
-  // ✅ importantísimo: forzar cache a [] para salir del "cargando..."
-  REMOTE_CACHE = [];
-
-  finish({ ok:false, message:"Timeout: el WebApp no respondió (revisa deploy/permisos o URL /exec)." });
-}, 9000);
+    // ========= A) JSONP =========
+    const s1 = document.createElement("script");
+    s1.async = true;
+    s1.src = jsonpUrl;
 
     window[cbName] = (payload) => {
-      clearTimeout(t);
-      cleanup();
+      if(done) return;
+      clearTimeout(hardTimer);
+      try{ delete window[cbName]; }catch(_){}
 
-      // Si no es payload válido, lo tratamos como fallo
       if(!payload || typeof payload !== "object"){
-  REMOTE_STATUS = "Respuesta inválida";
-  $("#remotePill").textContent = "Remote: ⚠️ Inválido";
-
-  // ✅ fuerza salida del estado "cargando..."
-  REMOTE_CACHE = [];
-
-  finish({ ok:false, message:"Respuesta inválida del WebApp." });
-  return;
-}
-
-      // Si el GS devolvió error, lo reflejamos pero NO nos quedamos cargando
+        cleanupScript(s1);
+        safeSetFail("Inválido", "Respuesta inválida del WebApp.");
+        return;
+      }
       if(payload.ok !== true || !Array.isArray(payload.rows)){
-  const msg = payload.error || payload.message || "El WebApp no devolvió rows (¿deploy no público?).";
-  REMOTE_STATUS = "No público / sin datos";
-  $("#remotePill").textContent = "Remote: ⚠️ " + REMOTE_STATUS;
+        const msg = payload.error || payload.message || "El WebApp no devolvió rows (¿deploy no público?).";
+        cleanupScript(s1);
+        safeSetFail("Sin datos", String(msg));
+        return;
+      }
 
-  // ✅ fuerza salida del estado "cargando..."
-  REMOTE_CACHE = [];
-
-  finish({ ok:false, message:String(msg) });
-  return;
-}
       try{
         REMOTE_CACHE = payload.rows.map(normalizeResponse_).filter(Boolean);
         REMOTE_STATUS = `OK (${REMOTE_CACHE.length})`;
         $("#remotePill").textContent = "Remote: ✅ " + REMOTE_STATUS;
+        cleanupScript(s1);
         finish({ ok:true, rows: REMOTE_CACHE });
       }catch(err){
-        REMOTE_STATUS = "Error parse";
-        $("#remotePill").textContent = "Remote: ⚠️ Error";
-        finish({ ok:false, message:String(err?.message ?? err) });
+        cleanupScript(s1);
+        safeSetFail("Error parse", String(err?.message ?? err));
       }
     };
 
-   s.onerror = () => {
-  clearTimeout(t);
-  cleanup();
-  REMOTE_STATUS = "No carga";
-  $("#remotePill").textContent = "Remote: ⚠️ No carga";
+    s1.onerror = () => {
+      // no cerramos aún: activamos fallback B
+      cleanupScript(s1);
+      try{ delete window[cbName]; }catch(_){}
+      // seguimos con fallback
+    };
 
-  // ✅ fuerza salida del estado "cargando..."
-  REMOTE_CACHE = [];
+    document.body.appendChild(s1);
 
-  finish({ ok:false, message:"Error cargando el script del WebApp (URL incorrecta o acceso denegado)." });
-};
+    // ========= B) Fallback as=js =========
+    const s2 = document.createElement("script");
+    s2.async = true;
+    s2.src = jsUrl;
 
-    document.body.appendChild(s);
+    s2.onload = () => {
+      if(done) return;
+
+      const payload = window.__CLIMA_REMOTE__;
+      if(!payload || typeof payload !== "object"){
+        cleanupScript(s2);
+        return; // dejamos que hard timeout decida
+      }
+
+      if(payload.ok !== true || !Array.isArray(payload.rows)){
+        cleanupScript(s2);
+        const msg = payload.error || payload.message || "El WebApp no devolvió rows (¿deploy no público?).";
+        clearTimeout(hardTimer);
+        safeSetFail("Sin datos", String(msg));
+        return;
+      }
+
+      try{
+        REMOTE_CACHE = payload.rows.map(normalizeResponse_).filter(Boolean);
+        REMOTE_STATUS = `OK (${REMOTE_CACHE.length})`;
+        $("#remotePill").textContent = "Remote: ✅ " + REMOTE_STATUS;
+        cleanupScript(s2);
+        clearTimeout(hardTimer);
+        finish({ ok:true, rows: REMOTE_CACHE });
+      }catch(err){
+        cleanupScript(s2);
+        clearTimeout(hardTimer);
+        safeSetFail("Error parse", String(err?.message ?? err));
+      }
+    };
+
+    s2.onerror = () => {
+      cleanupScript(s2);
+      // dejamos hard timeout
+    };
+
+    document.body.appendChild(s2);
   });
 }
 
