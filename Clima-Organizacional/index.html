@@ -292,7 +292,7 @@
           </div>
 
           <div class="footerActions">
-            <button class="btn primary" onclick="guardar()">Guardar</button>
+            <button id="btnGuardar" class="btn primary" onclick="guardar()">Guardar</button>
             <button class="btn ghost" onclick="limpiar()">Limpiar</button>
           </div>
 
@@ -388,7 +388,7 @@
     /***********************
      * CONFIG (EDITA AQUÍ)
      ***********************/
-    const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzudbAnAtjfMlFt3RazfoEaKVUTcfgt4Rd8H5aDoRklBGcKs4jM-yR6nA9G1BtvGMzWLA/exec";
+    const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwDyZ1fgjbWHaIh5mig6OOq904D1u85iafm5k0W2w9EISjqntGE0NUPqX0RyhgznwkOpw/exec";
 
     // Estructura según tus adjuntos: campos demográficos
     const DEMOGRAPHICS = [
@@ -666,9 +666,11 @@ async function guardar(){
     return;
   }
 
+  const btn = document.getElementById("btnGuardar");
+  if(btn) btn.disabled = true;
+
   setStatus("Guardando...", "info");
   try{
-    // Guardado por GET+JSONP para evitar CORS
     const j = await jsonpRequest({
       action:"save",
       payload: JSON.stringify(p)
@@ -677,6 +679,8 @@ async function guardar(){
     setStatus("Guardado ✅", "ok");
   }catch(e){
     setStatus("Error al guardar: " + (e.message || e), "err");
+  }finally{
+    if(btn) btn.disabled = false;
   }
 }
 
