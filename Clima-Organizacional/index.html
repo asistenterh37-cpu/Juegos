@@ -388,7 +388,7 @@
     /***********************
      * CONFIG (EDITA AQUÍ)
      ***********************/
-    const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwzF9A75XhcMge6VN7hWC0Kl4sP0vEQjAvqfS_I1pLlT5UW0KmF-lh9hd2pirUXc_sGvw/exec";
+    const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzqKlK1Ph1GMKf7uuk4Y22NrovH6BPABzX6CfVDY95QDW6dsIqkVM_uAk-7NVNHpxlV6w/exec";
 
     // Estructura según tus adjuntos: campos demográficos
     const DEMOGRAPHICS = [
@@ -616,17 +616,21 @@ function jsonpRequest(params){
     const q = new URLSearchParams(params || {});
     q.set("callback", cbName);
 
+    // Evita caché del <script> (muy común en JSONP)
+    q.set("_ts", String(Date.now()));
+
     const script = document.createElement("script");
+    script.async = true;
     script.src = WEBAPP_URL + (WEBAPP_URL.includes("?") ? "&" : "?") + q.toString();
 
     const timeout = setTimeout(()=>{
       cleanup();
       reject(new Error("timeout"));
-    }, 15000);
+    }, 20000);
 
     function cleanup(){
       clearTimeout(timeout);
-      if(window[cbName]) delete window[cbName];
+      try{ delete window[cbName]; }catch(_){}
       if(script && script.parentNode) script.parentNode.removeChild(script);
     }
 
