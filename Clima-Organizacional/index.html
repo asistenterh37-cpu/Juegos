@@ -487,7 +487,7 @@
     /**********************************************************************
      * ✅ URL REAL DEL WEB APP (termina en /exec)
      *********************************************************************/
-    const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycby33asaN5zLasus5OTT4mNMs7KZkL3pkp-vswymvw95db9DwBkLUYRKWMdbsVZPp4Fugg/exec";
+    const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycby876nyCLqxpxaWeec7i6mPfbMthjMJ5nCq048YWFA_dLVRPWo7-jy0PobCVqMpB3_2/exec";
 
     /**********************************************************************
      * UTILS
@@ -1333,17 +1333,18 @@ function loadRemoteFromGAS(){
       const t2 = $("#tab-resultados");
 
       if(view === "resultados"){
-        encuesta.classList.add("hidden");
-        resultados.classList.remove("hidden");
-        t1.setAttribute("aria-selected","false");
-        t2.setAttribute("aria-selected","true");
+  encuesta.classList.add("hidden");
+  resultados.classList.remove("hidden");
+  t1.setAttribute("aria-selected","false");
+  t2.setAttribute("aria-selected","true");
 
-        refreshDimensionUI_();
-
-       // ✅ cargar SIEMPRE al entrar a Resultados (y renderizar)
-REMOTE_CACHE = null;
-ensureRemoteLoaded_().then(() => renderResults());
-      }else{
+  // ✅ Cargar data primero, luego llenar Variable con valores reales
+  REMOTE_CACHE = null;
+  ensureRemoteLoaded_().then(() => {
+    refreshDimensionUI_();
+    renderResults();
+  });
+}else{
         resultados.classList.add("hidden");
         encuesta.classList.remove("hidden");
         t2.setAttribute("aria-selected","false");
@@ -1460,13 +1461,14 @@ ensureRemoteLoaded_().then(() => renderResults());
         $("#btnExportCSV").addEventListener("click", exportCSV);
 
         // RESULTADOS UI (✅ ahora asegura data antes de renderizar)
-        $("#resDimension").addEventListener("change", async () => {
-          refreshDimensionUI_();
-          const rv = $("#resValue");
-          if(rv) rv.value = "";
-          await ensureRemoteLoaded_();
-          renderResults();
-        });
+       $("#resDimension").addEventListener("change", async () => {
+  const rv = $("#resValue");
+  if(rv) rv.value = "";
+
+  await ensureRemoteLoaded_();   // ✅ primero data
+  refreshDimensionUI_();         // ✅ luego opciones reales
+  renderResults();
+});
 
         $("#resValue").addEventListener("change", async () => {
           await ensureRemoteLoaded_();
