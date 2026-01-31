@@ -719,21 +719,14 @@ function postViaIframe(fields){
     }
 
     function onMsg(ev){
-      const origin = String(ev.origin || "");
+  const data = ev.data;
 
-      // Acepta ambos orígenes típicos de Apps Script
-      const okOrigin =
-        origin.includes("script.google.com") ||
-        origin.includes("script.googleusercontent.com");
+  // ✅ Seguridad principal: validar token (random y único por envío)
+  if(!data || data.token !== token) return;
 
-      if(!okOrigin) return;
-
-      const data = ev.data;
-      if(!data || data.token !== token) return;
-
-      cleanup();
-      resolve(data);
-    }
+  cleanup();
+  resolve(data);
+}
 
     window.addEventListener("message", onMsg);
 
@@ -788,8 +781,9 @@ async function guardar(){
       throw new Error(res?.error || "El WebApp no confirmó el guardado");
     }
 
-    setStatus("Guardado ✅", "ok");
-    limpiar();
+   setStatus("Guardado ✅", "ok");
+// deja el OK visible un momento
+setTimeout(()=> setStatus("Listo"), 1200);
 
   }catch(e){
     setStatus("Error al guardar: " + (e.message || e), "err");
