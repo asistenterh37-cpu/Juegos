@@ -29,15 +29,19 @@
       background: radial-gradient(1200px 600px at 40% 20%, #162447 0%, var(--bg) 55%);
       color:var(--text);
     }
-    .topbar{
-      position:sticky; top:0; z-index:20;
-      background: linear-gradient(180deg, rgba(11,18,32,.92), rgba(11,18,32,.72));
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid var(--line);
-      padding:16px 20px;
-      display:flex; align-items:center; justify-content:space-between;
-      gap:14px;
-    }
+  .topbar{
+  position:sticky; top:0; z-index:20;
+  background: linear-gradient(180deg, rgba(11,18,32,.92), rgba(11,18,32,.72));
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--line);
+  padding:16px 20px;
+
+  /* ✅ ahora sí: centro real */
+  display:grid;
+  grid-template-columns: 1fr auto 1fr;  /* izq | centro | der */
+  align-items:center;
+  gap:14px;
+}
     /* ✅ Centrar el bloque de título + chips */
 .headerInfo{
   grid-column: 2;
@@ -285,8 +289,8 @@
       <span class="chip"><span id="remoteDot" class="remoteDot"></span><span id="remoteText">Remote: —</span></span>
     </div>
   </div>
-  <nav c
-    lass="nav">
+  <nav class="nav">
+  lass="nav">
       <button id="tabEncuesta" class="active" onclick="showTab('encuesta')">Encuesta</button>
       <button id="tabResultados" onclick="showTab('resultados')">Resultados</button>
       <button id="tabResumen" onclick="showTab('resumen')">Resumen</button>
