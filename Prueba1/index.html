@@ -649,11 +649,9 @@
       }else{
         $("sumGroupValue").disabled = false;
         await cargarOpcionesFiltro(gb, $("sumGroupValue"));
-        const hasValue = $("sumGroupValue").options.length > 1;
-        if(hasValue){
-          $("sumGroupValue").selectedIndex = 1;
-        }
-        await cargarResumen();
+       // ✅ por defecto: "Todos"
+$("sumGroupValue").value = "__all__";
+await cargarResumen();
       }
     }
 
@@ -818,11 +816,10 @@
 
     const values = (j.values || []).filter(v => String(v).trim() !== "");
 
-    // ✅ "Todos" para comparar + opción para escoger uno específico
-    selectEl.innerHTML =
-      `<option value="__all__">Todos</option>` +
-      `<option value="">Selecciona...</option>` +
-      values.map(v => `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join("");
+  // ✅ "Todos" como opción principal (sin "Selecciona...")
+selectEl.innerHTML =
+  `<option value="__all__">Todos</option>` +
+  values.map(v => `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join("");
 
   }catch(e){
     selectEl.innerHTML = `<option value="">(error)</option>`;
