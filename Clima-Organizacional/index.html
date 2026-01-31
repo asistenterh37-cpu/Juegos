@@ -56,9 +56,7 @@
       vertical-align:middle;
     }
     .remoteDot.ok{background:var(--ok); box-shadow:0 0 14px rgba(34,197,94,.55)}
-    .nav{
-      display:flex; gap:10px;
-    }
+    .nav{display:flex; gap:10px;}
     .nav button{
       appearance:none; border:1px solid var(--line);
       background: rgba(255,255,255,.04);
@@ -167,9 +165,7 @@
       background: rgba(34,197,94,.15);
       border-color: rgba(34,197,94,.35);
     }
-    .btn.ghost{
-      background: rgba(255,255,255,.04);
-    }
+    .btn.ghost{background: rgba(255,255,255,.04);}
     .status{
       font-size:12px; color:var(--muted);
       margin-top:10px;
@@ -390,7 +386,6 @@
      ***********************/
     const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwaLuvlNns-7sDaJXXGgQYFfnFr4ndyZ3NAko20AvNXxqVoEh9NrM0UNbXSeuhc8hYuhQ/exec";
 
-    // Estructura según tus adjuntos: campos demográficos
     const DEMOGRAPHICS = [
       { key:"Genero",      label:"Género",      options:["Masculino","Femenino"] },
       { key:"Antiguedad",  label:"Antigüedad",  options:["De 0 a 5 años","De 6 a 10 años","De 11 a 20 años","Más de 20 años"] },
@@ -399,7 +394,6 @@
       { key:"Nivel",       label:"Nivel",       options:["Operativo","Administrativo","Técnico","Jefe - Gerente"] }
     ];
 
-    // 12 ítems (ajusta textos si quieres)
     const ITEMS = [
       { id:1,  text:"Mi jefe proporciona supervisión clara y consistente.", factor:"Liderazgo / Supervisión" },
       { id:2,  text:"La comunicación con mi jefe es abierta y efectiva.", factor:"Comunicación / Liderazgo" },
@@ -425,14 +419,33 @@
     ];
 
     /***********************
-     * UI BUILD
+     * UI + UTILS
      ***********************/
     const $ = (id)=>document.getElementById(id);
+
+    function escapeHtml(s){
+      return String(s).replace(/[&<>"']/g, m => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+      }[m]));
+    }
+
+    function pretty(k){
+      const map = {Genero:"Género", Antiguedad:"Antigüedad", Localidad:"Localidad", Departamento:"Departamento", Nivel:"Nivel"};
+      return map[k] || k;
+    }
 
     function setRemote(ok, text){
       const dot = $("remoteDot");
       dot.classList.toggle("ok", !!ok);
       $("remoteText").textContent = "Remote: " + (text || (ok ? "conectado" : "sin conexión"));
+    }
+
+    function setStatus(msg, type="info"){
+      const el = $("saveStatus");
+      el.innerHTML = `Estado: <b>${escapeHtml(msg)}</b>`;
+      if(type==="ok") el.style.color = "rgba(34,197,94,.9)";
+      else if(type==="err") el.style.color = "rgba(239,68,68,.95)";
+      else el.style.color = "var(--muted)";
     }
 
     function showTab(tab){
@@ -450,7 +463,6 @@
 
     function buildDemographics(){
       const wrap = document.createElement("div");
-      // en el formato adjunto: 2 columnas
       const rows = [
         ["Genero","Antiguedad"],
         ["Localidad","Departamento"],
@@ -465,9 +477,13 @@
           const box = document.createElement("div");
           const lab = document.createElement("label");
           lab.textContent = def.label;
+
           const sel = document.createElement("select");
           sel.id = "dem_" + def.key;
-          sel.innerHTML = `<option value="">Selecciona...</option>` + def.options.map(o=>`<option value="${escapeHtml(o)}">${escapeHtml(o)}</option>`).join("");
+          sel.innerHTML =
+            `<option value="">Selecciona...</option>` +
+            def.options.map(o=>`<option value="${escapeHtml(o)}">${escapeHtml(o)}</option>`).join("");
+
           box.appendChild(lab);
           box.appendChild(sel);
           row.appendChild(box);
@@ -475,6 +491,7 @@
         wrap.appendChild(row);
       });
 
+      $("demographicsFields").innerHTML = "";
       $("demographicsFields").appendChild(wrap);
     }
 
@@ -541,10 +558,8 @@
         $("groupValue").disabled = true;
       }else{
         $("groupValue").disabled = false;
-        // se llenará al llamar cargarOpcionesFiltro
         cargarOpcionesFiltro(gb, $("groupValue"));
       }
-      // mantener resumen en sync
       $("sumGroupBy").value = gb;
       syncSummaryFilter();
     }
@@ -561,310 +576,213 @@
     }
 
     /***********************
-     * VALIDACIÓN / PAYLOAD
+     * PAYLOAD / VALIDACIÓN
      ***********************/
     function getPayload(){
-  // Payload FLAT para que el GS lo ponga exacto en columnas sin inventar headers por texto
-  const row = {};
-
-  // Demográficos
-  for(const d of DEMOGRAPHICS){
-    row[d.key] = ($("dem_"+d.key).value || "").trim();
-  }
-
-  // Ítems (claves estables I1..I12)
-  for(const it of ITEMS){
-    row["I" + it.id] = Number($("item_" + it.id).value || 0);
-  }
-
-  // Comentarios
-  row["Comentarios"] = ($("comentarios").value || "").trim();
-
-  // opcional: versionado de esquema (útil para debugging)
-  row["_schema"] = "clima_v1";
-  // ID único para evitar duplicados (dedupe en backend)
-  row["_submissionId"] = (crypto?.randomUUID?.() 
-    || ("sub_" + Date.now() + "_" + Math.random().toString(16).slice(2)));
-      
-  return row;
-}
-
-function validatePayload(row){
-  // Demográficos obligatorios
-  for(const d of DEMOGRAPHICS){
-    if(!row[d.key]) return `Falta seleccionar: ${d.label}`;
-  }
-  // Ítems obligatorios
-  for(const it of ITEMS){
-    if(!(row["I"+it.id] >= 1 && row["I"+it.id] <= 5)) return `Falta responder el ítem ${it.id}`;
-  }
-  return null;
-}
-    function limpiar(){
+      const row = {};
       for(const d of DEMOGRAPHICS){
-        $("dem_"+d.key).value = "";
+        row[d.key] = ($("dem_"+d.key).value || "").trim();
       }
       for(const it of ITEMS){
-        $("item_"+it.id).value = "";
+        row["I" + it.id] = Number($("item_" + it.id).value || 0);
       }
-      $("comentarios").value = "";
+      row["Comentarios"] = ($("comentarios").value || "").trim();
+      row["_schema"] = "clima_v1";
+      row["_submissionId"] = (crypto?.randomUUID?.() || ("sub_" + Date.now() + "_" + Math.random().toString(16).slice(2)));
+      return row;
     }
 
-    function setStatus(msg, type="info"){
-      const el = $("saveStatus");
-      el.innerHTML = `Estado: <b>${escapeHtml(msg)}</b>`;
-      if(type==="ok") el.style.color = "rgba(34,197,94,.9)";
-      else if(type==="err") el.style.color = "rgba(239,68,68,.95)";
-      else el.style.color = "var(--muted)";
+    function validatePayload(row){
+      for(const d of DEMOGRAPHICS){
+        if(!row[d.key]) return `Falta seleccionar: ${d.label}`;
+      }
+      for(const it of ITEMS){
+        if(!(row["I"+it.id] >= 1 && row["I"+it.id] <= 5)) return `Falta responder el ítem ${it.id}`;
+      }
+      return null;
+    }
+
+    function limpiar(){
+      for(const d of DEMOGRAPHICS){ $("dem_"+d.key).value = ""; }
+      for(const it of ITEMS){ $("item_"+it.id).value = ""; }
+      $("comentarios").value = "";
+      setStatus("Listo");
     }
 
     /***********************
- * API CALLS (JSONP sin CORS)
- ***********************/
-function jsonpRequest(params){
-  return new Promise((resolve, reject)=>{
-    const cbName = "__cb_" + Math.random().toString(36).slice(2);
-    const q = new URLSearchParams(params || {});
-    q.set("callback", cbName);
+     * JSONP (sin CORS)
+     ***********************/
+    function jsonpRequest(params){
+      return new Promise((resolve, reject)=>{
+        const cbName = "__cb_" + Math.random().toString(36).slice(2);
+        const q = new URLSearchParams(params || {});
+        q.set("callback", cbName);
+        q.set("_ts", String(Date.now())); // anti-cache
 
-    // Evita caché del <script> (muy común en JSONP)
-    q.set("_ts", String(Date.now()));
+        const script = document.createElement("script");
+        script.async = true;
+        script.src = WEBAPP_URL + (WEBAPP_URL.includes("?") ? "&" : "?") + q.toString();
 
-    const script = document.createElement("script");
-    script.async = true;
-    script.src = WEBAPP_URL + (WEBAPP_URL.includes("?") ? "&" : "?") + q.toString();
+        const timeout = setTimeout(()=>{
+          cleanup();
+          reject(new Error("timeout"));
+        }, 15000);
 
-    const timeout = setTimeout(()=>{
-      cleanup();
-      reject(new Error("timeout"));
-    }, 15000);
+        function cleanup(){
+          clearTimeout(timeout);
+          try{ delete window[cbName]; }catch(_){}
+          if(script && script.parentNode) script.parentNode.removeChild(script);
+        }
 
-    function cleanup(){
-      clearTimeout(timeout);
-      try{ delete window[cbName]; }catch(_){}
-      if(script && script.parentNode) script.parentNode.removeChild(script);
+        window[cbName] = (data)=>{
+          cleanup();
+          resolve(data);
+        };
+
+        script.onerror = ()=>{
+          cleanup();
+          reject(new Error("network_error"));
+        };
+
+        document.body.appendChild(script);
+      });
     }
 
-    window[cbName] = (data)=>{
-      cleanup();
-      resolve(data);
-    };
+    /***********************
+     * POST no-cors + confirm
+     ***********************/
+    function postNoCors(fields){
+      const body = new URLSearchParams();
+      Object.keys(fields || {}).forEach(k => body.set(k, String(fields[k] ?? "")));
 
-    script.onerror = ()=>{
-      cleanup();
-      reject(new Error("network_error"));
-    };
-
-    document.body.appendChild(script);
-  });
-}
-
-    // POST "fire-and-forget" (no-cors): envía pero NO puede leer respuesta (evita timeout por iframe)
-  function postNoCors(fields){
-  const body = new URLSearchParams();
-  Object.keys(fields || {}).forEach(k => body.set(k, String(fields[k] ?? "")));
-
-  return fetch(WEBAPP_URL, {
-    method: "POST",
-    mode: "no-cors",
-    headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
-    body: body.toString()
-  }).then(() => ({ ok:true, transport:"fetch-no-cors" }));
-}
-  
-// POST sin CORS usando iframe oculto + postMessage desde el WebApp
-function postViaIframe(fields){
-  return new Promise((resolve, reject)=>{
-    const token = "__if_" + Math.random().toString(36).slice(2);
-    const iframeName = "if_" + token;
-
-    const iframe = document.createElement("iframe");
-    iframe.name = iframeName;
-    iframe.style.display = "none";
-
-    const form = document.createElement("form");
-    form.method = "POST";
-
-    // ✅ Fuerza transport/token por QUERY para que Apps Script lo vea seguro en e.parameter
-    const actionUrl =
-      WEBAPP_URL +
-      (WEBAPP_URL.includes("?") ? "&" : "?") +
-      "transport=iframe&token=" + encodeURIComponent(token);
-
-    form.action = actionUrl;
-    form.target = iframeName;
-
-    // payloadFields SIN token (ya va en query)
-    const payloadFields = Object.assign({}, fields);
-
-    Object.keys(payloadFields).forEach(k=>{
-      const inp = document.createElement("input");
-      inp.type = "hidden";
-      inp.name = k;
-      inp.value = String(payloadFields[k] ?? "");
-      form.appendChild(inp);
-    });
-
-    const timeout = setTimeout(()=>{
-      cleanup();
-      reject(new Error("timeout"));
-    }, 45000);
-
-    function cleanup(){
-      clearTimeout(timeout);
-      window.removeEventListener("message", onMsg);
-      if(form && form.parentNode) form.parentNode.removeChild(form);
-      if(iframe && iframe.parentNode) iframe.parentNode.removeChild(iframe);
+      return fetch(WEBAPP_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+        body: body.toString()
+      }).then(() => ({ ok:true, transport:"fetch-no-cors" }));
     }
 
-    function onMsg(ev){
-  const data = ev.data;
+    async function confirmSubmission(submissionId){
+      const start = Date.now();
+      const MAX_MS = 12000;
+      const STEP_MS = 600;
 
-  // ✅ Seguridad principal: validar token (random y único por envío)
-  if(!data || data.token !== token) return;
-
-  cleanup();
-  resolve(data);
-}
-
-    window.addEventListener("message", onMsg);
-
-    document.body.appendChild(iframe);
-    document.body.appendChild(form);
-
-    try{
-      form.submit();
-    }catch(e){
-      cleanup();
-      reject(e);
+      while(Date.now() - start < MAX_MS){
+        try{
+          const j = await jsonpRequest({ action:"confirm", submissionId });
+          if(j && j.ok === true && j.confirmed === true) return true;
+        }catch(_){}
+        await new Promise(r => setTimeout(r, STEP_MS));
+      }
+      return false;
     }
-  });
-}
 
-let saving = false; // evita doble click y corrige ReferenceError
-async function ping(){
-  try{
-    const j = await jsonpRequest({ action:"ping" });
-    if(!j || !j.ok) throw new Error(j?.error || "ping error");
-    setRemote(true, j?.status || "conectado");
-  }catch(e){
-    setRemote(false, "sin conexión");
-  }
-}
+    let saving = false;
 
-<script>
-async function guardar(){
-  if (saving) return;
-  saving = true;
+    async function ping(){
+      try{
+        const j = await jsonpRequest({ action:"ping" });
+        if(!j || !j.ok) throw new Error(j?.error || "ping error");
+        setRemote(true, j?.status || "ok");
+      }catch(e){
+        setRemote(false, "sin conexión");
+      }
+    }
 
-  const p = getPayload();
-  const err = validatePayload(p);
-  if(err){
-    setStatus(err, "err");
-    saving = false;
-    return;
-  }
+    async function guardar(){
+      if (saving) return;
+      saving = true;
 
-  const btn = document.getElementById("btnGuardar");
-  if(btn) btn.disabled = true;
+      const p = getPayload();
+      const err = validatePayload(p);
+      if(err){
+        setStatus(err, "err");
+        saving = false;
+        return;
+      }
 
-  setStatus("Guardando...", "info");
+      const btn = $("btnGuardar");
+      if(btn) btn.disabled = true;
 
-  try{
-    // 1) Envío rápido (no-cors). No puede leer respuesta, pero sí guarda.
-    await postNoCors({
-      action: "save",
-      payload: JSON.stringify(p)
-    });
+      setStatus("Guardando...", "info");
 
-    // 2) Confirmación por JSONP (evita CORS y evita iframe/postMessage)
-    const ok = await confirmSubmission(p._submissionId);
-    if(!ok) throw new Error("timeout");
+      try{
+        await postNoCors({ action:"save", payload: JSON.stringify(p) });
 
-    setStatus("Guardado ✅", "ok");
-    limpiar();
-    setTimeout(()=> setStatus("Listo"), 1200);
+        const ok = await confirmSubmission(p._submissionId);
+        if(!ok) throw new Error("timeout");
 
-  }catch(e){
-    setStatus("Error al guardar: " + (e.message || e), "err");
-  }finally{
-    saving = false;
-    if(btn) btn.disabled = false;
-  }
-}
+        setStatus("Guardado ✅", "ok");
+        limpiar();
+        setTimeout(()=> setStatus("Listo"), 1200);
 
-// Confirma que Apps Script procesó el submissionId (CacheService)
-async function confirmSubmission(submissionId){
-  const start = Date.now();
-  const MAX_MS = 12000;     // 12s total
-  const STEP_MS = 600;      // reintento cada 600ms
+      }catch(e){
+        setStatus("Error al guardar: " + (e.message || e), "err");
+      }finally{
+        saving = false;
+        if(btn) btn.disabled = false;
+      }
+    }
 
-  while(Date.now() - start < MAX_MS){
-    try{
-      const j = await jsonpRequest({ action:"confirm", submissionId });
-      if(j && j.ok === true && j.confirmed === true) return true;
-    }catch(_){ /* ignora y reintenta */ }
+    /***********************
+     * Resultados / Resumen
+     ***********************/
+    async function cargarOpcionesFiltro(groupBy, selectEl){
+      selectEl.innerHTML = `<option value="">Cargando...</option>`;
+      try{
+        const j = await jsonpRequest({ action:"unique", groupBy });
+        if(!j.ok) throw new Error(j.error || "No se pudo cargar variables");
+        const values = j.values || [];
+        selectEl.innerHTML =
+          `<option value="">Selecciona...</option>` +
+          values.map(v=>`<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join("");
+      }catch(e){
+        selectEl.innerHTML = `<option value="">(error)</option>`;
+      }
+    }
 
-    await new Promise(r => setTimeout(r, STEP_MS));
-  }
-  return false;
-}
-</script>
+    let chart;
 
-async function cargarOpcionesFiltro(groupBy, selectEl){
-  selectEl.innerHTML = `<option value="">Cargando...</option>`;
-  try{
-    const j = await jsonpRequest({ action:"unique", groupBy });
-    if(!j.ok) throw new Error(j.error || "No se pudo cargar variables");
-    const values = j.values || [];
-    selectEl.innerHTML =
-      `<option value="">Selecciona...</option>` +
-      values.map(v=>`<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join("");
-  }catch(e){
-    selectEl.innerHTML = `<option value="">(error)</option>`;
-  }
-}
+    async function cargarResultados(){
+      $("noDataMsg").style.display = "block";
+      $("tableWrap").innerHTML = `<div class="muted">Cargando...</div>`;
 
-let chart;
-async function cargarResultados(){
-  $("noDataMsg").style.display = "block";
-  $("tableWrap").innerHTML = `<div class="muted">Cargando...</div>`;
+      const groupBy = $("groupBy").value;
+      const groupValue = $("groupValue").disabled ? "" : ($("groupValue").value || "");
 
-  const groupBy = $("groupBy").value;
-  const groupValue = $("groupValue").disabled ? "" : ($("groupValue").value || "");
+      try{
+        const j = await jsonpRequest({ action:"results", groupBy, groupValue });
+        if(!j.ok) throw new Error(j.error || "No se pudo cargar resultados");
+        renderResults(j.data);
+      }catch(e){
+        $("kpiN").textContent = "0";
+        $("kpiAvg").textContent = "—";
+        $("kpiLast").textContent = "—";
+        $("tableWrap").innerHTML = `<div class="muted">Error: ${escapeHtml(e.message || e)}</div>`;
+        destroyChart();
+      }
+    }
 
-  try{
-    const j = await jsonpRequest({ action:"results", groupBy, groupValue });
-    if(!j.ok) throw new Error(j.error || "No se pudo cargar resultados");
-    renderResults(j.data);
-  }catch(e){
-    $("kpiN").textContent = "0";
-    $("kpiAvg").textContent = "—";
-    $("kpiLast").textContent = "—";
-    $("tableWrap").innerHTML = `<div class="muted">Error: ${escapeHtml(e.message || e)}</div>`;
-    destroyChart();
-  }
-}
+    async function cargarResumen(){
+      const groupBy = $("sumGroupBy").value;
+      const groupValue = $("sumGroupValue").disabled ? "" : ($("sumGroupValue").value || "");
 
-async function cargarResumen(){
-  const groupBy = $("sumGroupBy").value;
-  const groupValue = $("sumGroupValue").disabled ? "" : ($("sumGroupValue").value || "");
-
-  $("summaryBox").innerHTML = `<div class="muted">Cargando...</div>`;
-  try{
-    const j = await jsonpRequest({ action:"results", groupBy, groupValue });
-    if(!j.ok) throw new Error(j.error || "No se pudo cargar resumen");
-    renderSummary(j.data, groupBy, groupValue);
-  }catch(e){
-    $("summaryBox").innerHTML = `<div class="muted">Error: ${escapeHtml(e.message || e)}</div>`;
-  }
-}
+      $("summaryBox").innerHTML = `<div class="muted">Cargando...</div>`;
+      try{
+        const j = await jsonpRequest({ action:"results", groupBy, groupValue });
+        if(!j.ok) throw new Error(j.error || "No se pudo cargar resumen");
+        renderSummary(j.data, groupBy, groupValue);
+      }catch(e){
+        $("summaryBox").innerHTML = `<div class="muted">Error: ${escapeHtml(e.message || e)}</div>`;
+      }
+    }
 
     function renderResults(data){
       const n = data.n || 0;
       const last = data.lastTimestamp || "";
-      const items = data.items || []; // [{id,label,percent,sum,count}]
-      const avg = data.avgPercent || null;
+      const items = data.items || [];
+      const avg = (data.avgPercent === undefined || data.avgPercent === null) ? null : data.avgPercent;
 
       $("kpiN").textContent = String(n);
       $("kpiLast").textContent = last ? last : "—";
@@ -884,7 +802,6 @@ async function cargarResumen(){
 
       renderChart(labels, values);
 
-      // tabla
       const rows = items.map(x=>`
         <tr>
           <td><b>${x.id}</b></td>
@@ -951,7 +868,6 @@ async function cargarResumen(){
       const ctx = $("chartItems").getContext("2d");
       destroyChart();
 
-      // plugin: escribir valor encima de cada barra
       const valueLabelPlugin = {
         id: 'valueLabelPlugin',
         afterDatasetsDraw(chart){
@@ -966,9 +882,7 @@ async function cargarResumen(){
             const meta = chart.getDatasetMeta(i);
             meta.data.forEach((bar, idx)=>{
               const val = dataset.data[idx];
-              const x = bar.x;
-              const y = bar.y - 6;
-              ctx.fillText(String(val) + "%", x, y);
+              ctx.fillText(String(val) + "%", bar.x, bar.y - 6);
             });
           });
 
@@ -999,9 +913,7 @@ async function cargarResumen(){
           plugins: {
             legend: { display:false },
             tooltip: {
-              callbacks:{
-                label: (ctx)=> `${ctx.raw}%`
-              }
+              callbacks:{ label: (ctx)=> `${ctx.raw}%` }
             }
           }
         },
@@ -1011,19 +923,6 @@ async function cargarResumen(){
 
     function destroyChart(){
       if(chart){ chart.destroy(); chart = null; }
-    }
-
-    /***********************
-     * UTILS
-     ***********************/
-    function escapeHtml(s){
-      return String(s).replace(/[&<>"']/g, m => ({
-        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
-      }[m]));
-    }
-    function pretty(k){
-      const map = {Genero:"Género", Antiguedad:"Antigüedad", Localidad:"Localidad", Departamento:"Departamento", Nivel:"Nivel"};
-      return map[k] || k;
     }
 
     /***********************
