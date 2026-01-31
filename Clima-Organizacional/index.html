@@ -201,6 +201,7 @@
     .kpi .k{font-size:12px; color:#b9c8ee; text-transform:uppercase; letter-spacing:.4px}
     .kpi .v{font-size:26px; font-weight:900; margin-top:6px}
     .kpi .s{font-size:12px; color:var(--muted); margin-top:4px}
+
     .chartWrap{
       margin-top:14px;
       border-top:1px solid var(--line);
@@ -213,6 +214,21 @@
       color:#cfe0ff;
       text-transform:uppercase;
     }
+
+    /* ✅ CLAVE: si no das altura al contenedor, Chart.js puede quedar “en blanco” */
+    .chartArea{
+      position: relative;
+      height: 380px;
+      width: 100%;
+      background: rgba(255,255,255,.02);
+      border: 1px solid rgba(255,255,255,.06);
+      border-radius: 14px;
+      padding: 10px;
+    }
+    @media (max-width: 720px){
+      .chartArea{ height: 320px; }
+    }
+
     table{
       width:100%;
       border-collapse:collapse;
@@ -308,12 +324,12 @@
 
         <div class="filters">
           <div>
-            <label>Resultados por</label>
+            <label>Resultado por</label>
             <select id="groupBy" onchange="onGroupChange()"></select>
           </div>
           <div>
             <label>Variable</label>
-            <select id="groupValue"></select>
+            <select id="groupValue" onchange="onGroupValueChange()"></select>
           </div>
         </div>
 
@@ -342,7 +358,10 @@
         <div class="chartWrap">
           <div class="subTitle">Calificación por ítem (barras)</div>
           <div class="help" id="noDataMsg">Aún no hay datos para graficar. Presiona <b>Refrescar</b> o guarda al menos una encuesta.</div>
-          <canvas id="chartItems" height="110"></canvas>
+
+          <div class="chartArea">
+            <canvas id="chartItems"></canvas>
+          </div>
 
           <div style="margin-top:18px;">
             <div class="subTitle">Promedios por ítem (tabla)</div>
@@ -362,12 +381,12 @@
 
         <div class="filters">
           <div>
-            <label>Resultados por</label>
+            <label>Resultado por</label>
             <select id="sumGroupBy" onchange="syncSummaryFilter()"></select>
           </div>
           <div>
             <label>Variable</label>
-            <select id="sumGroupValue"></select>
+            <select id="sumGroupValue" onchange="cargarResumen()"></select>
           </div>
         </div>
 
@@ -390,7 +409,7 @@
       { key:"Genero",      label:"Género",      options:["Masculino","Femenino"] },
       { key:"Antiguedad",  label:"Antigüedad",  options:["De 0 a 5 años","De 6 a 10 años","De 11 a 20 años","Más de 20 años"] },
       { key:"Localidad",   label:"Localidad",   options:["Tegucigalpa","San Pedro Sula","La Ceiba"] },
-      { key:"Departamento",label:"Departamento",options:["Contabilidad","Recursos human","Ventas","Compras"] },
+      { key:"Departamento",label:"Departamento",options:["Contabilidad","Recursos humanos","Ventas","Compras"] },
       { key:"Nivel",       label:"Nivel",       options:["Operativo","Administrativo","Técnico","Jefe - Gerente"] }
     ];
 
@@ -430,7 +449,13 @@
     }
 
     function pretty(k){
-      const map = {Genero:"Género", Antiguedad:"Antigüedad", Localidad:"Localidad", Departamento:"Departamento", Nivel:"Nivel"};
+      const map = {
+        Genero:"Género",
+        Antiguedad:"Antigüedad",
+        Localidad:"Localidad",
+        Departamento:"Departamento",
+        Nivel:"Nivel"
+      };
       return map[k] || k;
     }
 
@@ -538,8 +563,8 @@
         {v:"General", t:"General"},
         {v:"Genero", t:"Género"},
         {v:"Antiguedad", t:"Antigüedad"},
-        {v:"Localidad", t:"Localidad"},
         {v:"Departamento", t:"Departamento"},
+        {v:"Localidad", t:"Localidad"},
         {v:"Nivel", t:"Nivel"},
       ];
       $("groupBy").innerHTML = opts.map(o=>`<option value="${o.v}">${o.t}</option>`).join("");
@@ -551,27 +576,48 @@
       syncSummaryFilter();
     }
 
-    function onGroupChange(){
+    async function onGroupChange(){
       const gb = $("groupBy").value;
-      if(gb==="General"){
+
+      if(gb === "General"){
         $("groupValue").innerHTML = `<option value="">—</option>`;
         $("groupValue").disabled = true;
+        await cargarResultados(); // ✅ auto refresca en General
       }else{
         $("groupValue").disabled = false;
-        cargarOpcionesFiltro(gb, $("groupValue"));
+        await cargarOpcionesFiltro(gb, $("groupValue"));
+        // ✅ si existe al menos una opción real, selecciona la primera y refresca
+        const hasValue = $("groupValue").options.length > 1;
+        if(hasValue){
+          $("groupValue").selectedIndex = 1;
+        }
+        await cargarResultados();
       }
+
+      // sync resumen
       $("sumGroupBy").value = gb;
       syncSummaryFilter();
     }
 
-    function syncSummaryFilter(){
+    function onGroupValueChange(){
+      // ✅ auto refresca al cambiar Variable
+      cargarResultados();
+    }
+
+    async function syncSummaryFilter(){
       const gb = $("sumGroupBy").value;
       if(gb==="General"){
         $("sumGroupValue").innerHTML = `<option value="">—</option>`;
         $("sumGroupValue").disabled = true;
+        await cargarResumen();
       }else{
         $("sumGroupValue").disabled = false;
-        cargarOpcionesFiltro(gb, $("sumGroupValue"));
+        await cargarOpcionesFiltro(gb, $("sumGroupValue"));
+        const hasValue = $("sumGroupValue").options.length > 1;
+        if(hasValue){
+          $("sumGroupValue").selectedIndex = 1;
+        }
+        await cargarResumen();
       }
     }
 
@@ -742,7 +788,7 @@
       }
     }
 
-    let chart;
+    let chart = null;
 
     async function cargarResultados(){
       $("noDataMsg").style.display = "block";
@@ -897,24 +943,26 @@
           datasets: [{
             label: "% por ítem",
             data: values,
-            borderWidth: 1
+            borderWidth: 1,
+            backgroundColor: "rgba(59,130,246,.35)",
+            borderColor: "rgba(59,130,246,.75)"
           }]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
           scales: {
+            x: { ticks: { color: "#cfe0ff" } },
             y: {
               min: 0,
               max: 100,
-              ticks: { callback: (v)=> v + "%" }
+              ticks: { callback: (v)=> v + "%", color: "#cfe0ff" },
+              grid: { color: "rgba(255,255,255,.08)" }
             }
           },
           plugins: {
             legend: { display:false },
-            tooltip: {
-              callbacks:{ label: (ctx)=> `${ctx.raw}%` }
-            }
+            tooltip: { callbacks:{ label: (ctx)=> `${ctx.raw}%` } }
           }
         },
         plugins:[valueLabelPlugin]
