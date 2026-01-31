@@ -388,7 +388,7 @@
     /***********************
      * CONFIG (EDITA AQUÍ)
      ***********************/
-    const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbywxvwO8sRly5IH_YmroIV7E5iREbMMio_1s0Uw7oZHih9yWg4r5MHZ0NLA-vzPEzRByA/exec";
+    const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwaLuvlNns-7sDaJXXGgQYFfnFr4ndyZ3NAko20AvNXxqVoEh9NrM0UNbXSeuhc8hYuhQ/exec";
 
     // Estructura según tus adjuntos: campos demográficos
     const DEMOGRAPHICS = [
@@ -608,7 +608,6 @@ function validatePayload(row){
         $("item_"+it.id).value = "";
       }
       $("comentarios").value = "";
-      setStatus("Listo");
     }
 
     function setStatus(msg, type="info"){
@@ -753,8 +752,9 @@ async function ping(){
   }
 }
 
+<script>
 async function guardar(){
-  if (saving) return;           // 🔒 evita doble ejecución
+  if (saving) return;
   saving = true;
 
   const p = getPayload();
@@ -771,19 +771,19 @@ async function guardar(){
   setStatus("Guardando...", "info");
 
   try{
-    // ✅ Mejor que no-cors: confirma respuesta del WebApp vía postMessage
-    const res = await postViaIframe({
+    // 1) Envío rápido (no-cors). No puede leer respuesta, pero sí guarda.
+    await postNoCors({
       action: "save",
       payload: JSON.stringify(p)
     });
 
-    if(!res || res.ok !== true){
-      throw new Error(res?.error || "El WebApp no confirmó el guardado");
-    }
+    // 2) Confirmación por JSONP (evita CORS y evita iframe/postMessage)
+    const ok = await confirmSubmission(p._submissionId);
+    if(!ok) throw new Error("timeout");
 
-   setStatus("Guardado ✅", "ok");
-// deja el OK visible un momento
-setTimeout(()=> setStatus("Listo"), 1200);
+    setStatus("Guardado ✅", "ok");
+    limpiar();
+    setTimeout(()=> setStatus("Listo"), 1200);
 
   }catch(e){
     setStatus("Error al guardar: " + (e.message || e), "err");
@@ -792,6 +792,24 @@ setTimeout(()=> setStatus("Listo"), 1200);
     if(btn) btn.disabled = false;
   }
 }
+
+// Confirma que Apps Script procesó el submissionId (CacheService)
+async function confirmSubmission(submissionId){
+  const start = Date.now();
+  const MAX_MS = 12000;     // 12s total
+  const STEP_MS = 600;      // reintento cada 600ms
+
+  while(Date.now() - start < MAX_MS){
+    try{
+      const j = await jsonpRequest({ action:"confirm", submissionId });
+      if(j && j.ok === true && j.confirmed === true) return true;
+    }catch(_){ /* ignora y reintenta */ }
+
+    await new Promise(r => setTimeout(r, STEP_MS));
+  }
+  return false;
+}
+</script>
 
 async function cargarOpcionesFiltro(groupBy, selectEl){
   selectEl.innerHTML = `<option value="">Cargando...</option>`;
