@@ -963,12 +963,22 @@
           maintainAspectRatio: false,
           scales: {
             x: { ticks: { color: "#cfe0ff" } },
-            y: {
-              min: 0,
-              max: 100,
-              ticks: { callback: (v)=> v + "%", color: "#cfe0ff" },
-              grid: { color: "rgba(255,255,255,.08)" }
-            }
+           y: {
+  min: 0,
+  max: 100,
+  ticks: {
+    stepSize: 10, // ✅ asegura que exista la marca/línea del 70%
+    callback: (v)=> v + "%",
+    color: "#cfe0ff"
+  },
+  grid: {
+    // ✅ resalta SOLO la línea del 70%
+    color: (ctx) => (ctx.tick && ctx.tick.value === 70)
+      ? "rgba(245,158,11,.85)"   // color destacado (amarillo)
+      : "rgba(255,255,255,.08)", // color normal
+    lineWidth: (ctx) => (ctx.tick && ctx.tick.value === 70) ? 2.5 : 1
+  }
+}
           },
           plugins: {
             legend: { display:false },
