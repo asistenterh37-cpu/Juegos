@@ -1,1 +1,435 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Formulario - Descripción de Puesto</title>
+  <meta name="description" content="Formulario de descripción de puesto para usar en GitHub Pages" />
+  <style>
+    :root{
+      --bg:#0b1220;
+      --panel:#0f1b33;
+      --card:#0f203f;
+      --text:#e8eefc;
+      --muted:#9fb0d6;
+      --line:rgba(255,255,255,.12);
+      --accent:#22c55e;
+      --danger:#ef4444;
+      --radius:18px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: radial-gradient(1200px 800px at 15% 10%, #12244a 0%, var(--bg) 55%);
+      color:var(--text);
+      padding:24px;
+    }
+    .wrap{
+      max-width:980px;
+      margin:0 auto;
+    }
+    header{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:16px;
+      margin-bottom:18px;
+    }
+    h1{
+      font-size:22px;
+      margin:0 0 6px 0;
+      letter-spacing:.2px;
+    }
+    .sub{
+      color:var(--muted);
+      margin:0;
+      font-size:14px;
+      line-height:1.35;
+    }
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: 0 14px 40px rgba(0,0,0,.35);
+      overflow:hidden;
+    }
+    .card-inner{ padding:18px; }
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+    }
+    @media (max-width: 760px){
+      .grid{ grid-template-columns: 1fr; }
+      header{ flex-direction:column; }
+    }
+    label{
+      display:block;
+      font-size:12px;
+      color:var(--muted);
+      margin:0 0 6px 2px;
+    }
+    input, textarea{
+      width:100%;
+      background: rgba(0,0,0,.25);
+      border:1px solid var(--line);
+      border-radius:12px;
+      color:var(--text);
+      padding:10px 12px;
+      outline:none;
+      transition: border-color .15s ease, transform .05s ease;
+    }
+    textarea{
+      min-height:84px;
+      resize:vertical;
+    }
+    input:focus, textarea:focus{
+      border-color: rgba(34,197,94,.55);
+    }
+    .span-2{ grid-column: 1 / -1; }
+    .section-title{
+      margin:16px 0 10px 0;
+      font-size:14px;
+      letter-spacing:.2px;
+      color: var(--text);
+    }
+    .hr{
+      height:1px;
+      background: var(--line);
+      margin:14px 0;
+    }
+    .actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:flex-end;
+      padding:14px 18px;
+      border-top:1px solid var(--line);
+      background: rgba(0,0,0,.18);
+    }
+    button{
+      border:0;
+      border-radius: 999px;
+      padding:10px 14px;
+      font-weight:600;
+      cursor:pointer;
+      color: var(--text);
+      background: rgba(255,255,255,.10);
+      border: 1px solid var(--line);
+      transition: transform .06s ease, filter .12s ease;
+    }
+    button:hover{ filter: brightness(1.1); }
+    button:active{ transform: translateY(1px); }
+    .primary{
+      background: rgba(34,197,94,.20);
+      border-color: rgba(34,197,94,.45);
+    }
+    .danger{
+      background: rgba(239,68,68,.18);
+      border-color: rgba(239,68,68,.40);
+    }
+    .note{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      color: var(--muted);
+      font-size:12px;
+      margin-top:10px;
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:4px 10px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.06);
+      font-size:12px;
+      color: var(--muted);
+    }
+    .status{
+      font-size:12px;
+      color: var(--muted);
+      margin-right:auto;
+    }
+    .error{
+      color: #ffd1d1;
+      font-size:12px;
+      margin-top:6px;
+      display:none;
+    }
+    .error.show{ display:block; }
+    .mono{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>Formulario de Descripción de Puesto</h1>
+        <p class="sub">Completa los datos y guarda el resultado. (Sí, esto también sirve para “por favor no me hagan llenar esto tres veces” 😅)</p>
+        <div class="note">
+          <span class="pill">Autoguardado: <b id="autosaveState">ON</b></span>
+          <span class="pill">Salida: <span class="mono">JSON</span></span>
+        </div>
+      </div>
+      <div class="pill mono" id="now"></div>
+    </header>
+
+    <div class="card">
+      <form id="jobForm" class="card-inner" novalidate>
+        <div class="grid">
+          <div>
+            <label for="titular">Nombre del titular</label>
+            <input id="titular" name="titular" type="text" placeholder="Ej. Valentina Pérez" required />
+            <div class="error" data-err="titular">Este campo es obligatorio.</div>
+          </div>
+
+          <div>
+            <label for="puesto">Nombre del puesto</label>
+            <input id="puesto" name="puesto" type="text" placeholder="Ej. Analista de Calidad" required />
+            <div class="error" data-err="puesto">Este campo es obligatorio.</div>
+          </div>
+
+          <div>
+            <label for="puestoSuperior">Nombre del puesto superior</label>
+            <input id="puestoSuperior" name="puestoSuperior" type="text" placeholder="Ej. Jefatura de Operaciones" />
+          </div>
+
+          <div>
+            <label for="subordinados">Puestos subordinados</label>
+            <input id="subordinados" name="subordinados" type="text" placeholder="Ej. Auxiliar 1, Auxiliar 2 (o 'N/A')" />
+          </div>
+
+          <div>
+            <label for="fecha">Fecha</label>
+            <input id="fecha" name="fecha" type="date" required />
+            <div class="error" data-err="fecha">Selecciona una fecha válida.</div>
+          </div>
+
+          <div>
+            <label for="mail">Mail</label>
+            <input id="mail" name="mail" type="email" placeholder="ejemplo@correo.com" required />
+            <div class="error" data-err="mail">Ingresa un correo válido.</div>
+          </div>
+
+          <div class="span-2">
+            <div class="hr"></div>
+            <div class="section-title">Funciones del puesto (1–20)</div>
+            <div id="funcionesWrap" class="grid"></div>
+          </div>
+        </div>
+
+        <div class="note">
+          <span>Tip: si una función no aplica, déjala vacía. El JSON final solo incluye las que tengan texto.</span>
+        </div>
+      </form>
+
+      <div class="actions">
+        <div class="status" id="status">Listo.</div>
+        <button type="button" id="btnPreview">Vista previa</button>
+        <button type="button" class="primary" id="btnDownload">Descargar JSON</button>
+        <button type="button" class="danger" id="btnClear">Limpiar</button>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:14px;">
+      <div class="card-inner">
+        <div class="section-title">Vista previa (JSON)</div>
+        <textarea id="preview" class="mono" readonly style="min-height:220px;"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ====== Helpers ======
+    const $ = (sel, el=document) => el.querySelector(sel);
+    const $$ = (sel, el=document) => Array.from(el.querySelectorAll(sel));
+    const pad2 = (n) => String(n).padStart(2, "0");
+    const safeTrim = (v) => (v ?? "").toString().trim();
+
+    const STORAGE_KEY = "job_description_form_v1";
+
+    // ====== UI init ======
+    const now = new Date();
+    $("#now").textContent = `Hoy: ${now.getFullYear()}-${pad2(now.getMonth()+1)}-${pad2(now.getDate())}`;
+
+    // Build 20 function inputs
+    const funcionesWrap = $("#funcionesWrap");
+    for(let i=1; i<=20; i++){
+      const box = document.createElement("div");
+      box.innerHTML = `
+        <label for="funcion${i}">Función ${i}</label>
+        <textarea id="funcion${i}" name="funcion${i}" placeholder="Describe la función ${i}..."></textarea>
+      `;
+      funcionesWrap.appendChild(box);
+    }
+
+    // Default date today
+    $("#fecha").valueAsDate = new Date();
+
+    // ====== Data model ======
+    function collectData(){
+      const data = {
+        titular: safeTrim($("#titular").value),
+        puesto: safeTrim($("#puesto").value),
+        puestoSuperior: safeTrim($("#puestoSuperior").value),
+        subordinados: safeTrim($("#subordinados").value),
+        fecha: $("#fecha").value,
+        mail: safeTrim($("#mail").value),
+        funciones: []
+      };
+
+      for(let i=1; i<=20; i++){
+        const v = safeTrim($(`#funcion${i}`).value);
+        if(v) data.funciones.push({ n: i, texto: v });
+      }
+
+      return data;
+    }
+
+    function setData(data){
+      $("#titular").value = data?.titular ?? "";
+      $("#puesto").value = data?.puesto ?? "";
+      $("#puestoSuperior").value = data?.puestoSuperior ?? "";
+      $("#subordinados").value = data?.subordinados ?? "";
+      $("#fecha").value = data?.fecha ?? $("#fecha").value;
+      $("#mail").value = data?.mail ?? "";
+
+      for(let i=1; i<=20; i++){
+        const item = (data?.funciones ?? []).find(f => f.n === i);
+        $(`#funcion${i}`).value = item?.texto ?? "";
+      }
+    }
+
+    function toPrettyJSON(obj){
+      return JSON.stringify(obj, null, 2);
+    }
+
+    // ====== Validation ======
+    function showError(fieldName, show){
+      const el = $(`.error[data-err="${fieldName}"]`);
+      if(!el) return;
+      el.classList.toggle("show", !!show);
+    }
+
+    function validate(){
+      let ok = true;
+
+      const titular = safeTrim($("#titular").value);
+      const puesto = safeTrim($("#puesto").value);
+      const fecha = $("#fecha").value;
+      const mail = safeTrim($("#mail").value);
+
+      showError("titular", !titular);
+      showError("puesto", !puesto);
+
+      // Date basic check: must be YYYY-MM-DD
+      const dateOk = /^\d{4}-\d{2}-\d{2}$/.test(fecha);
+      showError("fecha", !dateOk);
+
+      // Email basic check
+      const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail);
+      showError("mail", !emailOk);
+
+      if(!titular || !puesto || !dateOk || !emailOk) ok = false;
+      return ok;
+    }
+
+    // ====== Autosave ======
+    function saveDraft(){
+      const data = collectData();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      $("#status").textContent = "Borrador guardado.";
+    }
+
+    function loadDraft(){
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw) return false;
+      try{
+        const data = JSON.parse(raw);
+        setData(data);
+        $("#status").textContent = "Borrador cargado.";
+        return true;
+      }catch(e){
+        return false;
+      }
+    }
+
+    function clearDraft(){
+      localStorage.removeItem(STORAGE_KEY);
+      $("#status").textContent = "Borrador eliminado.";
+    }
+
+    // Debounce autosave
+    let t = null;
+    function scheduleAutosave(){
+      clearTimeout(t);
+      t = setTimeout(saveDraft, 400);
+    }
+
+    // Load draft on start
+    loadDraft();
+
+    // Hook autosave to inputs
+    $$("#jobForm input, #jobForm textarea").forEach(el=>{
+      el.addEventListener("input", scheduleAutosave);
+      el.addEventListener("change", scheduleAutosave);
+    });
+
+    // ====== Actions ======
+    function updatePreview(){
+      const data = collectData();
+      $("#preview").value = toPrettyJSON(data);
+      $("#status").textContent = "Vista previa actualizada.";
+    }
+
+    function downloadJSON(){
+      if(!validate()){
+        $("#status").textContent = "Revisa los campos marcados antes de descargar.";
+        updatePreview(); // still show what we have
+        return;
+      }
+      const data = collectData();
+      const blob = new Blob([toPrettyJSON(data)], { type: "application/json;charset=utf-8" });
+
+      const fileSafeName = (data.puesto || "descripcion_puesto")
+        .toLowerCase()
+        .replace(/[^\w]+/g, "_")
+        .replace(/^_+|_+$/g, "")
+        .slice(0, 60);
+
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `${fileSafeName}_${data.fecha || "sin_fecha"}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(a.href);
+
+      $("#status").textContent = "JSON descargado.";
+    }
+
+    function clearForm(){
+      $("#jobForm").reset();
+      $("#fecha").valueAsDate = new Date();
+      for(let i=1; i<=20; i++) $(`#funcion${i}`).value = "";
+      clearDraft();
+      updatePreview();
+      $("#status").textContent = "Formulario limpio.";
+    }
+
+    $("#btnPreview").addEventListener("click", updatePreview);
+    $("#btnDownload").addEventListener("click", downloadJSON);
+    $("#btnClear").addEventListener("click", clearForm);
+
+    // Initial preview
+    updatePreview();
+  </script>
+</body>
+</html>
 
