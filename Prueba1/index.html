@@ -519,7 +519,7 @@
       $("tabResultados").classList.toggle("active", tab==="resultados");
       $("tabResumen").classList.toggle("active", tab==="resumen");
 
-      if(tab==="resultados") cargarResultados();
+      if(tab==="resultados") onGroupChange();
       if(tab==="resumen") cargarResumen();
     }
 
