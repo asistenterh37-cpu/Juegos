@@ -841,10 +841,11 @@ async function cargarResultados(){
 
   // ✅ si eligió "Selecciona..." no haces nada
   if(groupBy !== "General" && groupValue === ""){
-    $("tableWrap").innerHTML = `<div class="muted">Selecciona una variable o usa <b>Todos</b>.</div>`;
-    destroyChart();
-    return;
-  }
+  $("tableWrap").innerHTML = `<div class="muted">Selecciona una variable o usa <b>Todos</b>.</div>`;
+  $("adj2Wrap").innerHTML = `<div class="muted">Selecciona una variable o usa <b>Todos</b> para ver Top/Bottom.</div>`;
+  destroyChart();
+  return;
+}
 
   // ✅ si eligió "Todos", comparativo
   if(groupBy !== "General" && groupValue === "__all__"){
@@ -857,11 +858,12 @@ async function cargarResultados(){
     if(!j.ok) throw new Error(j.error || "No se pudo cargar resultados");
     renderResults(j.data);
   }catch(e){
-    $("kpiN").textContent = "0";
-    $("kpiAvg").textContent = "—";
-    $("kpiLast").textContent = "—";
-    $("tableWrap").innerHTML = `<div class="muted">Error: ${escapeHtml(e.message || e)}</div>`;
-    destroyChart();
+  $("kpiN").textContent = "0";
+  $("kpiAvg").textContent = "—";
+  $("kpiLast").textContent = "—";
+  $("tableWrap").innerHTML = `<div class="muted">Error: ${escapeHtml(e.message || e)}</div>`;
+  $("adj2Wrap").innerHTML = `<div class="muted">Error al generar Top/Bottom: ${escapeHtml(e.message || e)}</div>`;
+  destroyChart();
   }
 }
     
@@ -886,11 +888,12 @@ async function cargarResultadosAll(groupBy){
     if(!u.ok) throw new Error(u.error || "No se pudo cargar variables");
     const values = (u.values || []).filter(v => String(v).trim() !== "");
 
-    if(values.length === 0){
-      $("tableWrap").innerHTML = `<div class="muted">No hay valores para ${escapeHtml(groupBy)}.</div>`;
-      destroyChart();
-      return;
-    }
+   if(values.length === 0){
+  $("tableWrap").innerHTML = `<div class="muted">No hay valores para ${escapeHtml(groupBy)}.</div>`;
+  $("adj2Wrap").innerHTML = `<div class="muted">No hay datos para Top/Bottom.</div>`;
+  destroyChart();
+  return;
+}
 
     const resultsArr = await Promise.all(
       values.map(v => jsonpRequest({ action:"results", groupBy, groupValue: v }))
@@ -901,10 +904,11 @@ async function cargarResultadosAll(groupBy){
       .filter(x => x.r?.ok && x.r?.data?.items?.length);
 
     if(clean.length === 0){
-      $("tableWrap").innerHTML = `<div class="muted">Aún no hay datos para graficar.</div>`;
-      destroyChart();
-      return;
-    }
+  $("tableWrap").innerHTML = `<div class="muted">Aún no hay datos para graficar.</div>`;
+  $("adj2Wrap").innerHTML = `<div class="muted">Aún no hay datos para calcular Top/Bottom.</div>`;
+  destroyChart();
+  return;
+}
 
     const baseItems = clean[0].r.data.items;
     const labels = baseItems.map(x => `Ítem ${x.id}`);
@@ -940,9 +944,10 @@ renderAdj2Table(rowsAdj2, pretty(groupBy));
       `<div class="muted">Comparativo por <b style="color:var(--text)">${escapeHtml(pretty(groupBy))}</b>.</div>`;
 
   }catch(e){
-    $("tableWrap").innerHTML = `<div class="muted">Error: ${escapeHtml(e.message || e)}</div>`;
-    destroyChart();
-  }
+  $("tableWrap").innerHTML = `<div class="muted">Error: ${escapeHtml(e.message || e)}</div>`;
+  $("adj2Wrap").innerHTML = `<div class="muted">Error al generar Top/Bottom: ${escapeHtml(e.message || e)}</div>`;
+  destroyChart();
+}
 }
 
 function renderChartMulti(labels, datasets){
@@ -1077,12 +1082,13 @@ function buildConclusionsAndRecs(data){
       $("kpiLast").textContent = last ? last : "—";
       $("kpiAvg").textContent = (avg==null ? "—" : (avg + "%"));
 
-      if(n<=0 || items.length===0){
-        $("noDataMsg").style.display = "block";
-        $("tableWrap").innerHTML = `<div class="muted">Aún no hay datos para mostrar.</div>`;
-        destroyChart();
-        return;
-      }
+    if(n<=0 || items.length===0){
+  $("noDataMsg").style.display = "block";
+  $("tableWrap").innerHTML = `<div class="muted">Aún no hay datos para mostrar.</div>`;
+  $("adj2Wrap").innerHTML = `<div class="muted">Aún no hay datos para mostrar.</div>`;
+  destroyChart();
+  return;
+}
 
       $("noDataMsg").style.display = "none";
 
