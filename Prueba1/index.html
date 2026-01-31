@@ -810,16 +810,19 @@
     /***********************
      * Resultados / Resumen
      ***********************/
-   async function cargarOpcionesFiltro(groupBy, selectEl){
+  async function cargarOpcionesFiltro(groupBy, selectEl){
   selectEl.innerHTML = `<option value="">Cargando...</option>`;
   try{
     const j = await jsonpRequest({ action:"unique", groupBy });
     if(!j.ok) throw new Error(j.error || "No se pudo cargar variables");
-    const values = j.values || [];
 
+    const values = (j.values || []).filter(v => String(v).trim() !== "");
+
+    // ✅ "Todos" para comparar + opción para escoger uno específico
     selectEl.innerHTML =
       `<option value="__all__">Todos</option>` +
-      values.map(v=>`<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join("");
+      `<option value="">Selecciona...</option>` +
+      values.map(v => `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join("");
 
   }catch(e){
     selectEl.innerHTML = `<option value="">(error)</option>`;
@@ -828,31 +831,39 @@
 
     let chart = null;
 
-    async function cargarResultados(){
-      $("noDataMsg").style.display = "block";
-      $("tableWrap").innerHTML = `<div class="muted">Cargando...</div>`;
+async function cargarResultados(){
+  $("noDataMsg").style.display = "block";
+  $("tableWrap").innerHTML = `<div class="muted">Cargando...</div>`;
 
-      const groupBy = $("groupBy").value;
-      const groupValue = $("groupValue").disabled ? "" : ($("groupValue").value || "");
-      // ✅ si eligió "Todos", graficar todos los componentes
-if(groupBy !== "General" && groupValue === "__all__"){
-  await cargarResultadosAll(groupBy);
-  return;
+  const groupBy = $("groupBy").value;
+  const groupValue = $("groupValue").disabled ? "" : ($("groupValue").value || "");
+
+  // ✅ si eligió "Selecciona..." no haces nada
+  if(groupBy !== "General" && groupValue === ""){
+    $("tableWrap").innerHTML = `<div class="muted">Selecciona una variable o usa <b>Todos</b>.</div>`;
+    destroyChart();
+    return;
+  }
+
+  // ✅ si eligió "Todos", comparativo
+  if(groupBy !== "General" && groupValue === "__all__"){
+    await cargarResultadosAll(groupBy);
+    return;
+  }
+
+  try{
+    const j = await jsonpRequest({ action:"results", groupBy, groupValue });
+    if(!j.ok) throw new Error(j.error || "No se pudo cargar resultados");
+    renderResults(j.data);
+  }catch(e){
+    $("kpiN").textContent = "0";
+    $("kpiAvg").textContent = "—";
+    $("kpiLast").textContent = "—";
+    $("tableWrap").innerHTML = `<div class="muted">Error: ${escapeHtml(e.message || e)}</div>`;
+    destroyChart();
+  }
 }
-
-      try{
-        const j = await jsonpRequest({ action:"results", groupBy, groupValue });
-        if(!j.ok) throw new Error(j.error || "No se pudo cargar resultados");
-        renderResults(j.data);
-      }catch(e){
-        $("kpiN").textContent = "0";
-        $("kpiAvg").textContent = "—";
-        $("kpiLast").textContent = "—";
-        $("tableWrap").innerHTML = `<div class="muted">Error: ${escapeHtml(e.message || e)}</div>`;
-        destroyChart();
-      }
-    }
-
+    
 function palette(i){
   const colors = [
     ["rgba(59,130,246,.35)", "rgba(59,130,246,.80)"],
