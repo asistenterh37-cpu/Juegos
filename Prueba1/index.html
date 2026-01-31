@@ -404,6 +404,10 @@
             <div class="subTitle">Promedios por ítem (tabla)</div>
             <div id="tableWrap" class="muted">Aún no hay datos para mostrar.</div>
           </div>
+        <div style="margin-top:18px;">
+  <div class="subTitle">Análisis ítems (Top 3 / Bottom 3)</div>
+  <div id="adj2Wrap" class="muted">Aún no hay datos para mostrar.</div>
+</div>        
         </div>
       </div>
     </section>
@@ -923,6 +927,14 @@ async function cargarResultadosAll(groupBy){
 
     $("noDataMsg").style.display = "none";
     renderChartMulti(labels, datasets);
+    // ✅ Tabla Adjunto 2 (una fila por categoría)
+const rowsAdj2 = clean.map(x=>{
+  const items = x.r.data.items || [];
+  const tb = topBottom3(items);
+  return { cat: x.value, top: tb.top, bottom: tb.bottom };
+});
+
+renderAdj2Table(rowsAdj2, pretty(groupBy));
 
     $("tableWrap").innerHTML =
       `<div class="muted">Comparativo por <b style="color:var(--text)">${escapeHtml(pretty(groupBy))}</b>.</div>`;
@@ -976,6 +988,85 @@ function renderChartMulti(labels, datasets){
       }
     }
 
+    function topBottom3(items){
+  const arr = (items || []).slice().sort((a,b)=>b.percent-a.percent);
+  const top = arr.slice(0,3);
+  const bottom = arr.slice(-3).reverse(); // más bajos primero
+  return { top, bottom };
+}
+
+function fmtItemLine(x){
+  return `• <b>${x.percent}%</b> — Ítem ${x.id}: ${escapeHtml(x.label||"")}`;
+}
+
+function renderAdj2Table(rows, titleLeft){
+  // rows: [{cat, top:[...], bottom:[...]}]
+  if(!rows || rows.length===0){
+    $("adj2Wrap").innerHTML = `<div class="muted">Aún no hay datos para mostrar.</div>`;
+    return;
+  }
+
+  const tr = rows.map(r=>{
+    const topHtml = r.top.map(fmtItemLine).join("<br>");
+    const botHtml = r.bottom.map(fmtItemLine).join("<br>");
+    return `
+      <tr>
+        <td><b>${escapeHtml(r.cat)}</b></td>
+        <td>${topHtml || "<span class='muted'>(sin datos)</span>"}</td>
+        <td>${botHtml || "<span class='muted'>(sin datos)</span>"}</td>
+      </tr>
+    `;
+  }).join("");
+
+  $("adj2Wrap").innerHTML = `
+    <table>
+      <thead>
+        <tr>
+          <th>${escapeHtml(titleLeft || "Categoría")}</th>
+          <th>Los 3 más altos</th>
+          <th>Los 3 más bajos</th>
+        </tr>
+      </thead>
+      <tbody>${tr}</tbody>
+    </table>
+  `;
+}
+
+function buildConclusionsAndRecs(data){
+  // Heurística simple (pero útil): detecta temas repetidos por "factor"
+  const items = (data.items || []).slice();
+  if(items.length===0) return { conclusiones: [], recomendaciones: [] };
+
+  // top/bottom items
+  const { top, bottom } = topBottom3(items);
+
+  // map itemId -> factor
+  const factorById = new Map(ITEMS.map(it => [it.id, it.factor]));
+  const countFactors = (arr) => {
+    const m = new Map();
+    arr.forEach(x=>{
+      const f = factorById.get(x.id) || "Sin factor";
+      m.set(f, (m.get(f)||0) + 1);
+    });
+    return [...m.entries()].sort((a,b)=>b[1]-a[1]);
+  };
+
+  const bottomFactors = countFactors(bottom).slice(0,2);
+  const topFactors = countFactors(top).slice(0,2);
+
+  const conclusiones = [];
+  conclusiones.push(`Los puntos fuertes se concentran en: ${topFactors.map(([f,c])=>`${f}`).join(" / ") || "—"}.`);
+  conclusiones.push(`Las oportunidades de mejora se concentran en: ${bottomFactors.map(([f,c])=>`${f}`).join(" / ") || "—"}.`);
+  conclusiones.push(`Ítems más bajos: ${bottom.map(x=>`Ítem ${x.id} (${x.percent}%)`).join(", ")}.`);
+
+  const recomendaciones = [];
+  recomendaciones.push(`Priorizar un plan de mejora sobre los ítems con menor puntaje (primero los <b>&lt;70%</b>).`);
+  recomendaciones.push(`Definir 2 acciones concretas por factor crítico (dueño + fecha + indicador).`);
+  recomendaciones.push(`Comunicar quick wins sobre los ítems fuertes para sostener el clima y reforzar buenas prácticas.`);
+
+  return { conclusiones, recomendaciones };
+}
+
     function renderResults(data){
       const n = data.n || 0;
       const last = data.lastTimestamp || "";
@@ -1022,6 +1113,16 @@ function renderChartMulti(labels, datasets){
           <tbody>${rows}</tbody>
         </table>
       `;
+// ✅ Tabla Adjunto 2 (una fila)
+const { top, bottom } = topBottom3(items);
+const gb = $("groupBy").value;
+const gv = $("groupValue").disabled ? "" : ($("groupValue").value || "");
+
+const title = (gb==="General")
+  ? "Puntaje general"
+  : `${pretty(gb)}: ${gv || "(sin seleccionar)"}`;
+
+renderAdj2Table([{ cat: title, top, bottom }], gb==="General" ? "Estatus general" : "Categoría");
     }
 
     function renderSummary(data, groupBy, groupValue){
@@ -1059,6 +1160,23 @@ function renderChartMulti(labels, datasets){
             </div>
           </div>
         </div>
+        </div>
+
+<div style="margin-top:14px; display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+  <div class="kpi">
+    <div class="k">Conclusiones</div>
+    <div class="s" style="margin-top:10px;">
+      ${conclHtml}
+    </div>
+  </div>
+
+  <div class="kpi">
+    <div class="k">Recomendaciones</div>
+    <div class="s" style="margin-top:10px;">
+      ${recHtml}
+    </div>
+  </div>
+</div>
       `;
     }
 
