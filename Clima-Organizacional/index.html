@@ -38,6 +38,26 @@
       display:flex; align-items:center; justify-content:space-between;
       gap:14px;
     }
+    /* ✅ Centrar el bloque de título + chips */
+.headerInfo{
+  grid-column: 2;
+  justify-self: center;
+  text-align: center;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:6px;
+}
+
+.headerInfo .chips{
+  justify-content:center;
+}
+
+/* ✅ Mantener el menú a la derecha */
+.topbar .nav{
+  grid-column: 3;
+  justify-self: end;
+}
     .brand{font-size:22px; font-weight:800; letter-spacing:.2px}
     .chips{display:flex; align-items:center; gap:10px; flex-wrap:wrap}
     .chip{
@@ -257,15 +277,16 @@
 </head>
 
 <body>
-  <header class="topbar">
-    <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
-      <div class="brand">Encuesta de clima organizacional</div>
-      <div class="chips">
-        <span class="chip"><b>Google Sheets</b></span>
-        <span class="chip"><span id="remoteDot" class="remoteDot"></span><span id="remoteText">Remote: —</span></span>
-      </div>
+<header class="topbar">
+  <div class="headerInfo">
+    <div class="brand">Encuesta de clima organizacional</div>
+    <div class="chips">
+      <span class="chip"><b>Google Sheets</b></span>
+      <span class="chip"><span id="remoteDot" class="remoteDot"></span><span id="remoteText">Remote: —</span></span>
     </div>
-    <nav class="nav">
+  </div>
+  <nav c
+    lass="nav">
       <button id="tabEncuesta" class="active" onclick="showTab('encuesta')">Encuesta</button>
       <button id="tabResultados" onclick="showTab('resultados')">Resultados</button>
       <button id="tabResumen" onclick="showTab('resumen')">Resumen</button>
