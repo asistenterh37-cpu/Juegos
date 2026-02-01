@@ -137,6 +137,7 @@
       color: var(--muted);
       font-size:12px;
       margin-top:10px;
+      flex-wrap: wrap;
     }
     .pill{
       display:inline-flex;
@@ -164,6 +165,16 @@
     .mono{
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
     }
+    .link{
+      color: #b9ccff;
+      text-decoration: none;
+      border-bottom: 1px dashed rgba(185,204,255,.45);
+    }
+    .link:hover{ filter: brightness(1.15); }
+    .disabled{
+      opacity: .65;
+      pointer-events: none;
+    }
   </style>
 </head>
 <body>
@@ -175,6 +186,9 @@
         <div class="note">
           <span class="pill">Autoguardado: <b id="autosaveState">OFF</b></span>
           <span class="pill">Salida: <span class="mono">JSON</span></span>
+          <span class="pill">Destino:
+            <a class="link" id="sheetLink" href="#" target="_blank" rel="noreferrer">Google Sheet</a>
+          </span>
         </div>
       </div>
       <div class="pill mono" id="now"></div>
@@ -247,6 +261,15 @@
   </div>
 
   <script>
+    // ====== CONFIG ======
+    // Enlace que me diste (incorporado en el HTML)
+    const SHEET_URL = "https://docs.google.com/spreadsheets/d/1yVZzdYv7BOxOIVI9tGMtGp4a3AvrrXlYggm-CgAZ9bA/edit?usp=sharing";
+    const SHEET_ID = "1yVZzdYv7BOxOIVI9tGMtGp4a3AvrrXlYggm-CgAZ9bA";
+
+    // Pega aquí la URL del Web App de Apps Script (Deploy > Web app)
+    // Ejemplo: https://script.google.com/macros/s/AKfycbxxxxxx/exec
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxxKPsYoJiKWQlCjVBWb96r8--aIPgejUiIL4j_-B4YjCzAhtWY3C9dItnXGPNKLQa4/exec";
+
     // ====== Helpers ======
     const $ = (sel, el=document) => el.querySelector(sel);
     const $$ = (sel, el=document) => Array.from(el.querySelectorAll(sel));
@@ -258,6 +281,9 @@
     // ====== UI init ======
     const now = new Date();
     $("#now").textContent = `Hoy: ${now.getFullYear()}-${pad2(now.getMonth()+1)}-${pad2(now.getDate())}`;
+
+    // Link visible al Sheet
+    $("#sheetLink").href = SHEET_URL;
 
     // Build 20 function inputs
     const funcionesWrap = $("#funcionesWrap");
@@ -287,6 +313,12 @@
     // ====== Data model ======
     function collectData(){
       const data = {
+        meta: {
+          sheetId: SHEET_ID,
+          sheetName: "Respuestas",
+          createdAtISO: new Date().toISOString(),
+          userAgent: navigator.userAgent
+        },
         titular: safeTrim($("#titular").value),
         puesto: safeTrim($("#puesto").value),
         puestoSuperior: safeTrim($("#puestoSuperior").value),
@@ -399,16 +431,58 @@
       $("#status").textContent = "Formulario limpio.";
     }
 
+    // ====== Google Sheet submit (Apps Script Web App) ======
+    async function sendToSheet(payload){
+      if(!WEB_APP_URL || WEB_APP_URL.includes("PEGA_AQUI_TU_URL_DEL_WEB_APP")){
+        throw new Error("Falta configurar WEB_APP_URL (URL del Web App de Apps Script).");
+      }
+
+      // Para evitar preflight CORS desde GitHub Pages:
+      // - mode: "no-cors" (la respuesta será opaca, pero el envío llega)
+      // - content-type simple
+      const res = await fetch(WEB_APP_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload)
+      });
+
+      // Con no-cors no podemos leer status/JSON. Si no lanza error, asumimos OK.
+      return { ok: true };
+    }
+
+    function setSavingUI(isSaving){
+      $("#btnSave").classList.toggle("disabled", isSaving);
+      $("#btnSave").disabled = isSaving;
+      $("#btnClear").disabled = isSaving;
+    }
+
     // ====== Actions ======
-    $("#btnSave").addEventListener("click", () => {
+    $("#btnSave").addEventListener("click", async () => {
       if(!validate()){
         $("#status").textContent = "Revisa los campos marcados antes de guardar.";
         return;
       }
+
+      const payload = collectData();
+
+      // Guardado local (borrador)
       saveDraft();
-      // Por si quieres ver el JSON sin “vista previa”, lo dejamos en consola:
-      console.log("JSON guardado:", collectData());
-      console.log("JSON bonito:\n", toPrettyJSON(collectData()));
+
+      // Guardado en Google Sheets
+      try{
+        setSavingUI(true);
+        $("#status").textContent = "Enviando a Google Sheets…";
+        await sendToSheet(payload);
+        $("#status").textContent = "Enviado ✅ (registrado en la hoja Respuestas).";
+        console.log("Enviado:", payload);
+        console.log("JSON bonito:\n", toPrettyJSON(payload));
+      }catch(err){
+        console.error(err);
+        $("#status").textContent = `No se pudo enviar a Sheets: ${err.message}`;
+      }finally{
+        setSavingUI(false);
+      }
     });
 
     $("#btnClear").addEventListener("click", clearForm);
