@@ -25,28 +25,13 @@
       color:var(--text);
       padding:24px;
     }
-    .wrap{
-      max-width:980px;
-      margin:0 auto;
-    }
+    .wrap{ max-width:980px; margin:0 auto; }
     header{
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap:16px;
-      margin-bottom:18px;
+      display:flex; align-items:flex-start; justify-content:space-between;
+      gap:16px; margin-bottom:18px;
     }
-    h1{
-      font-size:22px;
-      margin:0 0 6px 0;
-      letter-spacing:.2px;
-    }
-    .sub{
-      color:var(--muted);
-      margin:0;
-      font-size:14px;
-      line-height:1.35;
-    }
+    h1{ font-size:22px; margin:0 0 6px 0; letter-spacing:.2px; }
+    .sub{ color:var(--muted); margin:0; font-size:14px; line-height:1.35; }
     .card{
       background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
       border:1px solid var(--line);
@@ -55,21 +40,12 @@
       overflow:hidden;
     }
     .card-inner{ padding:18px; }
-    .grid{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:12px;
-    }
+    .grid{ display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
     @media (max-width: 760px){
       .grid{ grid-template-columns: 1fr; }
       header{ flex-direction:column; }
     }
-    label{
-      display:block;
-      font-size:12px;
-      color:var(--muted);
-      margin:0 0 6px 2px;
-    }
+    label{ display:block; font-size:12px; color:var(--muted); margin:0 0 6px 2px; }
     input, textarea{
       width:100%;
       background: rgba(0,0,0,.25);
@@ -80,13 +56,8 @@
       outline:none;
       transition: border-color .15s ease, transform .05s ease;
     }
-    textarea{
-      min-height:84px;
-      resize:vertical;
-    }
-    input:focus, textarea:focus{
-      border-color: rgba(34,197,94,.55);
-    }
+    textarea{ min-height:84px; resize:vertical; }
+    input:focus, textarea:focus{ border-color: rgba(34,197,94,.55); }
     .span-2{ grid-column: 1 / -1; }
     .section-title{
       margin:16px 0 10px 0;
@@ -94,87 +65,39 @@
       letter-spacing:.2px;
       color: var(--text);
     }
-    .hr{
-      height:1px;
-      background: var(--line);
-      margin:14px 0;
-    }
+    .hr{ height:1px; background: var(--line); margin:14px 0; }
     .actions{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      align-items:center;
-      justify-content:flex-end;
-      padding:14px 18px;
-      border-top:1px solid var(--line);
-      background: rgba(0,0,0,.18);
+      display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:flex-end;
+      padding:14px 18px; border-top:1px solid var(--line); background: rgba(0,0,0,.18);
     }
     button{
-      border:0;
-      border-radius: 999px;
-      padding:10px 14px;
-      font-weight:600;
-      cursor:pointer;
-      color: var(--text);
-      background: rgba(255,255,255,.10);
-      border: 1px solid var(--line);
+      border:0; border-radius: 999px; padding:10px 14px; font-weight:600; cursor:pointer;
+      color: var(--text); background: rgba(255,255,255,.10); border: 1px solid var(--line);
       transition: transform .06s ease, filter .12s ease;
     }
     button:hover{ filter: brightness(1.1); }
     button:active{ transform: translateY(1px); }
-    .primary{
-      background: rgba(34,197,94,.20);
-      border-color: rgba(34,197,94,.45);
-    }
-    .danger{
-      background: rgba(239,68,68,.18);
-      border-color: rgba(239,68,68,.40);
-    }
+    .primary{ background: rgba(34,197,94,.20); border-color: rgba(34,197,94,.45); }
+    .danger{ background: rgba(239,68,68,.18); border-color: rgba(239,68,68,.40); }
     .note{
-      display:flex;
-      gap:10px;
-      align-items:center;
-      color: var(--muted);
-      font-size:12px;
-      margin-top:10px;
-      flex-wrap: wrap;
+      display:flex; gap:10px; align-items:center; color: var(--muted);
+      font-size:12px; margin-top:10px; flex-wrap: wrap;
     }
     .pill{
-      display:inline-flex;
-      align-items:center;
-      gap:6px;
-      padding:4px 10px;
-      border-radius:999px;
-      border:1px solid var(--line);
-      background: rgba(255,255,255,.06);
-      font-size:12px;
-      color: var(--muted);
+      display:inline-flex; align-items:center; gap:6px; padding:4px 10px;
+      border-radius:999px; border:1px solid var(--line); background: rgba(255,255,255,.06);
+      font-size:12px; color: var(--muted);
     }
-    .status{
-      font-size:12px;
-      color: var(--muted);
-      margin-right:auto;
-    }
-    .error{
-      color: #ffd1d1;
-      font-size:12px;
-      margin-top:6px;
-      display:none;
-    }
+    .status{ font-size:12px; color: var(--muted); margin-right:auto; }
+    .error{ color: #ffd1d1; font-size:12px; margin-top:6px; display:none; }
     .error.show{ display:block; }
-    .mono{
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-    }
+    .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; }
     .link{
-      color: #b9ccff;
-      text-decoration: none;
+      color: #b9ccff; text-decoration: none;
       border-bottom: 1px dashed rgba(185,204,255,.45);
     }
     .link:hover{ filter: brightness(1.15); }
-    .disabled{
-      opacity: .65;
-      pointer-events: none;
-    }
+    .disabled{ opacity: .65; pointer-events: none; }
   </style>
 </head>
 <body>
@@ -262,27 +185,19 @@
 
   <script>
     // ====== CONFIG ======
-    // Enlace que me diste (incorporado en el HTML)
     const SHEET_URL = "https://docs.google.com/spreadsheets/d/1yVZzdYv7BOxOIVI9tGMtGp4a3AvrrXlYggm-CgAZ9bA/edit?usp=sharing";
     const SHEET_ID = "1yVZzdYv7BOxOIVI9tGMtGp4a3AvrrXlYggm-CgAZ9bA";
-
-    // Pega aquí la URL del Web App de Apps Script (Deploy > Web app)
-    // Ejemplo: https://script.google.com/macros/s/AKfycbxxxxxx/exec
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxxKPsYoJiKWQlCjVBWb96r8--aIPgejUiIL4j_-B4YjCzAhtWY3C9dItnXGPNKLQa4/exec";
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw9_SeZGA4ym4yaqmGJsgS-r8maE6DWFxFjPP59bBVxabURgbs0DtfYjuXNZIikAmzB/exec";
 
     // ====== Helpers ======
     const $ = (sel, el=document) => el.querySelector(sel);
-    const $$ = (sel, el=document) => Array.from(el.querySelectorAll(sel));
     const pad2 = (n) => String(n).padStart(2, "0");
     const safeTrim = (v) => (v ?? "").toString().trim();
-
     const STORAGE_KEY = "job_description_form_v1";
 
     // ====== UI init ======
     const now = new Date();
     $("#now").textContent = `Hoy: ${now.getFullYear()}-${pad2(now.getMonth()+1)}-${pad2(now.getDate())}`;
-
-    // Link visible al Sheet
     $("#sheetLink").href = SHEET_URL;
 
     // Build 20 function inputs
@@ -316,6 +231,7 @@
         meta: {
           sheetId: SHEET_ID,
           sheetName: "Respuestas",
+          timestampISO: new Date().toISOString(),
           createdAtISO: new Date().toISOString(),
           userAgent: navigator.userAgent
         },
@@ -330,12 +246,12 @@
       };
 
       for(let i=1; i<=20; i++){
-        const v = safeTrim($(`#funcion${i}`).value);
+        const v = safeTrim(document.querySelector(`#funcion${i}`).value);
         if(v) data.funciones.push({ n: i, texto: v });
       }
 
       for(let i=1; i<=10; i++){
-        const v = safeTrim($(`#reporte${i}`).value);
+        const v = safeTrim(document.querySelector(`#reporte${i}`).value);
         if(v) data.reportes.push({ n: i, texto: v });
       }
 
@@ -352,29 +268,23 @@
 
       for(let i=1; i<=20; i++){
         const item = (data?.funciones ?? []).find(f => f.n === i);
-        $(`#funcion${i}`).value = item?.texto ?? "";
+        document.querySelector(`#funcion${i}`).value = item?.texto ?? "";
       }
-
       for(let i=1; i<=10; i++){
         const item = (data?.reportes ?? []).find(r => r.n === i);
-        $(`#reporte${i}`).value = item?.texto ?? "";
+        document.querySelector(`#reporte${i}`).value = item?.texto ?? "";
       }
-    }
-
-    function toPrettyJSON(obj){
-      return JSON.stringify(obj, null, 2);
     }
 
     // ====== Validation ======
     function showError(fieldName, show){
-      const el = $(`.error[data-err="${fieldName}"]`);
+      const el = document.querySelector(`.error[data-err="${fieldName}"]`);
       if(!el) return;
       el.classList.toggle("show", !!show);
     }
 
     function validate(){
       let ok = true;
-
       const titular = safeTrim($("#titular").value);
       const puesto = safeTrim($("#puesto").value);
       const fecha = $("#fecha").value;
@@ -383,11 +293,9 @@
       showError("titular", !titular);
       showError("puesto", !puesto);
 
-      // Date basic check: must be YYYY-MM-DD
       const dateOk = /^\d{4}-\d{2}-\d{2}$/.test(fecha);
       showError("fecha", !dateOk);
 
-      // Email basic check
       const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail);
       showError("mail", !emailOk);
 
@@ -423,31 +331,20 @@
     function clearForm(){
       $("#jobForm").reset();
       $("#fecha").valueAsDate = new Date();
-
-      for(let i=1; i<=20; i++) $(`#funcion${i}`).value = "";
-      for(let i=1; i<=10; i++) $(`#reporte${i}`).value = "";
-
+      for(let i=1; i<=20; i++) document.querySelector(`#funcion${i}`).value = "";
+      for(let i=1; i<=10; i++) document.querySelector(`#reporte${i}`).value = "";
       clearDraft();
       $("#status").textContent = "Formulario limpio.";
     }
 
     // ====== Google Sheet submit (Apps Script Web App) ======
     async function sendToSheet(payload){
-      if(!WEB_APP_URL || WEB_APP_URL.includes("PEGA_AQUI_TU_URL_DEL_WEB_APP")){
-        throw new Error("Falta configurar WEB_APP_URL (URL del Web App de Apps Script).");
-      }
-
-      // Para evitar preflight CORS desde GitHub Pages:
-      // - mode: "no-cors" (la respuesta será opaca, pero el envío llega)
-      // - content-type simple
       const res = await fetch(WEB_APP_URL, {
         method: "POST",
         mode: "no-cors",
         headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: JSON.stringify(payload)
       });
-
-      // Con no-cors no podemos leer status/JSON. Si no lanza error, asumimos OK.
       return { ok: true };
     }
 
@@ -465,18 +362,14 @@
       }
 
       const payload = collectData();
-
-      // Guardado local (borrador)
       saveDraft();
 
-      // Guardado en Google Sheets
       try{
         setSavingUI(true);
         $("#status").textContent = "Enviando a Google Sheets…";
         await sendToSheet(payload);
         $("#status").textContent = "Enviado ✅ (registrado en la hoja Respuestas).";
         console.log("Enviado:", payload);
-        console.log("JSON bonito:\n", toPrettyJSON(payload));
       }catch(err){
         console.error(err);
         $("#status").textContent = `No se pudo enviar a Sheets: ${err.message}`;
@@ -487,7 +380,6 @@
 
     $("#btnClear").addEventListener("click", clearForm);
 
-    // Load draft on start
     loadDraft();
   </script>
 </body>
