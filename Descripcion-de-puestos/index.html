@@ -16,6 +16,10 @@
       --accent:#22c55e;
       --danger:#ef4444;
       --radius:18px;
+
+      /* ✅ NUEVO: azul para Rol 360 */
+      --rolBlue:#2563eb;     /* blue-600 */
+      --rolBlue2:#1d4ed8;    /* blue-700 */
     }
     *{box-sizing:border-box}
     body{
@@ -26,12 +30,14 @@
       padding:24px;
     }
     .wrap{ max-width:980px; margin:0 auto; }
+
     header{
       display:flex; align-items:flex-start; justify-content:space-between;
       gap:16px; margin-bottom:18px;
     }
     h1{ font-size:22px; margin:0 0 6px 0; letter-spacing:.2px; }
     .sub{ color:var(--muted); margin:0; font-size:14px; line-height:1.35; }
+
     .card{
       background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
       border:1px solid var(--line);
@@ -41,10 +47,12 @@
     }
     .card-inner{ padding:18px; }
     .grid{ display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
+
     @media (max-width: 760px){
       .grid{ grid-template-columns: 1fr; }
       header{ flex-direction:column; }
     }
+
     label{ display:block; font-size:12px; color:var(--muted); margin:0 0 6px 2px; }
     input, textarea{
       width:100%;
@@ -66,6 +74,7 @@
       color: var(--text);
     }
     .hr{ height:1px; background: var(--line); margin:14px 0; }
+
     .actions{
       display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:flex-end;
       padding:14px 18px; border-top:1px solid var(--line); background: rgba(0,0,0,.18);
@@ -79,6 +88,7 @@
     button:active{ transform: translateY(1px); }
     .primary{ background: rgba(34,197,94,.20); border-color: rgba(34,197,94,.45); }
     .danger{ background: rgba(239,68,68,.18); border-color: rgba(239,68,68,.40); }
+
     .note{
       display:flex; gap:10px; align-items:center; color: var(--muted);
       font-size:12px; margin-top:10px; flex-wrap: wrap;
@@ -98,6 +108,76 @@
     }
     .link:hover{ filter: brightness(1.15); }
     .disabled{ opacity: .65; pointer-events: none; }
+
+    /* ✅ NUEVO: contenedor derecha arriba (fecha + Rol 360) */
+    .header-right{
+      display:flex;
+      align-items:flex-start;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
+    /* ✅ NUEVO: botón Rol 360 en cuadro azul */
+    .rol360{
+      position:relative;
+      border:1px solid rgba(37,99,235,.55);
+      background: linear-gradient(180deg, rgba(37,99,235,.35), rgba(29,78,216,.18));
+      color: var(--text);
+      border-radius: 12px;
+      padding: 6px 10px;
+      cursor:pointer;
+      user-select:none;
+      box-shadow: 0 10px 26px rgba(0,0,0,.28);
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      font-size:12px;
+      font-weight:700;
+      letter-spacing:.2px;
+    }
+    .rol360:hover{ filter: brightness(1.08); }
+    .rol360:active{ transform: translateY(1px); }
+
+    .rol360 .caret{
+      font-size:12px;
+      opacity:.9;
+      transform: translateY(-1px);
+    }
+
+    /* ✅ NUEVO: dropdown */
+    .rol360-panel{
+      position:absolute;
+      right:0;
+      top: calc(100% + 8px);
+      width: 320px;
+      max-width: calc(100vw - 48px);
+      background: rgba(10,18,35,.92);
+      border:1px solid rgba(37,99,235,.45);
+      border-radius: 14px;
+      padding: 10px 12px;
+      box-shadow: 0 18px 50px rgba(0,0,0,.45);
+      display:none;
+      z-index: 999;
+      backdrop-filter: blur(10px);
+    }
+    .rol360-panel.show{ display:block; }
+
+    .rol360-title{
+      font-size:12px;
+      color: #cfe0ff;
+      margin: 0 0 8px 0;
+      font-weight:800;
+      letter-spacing:.2px;
+    }
+    .rol360-list{
+      margin:0;
+      padding-left: 18px;
+      color: var(--text);
+      font-size:12px;
+      line-height:1.45;
+    }
+    .rol360-list li{ margin: 4px 0; }
   </style>
 </head>
 <body>
@@ -114,7 +194,33 @@
           </span>
         </div>
       </div>
-      <div class="pill mono" id="now"></div>
+
+      <!-- ✅ MODIFICADO: lado derecho (Rol 360 + Hoy) -->
+      <div class="header-right">
+        <!-- ✅ NUEVO: Rol 360 -->
+        <div class="rol360" id="rol360Btn" role="button" tabindex="0" aria-haspopup="true" aria-expanded="false">
+          Rol 360 <span class="caret">▾</span>
+
+          <div class="rol360-panel" id="rol360Panel" role="dialog" aria-label="Información Rol 360">
+            <div class="rol360-title">Esta descripción le procesará:</div>
+            <ul class="rol360-list">
+              <li>Identificación de la posición</li>
+              <li>Objetivos</li>
+              <li>Funciones</li>
+              <li>Procesos clave</li>
+              <li>Perfil</li>
+              <li>Tipologia</li>
+              <li>Entrevista por competencias</li>
+              <li>Plan de inducción</li>
+              <li>Plan de capacitación</li>
+              <li>KPIs</li>
+              <li>Oportunidades de automatización</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="pill mono" id="now"></div>
+      </div>
     </header>
 
     <div class="card">
@@ -208,6 +314,50 @@
     const now = new Date();
     $("#now").textContent = `Hoy: ${now.getFullYear()}-${pad2(now.getMonth()+1)}-${pad2(now.getDate())}`;
     $("#sheetLink").href = SHEET_URL;
+
+    // ✅ NUEVO: Rol 360 toggle (click + teclado + click afuera)
+    const rolBtn = $("#rol360Btn");
+    const rolPanel = $("#rol360Panel");
+
+    function closeRol360(){
+      rolPanel.classList.remove("show");
+      rolBtn.setAttribute("aria-expanded", "false");
+    }
+    function toggleRol360(){
+      const willOpen = !rolPanel.classList.contains("show");
+      if(willOpen){
+        rolPanel.classList.add("show");
+        rolBtn.setAttribute("aria-expanded", "true");
+      }else{
+        closeRol360();
+      }
+    }
+
+    rolBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      toggleRol360();
+    });
+
+    rolBtn.addEventListener("keydown", (e) => {
+      if(e.key === "Enter" || e.key === " "){
+        e.preventDefault();
+        toggleRol360();
+      }
+      if(e.key === "Escape"){
+        closeRol360();
+      }
+    });
+
+    document.addEventListener("click", (e) => {
+      // cerrar si se hace click fuera
+      if(!rolBtn.contains(e.target)){
+        closeRol360();
+      }
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if(e.key === "Escape") closeRol360();
+    });
 
     // Build 20 function inputs
     const funcionesWrap = $("#funcionesWrap");
