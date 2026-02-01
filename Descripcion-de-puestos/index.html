@@ -132,6 +132,13 @@
             <div class="error" data-err="puesto">Este campo es obligatorio.</div>
           </div>
 
+          <!-- ✅ NUEVO: Departamento (después del nombre del puesto) -->
+          <div>
+            <label for="departamento">Departamento</label>
+            <input id="departamento" name="departamento" type="text" placeholder="Ej. Contabilidad" required />
+            <div class="error" data-err="departamento">Este campo es obligatorio.</div>
+          </div>
+
           <div>
             <label for="puestoSuperior">Nombre del puesto superior</label>
             <input id="puestoSuperior" name="puestoSuperior" type="text" placeholder="Ej. Jefatura de Operaciones" />
@@ -187,13 +194,15 @@
     // ====== CONFIG ======
     const SHEET_URL = "https://docs.google.com/spreadsheets/d/1yVZzdYv7BOxOIVI9tGMtGp4a3AvrrXlYggm-CgAZ9bA/edit?usp=sharing";
     const SHEET_ID = "1yVZzdYv7BOxOIVI9tGMtGp4a3AvrrXlYggm-CgAZ9bA";
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw9_SeZGA4ym4yaqmGJsgS-r8maE6DWFxFjPP59bBVxabURgbs0DtfYjuXNZIikAmzB/exec";
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw3YHtQAzQ7Z5f6ew4sKEzu9RJUY-9mbdPWXKBvMlI8ieEr4bLPoDFjQL0Rprfj02R-/exec";
 
     // ====== Helpers ======
     const $ = (sel, el=document) => el.querySelector(sel);
     const pad2 = (n) => String(n).padStart(2, "0");
     const safeTrim = (v) => (v ?? "").toString().trim();
-    const STORAGE_KEY = "job_description_form_v1";
+
+    // ✅ Subo versión para no mezclar borradores anteriores sin "departamento"
+    const STORAGE_KEY = "job_description_form_v2";
 
     // ====== UI init ======
     const now = new Date();
@@ -237,6 +246,9 @@
         },
         titular: safeTrim($("#titular").value),
         puesto: safeTrim($("#puesto").value),
+        // ✅ NUEVO
+        departamento: safeTrim($("#departamento").value),
+
         puestoSuperior: safeTrim($("#puestoSuperior").value),
         subordinados: safeTrim($("#subordinados").value),
         fecha: $("#fecha").value,
@@ -261,6 +273,9 @@
     function setData(data){
       $("#titular").value = data?.titular ?? "";
       $("#puesto").value = data?.puesto ?? "";
+      // ✅ NUEVO
+      $("#departamento").value = data?.departamento ?? "";
+
       $("#puestoSuperior").value = data?.puestoSuperior ?? "";
       $("#subordinados").value = data?.subordinados ?? "";
       $("#fecha").value = data?.fecha ?? $("#fecha").value;
@@ -287,11 +302,14 @@
       let ok = true;
       const titular = safeTrim($("#titular").value);
       const puesto = safeTrim($("#puesto").value);
+      const departamento = safeTrim($("#departamento").value);
       const fecha = $("#fecha").value;
       const mail = safeTrim($("#mail").value);
 
       showError("titular", !titular);
       showError("puesto", !puesto);
+      // ✅ NUEVO
+      showError("departamento", !departamento);
 
       const dateOk = /^\d{4}-\d{2}-\d{2}$/.test(fecha);
       showError("fecha", !dateOk);
@@ -299,7 +317,7 @@
       const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail);
       showError("mail", !emailOk);
 
-      if(!titular || !puesto || !dateOk || !emailOk) ok = false;
+      if(!titular || !puesto || !departamento || !dateOk || !emailOk) ok = false;
       return ok;
     }
 
