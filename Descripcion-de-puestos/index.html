@@ -173,7 +173,7 @@
         <h1>Formulario de Descripción de Puesto</h1>
         <p class="sub">Completa los datos y guarda el resultado. (Sí, esto también sirve para “por favor no me hagan llenar esto tres veces” 😅)</p>
         <div class="note">
-          <span class="pill">Autoguardado: <b id="autosaveState">ON</b></span>
+          <span class="pill">Autoguardado: <b id="autosaveState">OFF</b></span>
           <span class="pill">Salida: <span class="mono">JSON</span></span>
         </div>
       </div>
@@ -222,25 +222,26 @@
             <div class="section-title">Funciones del puesto (1–20)</div>
             <div id="funcionesWrap" class="grid"></div>
           </div>
+
+          <div class="span-2">
+            <div class="hr"></div>
+            <div class="section-title">Reporte</div>
+            <div class="note" style="margin:0 0 10px 0;">
+              <span>Enliste cada uno de los reportes que genera su puesto y la forma como los obtiene.</span>
+            </div>
+            <div id="reportesWrap" class="grid"></div>
+          </div>
         </div>
 
         <div class="note">
-          <span>Tip: si una función no aplica, déjala vacía. El JSON final solo incluye las que tengan texto.</span>
+          <span>Tip: si algo no aplica, déjalo vacío. El JSON final solo incluye lo que tenga texto.</span>
         </div>
       </form>
 
       <div class="actions">
         <div class="status" id="status">Listo.</div>
-        <button type="button" id="btnPreview">Vista previa</button>
-        <button type="button" class="primary" id="btnDownload">Descargar JSON</button>
+        <button type="button" class="primary" id="btnSave">Guardar</button>
         <button type="button" class="danger" id="btnClear">Limpiar</button>
-      </div>
-    </div>
-
-    <div class="card" style="margin-top:14px;">
-      <div class="card-inner">
-        <div class="section-title">Vista previa (JSON)</div>
-        <textarea id="preview" class="mono" readonly style="min-height:220px;"></textarea>
       </div>
     </div>
   </div>
@@ -269,6 +270,17 @@
       funcionesWrap.appendChild(box);
     }
 
+    // Build 20 report inputs
+    const reportesWrap = $("#reportesWrap");
+    for(let i=1; i<=20; i++){
+      const box = document.createElement("div");
+      box.innerHTML = `
+        <label for="reporte${i}">Reporte ${i}</label>
+        <textarea id="reporte${i}" name="reporte${i}" placeholder="Ej. Reporte de ___ / Cómo lo obtengo: ___"></textarea>
+      `;
+      reportesWrap.appendChild(box);
+    }
+
     // Default date today
     $("#fecha").valueAsDate = new Date();
 
@@ -281,12 +293,18 @@
         subordinados: safeTrim($("#subordinados").value),
         fecha: $("#fecha").value,
         mail: safeTrim($("#mail").value),
-        funciones: []
+        funciones: [],
+        reportes: []
       };
 
       for(let i=1; i<=20; i++){
         const v = safeTrim($(`#funcion${i}`).value);
         if(v) data.funciones.push({ n: i, texto: v });
+      }
+
+      for(let i=1; i<=20; i++){
+        const v = safeTrim($(`#reporte${i}`).value);
+        if(v) data.reportes.push({ n: i, texto: v });
       }
 
       return data;
@@ -303,6 +321,11 @@
       for(let i=1; i<=20; i++){
         const item = (data?.funciones ?? []).find(f => f.n === i);
         $(`#funcion${i}`).value = item?.texto ?? "";
+      }
+
+      for(let i=1; i<=20; i++){
+        const item = (data?.reportes ?? []).find(r => r.n === i);
+        $(`#reporte${i}`).value = item?.texto ?? "";
       }
     }
 
@@ -340,11 +363,11 @@
       return ok;
     }
 
-    // ====== Autosave ======
+    // ====== Storage ======
     function saveDraft(){
       const data = collectData();
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-      $("#status").textContent = "Borrador guardado.";
+      $("#status").textContent = "Guardado ✅ (borrador en el navegador).";
     }
 
     function loadDraft(){
@@ -365,71 +388,33 @@
       $("#status").textContent = "Borrador eliminado.";
     }
 
-    // Debounce autosave
-    let t = null;
-    function scheduleAutosave(){
-      clearTimeout(t);
-      t = setTimeout(saveDraft, 400);
-    }
-
-    // Load draft on start
-    loadDraft();
-
-    // Hook autosave to inputs
-    $$("#jobForm input, #jobForm textarea").forEach(el=>{
-      el.addEventListener("input", scheduleAutosave);
-      el.addEventListener("change", scheduleAutosave);
-    });
-
-    // ====== Actions ======
-    function updatePreview(){
-      const data = collectData();
-      $("#preview").value = toPrettyJSON(data);
-      $("#status").textContent = "Vista previa actualizada.";
-    }
-
-    function downloadJSON(){
-      if(!validate()){
-        $("#status").textContent = "Revisa los campos marcados antes de descargar.";
-        updatePreview(); // still show what we have
-        return;
-      }
-      const data = collectData();
-      const blob = new Blob([toPrettyJSON(data)], { type: "application/json;charset=utf-8" });
-
-      const fileSafeName = (data.puesto || "descripcion_puesto")
-        .toLowerCase()
-        .replace(/[^\w]+/g, "_")
-        .replace(/^_+|_+$/g, "")
-        .slice(0, 60);
-
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = `${fileSafeName}_${data.fecha || "sin_fecha"}.json`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(a.href);
-
-      $("#status").textContent = "JSON descargado.";
-    }
-
     function clearForm(){
       $("#jobForm").reset();
       $("#fecha").valueAsDate = new Date();
+
       for(let i=1; i<=20; i++) $(`#funcion${i}`).value = "";
+      for(let i=1; i<=20; i++) $(`#reporte${i}`).value = "";
+
       clearDraft();
-      updatePreview();
       $("#status").textContent = "Formulario limpio.";
     }
 
-    $("#btnPreview").addEventListener("click", updatePreview);
-    $("#btnDownload").addEventListener("click", downloadJSON);
+    // ====== Actions ======
+    $("#btnSave").addEventListener("click", () => {
+      if(!validate()){
+        $("#status").textContent = "Revisa los campos marcados antes de guardar.";
+        return;
+      }
+      saveDraft();
+      // Por si quieres ver el JSON sin “vista previa”, lo dejamos en consola:
+      console.log("JSON guardado:", collectData());
+      console.log("JSON bonito:\n", toPrettyJSON(collectData()));
+    });
+
     $("#btnClear").addEventListener("click", clearForm);
 
-    // Initial preview
-    updatePreview();
+    // Load draft on start
+    loadDraft();
   </script>
 </body>
 </html>
-
