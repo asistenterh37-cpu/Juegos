@@ -195,8 +195,8 @@
   </div>
 
   <script>
-    // ✅ Tu Web App (OK). Ahora la usaremos por GET+JSONP para evitar CORS.
-    const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbw5sWHGqRKQwYQELmChyVu57j5LNO7iM6sZzxkVyRHw95157nuiC_ikqP4KC_EiEvE/exec";
+    // 🔁 Pega aquí la URL REAL de tu Web App desplegada
+    const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwjy4JLiTmcFpJ_fHmC0JNYwaZ3dwyJAU5JzXhH17ZKSkTW02v38KQvHZn3UovQWQyY/exec";
 
     const $ = (id) => document.getElementById(id);
 
@@ -229,7 +229,7 @@
       saveStatus.textContent = `Estado: ${text}`;
     }
 
-    function showResult(titleText, bodyText, metaText=""){
+    function showResult(bodyText, metaText=""){
       salida.style.display = "block";
       preview.textContent = bodyText || "";
       meta.textContent = metaText || "";
@@ -239,8 +239,8 @@
     function saveViaJsonp(text){
       return new Promise((resolve, reject) => {
         const cbName = `__cb_${Date.now()}_${Math.floor(Math.random()*100000)}`;
+        let script;
 
-        // Definimos callback global
         window[cbName] = (data) => {
           cleanup();
           resolve(data);
@@ -255,20 +255,19 @@
         url.searchParams.set("action", "append");
         url.searchParams.set("descripcion", text);
         url.searchParams.set("callback", cbName);
-        url.searchParams.set("_", Date.now().toString()); // cache-buster
+        url.searchParams.set("_", Date.now().toString());
 
-        const script = document.createElement("script");
+        script = document.createElement("script");
         script.src = url.toString();
         script.async = true;
 
         script.onerror = () => {
           cleanup();
-          reject(new Error("No se pudo cargar el script JSONP (WebApp no accesible / no público)."));
+          reject(new Error("No se pudo cargar el JSONP (WebApp no accesible / no público)."));
         };
 
         document.body.appendChild(script);
 
-        // Timeout por si no responde
         setTimeout(() => {
           if (window[cbName]) {
             cleanup();
@@ -281,18 +280,18 @@
     $("btnProcesar").addEventListener("click", () => {
       const t = (descripcion.value || "").trim();
       if(!t){
-        showResult("Resultado", "No hay texto para procesar. Pega la descripción del puesto arriba 🙂");
+        showResult("No hay texto para procesar. Pega la descripción del puesto arriba 🙂");
         return;
       }
       const { chars, words, lines } = metrics(t);
-      showResult("Resultado", t, `Listo. Detecté ${words} palabras, ${chars} caracteres y ${lines} líneas.`);
+      showResult(t, `Listo. Detecté ${words} palabras, ${chars} caracteres y ${lines} líneas.`);
     });
 
     $("btnGuardar").addEventListener("click", async () => {
       const t = (descripcion.value || "").trim();
       if(!t){
         setStatus("no hay texto");
-        showResult("Resultado", "No hay texto para guardar. Pega la descripción del puesto arriba 🙂");
+        showResult("No hay texto para guardar. Pega la descripción del puesto arriba 🙂");
         return;
       }
 
@@ -302,14 +301,19 @@
 
         if (data && data.ok){
           setStatus("guardado ✅");
-          showResult("Resultado", "Guardado correctamente en Google Sheets.", data.data?.timestamp ? `Timestamp: ${data.data.timestamp}` : "");
+          const row = data.data?.row ? `Fila: ${data.data.row}` : "";
+          const no  = data.data?.no ? `No: ${data.data.no}` : "";
+          showResult("Guardado correctamente en la hoja 'Descripcionpuesto'.", [no, row].filter(Boolean).join(" | "));
         } else {
           setStatus("error al guardar");
-          showResult("Resultado", "No se pudo guardar. Revisa la hoja y el nombre de pestaña.", data?.error ? `Detalle: ${data.error}` : "");
+          showResult(
+            "No se pudo guardar. Revisa la hoja y el nombre de la pestaña.",
+            data?.error ? `Detalle: ${data.error}` : ""
+          );
         }
       } catch (err){
         setStatus("error de conexión");
-        showResult("Resultado",
+        showResult(
           "Error de conexión al Web App. Verifica que el WebApp esté desplegado como 'Anyone' y que copiaste la URL correcta.",
           `Detalle: ${String(err && err.message ? err.message : err)}`
         );
