@@ -1,1 +1,272 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Proceso de evaluación del desempeño</title>
+  <meta name="description" content="Plantilla para pegar descripción de puesto y procesarla." />
+  <style>
+    :root{
+      --bg:#0b1220;
+      --panel:#0f1b33;
+      --card:#0f203f;
+      --text:#eaf2ff;
+      --muted:#a7b6d4;
+      --line:#203458;
+      --accent:#3b82f6;
+      --accent2:#22c55e;
+      --danger:#ef4444;
+      --shadow: 0 12px 28px rgba(0,0,0,.35);
+      --radius: 18px;
+      --radius-sm: 12px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      background: radial-gradient(1200px 600px at 10% -10%, rgba(59,130,246,.25), transparent 60%),
+                  radial-gradient(900px 500px at 90% 0%, rgba(34,197,94,.18), transparent 55%),
+                  var(--bg);
+      color:var(--text);
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+    }
+    .wrap{
+      width:min(1000px, 100%);
+    }
+    header{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:16px;
+      margin-bottom:14px;
+    }
+    h1{
+      font-size: clamp(20px, 2.4vw, 30px);
+      margin:0;
+      letter-spacing:.2px;
+    }
+    .subtitle{
+      margin:6px 0 0;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.4;
+    }
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      border:1px solid rgba(255,255,255,.06);
+      box-shadow: var(--shadow);
+      border-radius: var(--radius);
+      overflow:hidden;
+    }
+    .card-body{
+      padding:18px;
+    }
+    label{
+      display:block;
+      font-weight:600;
+      margin:0 0 10px;
+      color: #dce8ff;
+    }
+    textarea{
+      width:100%;
+      min-height: 240px;
+      resize: vertical;
+      padding:14px 14px;
+      border-radius: var(--radius-sm);
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(7, 14, 28, .55);
+      color: var(--text);
+      outline: none;
+      font-size:14px;
+      line-height:1.5;
+    }
+    textarea:focus{
+      border-color: rgba(59,130,246,.55);
+      box-shadow: 0 0 0 4px rgba(59,130,246,.15);
+    }
+    .hint{
+      margin-top:10px;
+      color:var(--muted);
+      font-size:13px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px 16px;
+      align-items:center;
+    }
+    .pill{
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.03);
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:12px;
+      color: var(--muted);
+    }
+    .menu{
+      display:flex;
+      gap:10px;
+      padding:14px 18px 18px;
+      border-top: 1px solid rgba(255,255,255,.06);
+      justify-content:flex-end;
+      flex-wrap:wrap;
+    }
+    button{
+      border:0;
+      cursor:pointer;
+      padding:10px 14px;
+      border-radius: 12px;
+      font-weight:700;
+      letter-spacing:.2px;
+      color: #081023;
+      transition: transform .08s ease, filter .15s ease, opacity .15s ease;
+      user-select:none;
+    }
+    button:active{ transform: translateY(1px); }
+    .btn-primary{ background: linear-gradient(180deg, rgba(59,130,246,1), rgba(37,99,235,1)); color:white; }
+    .btn-ghost{
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      border:1px solid rgba(255,255,255,.10);
+    }
+    .btn-primary:hover{ filter: brightness(1.06); }
+    .btn-ghost:hover{ filter: brightness(1.12); }
+    .out{
+      margin-top:14px;
+      padding:14px 18px 18px;
+      border-top: 1px solid rgba(255,255,255,.06);
+      display:none;
+    }
+    .out h2{
+      margin:0 0 10px;
+      font-size:16px;
+    }
+    .out pre{
+      margin:0;
+      white-space:pre-wrap;
+      word-wrap:break-word;
+      background: rgba(0,0,0,.20);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius: 12px;
+      padding:12px;
+      color: #eaf2ff;
+      font-size:13px;
+      line-height:1.5;
+      max-height: 260px;
+      overflow:auto;
+    }
+    .small{
+      color:var(--muted);
+      font-size:12px;
+      margin-top:10px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>Proceso de evaluación del desempeño</h1>
+        <p class="subtitle">Pegue su descripción de puesto y use el menú inferior para procesar o limpiar.</p>
+      </div>
+      <div class="pill" title="Modo plantilla">Plantilla HTML</div>
+    </header>
+
+    <section class="card">
+      <div class="card-body">
+        <label for="descripcion">Pegue su descripción de puesto aquí</label>
+        <textarea id="descripcion" placeholder="Ejemplo: Objetivo del puesto, funciones, responsabilidades, requisitos, etc."></textarea>
+
+        <div class="hint">
+          <span class="pill" id="countChars">Caracteres: 0</span>
+          <span class="pill" id="countWords">Palabras: 0</span>
+          <span class="pill" id="countLines">Líneas: 0</span>
+        </div>
+      </div>
+
+      <!-- Menú inferior -->
+      <div class="menu">
+        <button class="btn-primary" id="btnProcesar" type="button">Procesar</button>
+        <button class="btn-ghost" id="btnLimpiar" type="button">Limpiar</button>
+      </div>
+
+      <!-- Salida -->
+      <div class="out" id="salida">
+        <h2>Resultado</h2>
+        <pre id="preview"></pre>
+        <div class="small" id="meta"></div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+
+    const descripcion = $("descripcion");
+    const countChars  = $("countChars");
+    const countWords  = $("countWords");
+    const countLines  = $("countLines");
+
+    const salida = $("salida");
+    const preview = $("preview");
+    const meta = $("meta");
+
+    function metrics(text){
+      const chars = text.length;
+
+      const words = text
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean).length;
+
+      const lines = text.length ? text.split(/\r?\n/).length : 0;
+
+      return { chars, words, lines };
+    }
+
+    function refreshCounters(){
+      const t = descripcion.value || "";
+      const { chars, words, lines } = metrics(t);
+
+      countChars.textContent = `Caracteres: ${chars}`;
+      countWords.textContent = `Palabras: ${words}`;
+      countLines.textContent = `Líneas: ${lines}`;
+    }
+
+    // Procesar: demo (preview + métricas). Luego se conecta con IA/Apps Script.
+    $("btnProcesar").addEventListener("click", () => {
+      const t = (descripcion.value || "").trim();
+      if(!t){
+        salida.style.display = "block";
+        preview.textContent = "No hay texto para procesar. Pega la descripción del puesto arriba 🙂";
+        meta.textContent = "";
+        return;
+      }
+
+      const { chars, words, lines } = metrics(t);
+
+      salida.style.display = "block";
+      preview.textContent = t;
+      meta.textContent = `Listo. Detecté ${words} palabras, ${chars} caracteres y ${lines} líneas.`;
+    });
+
+    // Limpiar
+    $("btnLimpiar").addEventListener("click", () => {
+      descripcion.value = "";
+      refreshCounters();
+      salida.style.display = "none";
+      preview.textContent = "";
+      meta.textContent = "";
+      descripcion.focus();
+    });
+
+    // Contadores en vivo
+    descripcion.addEventListener("input", refreshCounters);
+    refreshCounters();
+  </script>
+</body>
+</html>
 
