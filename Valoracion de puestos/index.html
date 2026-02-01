@@ -190,14 +190,14 @@
   </div>
 
   <script>
-    // ✅ TU WEBAPP (GS)
+    // ✅ TU WEBAPP (GS) -> (esta es la que se usa para GUARDAR)
     const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbz0KLGgfMltZeP7oxcpzdPlG2aC2EkMoVelglQEWD8j2Bd58rZG3i-OMjuTrQ-coFel/exec";
 
-    // ✅ TU HOJA
+    // ✅ TU HOJA (esta es la que se usa para ABRIR LA HOJA)
     const SHEET_URL  = "https://docs.google.com/spreadsheets/d/1AlaCAPuuchPbeX-Qdif-rpAR5zIlc9tnHACOBzIvE_M/edit?usp=sharing";
 
-    // ✅ Abrir hoja apunta a SHEET_URL
-    document.getElementById("btnAbrirHoja").href = "https://script.google.com/macros/s/AKfycbx5wpSWTy-wfVkfWAo1VwJvBQvSv5loW_S5-sAdBpPHEmWkK3ICgmBXIfbhto-WRx41/exec";
+    // ✅ Abrir hoja apunta a SHEET_URL (CORREGIDO)
+    document.getElementById("btnAbrirHoja").href = SHEET_URL;
 
     const $ = (id) => document.getElementById(id);
 
@@ -236,7 +236,7 @@
       meta.textContent = metaText || "";
     }
 
-    // ✅ JSONP (usa WEBAPP_URL y URL(...) real)
+    // ✅ JSONP (usa WEBAPP_URL real)
     function saveViaJsonp(text){
       return new Promise((resolve, reject) => {
         const cbName = `__cb_${Date.now()}_${Math.floor(Math.random()*100000)}`;
