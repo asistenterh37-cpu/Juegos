@@ -86,6 +86,7 @@
       outline:none;
       font-size:14px;
       line-height:1.5;
+      white-space: pre; /* mantiene el bloque visualmente */
     }
     textarea:focus{
       border-color: rgba(59,130,246,.55);
@@ -154,19 +155,19 @@
     <header>
       <div>
         <h1>Proceso de valoración de puestos</h1>
-        <p class="subtitle">Pegue su descripción de puesto</p>
+        <p class="subtitle">Pegue su descripción de puesto (se guardará completa en A2)</p>
       </div>
 
       <div class="sheet-link">
         <a class="pill" id="btnAbrirHoja" href="#" target="_blank" rel="noopener">Abrir hoja</a>
-        <span class="pill" id="sheetHint" title="Destino de guardado">Destino: Descripcionpuesto</span>
+        <span class="pill" id="sheetHint" title="Destino de guardado">Destino: Descripcionpuesto!A2</span>
       </div>
     </header>
 
     <section class="card">
       <div class="card-body">
         <label for="descripcion">Descripción de puesto</label>
-        <textarea id="descripcion" placeholder="Ejemplo: Objetivo del puesto, funciones, responsabilidades, requisitos, etc."></textarea>
+        <textarea id="descripcion" placeholder="Pega aquí la descripción completa..."></textarea>
 
         <div class="hint">
           <span class="pill" id="countChars">Caracteres: 0</span>
@@ -190,14 +191,15 @@
   </div>
 
   <script>
-    // ✅ WebApp URL (la del deployment ACTUAL)
-    const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbw2IwYAC5k5o4SADMpu7tQIwl7pdToOtl7jBrzGbdhT406IBsUQlwvioTAxPTuv2Ip7/exec";
+    // ✅ Pega aquí TU WebApp URL actual (Deployment vigente)
+    const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwwuXWn59euNeXg3RbxeaUcjaHqVZTlbVKt_3bR_N_s6haRfRKoftF6K_7nLQXrgO_3/exec";
+
     // ✅ URL de la hoja (solo para abrir)
     const SHEET_URL  = "https://docs.google.com/spreadsheets/d/1AlaCAPuuchPbeX-Qdif-rpAR5zIlc9tnHACOBzIvE_M/edit?usp=sharing";
 
-    // ✅ Destino (hoja y encabezado)
-    const DEST_SHEET  = "Descripcionpuesto";
-    const DEST_HEADER = "Descripción de puesto";
+    // ✅ Destino fijo
+    const DEST_SHEET = "Descripcionpuesto";
+    const DEST_CELL  = "A2";
 
     document.getElementById("btnAbrirHoja").href = SHEET_URL;
 
@@ -238,7 +240,33 @@
       meta.textContent = metaText || "";
     }
 
-    // ✅ JSONP (GET) para GitHub Pages
+    // ✅ POST “sin CORS” (ideal para GitHub Pages)
+    async function saveViaPostNoCors(text){
+      const payload = new URLSearchParams();
+      payload.set("action", "writeA2");
+      payload.set("sheet", DEST_SHEET);
+      payload.set("cell", DEST_CELL);
+      payload.set("descripcion", text);
+
+      // 1) Intento ultra fiable: sendBeacon (no depende de CORS)
+      try{
+        const blob = new Blob([payload.toString()], { type: "application/x-www-form-urlencoded;charset=UTF-8" });
+        const ok = navigator.sendBeacon(WEBAPP_URL, blob);
+        if (ok) return { ok: true, via: "beacon" };
+      } catch (_) {}
+
+      // 2) Fallback: fetch no-cors (tampoco permite leer respuesta, pero sí envía)
+      await fetch(WEBAPP_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+        body: payload.toString()
+      });
+
+      return { ok: true, via: "fetch-no-cors" };
+    }
+
+    // ✅ JSONP (GET) como respaldo (puede fallar con textos larguísimos)
     function saveViaJsonp(text){
       return new Promise((resolve, reject) => {
         const cbName = `__cb_${Date.now()}_${Math.floor(Math.random()*100000)}`;
@@ -257,9 +285,9 @@
         }
 
         const url = new URL(WEBAPP_URL);
-        url.searchParams.set("action", "append");
+        url.searchParams.set("action", "writeA2");
         url.searchParams.set("sheet", DEST_SHEET);
-        url.searchParams.set("header", DEST_HEADER);
+        url.searchParams.set("cell", DEST_CELL);
         url.searchParams.set("descripcion", text);
         url.searchParams.set("callback", cbName);
         url.searchParams.set("_", Date.now().toString());
@@ -270,7 +298,7 @@
 
         script.onerror = () => {
           cleanup();
-          reject(new Error("JSONP falló: WebApp no accesible. Revisa el DEPLOY (debe ser 'Cualquiera/Anyone')."));
+          reject(new Error("JSONP falló: WebApp no accesible. Revisa DEPLOY (Cualquiera/Anyone) y URL actual."));
         };
 
         document.body.appendChild(script);
@@ -285,7 +313,8 @@
     }
 
     $("btnGuardar").addEventListener("click", async () => {
-      const t = (descripcion.value || "").trim();
+      const raw = (descripcion.value ?? "");
+      const t = raw.trim();
       if(!t){
         setStatus("no hay texto");
         showResult("No hay texto para guardar. Pega la descripción del puesto arriba 🙂");
@@ -294,32 +323,40 @@
 
       try{
         setStatus("guardando...");
-        const data = await saveViaJsonp(t);
 
-        if (data && data.ok){
-          setStatus("guardado ✅");
+        // Mandamos el bloque COMPLETO (raw), no el recortado
+        const textToSend = raw;
 
-          const sheet = data.data?.sheet ? `Hoja: ${data.data.sheet}` : `Hoja: ${DEST_SHEET}`;
-          const col   = data.data?.col  ? `Col: ${data.data.col}` : "";
-          const row   = data.data?.row  ? `Fila: ${data.data.row}` : "";
+        // 1) POST no-cors (recomendado)
+        const postRes = await saveViaPostNoCors(textToSend);
 
+        setStatus("guardado ✅");
+        showResult(
+          "Guardado correctamente ✅ (A2 actualizado)",
+          `Hoja: ${DEST_SHEET} | Celda: ${DEST_CELL} | Vía: ${postRes.via} | Abrir hoja: ${SHEET_URL}`
+        );
+
+        // 2) Si quieres validación con respuesta real, descomenta esto:
+        // const data = await saveViaJsonp(textToSend);
+        // console.log("JSONP validate:", data);
+
+      } catch (err){
+        // Si falló POST, intentamos JSONP para obtener error “real”
+        try{
+          const data = await saveViaJsonp(descripcion.value ?? "");
+          if (data && data.ok){
+            setStatus("guardado ✅");
+            showResult("Guardado correctamente ✅ (A2 actualizado)", `Hoja: ${DEST_SHEET} | Celda: ${DEST_CELL}`);
+            return;
+          }
+          throw new Error(data?.error || "No se pudo guardar (JSONP).");
+        } catch (err2){
+          setStatus("error de conexión");
           showResult(
-            "Guardado correctamente ✅",
-            [sheet, col, row, `Abrir hoja: ${SHEET_URL}`].filter(Boolean).join(" | ")
-          );
-        } else {
-          setStatus("error al guardar");
-          showResult(
-            "No se pudo guardar.",
-            data?.error ? `Detalle: ${data.error}` : "Revisa permisos/URL del WebApp."
+            "Error de conexión al WebApp.",
+            `Detalle: ${String(err2 && err2.message ? err2.message : err2)}`
           );
         }
-      } catch (err){
-        setStatus("error de conexión");
-        showResult(
-          "Error de conexión al WebApp.",
-          `Detalle: ${String(err && err.message ? err.message : err)}`
-        );
       }
     });
 
