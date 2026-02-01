@@ -169,7 +169,8 @@
   <div class="wrap">
     <header>
       <div>
-        <h1>Proceso de evaluación del desempeño</h1>
+        <!-- ✅ Título actualizado -->
+        <h1>Proceso de valoración de puestos</h1>
         <p class="subtitle">Pegue su descripción de puesto y use el menú inferior para procesar o limpiar.</p>
       </div>
       <div class="pill" title="Modo plantilla">Plantilla HTML</div>
@@ -187,13 +188,11 @@
         </div>
       </div>
 
-      <!-- Menú inferior -->
       <div class="menu">
         <button class="btn-primary" id="btnProcesar" type="button">Procesar</button>
         <button class="btn-ghost" id="btnLimpiar" type="button">Limpiar</button>
       </div>
 
-      <!-- Salida -->
       <div class="out" id="salida">
         <h2>Resultado</h2>
         <pre id="preview"></pre>
@@ -216,27 +215,19 @@
 
     function metrics(text){
       const chars = text.length;
-
-      const words = text
-        .trim()
-        .split(/\s+/)
-        .filter(Boolean).length;
-
+      const words = text.trim().split(/\s+/).filter(Boolean).length;
       const lines = text.length ? text.split(/\r?\n/).length : 0;
-
       return { chars, words, lines };
     }
 
     function refreshCounters(){
       const t = descripcion.value || "";
       const { chars, words, lines } = metrics(t);
-
       countChars.textContent = `Caracteres: ${chars}`;
       countWords.textContent = `Palabras: ${words}`;
       countLines.textContent = `Líneas: ${lines}`;
     }
 
-    // Procesar: demo (preview + métricas). Luego se conecta con IA/Apps Script.
     $("btnProcesar").addEventListener("click", () => {
       const t = (descripcion.value || "").trim();
       if(!t){
@@ -245,15 +236,12 @@
         meta.textContent = "";
         return;
       }
-
       const { chars, words, lines } = metrics(t);
-
       salida.style.display = "block";
       preview.textContent = t;
       meta.textContent = `Listo. Detecté ${words} palabras, ${chars} caracteres y ${lines} líneas.`;
     });
 
-    // Limpiar
     $("btnLimpiar").addEventListener("click", () => {
       descripcion.value = "";
       refreshCounters();
@@ -263,10 +251,8 @@
       descripcion.focus();
     });
 
-    // Contadores en vivo
     descripcion.addEventListener("input", refreshCounters);
     refreshCounters();
   </script>
 </body>
 </html>
-
