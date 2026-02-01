@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Proceso de valoración de puestos</title>
-  <meta name="description" content="Plantilla para pegar descripción de puesto y procesarla." />
+  <meta name="description" content="Plantilla para pegar descripción de puesto y guardarla." />
   <style>
     :root{
       --bg:#0b1220;
@@ -119,10 +119,9 @@
       user-select:none;
     }
     button:active{ transform: translateY(1px); }
-    .btn-primary{ background: linear-gradient(180deg, rgba(59,130,246,1), rgba(37,99,235,1)); color:white; }
     .btn-ghost{ background: rgba(255,255,255,.06); color:var(--text); border:1px solid rgba(255,255,255,.10); }
     .btn-save{ background: linear-gradient(180deg, rgba(34,197,94,1), rgba(22,163,74,1)); color:white; }
-    .btn-primary:hover, .btn-save:hover{ filter: brightness(1.06); }
+    .btn-save:hover{ filter: brightness(1.06); }
     .btn-ghost:hover{ filter: brightness(1.12); }
 
     .out{
@@ -155,7 +154,7 @@
     <header>
       <div>
         <h1>Proceso de valoración de puestos</h1>
-        <p class="subtitle">Pegue su descripción de puesto y use el menú inferior para procesar, guardar o limpiar.</p>
+        <p class="subtitle">Pegue su descripción de puesto y use el menú inferior para guardar o limpiar.</p>
       </div>
 
       <div class="sheet-link">
@@ -178,7 +177,6 @@
       </div>
 
       <div class="menu">
-        <button class="btn-primary" id="btnProcesar" type="button">Procesar</button>
         <button class="btn-save" id="btnGuardar" type="button">Guardar</button>
         <button class="btn-ghost" id="btnLimpiar" type="button">Limpiar</button>
       </div>
@@ -199,7 +197,7 @@
     const SHEET_URL  = "https://docs.google.com/spreadsheets/d/1AlaCAPuuchPbeX-Qdif-rpAR5zIlc9tnHACOBzIvE_M/edit?usp=sharing";
 
     // ✅ Abrir hoja apunta a SHEET_URL
-    document.getElementById("btnAbrirHoja").href = SHEET_URL;
+    document.getElementById("btnAbrirHoja").href = "https://script.google.com/macros/s/AKfycbx5wpSWTy-wfVkfWAo1VwJvBQvSv5loW_S5-sAdBpPHEmWkK3ICgmBXIfbhto-WRx41/exec";
 
     const $ = (id) => document.getElementById(id);
 
@@ -238,7 +236,7 @@
       meta.textContent = metaText || "";
     }
 
-    // ✅ JSONP (corregido: usa WEBAPP_URL y URL(...) real)
+    // ✅ JSONP (usa WEBAPP_URL y URL(...) real)
     function saveViaJsonp(text){
       return new Promise((resolve, reject) => {
         const cbName = `__cb_${Date.now()}_${Math.floor(Math.random()*100000)}`;
@@ -276,16 +274,6 @@
         }, 15000);
       });
     }
-
-    $("btnProcesar").addEventListener("click", () => {
-      const t = (descripcion.value || "").trim();
-      if(!t){
-        showResult("No hay texto para procesar. Pega la descripción del puesto arriba 🙂");
-        return;
-      }
-      const { chars, words, lines } = metrics(t);
-      showResult(t, `Listo. Detecté ${words} palabras, ${chars} caracteres y ${lines} líneas.`);
-    });
 
     $("btnGuardar").addEventListener("click", async () => {
       const t = (descripcion.value || "").trim();
