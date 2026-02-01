@@ -34,9 +34,7 @@
       justify-content:center;
       padding:24px;
     }
-    .wrap{
-      width:min(1000px, 100%);
-    }
+    .wrap{ width:min(1000px, 100%); }
     header{
       display:flex;
       align-items:flex-end;
@@ -62,9 +60,7 @@
       border-radius: var(--radius);
       overflow:hidden;
     }
-    .card-body{
-      padding:18px;
-    }
+    .card-body{ padding:18px; }
     label{
       display:block;
       font-weight:600;
@@ -120,7 +116,6 @@
       border-radius: 12px;
       font-weight:700;
       letter-spacing:.2px;
-      color: #081023;
       transition: transform .08s ease, filter .15s ease, opacity .15s ease;
       user-select:none;
     }
@@ -143,10 +138,7 @@
       border-top: 1px solid rgba(255,255,255,.06);
       display:none;
     }
-    .out h2{
-      margin:0 0 10px;
-      font-size:16px;
-    }
+    .out h2{ margin:0 0 10px; font-size:16px; }
     .out pre{
       margin:0;
       white-space:pre-wrap;
@@ -161,11 +153,7 @@
       max-height: 260px;
       overflow:auto;
     }
-    .small{
-      color:var(--muted);
-      font-size:12px;
-      margin-top:10px;
-    }
+    .small{ color:var(--muted); font-size:12px; margin-top:10px; }
   </style>
 </head>
 
@@ -207,8 +195,8 @@
   </div>
 
   <script>
-    // ✅ Pega aquí la URL de tu Web App (Deploy > Web app)
-    const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbz_MBSW8r8eZ0mhkH2DjAnZCC-6ouUdQ6cH0eJILIUoEYN3mHtuxXChiV97I9jZcz-X/exec";
+    // ✅ Tu Web App (OK). Ahora la usaremos por GET+JSONP para evitar CORS.
+    const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbw5sWHGqRKQwYQELmChyVu57j5LNO7iM6sZzxkVyRHw95157nuiC_ikqP4KC_EiEvE/exec";
 
     const $ = (id) => document.getElementById(id);
 
@@ -216,8 +204,7 @@
     const countChars  = $("countChars");
     const countWords  = $("countWords");
     const countLines  = $("countLines");
-
-    const saveStatus = $("saveStatus");
+    const saveStatus  = $("saveStatus");
 
     const salida = $("salida");
     const preview = $("preview");
@@ -242,65 +229,90 @@
       saveStatus.textContent = `Estado: ${text}`;
     }
 
+    function showResult(titleText, bodyText, metaText=""){
+      salida.style.display = "block";
+      preview.textContent = bodyText || "";
+      meta.textContent = metaText || "";
+    }
+
+    // ✅ Guardar sin CORS: JSONP (inyecta un <script>)
+    function saveViaJsonp(text){
+      return new Promise((resolve, reject) => {
+        const cbName = `__cb_${Date.now()}_${Math.floor(Math.random()*100000)}`;
+
+        // Definimos callback global
+        window[cbName] = (data) => {
+          cleanup();
+          resolve(data);
+        };
+
+        function cleanup(){
+          try { delete window[cbName]; } catch(_) { window[cbName] = undefined; }
+          if (script && script.parentNode) script.parentNode.removeChild(script);
+        }
+
+        const url = new URL(WEBAPP_URL);
+        url.searchParams.set("action", "append");
+        url.searchParams.set("descripcion", text);
+        url.searchParams.set("callback", cbName);
+        url.searchParams.set("_", Date.now().toString()); // cache-buster
+
+        const script = document.createElement("script");
+        script.src = url.toString();
+        script.async = true;
+
+        script.onerror = () => {
+          cleanup();
+          reject(new Error("No se pudo cargar el script JSONP (WebApp no accesible / no público)."));
+        };
+
+        document.body.appendChild(script);
+
+        // Timeout por si no responde
+        setTimeout(() => {
+          if (window[cbName]) {
+            cleanup();
+            reject(new Error("Timeout: el WebApp no respondió a tiempo."));
+          }
+        }, 15000);
+      });
+    }
+
     $("btnProcesar").addEventListener("click", () => {
       const t = (descripcion.value || "").trim();
       if(!t){
-        salida.style.display = "block";
-        preview.textContent = "No hay texto para procesar. Pega la descripción del puesto arriba 🙂";
-        meta.textContent = "";
+        showResult("Resultado", "No hay texto para procesar. Pega la descripción del puesto arriba 🙂");
         return;
       }
       const { chars, words, lines } = metrics(t);
-      salida.style.display = "block";
-      preview.textContent = t;
-      meta.textContent = `Listo. Detecté ${words} palabras, ${chars} caracteres y ${lines} líneas.`;
+      showResult("Resultado", t, `Listo. Detecté ${words} palabras, ${chars} caracteres y ${lines} líneas.`);
     });
 
     $("btnGuardar").addEventListener("click", async () => {
       const t = (descripcion.value || "").trim();
       if(!t){
         setStatus("no hay texto");
-        salida.style.display = "block";
-        preview.textContent = "No hay texto para guardar. Pega la descripción del puesto arriba 🙂";
-        meta.textContent = "";
-        return;
-      }
-
-      if (!WEBAPP_URL || WEBAPP_URL.includes("PEGA_AQUI")) {
-        setStatus("falta URL WebApp");
-        salida.style.display = "block";
-        preview.textContent = "Falta configurar la URL del Web App de Apps Script en el HTML (WEBAPP_URL).";
-        meta.textContent = "";
+        showResult("Resultado", "No hay texto para guardar. Pega la descripción del puesto arriba 🙂");
         return;
       }
 
       try{
         setStatus("guardando...");
-        const res = await fetch(WEBAPP_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ descripcion: t })
-        });
-
-        const data = await res.json().catch(() => ({}));
+        const data = await saveViaJsonp(t);
 
         if (data && data.ok){
           setStatus("guardado ✅");
-          salida.style.display = "block";
-          preview.textContent = "Guardado correctamente en Google Sheets.";
-          meta.textContent = data.data && data.data.timestamp ? `Timestamp: ${data.data.timestamp}` : "";
+          showResult("Resultado", "Guardado correctamente en Google Sheets.", data.data?.timestamp ? `Timestamp: ${data.data.timestamp}` : "");
         } else {
           setStatus("error al guardar");
-          salida.style.display = "block";
-          preview.textContent = "No se pudo guardar. Revisa permisos del WebApp y acceso a la hoja.";
-          meta.textContent = data && data.error ? `Detalle: ${data.error}` : "";
+          showResult("Resultado", "No se pudo guardar. Revisa la hoja y el nombre de pestaña.", data?.error ? `Detalle: ${data.error}` : "");
         }
-
-      }catch(err){
+      } catch (err){
         setStatus("error de conexión");
-        salida.style.display = "block";
-        preview.textContent = "Error de conexión al Web App. Verifica que el WebApp esté desplegado y público.";
-        meta.textContent = `Detalle: ${String(err)}`;
+        showResult("Resultado",
+          "Error de conexión al Web App. Verifica que el WebApp esté desplegado como 'Anyone' y que copiaste la URL correcta.",
+          `Detalle: ${String(err && err.message ? err.message : err)}`
+        );
       }
     });
 
