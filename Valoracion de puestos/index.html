@@ -42,17 +42,8 @@
       gap:16px;
       margin-bottom:14px;
     }
-    h1{
-      font-size: clamp(20px, 2.4vw, 30px);
-      margin:0;
-      letter-spacing:.2px;
-    }
-    .subtitle{
-      margin:6px 0 0;
-      color:var(--muted);
-      font-size:14px;
-      line-height:1.4;
-    }
+    h1{ font-size: clamp(20px, 2.4vw, 30px); margin:0; letter-spacing:.2px; }
+    .subtitle{ margin:6px 0 0; color:var(--muted); font-size:14px; line-height:1.4; }
 
     .sheet-link{
       display:flex;
@@ -61,7 +52,6 @@
       flex-wrap:wrap;
       justify-content:flex-end;
     }
-
     .pill{
       border:1px solid rgba(255,255,255,.10);
       background: rgba(255,255,255,.03);
@@ -70,7 +60,7 @@
       font-size:12px;
       color: var(--muted);
       text-decoration:none;
-      cursor: pointer;
+      cursor:pointer;
       user-select:none;
     }
     .pill:hover{ filter: brightness(1.12); }
@@ -83,22 +73,17 @@
       overflow:hidden;
     }
     .card-body{ padding:18px; }
-    label{
-      display:block;
-      font-weight:600;
-      margin:0 0 10px;
-      color: #dce8ff;
-    }
+    label{ display:block; font-weight:600; margin:0 0 10px; color:#dce8ff; }
     textarea{
       width:100%;
       min-height: 240px;
       resize: vertical;
-      padding:14px 14px;
+      padding:14px;
       border-radius: var(--radius-sm);
       border:1px solid rgba(255,255,255,.10);
       background: rgba(7, 14, 28, .55);
       color: var(--text);
-      outline: none;
+      outline:none;
       font-size:14px;
       line-height:1.5;
     }
@@ -115,7 +100,6 @@
       gap:10px 16px;
       align-items:center;
     }
-
     .menu{
       display:flex;
       gap:10px;
@@ -136,17 +120,11 @@
     }
     button:active{ transform: translateY(1px); }
     .btn-primary{ background: linear-gradient(180deg, rgba(59,130,246,1), rgba(37,99,235,1)); color:white; }
-    .btn-ghost{
-      background: rgba(255,255,255,.06);
-      color: var(--text);
-      border:1px solid rgba(255,255,255,.10);
-    }
-    .btn-save{
-      background: linear-gradient(180deg, rgba(34,197,94,1), rgba(22,163,74,1));
-      color:white;
-    }
+    .btn-ghost{ background: rgba(255,255,255,.06); color:var(--text); border:1px solid rgba(255,255,255,.10); }
+    .btn-save{ background: linear-gradient(180deg, rgba(34,197,94,1), rgba(22,163,74,1)); color:white; }
     .btn-primary:hover, .btn-save:hover{ filter: brightness(1.06); }
     .btn-ghost:hover{ filter: brightness(1.12); }
+
     .out{
       margin-top:14px;
       padding:14px 18px 18px;
@@ -162,7 +140,7 @@
       border:1px solid rgba(255,255,255,.08);
       border-radius: 12px;
       padding:12px;
-      color: #eaf2ff;
+      color:#eaf2ff;
       font-size:13px;
       line-height:1.5;
       max-height: 260px;
@@ -182,7 +160,7 @@
 
       <div class="sheet-link">
         <a class="pill" id="btnAbrirHoja" href="#" target="_blank" rel="noopener">Abrir hoja</a>
-        <span class="pill" id="sheetHint" title="Destino de guardado">Destino: Descripcionpuesto</span>
+        <span class="pill" id="sheetHint" title="Destino de guardado">Destino: descripcionpuesto</span>
       </div>
     </header>
 
@@ -214,14 +192,13 @@
   </div>
 
   <script>
-    // ✅ URL DE TU WEB APP (GS) - la que me pasaste
+    // ✅ TU WEBAPP (GS)
     const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbz0KLGgfMltZeP7oxcpzdPlG2aC2EkMoVelglQEWD8j2Bd58rZG3i-OMjuTrQ-coFel/exec";
 
-    // ✅ URL DE TU GOOGLE SHEET - la que me pasaste
+    // ✅ TU HOJA
     const SHEET_URL  = "https://docs.google.com/spreadsheets/d/1AlaCAPuuchPbeX-Qdif-rpAR5zIlc9tnHACOBzIvE_M/edit?usp=sharing";
 
-    // Enlaza el botón "Abrir hoja"
-    document.getElementById("btnAbrirHoja").href = SHEET_URL;
+    document.getElementById("btnAbrirHoja").href = "https://docs.google.com/spreadsheets/d/1AlaCAPuuchPbeX-Qdif-rpAR5zIlc9tnHACOBzIvE_M/edit?usp=sharing";
 
     const $ = (id) => document.getElementById(id);
 
@@ -231,9 +208,9 @@
     const countLines  = $("countLines");
     const saveStatus  = $("saveStatus");
 
-    const salida = $("salida");
+    const salida  = $("salida");
     const preview = $("preview");
-    const meta = $("meta");
+    const meta    = $("meta");
 
     function metrics(text){
       const chars = text.length;
@@ -260,23 +237,20 @@
       meta.textContent = metaText || "";
     }
 
-    // ✅ Guardar sin CORS: JSONP (inyecta un <script>)
+    // ✅ JSONP
     function saveViaJsonp(text){
       return new Promise((resolve, reject) => {
         const cbName = `__cb_${Date.now()}_${Math.floor(Math.random()*100000)}`;
         let script;
 
-        window[cbName] = (data) => {
-          cleanup();
-          resolve(data);
-        };
+        window[cbName] = (data) => { cleanup(); resolve(data); };
 
         function cleanup(){
           try { delete window[cbName]; } catch(_) { window[cbName] = undefined; }
           if (script && script.parentNode) script.parentNode.removeChild(script);
         }
 
-        const url = new URL(WEBAPP_URL);
+        const url = "https://script.google.com/macros/s/AKfycbw5BXbQn1pgVPGS1H58LCXflOZAprhuA2C6h44hCeSGNhe_VwOfZUFkQuT-7I80nzQA/exec";
         url.searchParams.set("action", "append");
         url.searchParams.set("descripcion", text);
         url.searchParams.set("callback", cbName);
@@ -288,7 +262,7 @@
 
         script.onerror = () => {
           cleanup();
-          reject(new Error("No se pudo cargar el JSONP (WebApp no accesible / no público)."));
+          reject(new Error("JSONP falló: WebApp no accesible (casi siempre: deploy no es 'Anyone')."));
         };
 
         document.body.appendChild(script);
@@ -296,7 +270,7 @@
         setTimeout(() => {
           if (window[cbName]) {
             cleanup();
-            reject(new Error("Timeout: el WebApp no respondió a tiempo."));
+            reject(new Error("Timeout: el WebApp no respondió."));
           }
         }, 15000);
       });
@@ -327,24 +301,23 @@
         if (data && data.ok){
           setStatus("guardado ✅");
           const row = data.data?.row ? `Fila: ${data.data.row}` : "";
-          const no  = data.data?.no ? `No: ${data.data.no}` : "";
-          const extra = [no, row].filter(Boolean).join(" | ");
-
+          const no  = data.data?.no  ? `No: ${data.data.no}` : "";
+          const sheet = data.data?.sheet ? `Hoja: ${data.data.sheet}` : "Hoja: descripcionpuesto";
           showResult(
-            "Guardado correctamente en la hoja 'Descripcionpuesto'.",
-            `${extra}${extra ? " | " : ""}Abrir hoja: ${SHEET_URL}`
+            "Guardado correctamente ✅",
+            [sheet, no, row, `Abrir hoja: ${SHEET_URL}`].filter(Boolean).join(" | ")
           );
         } else {
           setStatus("error al guardar");
           showResult(
-            "No se pudo guardar. Revisa la hoja y el nombre de la pestaña.",
-            data?.error ? `Detalle: ${data.error}` : `Abre la hoja y valida permisos: ${SHEET_URL}`
+            "No se pudo guardar.",
+            data?.error ? `Detalle: ${data.error} | Hoja: ${SHEET_URL}` : `Revisa permisos. Hoja: ${SHEET_URL}`
           );
         }
       } catch (err){
         setStatus("error de conexión");
         showResult(
-          "Error de conexión al Web App. Verifica que el WebApp esté desplegado como 'Anyone' y que copiaste la URL correcta.",
+          "Error de conexión al WebApp.",
           `Detalle: ${String(err && err.message ? err.message : err)} | Hoja: ${SHEET_URL}`
         );
       }
