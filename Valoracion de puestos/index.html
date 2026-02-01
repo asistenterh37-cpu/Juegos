@@ -159,7 +159,7 @@
 
       <div class="sheet-link">
         <a class="pill" id="btnAbrirHoja" href="#" target="_blank" rel="noopener">Abrir hoja</a>
-        <span class="pill" id="sheetHint" title="Destino de guardado">Destino: descripcionpuesto</span>
+        <span class="pill" id="sheetHint" title="Destino de guardado">Destino: Descripcionpuesto</span>
       </div>
     </header>
 
@@ -190,13 +190,15 @@
   </div>
 
   <script>
-    // ✅ TU WEBAPP (GS) -> (esta es la que se usa para GUARDAR)  ✅ ACTUALIZADA
-    const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxkcOHi3hBTIeIBhmtQUrSGhEZUE7B9qUKQGtshVlAE3OsUCsBtQD9PN2vIPKI-76rL/exec";
-
-    // ✅ TU HOJA (esta es la que se usa para ABRIR LA HOJA)
+    // ✅ WebApp URL (la del deployment ACTUAL)
+    const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxZk4P5EoJzNN3XYPGe1WSGebqz6oHU_8rUcyqqlyj9nobfZ_-LKipOlN2TAei680qM/exec";
+    // ✅ URL de la hoja (solo para abrir)
     const SHEET_URL  = "https://docs.google.com/spreadsheets/d/1AlaCAPuuchPbeX-Qdif-rpAR5zIlc9tnHACOBzIvE_M/edit?usp=sharing";
 
-    // ✅ Abrir hoja apunta a SHEET_URL
+    // ✅ Destino (hoja y encabezado)
+    const DEST_SHEET  = "Descripcionpuesto";
+    const DEST_HEADER = "Descripción de puesto";
+
     document.getElementById("btnAbrirHoja").href = SHEET_URL;
 
     const $ = (id) => document.getElementById(id);
@@ -236,13 +238,18 @@
       meta.textContent = metaText || "";
     }
 
-    // ✅ JSONP (usa WEBAPP_URL real)
+    // ✅ JSONP (GET) para GitHub Pages
     function saveViaJsonp(text){
       return new Promise((resolve, reject) => {
         const cbName = `__cb_${Date.now()}_${Math.floor(Math.random()*100000)}`;
         let script;
+        let done = false;
 
-        window[cbName] = (data) => { cleanup(); resolve(data); };
+        window[cbName] = (data) => {
+          done = true;
+          cleanup();
+          resolve(data);
+        };
 
         function cleanup(){
           try { delete window[cbName]; } catch(_) { window[cbName] = undefined; }
@@ -251,6 +258,8 @@
 
         const url = new URL(WEBAPP_URL);
         url.searchParams.set("action", "append");
+        url.searchParams.set("sheet", DEST_SHEET);
+        url.searchParams.set("header", DEST_HEADER);
         url.searchParams.set("descripcion", text);
         url.searchParams.set("callback", cbName);
         url.searchParams.set("_", Date.now().toString());
@@ -261,17 +270,17 @@
 
         script.onerror = () => {
           cleanup();
-          reject(new Error("JSONP falló: WebApp no accesible (casi siempre: deploy no es 'Anyone')."));
+          reject(new Error("JSONP falló: WebApp no accesible. Revisa el DEPLOY (debe ser 'Cualquiera/Anyone')."));
         };
 
         document.body.appendChild(script);
 
         setTimeout(() => {
-          if (window[cbName]) {
+          if (!done) {
             cleanup();
-            reject(new Error("Timeout: el WebApp no respondió."));
+            reject(new Error("Timeout: el WebApp no respondió (deploy/permisos/URL incorrecta)."));
           }
-        }, 15000);
+        }, 20000);
       });
     }
 
@@ -289,25 +298,27 @@
 
         if (data && data.ok){
           setStatus("guardado ✅");
-          const row = data.data?.row ? `Fila: ${data.data.row}` : "";
-          const no  = data.data?.no  ? `No: ${data.data.no}` : "";
-          const sheet = data.data?.sheet ? `Hoja: ${data.data.sheet}` : "Hoja: descripcionpuesto";
+
+          const sheet = data.data?.sheet ? `Hoja: ${data.data.sheet}` : `Hoja: ${DEST_SHEET}`;
+          const col   = data.data?.col  ? `Col: ${data.data.col}` : "";
+          const row   = data.data?.row  ? `Fila: ${data.data.row}` : "";
+
           showResult(
             "Guardado correctamente ✅",
-            [sheet, no, row, `Abrir hoja: ${SHEET_URL}`].filter(Boolean).join(" | ")
+            [sheet, col, row, `Abrir hoja: ${SHEET_URL}`].filter(Boolean).join(" | ")
           );
         } else {
           setStatus("error al guardar");
           showResult(
             "No se pudo guardar.",
-            data?.error ? `Detalle: ${data.error} | Hoja: ${SHEET_URL}` : `Revisa permisos. Hoja: ${SHEET_URL}`
+            data?.error ? `Detalle: ${data.error}` : "Revisa permisos/URL del WebApp."
           );
         }
       } catch (err){
         setStatus("error de conexión");
         showResult(
           "Error de conexión al WebApp.",
-          `Detalle: ${String(err && err.message ? err.message : err)} | Hoja: ${SHEET_URL}`
+          `Detalle: ${String(err && err.message ? err.message : err)}`
         );
       }
     });
