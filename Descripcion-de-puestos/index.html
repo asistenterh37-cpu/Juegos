@@ -270,9 +270,9 @@
       funcionesWrap.appendChild(box);
     }
 
-    // Build 20 report inputs
+    // Build 10 report inputs
     const reportesWrap = $("#reportesWrap");
-    for(let i=1; i<=20; i++){
+    for(let i=1; i<=10; i++){
       const box = document.createElement("div");
       box.innerHTML = `
         <label for="reporte${i}">Reporte ${i}</label>
@@ -302,7 +302,7 @@
         if(v) data.funciones.push({ n: i, texto: v });
       }
 
-      for(let i=1; i<=20; i++){
+      for(let i=1; i<=10; i++){
         const v = safeTrim($(`#reporte${i}`).value);
         if(v) data.reportes.push({ n: i, texto: v });
       }
@@ -323,7 +323,7 @@
         $(`#funcion${i}`).value = item?.texto ?? "";
       }
 
-      for(let i=1; i<=20; i++){
+      for(let i=1; i<=10; i++){
         const item = (data?.reportes ?? []).find(r => r.n === i);
         $(`#reporte${i}`).value = item?.texto ?? "";
       }
@@ -393,7 +393,7 @@
       $("#fecha").valueAsDate = new Date();
 
       for(let i=1; i<=20; i++) $(`#funcion${i}`).value = "";
-      for(let i=1; i<=20; i++) $(`#reporte${i}`).value = "";
+      for(let i=1; i<=10; i++) $(`#reporte${i}`).value = "";
 
       clearDraft();
       $("#status").textContent = "Formulario limpio.";
