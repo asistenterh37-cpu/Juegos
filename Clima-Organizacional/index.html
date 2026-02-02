@@ -422,6 +422,11 @@
       <div class="toolsRow">
         <button class="btn" onclick="cargarResumenGlobalTabla()">Refrescar</button>
         <button class="btn ghost" onclick="descargarResumenCSV()">Descargar CSV</button>
+
+        <!-- ✅ NUEVO: Exportar a TablaF -->
+        <button class="btn primary" onclick="enviarResumenATablaF()">Enviar a TablaF</button>
+        <span class="pillN" id="exportMeta">TablaF: <b style="color:var(--text)">—</b></span>
+
         <span class="pillN" id="sumMeta">Filas: <b style="color:var(--text)">0</b></span>
       </div>
 
@@ -434,7 +439,7 @@
 /***********************
  * CONFIG (EDITA AQUÍ)
  ***********************/
-const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwISeq-366PNWMCUuts8R6VTztxshvfIqV3MJWYcThq_5ZNjRKUPq8jjUyxp0syHpw4jQ/exec";
+const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyu3WPiQHLZD8LM6ShrdOmSxgIlU6mZUIee0mTp3br85FnZZD_zOVEWkFx-vEjuaMmJ4w/exec";
 
 const DEMOGRAPHICS = [
   { key:"Genero", label:"Género", options:["Masculino","Femenino"] },
@@ -1008,6 +1013,33 @@ function csvCell(v){
   const s = String(v ?? "");
   if(/[",\n]/.test(s)) return `"${s.replace(/"/g,'""')}"`;
   return s;
+}
+
+/***********************
+ * ✅ NUEVO: ENVIAR RESUMEN A TABLAF (en Sheets)
+ ***********************/
+let __exportingTablaF = false;
+
+async function enviarResumenATablaF(){
+  if(__exportingTablaF) return;
+  __exportingTablaF = true;
+
+  const meta = $("exportMeta");
+  meta.innerHTML = `TablaF: <b style="color:var(--text)">Enviando...</b>`;
+
+  try{
+    const j = await jsonpRequest({ action:"exportAllSummaryToTablaF" });
+    if(!j || !j.ok) throw new Error(j?.error || "No se pudo exportar");
+
+    const written = Number(j.written || 0);
+    const when = j.time || "";
+    meta.innerHTML = `TablaF: <b style="color:var(--text)">${written} filas</b>${when ? " · " + escapeHtml(when) : ""}`;
+  }catch(e){
+    meta.innerHTML = `TablaF: <b style="color:var(--text)">Error</b>`;
+    alert("Error exportando a TablaF: " + (e.message || e));
+  }finally{
+    __exportingTablaF = false;
+  }
 }
 
 /***********************
