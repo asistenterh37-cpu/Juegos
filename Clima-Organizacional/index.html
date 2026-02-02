@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Encuesta de clima organizacional</title>
   <link rel="icon" href="data:," />
-
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
@@ -30,12 +29,13 @@
       color:var(--text);
     }
     .topbar{
-      position:sticky; top:0; z-index:20;
+      position:sticky;
+      top:0;
+      z-index:20;
       background: linear-gradient(180deg, rgba(11,18,32,.92), rgba(11,18,32,.72));
       backdrop-filter: blur(10px);
       border-bottom: 1px solid var(--line);
       padding:16px 20px;
-
       display:grid;
       grid-template-columns: 1fr auto 1fr;
       align-items:center;
@@ -51,10 +51,7 @@
       gap:6px;
     }
     .headerInfo .chips{ justify-content:center; }
-    .topbar .nav{
-      grid-column: 3;
-      justify-self: end;
-    }
+    .topbar .nav{ grid-column: 3; justify-self: end; }
     .brand{font-size:22px; font-weight:800; letter-spacing:.2px}
     .chips{display:flex; align-items:center; gap:10px; flex-wrap:wrap}
     .chip{
@@ -67,7 +64,10 @@
     }
     .chip b{color:var(--text)}
     .remoteDot{
-      display:inline-block; width:8px; height:8px; border-radius:99px; margin-right:6px;
+      display:inline-block;
+      width:8px; height:8px;
+      border-radius:99px;
+      margin-right:6px;
       background: var(--warn);
       box-shadow: 0 0 14px rgba(245,158,11,.6);
       vertical-align:middle;
@@ -75,7 +75,8 @@
     .remoteDot.ok{background:var(--ok); box-shadow:0 0 14px rgba(34,197,94,.55)}
     .nav{display:flex; gap:10px;}
     .nav button{
-      appearance:none; border:1px solid var(--line);
+      appearance:none;
+      border:1px solid var(--line);
       background: rgba(255,255,255,.04);
       color:var(--text);
       padding:10px 14px;
@@ -87,7 +88,6 @@
       background: rgba(59,130,246,.18);
       border-color: rgba(59,130,246,.35);
     }
-
     .wrap{max-width:1180px; margin:22px auto; padding:0 18px 40px;}
     .grid{
       display:grid;
@@ -98,7 +98,6 @@
     @media (max-width: 980px){
       .grid{grid-template-columns:1fr}
     }
-
     .panel{
       background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
       border:1px solid var(--line);
@@ -121,20 +120,16 @@
     }
 
     /* Solo en Resultados: agrandar título y texto descriptivo */
-    #viewResultados .panel h3{
-      font-size:16px;
-      letter-spacing:.6px;
-    }
-    #viewResultados .help{
-      font-size:14px;
-      line-height:1.5;
-    }
+    #viewResultados .panel h3{ font-size:16px; letter-spacing:.6px; }
+    #viewResultados .help{ font-size:14px; line-height:1.5; }
 
     .row{display:grid; grid-template-columns:1fr 1fr; gap:10px}
     .row.one{grid-template-columns:1fr}
     label{
-      font-size:12px; color:#b9c8ee;
-      display:block; margin:10px 0 6px;
+      font-size:12px;
+      color:#b9c8ee;
+      display:block;
+      margin:10px 0 6px;
     }
     select, textarea, input{
       width:100%;
@@ -155,7 +150,9 @@
       padding-top:12px;
     }
     .items{
-      display:flex; flex-direction:column; gap:12px;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
       max-height: calc(100vh - 210px);
       overflow:auto;
       padding-right:6px;
@@ -168,20 +165,25 @@
     }
     .itemTop{display:flex; gap:12px; justify-content:space-between; align-items:flex-start}
     .itemTitle{
-      font-weight:800; font-size:13px; line-height:1.25; margin:0;
+      font-weight:800;
+      font-size:13px;
+      line-height:1.25;
+      margin:0;
     }
-    .itemMeta{
-      font-size:11px; color:var(--muted); margin-top:4px;
-    }
+    .itemMeta{ font-size:11px; color:var(--muted); margin-top:4px; }
     .itemRight{min-width:210px}
     .footerActions{
       margin-top:14px;
-      display:flex; gap:10px; justify-content:flex-start; flex-wrap:wrap;
+      display:flex;
+      gap:10px;
+      justify-content:flex-start;
+      flex-wrap:wrap;
       border-top:1px solid var(--line);
       padding-top:14px;
     }
     .btn{
-      appearance:none; border:1px solid var(--line);
+      appearance:none;
+      border:1px solid var(--line);
       background: rgba(255,255,255,.06);
       color:var(--text);
       padding:10px 14px;
@@ -189,18 +191,11 @@
       cursor:pointer;
       font-weight:800;
     }
-    .btn.primary{
-      background: rgba(34,197,94,.15);
-      border-color: rgba(34,197,94,.35);
-    }
+    .btn.primary{ background: rgba(34,197,94,.15); border-color: rgba(34,197,94,.35); }
     .btn.ghost{background: rgba(255,255,255,.04);}
-    .status{
-      font-size:12px; color:var(--muted);
-      margin-top:10px;
-    }
+    .status{ font-size:12px; color:var(--muted); margin-top:10px; }
     .status b{color:var(--text)}
     .hidden{display:none !important}
-
     .filters{
       display:grid;
       grid-template-columns: 1fr 1fr;
@@ -228,7 +223,6 @@
     .kpi .k{font-size:12px; color:#b9c8ee; text-transform:uppercase; letter-spacing:.4px}
     .kpi .v{font-size:26px; font-weight:900; margin-top:6px}
     .kpi .s{font-size:12px; color:var(--muted); margin-top:4px}
-
     .chartWrap{
       margin-top:14px;
       border-top:1px solid var(--line);
@@ -254,7 +248,6 @@
     @media (max-width: 720px){
       .chartArea{ height: 320px; }
     }
-
     table{
       width:100%;
       border-collapse:collapse;
@@ -270,9 +263,6 @@
     th{color:#cfe0ff; font-size:12px; text-transform:uppercase; letter-spacing:.4px}
     td{color:var(--text)}
     .muted{color:var(--muted)}
-
-    .cellList{display:flex; flex-direction:column; gap:6px; font-size:13px; line-height:1.25;}
-    .cellList div{white-space:normal;}
     .pillN{
       display:inline-flex;
       align-items:center;
@@ -284,6 +274,13 @@
       color:var(--muted);
       background: rgba(255,255,255,.04);
       margin-top:6px;
+    }
+    .toolsRow{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      margin-top:12px;
     }
   </style>
 </head>
@@ -300,7 +297,6 @@
       </span>
     </div>
   </div>
-
   <nav class="nav">
     <button id="tabEncuesta" class="active" onclick="showTab('encuesta')">Encuesta</button>
     <button id="tabResultados" onclick="showTab('resultados')">Resultados</button>
@@ -317,7 +313,6 @@
         <div class="help">
           Selecciona tus datos. Estos valores se toman del arreglo <b>DEMOGRAPHICS</b>.
         </div>
-
         <div id="demographicsFields"></div>
 
         <div class="scale">
@@ -353,7 +348,6 @@
           <button id="btnGuardar" class="btn primary" onclick="guardar()">Guardar</button>
           <button class="btn ghost" onclick="limpiar()">Limpiar</button>
         </div>
-
         <div id="saveStatus" class="status">Estado: <b>Listo</b></div>
       </section>
     </div>
@@ -404,7 +398,6 @@
       <div class="chartWrap">
         <div class="subTitle">Calificación por ítem (barras)</div>
         <div class="help" id="noDataMsg">Aún no hay datos para graficar. Presiona <b>Refrescar</b> o guarda al menos una encuesta.</div>
-
         <div class="chartArea">
           <canvas id="chartItems"></canvas>
         </div>
@@ -422,18 +415,14 @@
     <div class="panel">
       <h3>Resumen</h3>
       <div class="help">
-        Tabla de Top 3 y Bottom 3 por <b>Variable</b> y <b>Categoría</b> (como tu Excel).
+        Tabla única con <b>todos</b> los resultados por <b>Variable + Categoría + Ítem</b>.
+        Ideal para exportar a CSV y analizar en Google/Make/OpenAI.
       </div>
 
-      <div class="filters" style="grid-template-columns:1fr;">
-        <div>
-          <label>Variable</label>
-          <select id="sumGroupBy" onchange="cargarResumenTabla()"></select>
-        </div>
-      </div>
-
-      <div style="margin-top:12px;">
-        <button class="btn" onclick="cargarResumenTabla()">Refrescar</button>
+      <div class="toolsRow">
+        <button class="btn" onclick="cargarResumenGlobalTabla()">Refrescar</button>
+        <button class="btn ghost" onclick="descargarResumenCSV()">Descargar CSV</button>
+        <span class="pillN" id="sumMeta">Filas: <b style="color:var(--text)">0</b></span>
       </div>
 
       <div id="summaryBox" style="margin-top:14px;"></div>
@@ -445,33 +434,33 @@
 /***********************
  * CONFIG (EDITA AQUÍ)
  ***********************/
-const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxdkTOmj3F9mtxbXieZ38U10m36_bx8dIhBa2cZiNA13E2-H0Ik4ZZx55U-ajK_Gqu4qg/exec";
+const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwISeq-366PNWMCUuts8R6VTztxshvfIqV3MJWYcThq_5ZNjRKUPq8jjUyxp0syHpw4jQ/exec";
 
 const DEMOGRAPHICS = [
-  { key:"Genero",      label:"Género",      options:["Masculino","Femenino"] },
-  { key:"Antiguedad",  label:"Antigüedad",  options:["De 0 a 5 años","De 6 a 10 años","De 11 a 20 años","Más de 20 años"] },
-  { key:"Localidad",   label:"Localidad",   options:["Tegucigalpa","San Pedro Sula","La Ceiba"] },
+  { key:"Genero", label:"Género", options:["Masculino","Femenino"] },
+  { key:"Antiguedad", label:"Antigüedad", options:["De 0 a 5 años","De 6 a 10 años","De 11 a 20 años","Más de 20 años"] },
+  { key:"Localidad", label:"Localidad", options:["Tegucigalpa","San Pedro Sula","La Ceiba"] },
   { key:"Departamento",label:"Departamento",options:["Recursos Humanos","Ventas","Contabilidad","Compras"] },
-  { key:"Nivel",       label:"Nivel",       options:["Operativo","Administrativo","Técnico","Jefe - Gerente"] }
+  { key:"Nivel", label:"Nivel", options:["Operativo","Administrativo","Técnico","Jefe - Gerente"] }
 ];
 
 const ITEMS = [
-  { id:1,  text:"Mi jefe proporciona supervisión clara y consistente.", factor:"Liderazgo / Supervisión" },
-  { id:2,  text:"La comunicación con mi jefe es abierta y efectiva.", factor:"Comunicación / Liderazgo" },
-  { id:3,  text:"Los salarios en esta empresa son justos.", factor:"Compensación / Equidad salarial" },
-  { id:4,  text:"Mis compañeros ayudan a crear un ambiente de trabajo positivo.", factor:"Clima laboral / Relaciones interpersonales" },
-  { id:5,  text:"Mi jefe reconoce y valora mi trabajo.", factor:"Reconocimiento / Liderazgo" },
-  { id:6,  text:"Mis horarios de trabajo son adecuados para mi vida personal.", factor:"Equilibrio vida-trabajo / Condiciones laborales" },
-  { id:7,  text:"Mi jefe reconoce y valora mi trabajo.", factor:"Reconocimiento / Liderazgo" },
-  { id:8,  text:"Siento confianza para hablar con mi jefe sobre problemas del trabajo.", factor:"Confianza / Comunicación con liderazgo" },
-  { id:9,  text:"La colaboración con mis compañeros es positiva.", factor:"Trabajo en equipo / Colaboración" },
+  { id:1, text:"Mi jefe proporciona supervisión clara y consistente.", factor:"Liderazgo / Supervisión" },
+  { id:2, text:"La comunicación con mi jefe es abierta y efectiva.", factor:"Comunicación / Liderazgo" },
+  { id:3, text:"Los salarios en esta empresa son justos.", factor:"Compensación / Equidad salarial" },
+  { id:4, text:"Mis compañeros ayudan a crear un ambiente de trabajo positivo.", factor:"Clima laboral / Relaciones interpersonales" },
+  { id:5, text:"Mi jefe reconoce y valora mi trabajo.", factor:"Reconocimiento / Liderazgo" },
+  { id:6, text:"Mis horarios de trabajo son adecuados para mi vida personal.", factor:"Equilibrio vida-trabajo / Condiciones laborales" },
+  { id:7, text:"Mi jefe reconoce y valora mi trabajo.", factor:"Reconocimiento / Liderazgo" },
+  { id:8, text:"Siento confianza para hablar con mi jefe sobre problemas del trabajo.", factor:"Confianza / Comunicación con liderazgo" },
+  { id:9, text:"La colaboración con mis compañeros es positiva.", factor:"Trabajo en equipo / Colaboración" },
   { id:10, text:"La colaboración con mis compañeros es positiva.", factor:"Trabajo en equipo / Colaboración" },
   { id:11, text:"El plan de beneficios de mi empresa es competitivo.", factor:"Beneficios / Compensación total" },
   { id:12, text:"Los horarios de trabajo me permiten mantener un buen equilibrio laboral y personal.", factor:"Equilibrio vida-trabajo / Bienestar" }
 ];
 
 const SCALE_OPTIONS = [
-  {v:"",  t:"Selecciona..."},
+  {v:"", t:"Selecciona..."},
   {v:1, t:"1. Totalmente en desacuerdo"},
   {v:2, t:"2. En desacuerdo"},
   {v:3, t:"3. Ni en desacuerdo ni de acuerdo"},
@@ -526,7 +515,7 @@ function showTab(tab){
   $("tabResumen").classList.toggle("active", tab==="resumen");
 
   if(tab==="resultados") cargarResultados();
-  if(tab==="resumen") cargarResumenTabla();
+  if(tab==="resumen") cargarResumenGlobalTabla();
 }
 
 function buildDemographics(){
@@ -545,13 +534,10 @@ function buildDemographics(){
       const box = document.createElement("div");
       const lab = document.createElement("label");
       lab.textContent = def.label;
-
       const sel = document.createElement("select");
       sel.id = "dem_" + def.key;
-      sel.innerHTML =
-        `<option value="">Selecciona...</option>` +
+      sel.innerHTML = `<option value="">Selecciona...</option>` +
         def.options.map(o=>`<option value="${escapeHtml(o)}">${escapeHtml(o)}</option>`).join("");
-
       box.appendChild(lab);
       box.appendChild(sel);
       row.appendChild(box);
@@ -595,7 +581,6 @@ function buildItems(){
 
     top.appendChild(left);
     top.appendChild(right);
-
     card.appendChild(top);
     cont.appendChild(card);
   });
@@ -611,11 +596,7 @@ function initFilters(){
     {v:"Nivel", t:"Nivel"},
   ];
   $("groupBy").innerHTML = opts.map(o=>`<option value="${o.v}">${o.t}</option>`).join("");
-  $("sumGroupBy").innerHTML = $("groupBy").innerHTML;
-
   $("groupBy").value = "General";
-  $("sumGroupBy").value = "Departamento"; // por defecto más útil para tabla
-
   onGroupChange();
 }
 
@@ -698,7 +679,6 @@ function jsonpRequest(params){
 function postNoCors(fields){
   const body = new URLSearchParams();
   Object.keys(fields || {}).forEach(k => body.set(k, String(fields[k] ?? "")));
-
   return fetch(WEBAPP_URL, {
     method: "POST",
     mode: "no-cors",
@@ -750,17 +730,13 @@ async function guardar(){
   if(btn) btn.disabled = true;
 
   setStatus("Guardando...", "info");
-
   try{
     await postNoCors({ action:"save", payload: JSON.stringify(p) });
-
     const ok = await confirmSubmission(p._submissionId);
     if(!ok) throw new Error("timeout");
-
     setStatus("Guardado ✅", "ok");
     limpiar();
     setTimeout(()=> setStatus("Listo"), 1200);
-
   }catch(e){
     setStatus("Error al guardar: " + (e.message || e), "err");
   }finally{
@@ -778,8 +754,7 @@ async function cargarOpcionesFiltro(groupBy, selectEl){
     const j = await jsonpRequest({ action:"unique", groupBy });
     if(!j.ok) throw new Error(j.error || "No se pudo cargar variables");
     const values = j.values || [];
-    selectEl.innerHTML =
-      `<option value="">Selecciona...</option>` +
+    selectEl.innerHTML = `<option value="">Selecciona...</option>` +
       values.map(v=>`<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join("");
   }catch(e){
     selectEl.innerHTML = `<option value="">(error)</option>`;
@@ -788,7 +763,6 @@ async function cargarOpcionesFiltro(groupBy, selectEl){
 
 async function onGroupChange(){
   const gb = $("groupBy").value;
-
   if(gb === "General"){
     $("groupValue").innerHTML = `<option value="">—</option>`;
     $("groupValue").disabled = true;
@@ -797,16 +771,12 @@ async function onGroupChange(){
     $("groupValue").disabled = false;
     await cargarOpcionesFiltro(gb, $("groupValue"));
     const hasValue = $("groupValue").options.length > 1;
-    if(hasValue){
-      $("groupValue").selectedIndex = 1;
-    }
+    if(hasValue) $("groupValue").selectedIndex = 1;
     await cargarResultados();
   }
 }
 
-function onGroupValueChange(){
-  cargarResultados();
-}
+function onGroupValueChange(){ cargarResultados(); }
 
 let chart = null;
 
@@ -848,10 +818,8 @@ function renderResults(data){
   }
 
   $("noDataMsg").style.display = "none";
-
   const labels = items.map(x=>`Ítem ${x.id}`);
   const values = items.map(x=>x.percent);
-
   renderChart(labels, values);
 
   const rows = items.map(x=>`
@@ -891,7 +859,6 @@ function renderChart(labels, values){
       ctx.fillStyle = "#e8eefc";
       ctx.textAlign = "center";
       ctx.textBaseline = "bottom";
-
       chart.data.datasets.forEach((dataset, i)=>{
         const meta = chart.getDatasetMeta(i);
         meta.data.forEach((bar, idx)=>{
@@ -899,7 +866,6 @@ function renderChart(labels, values){
           ctx.fillText(String(val) + "%", bar.x, bar.y - 6);
         });
       });
-
       ctx.restore();
     }
   };
@@ -922,17 +888,14 @@ function renderChart(labels, values){
       scales: {
         x: { ticks: { color: "#cfe0ff" } },
         y: {
-          min: 0,
-          max: 100,
+          min: 0, max: 100,
           ticks: {
             stepSize: 10,
             callback: (v)=> v + "%",
             color: "#cfe0ff"
           },
           grid: {
-            color: (ctx) => (ctx.tick && ctx.tick.value === 70)
-              ? "rgba(245,158,11,.85)"
-              : "rgba(255,255,255,.08)",
+            color: (ctx) => (ctx.tick && ctx.tick.value === 70) ? "rgba(245,158,11,.85)" : "rgba(255,255,255,.08)",
             lineWidth: (ctx) => (ctx.tick && ctx.tick.value === 70) ? 2.5 : 1
           }
         }
@@ -951,125 +914,100 @@ function destroyChart(){
 }
 
 /***********************
- * RESUMEN (TABLA)
+ * RESUMEN GLOBAL (UNA SOLA TABLA)
  ***********************/
-async function cargarResumenTabla(){
-  const groupBy = $("sumGroupBy").value;
+let __summaryFlatRows = [];
+
+async function cargarResumenGlobalTabla(){
   $("summaryBox").innerHTML = `<div class="muted">Cargando...</div>`;
+  $("sumMeta").innerHTML = `Filas: <b style="color:var(--text)">0</b>`;
+  __summaryFlatRows = [];
 
   try{
-    // General: 1 fila (como categoría única)
-    if(groupBy === "General"){
-      const j = await jsonpRequest({ action:"results", groupBy:"General", groupValue:"" });
-      if(!j.ok) throw new Error(j.error || "No se pudo cargar resumen general");
-      renderSummaryTableFromResults_(j.data);
+    const j = await jsonpRequest({ action:"allSummary" });
+    if(!j.ok) throw new Error(j.error || "No se pudo cargar el resumen global");
+
+    const rows = j.data?.rows || [];
+    __summaryFlatRows = rows;
+
+    $("sumMeta").innerHTML = `Filas: <b style="color:var(--text)">${rows.length}</b>`;
+
+    if(!rows.length){
+      $("summaryBox").innerHTML = `<div class="muted">No hay datos para mostrar.</div>`;
       return;
     }
 
-    // Variable: tabla por categorías
-    const j = await jsonpRequest({ action:"summaryTable", groupBy });
-    if(!j.ok) throw new Error(j.error || "No se pudo cargar tabla resumen");
-    renderSummaryTable_(j.data);
+    const body = rows.map(r=>`
+      <tr>
+        <td><b>${escapeHtml(pretty(r.variable))}</b></td>
+        <td>${escapeHtml(r.category || "—")}</td>
+        <td><b>${r.itemId}</b></td>
+        <td>${escapeHtml(r.itemLabel || "")}</td>
+        <td><b>${r.percent}%</b></td>
+        <td class="muted">${r.n}</td>
+      </tr>
+    `).join("");
+
+    $("summaryBox").innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>Variable</th>
+            <th>Categoría</th>
+            <th>Ítem</th>
+            <th>Descripción</th>
+            <th>%</th>
+            <th>#Encuestas</th>
+          </tr>
+        </thead>
+        <tbody>${body}</tbody>
+      </table>
+    `;
   }catch(e){
     $("summaryBox").innerHTML = `<div class="muted">Error: ${escapeHtml(e.message || e)}</div>`;
   }
 }
 
-function renderSummaryTableFromResults_(data){
-  const n = data.n || 0;
-  const items = (data.items || []).slice();
-  if(n<=0 || items.length===0){
-    $("summaryBox").innerHTML = `<div class="muted">No hay datos.</div>`;
+function descargarResumenCSV(){
+  const rows = __summaryFlatRows || [];
+  if(!rows.length){
+    alert("No hay datos para exportar. Presiona Refrescar.");
     return;
   }
 
-  items.sort((a,b)=>b.percent-a.percent);
-  const top = items.slice(0,3);
-  const bottom = items.slice(-3).reverse();
+  const header = ["Variable","Categoria","ItemId","ItemLabel","Percent","N"];
+  const lines = [header.join(",")];
 
-  const topHtml = `
-    <div class="cellList">
-      ${top.map(x=>`<div>• <b>${x.percent}%</b> — Ítem ${x.id}</div>`).join("")}
-    </div>
-  `;
-  const bottomHtml = `
-    <div class="cellList">
-      ${bottom.map(x=>`<div>• <b>${x.percent}%</b> — Ítem ${x.id}</div>`).join("")}
-    </div>
-  `;
+  for(const r of rows){
+    const line = [
+      csvCell(pretty(r.variable)),
+      csvCell(r.category || "—"),
+      csvCell(r.itemId),
+      csvCell(r.itemLabel || ""),
+      csvCell(r.percent),
+      csvCell(r.n),
+    ].join(",");
+    lines.push(line);
+  }
 
-  $("summaryBox").innerHTML = `
-    <table>
-      <thead>
-        <tr>
-          <th>Variable</th>
-          <th>Categoría</th>
-          <th>Estatus altos</th>
-          <th>Estatus bajos</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><b>General</b></td>
-          <td class="muted">—</td>
-          <td>${topHtml}<div class="pillN">Encuestas: <b style="color:var(--text)">${n}</b></div></td>
-          <td>${bottomHtml}</td>
-        </tr>
-      </tbody>
-    </table>
-  `;
+  const csv = lines.join("\n");
+  const blob = new Blob([csv], {type:"text/csv;charset=utf-8"});
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "resumen_global_items_por_variable_categoria.csv";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+
+  URL.revokeObjectURL(url);
 }
 
-function renderSummaryTable_(data){
-  const groupBy = data.groupBy || "";
-  const rows = data.rows || [];
-
-  if(!rows.length){
-    $("summaryBox").innerHTML = `<div class="muted">No hay datos para esta variable.</div>`;
-    return;
-  }
-
-  const body = rows.map(r=>{
-    const top = r.top || [];
-    const bottom = r.bottom || [];
-    const n = r.n || 0;
-
-    const topHtml = `
-      <div class="cellList">
-        ${top.map(x=>`<div>• <b>${x.percent}%</b> — Ítem ${x.id}</div>`).join("")}
-      </div>
-      <div class="pillN">Encuestas: <b style="color:var(--text)">${n}</b></div>
-    `;
-
-    const bottomHtml = `
-      <div class="cellList">
-        ${bottom.map(x=>`<div>• <b>${x.percent}%</b> — Ítem ${x.id}</div>`).join("")}
-      </div>
-    `;
-
-    return `
-      <tr>
-        <td><b>${escapeHtml(pretty(groupBy))}</b></td>
-        <td>${escapeHtml(r.category || "")}</td>
-        <td>${topHtml}</td>
-        <td>${bottomHtml}</td>
-      </tr>
-    `;
-  }).join("");
-
-  $("summaryBox").innerHTML = `
-    <table>
-      <thead>
-        <tr>
-          <th>Variable</th>
-          <th>Categoría</th>
-          <th>Estatus altos</th>
-          <th>Estatus bajos</th>
-        </tr>
-      </thead>
-      <tbody>${body}</tbody>
-    </table>
-  `;
+function csvCell(v){
+  const s = String(v ?? "");
+  if(/[",\n]/.test(s)) return `"${s.replace(/"/g,'""')}"`;
+  return s;
 }
 
 /***********************
@@ -1080,5 +1018,6 @@ buildItems();
 initFilters();
 ping();
 </script>
+
 </body>
 </html>
