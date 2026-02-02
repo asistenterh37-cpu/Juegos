@@ -265,10 +265,26 @@
       border-bottom:1px solid var(--line);
       padding:10px 8px;
       text-align:left;
+      vertical-align:top;
     }
     th{color:#cfe0ff; font-size:12px; text-transform:uppercase; letter-spacing:.4px}
     td{color:var(--text)}
     .muted{color:var(--muted)}
+
+    .cellList{display:flex; flex-direction:column; gap:6px; font-size:13px; line-height:1.25;}
+    .cellList div{white-space:normal;}
+    .pillN{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:2px 8px;
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:999px;
+      font-size:12px;
+      color:var(--muted);
+      background: rgba(255,255,255,.04);
+      margin-top:6px;
+    }
   </style>
 </head>
 
@@ -406,25 +422,21 @@
     <div class="panel">
       <h3>Resumen</h3>
       <div class="help">
-        Resumen rápido según el filtro actual de Resultados.
+        Tabla de Top 3 y Bottom 3 por <b>Variable</b> y <b>Categoría</b> (como tu Excel).
       </div>
 
-      <div class="filters">
-        <div>
-          <label>Resultado por</label>
-          <select id="sumGroupBy" onchange="syncSummaryFilter()"></select>
-        </div>
+      <div class="filters" style="grid-template-columns:1fr;">
         <div>
           <label>Variable</label>
-          <select id="sumGroupValue" onchange="cargarResumen()"></select>
+          <select id="sumGroupBy" onchange="cargarResumenTabla()"></select>
         </div>
       </div>
 
       <div style="margin-top:12px;">
-        <button class="btn" onclick="cargarResumen()">Refrescar</button>
+        <button class="btn" onclick="cargarResumenTabla()">Refrescar</button>
       </div>
 
-      <div id="summaryBox" style="margin-top:14px; line-height:1.5; color:var(--text);"></div>
+      <div id="summaryBox" style="margin-top:14px;"></div>
     </div>
   </section>
 </main>
@@ -433,7 +445,7 @@
 /***********************
  * CONFIG (EDITA AQUÍ)
  ***********************/
-const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbw5GnU0Re5PO66bBishMUiFaiBUaM397AiD3bIOG_XP-SMW8WG8uwmk0MueXhCP8mdPLA/exec";
+const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxdkTOmj3F9mtxbXieZ38U10m36_bx8dIhBa2cZiNA13E2-H0Ik4ZZx55U-ajK_Gqu4qg/exec";
 
 const DEMOGRAPHICS = [
   { key:"Genero",      label:"Género",      options:["Masculino","Femenino"] },
@@ -484,7 +496,8 @@ function pretty(k){
     Antiguedad:"Antigüedad",
     Localidad:"Localidad",
     Departamento:"Departamento",
-    Nivel:"Nivel"
+    Nivel:"Nivel",
+    General:"General"
   };
   return map[k] || k;
 }
@@ -513,7 +526,7 @@ function showTab(tab){
   $("tabResumen").classList.toggle("active", tab==="resumen");
 
   if(tab==="resultados") cargarResultados();
-  if(tab==="resumen") cargarResumen();
+  if(tab==="resumen") cargarResumenTabla();
 }
 
 function buildDemographics(){
@@ -601,51 +614,9 @@ function initFilters(){
   $("sumGroupBy").innerHTML = $("groupBy").innerHTML;
 
   $("groupBy").value = "General";
-  $("sumGroupBy").value = "General";
+  $("sumGroupBy").value = "Departamento"; // por defecto más útil para tabla
+
   onGroupChange();
-  syncSummaryFilter();
-}
-
-async function onGroupChange(){
-  const gb = $("groupBy").value;
-
-  if(gb === "General"){
-    $("groupValue").innerHTML = `<option value="">—</option>`;
-    $("groupValue").disabled = true;
-    await cargarResultados();
-  }else{
-    $("groupValue").disabled = false;
-    await cargarOpcionesFiltro(gb, $("groupValue"));
-    const hasValue = $("groupValue").options.length > 1;
-    if(hasValue){
-      $("groupValue").selectedIndex = 1;
-    }
-    await cargarResultados();
-  }
-
-  $("sumGroupBy").value = gb;
-  syncSummaryFilter();
-}
-
-function onGroupValueChange(){
-  cargarResultados();
-}
-
-async function syncSummaryFilter(){
-  const gb = $("sumGroupBy").value;
-  if(gb==="General"){
-    $("sumGroupValue").innerHTML = `<option value="">—</option>`;
-    $("sumGroupValue").disabled = true;
-    await cargarResumen();
-  }else{
-    $("sumGroupValue").disabled = false;
-    await cargarOpcionesFiltro(gb, $("sumGroupValue"));
-    const hasValue = $("sumGroupValue").options.length > 1;
-    if(hasValue){
-      $("sumGroupValue").selectedIndex = 1;
-    }
-    await cargarResumen();
-  }
 }
 
 /***********************
@@ -799,7 +770,7 @@ async function guardar(){
 }
 
 /***********************
- * Resultados / Resumen
+ * Resultados
  ***********************/
 async function cargarOpcionesFiltro(groupBy, selectEl){
   selectEl.innerHTML = `<option value="">Cargando...</option>`;
@@ -813,6 +784,28 @@ async function cargarOpcionesFiltro(groupBy, selectEl){
   }catch(e){
     selectEl.innerHTML = `<option value="">(error)</option>`;
   }
+}
+
+async function onGroupChange(){
+  const gb = $("groupBy").value;
+
+  if(gb === "General"){
+    $("groupValue").innerHTML = `<option value="">—</option>`;
+    $("groupValue").disabled = true;
+    await cargarResultados();
+  }else{
+    $("groupValue").disabled = false;
+    await cargarOpcionesFiltro(gb, $("groupValue"));
+    const hasValue = $("groupValue").options.length > 1;
+    if(hasValue){
+      $("groupValue").selectedIndex = 1;
+    }
+    await cargarResultados();
+  }
+}
+
+function onGroupValueChange(){
+  cargarResultados();
 }
 
 let chart = null;
@@ -834,20 +827,6 @@ async function cargarResultados(){
     $("kpiLast").textContent = "—";
     $("tableWrap").innerHTML = `<div class="muted">Error: ${escapeHtml(e.message || e)}</div>`;
     destroyChart();
-  }
-}
-
-async function cargarResumen(){
-  const groupBy = $("sumGroupBy").value;
-  const groupValue = $("sumGroupValue").disabled ? "" : ($("sumGroupValue").value || "");
-
-  $("summaryBox").innerHTML = `<div class="muted">Cargando...</div>`;
-  try{
-    const j = await jsonpRequest({ action:"results", groupBy, groupValue });
-    if(!j.ok) throw new Error(j.error || "No se pudo cargar resumen");
-    renderSummary(j.data, groupBy, groupValue);
-  }catch(e){
-    $("summaryBox").innerHTML = `<div class="muted">Error: ${escapeHtml(e.message || e)}</div>`;
   }
 }
 
@@ -896,44 +875,6 @@ function renderResults(data){
       </thead>
       <tbody>${rows}</tbody>
     </table>
-  `;
-}
-
-function renderSummary(data, groupBy, groupValue){
-  const n = data.n || 0;
-  const items = (data.items || []).slice();
-  if(n<=0 || items.length===0){
-    $("summaryBox").innerHTML = `<div class="muted">No hay datos para el filtro seleccionado.</div>`;
-    return;
-  }
-
-  items.sort((a,b)=>b.percent-a.percent);
-  const top = items.slice(0,3);
-  const bottom = items.slice(-3).reverse();
-
-  const title = (groupBy==="General")
-    ? "General"
-    : `${pretty(groupBy)} = ${groupValue || "(sin seleccionar)"}`;
-
-  $("summaryBox").innerHTML = `
-    <div style="font-weight:900; font-size:16px; margin-bottom:8px;">Resumen (${escapeHtml(title)})</div>
-    <div class="muted" style="margin-bottom:12px;">Encuestas consideradas: <b style="color:var(--text)">${n}</b></div>
-
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-      <div class="kpi">
-        <div class="k">Top 3 ítems</div>
-        <div class="s" style="margin-top:10px;">
-          ${top.map(x=>`<div>• <b>${x.percent}%</b> — Ítem ${x.id}: ${escapeHtml(x.label||"")}</div>`).join("")}
-        </div>
-      </div>
-
-      <div class="kpi">
-        <div class="k">Bottom 3 ítems</div>
-        <div class="s" style="margin-top:10px;">
-          ${bottom.map(x=>`<div>• <b>${x.percent}%</b> — Ítem ${x.id}: ${escapeHtml(x.label||"")}</div>`).join("")}
-        </div>
-      </div>
-    </div>
   `;
 }
 
@@ -1007,6 +948,128 @@ function renderChart(labels, values){
 
 function destroyChart(){
   if(chart){ chart.destroy(); chart = null; }
+}
+
+/***********************
+ * RESUMEN (TABLA)
+ ***********************/
+async function cargarResumenTabla(){
+  const groupBy = $("sumGroupBy").value;
+  $("summaryBox").innerHTML = `<div class="muted">Cargando...</div>`;
+
+  try{
+    // General: 1 fila (como categoría única)
+    if(groupBy === "General"){
+      const j = await jsonpRequest({ action:"results", groupBy:"General", groupValue:"" });
+      if(!j.ok) throw new Error(j.error || "No se pudo cargar resumen general");
+      renderSummaryTableFromResults_(j.data);
+      return;
+    }
+
+    // Variable: tabla por categorías
+    const j = await jsonpRequest({ action:"summaryTable", groupBy });
+    if(!j.ok) throw new Error(j.error || "No se pudo cargar tabla resumen");
+    renderSummaryTable_(j.data);
+  }catch(e){
+    $("summaryBox").innerHTML = `<div class="muted">Error: ${escapeHtml(e.message || e)}</div>`;
+  }
+}
+
+function renderSummaryTableFromResults_(data){
+  const n = data.n || 0;
+  const items = (data.items || []).slice();
+  if(n<=0 || items.length===0){
+    $("summaryBox").innerHTML = `<div class="muted">No hay datos.</div>`;
+    return;
+  }
+
+  items.sort((a,b)=>b.percent-a.percent);
+  const top = items.slice(0,3);
+  const bottom = items.slice(-3).reverse();
+
+  const topHtml = `
+    <div class="cellList">
+      ${top.map(x=>`<div>• <b>${x.percent}%</b> — Ítem ${x.id}</div>`).join("")}
+    </div>
+  `;
+  const bottomHtml = `
+    <div class="cellList">
+      ${bottom.map(x=>`<div>• <b>${x.percent}%</b> — Ítem ${x.id}</div>`).join("")}
+    </div>
+  `;
+
+  $("summaryBox").innerHTML = `
+    <table>
+      <thead>
+        <tr>
+          <th>Variable</th>
+          <th>Categoría</th>
+          <th>Estatus altos</th>
+          <th>Estatus bajos</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><b>General</b></td>
+          <td class="muted">—</td>
+          <td>${topHtml}<div class="pillN">Encuestas: <b style="color:var(--text)">${n}</b></div></td>
+          <td>${bottomHtml}</td>
+        </tr>
+      </tbody>
+    </table>
+  `;
+}
+
+function renderSummaryTable_(data){
+  const groupBy = data.groupBy || "";
+  const rows = data.rows || [];
+
+  if(!rows.length){
+    $("summaryBox").innerHTML = `<div class="muted">No hay datos para esta variable.</div>`;
+    return;
+  }
+
+  const body = rows.map(r=>{
+    const top = r.top || [];
+    const bottom = r.bottom || [];
+    const n = r.n || 0;
+
+    const topHtml = `
+      <div class="cellList">
+        ${top.map(x=>`<div>• <b>${x.percent}%</b> — Ítem ${x.id}</div>`).join("")}
+      </div>
+      <div class="pillN">Encuestas: <b style="color:var(--text)">${n}</b></div>
+    `;
+
+    const bottomHtml = `
+      <div class="cellList">
+        ${bottom.map(x=>`<div>• <b>${x.percent}%</b> — Ítem ${x.id}</div>`).join("")}
+      </div>
+    `;
+
+    return `
+      <tr>
+        <td><b>${escapeHtml(pretty(groupBy))}</b></td>
+        <td>${escapeHtml(r.category || "")}</td>
+        <td>${topHtml}</td>
+        <td>${bottomHtml}</td>
+      </tr>
+    `;
+  }).join("");
+
+  $("summaryBox").innerHTML = `
+    <table>
+      <thead>
+        <tr>
+          <th>Variable</th>
+          <th>Categoría</th>
+          <th>Estatus altos</th>
+          <th>Estatus bajos</th>
+        </tr>
+      </thead>
+      <tbody>${body}</tbody>
+    </table>
+  `;
 }
 
 /***********************
