@@ -29,39 +29,32 @@
       background: radial-gradient(1200px 600px at 40% 20%, #162447 0%, var(--bg) 55%);
       color:var(--text);
     }
-  .topbar{
-  position:sticky; top:0; z-index:20;
-  background: linear-gradient(180deg, rgba(11,18,32,.92), rgba(11,18,32,.72));
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid var(--line);
-  padding:16px 20px;
+    .topbar{
+      position:sticky; top:0; z-index:20;
+      background: linear-gradient(180deg, rgba(11,18,32,.92), rgba(11,18,32,.72));
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--line);
+      padding:16px 20px;
 
-  /* ✅ ahora sí: centro real */
-  display:grid;
-  grid-template-columns: 1fr auto 1fr;  /* izq | centro | der */
-  align-items:center;
-  gap:14px;
-}
-    /* ✅ Centrar el bloque de título + chips */
-.headerInfo{
-  grid-column: 2;
-  justify-self: center;
-  text-align: center;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:6px;
-}
-
-.headerInfo .chips{
-  justify-content:center;
-}
-
-/* ✅ Mantener el menú a la derecha */
-.topbar .nav{
-  grid-column: 3;
-  justify-self: end;
-}
+      display:grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items:center;
+      gap:14px;
+    }
+    .headerInfo{
+      grid-column: 2;
+      justify-self: center;
+      text-align: center;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:6px;
+    }
+    .headerInfo .chips{ justify-content:center; }
+    .topbar .nav{
+      grid-column: 3;
+      justify-self: end;
+    }
     .brand{font-size:22px; font-weight:800; letter-spacing:.2px}
     .chips{display:flex; align-items:center; gap:10px; flex-wrap:wrap}
     .chip{
@@ -126,15 +119,17 @@
       margin-bottom:12px;
       line-height:1.35;
     }
-/* ✅ Solo en Resultados: agrandar título y texto descriptivo */
-#viewResultados .panel h3{
-  font-size:16px; /* antes 13px */
-  letter-spacing:.6px;
-}
-#viewResultados .help{
-  font-size:14px; /* antes 12px */
-  line-height:1.5;
-}    
+
+    /* Solo en Resultados: agrandar título y texto descriptivo */
+    #viewResultados .panel h3{
+      font-size:16px;
+      letter-spacing:.6px;
+    }
+    #viewResultados .help{
+      font-size:14px;
+      line-height:1.5;
+    }
+
     .row{display:grid; grid-template-columns:1fr 1fr; gap:10px}
     .row.one{grid-template-columns:1fr}
     label{
@@ -206,7 +201,6 @@
     .status b{color:var(--text)}
     .hidden{display:none !important}
 
-    /* Resultados */
     .filters{
       display:grid;
       grid-template-columns: 1fr 1fr;
@@ -240,16 +234,14 @@
       border-top:1px solid var(--line);
       padding-top:14px;
     }
-   .subTitle{
-  margin:0 0 10px;
-  font-size:15px; /* ⬅️ aumentado */
-  font-weight:900;
-  letter-spacing:.4px;
-  color:#cfe0ff;
-  text-transform:uppercase;
-}
-
-    /* ✅ CLAVE: si no das altura al contenedor, Chart.js puede quedar “en blanco” */
+    .subTitle{
+      margin:0 0 10px;
+      font-size:15px;
+      font-weight:900;
+      letter-spacing:.4px;
+      color:#cfe0ff;
+      text-transform:uppercase;
+    }
     .chartArea{
       position: relative;
       height: 380px;
@@ -299,749 +291,731 @@
     <button id="tabResumen" onclick="showTab('resumen')">Resumen</button>
   </nav>
 </header>
-  <main class="wrap">
-    <!-- ENCUESTA -->
-    <section id="viewEncuesta">
-      <div class="grid">
-        <aside class="panel">
-          <h3>Datos demográficos</h3>
-          <div class="help">
-            Selecciona tus datos. Estos valores se toman del arreglo <b>DEMOGRAPHICS</b>.
-          </div>
 
-          <div id="demographicsFields"></div>
-
-          <div class="scale">
-            <div style="font-weight:900; color:#cfe0ff; margin-bottom:8px;">Escala</div>
-            <div>1 = Muy en desacuerdo</div>
-            <div>2 = En desacuerdo</div>
-            <div>3 = Ni de acuerdo ni en desacuerdo</div>
-            <div>4 = De acuerdo</div>
-            <div>5 = Totalmente de acuerdo</div>
-            <div style="margin-top:10px;">
-              <span style="display:inline-flex; align-items:center; gap:8px;">
-                <span class="remoteDot ok" style="width:10px;height:10px;"></span>
-                <span>WebApp configurado (envío por POST).</span>
-              </span>
-            </div>
-          </div>
-        </aside>
-
-        <section class="panel">
-          <h3>Encuesta</h3>
-          <div class="help">
-            Cada ítem se define en el arreglo <b>ITEMS</b>. Responde del 1 al 5.
-          </div>
-
-          <div id="itemsContainer" class="items"></div>
-
-          <div style="margin-top:12px;">
-            <label>Comentarios (opcional)</label>
-            <textarea id="comentarios" placeholder="Escribe tus comentarios..."></textarea>
-          </div>
-
-          <div class="footerActions">
-            <button id="btnGuardar" class="btn primary" onclick="guardar()">Guardar</button>
-            <button class="btn ghost" onclick="limpiar()">Limpiar</button>
-          </div>
-
-          <div id="saveStatus" class="status">Estado: <b>Listo</b></div>
-        </section>
-      </div>
-    </section>
-
-    <!-- RESULTADOS -->
-    <section id="viewResultados" class="hidden">
-      <div class="panel">
-        <h3>Resultados</h3>
+<main class="wrap">
+  <!-- ENCUESTA -->
+  <section id="viewEncuesta">
+    <div class="grid">
+      <aside class="panel">
+        <h3>Datos demográficos</h3>
         <div class="help">
-          Puedes ver resultados por: <b>General, Género, Antigüedad, Localidad, Departamento y Nivel</b>.
-          Fuente: Google Sheets (hoja <b>Respuestas</b>) vía WebApp.
+          Selecciona tus datos. Estos valores se toman del arreglo <b>DEMOGRAPHICS</b>.
         </div>
 
-        <div class="filters">
-          <div>
-            <label>Resultado por</label>
-            <select id="groupBy" onchange="onGroupChange()"></select>
-          </div>
-          <div>
-            <label>Variable</label>
-            <select id="groupValue" onchange="onGroupValueChange()"></select>
+        <div id="demographicsFields"></div>
+
+        <div class="scale">
+          <div style="font-weight:900; color:#cfe0ff; margin-bottom:8px;">Escala</div>
+          <div>1 = Muy en desacuerdo</div>
+          <div>2 = En desacuerdo</div>
+          <div>3 = Ni de acuerdo ni en desacuerdo</div>
+          <div>4 = De acuerdo</div>
+          <div>5 = Totalmente de acuerdo</div>
+          <div style="margin-top:10px;">
+            <span style="display:inline-flex; align-items:center; gap:8px;">
+              <span class="remoteDot ok" style="width:10px;height:10px;"></span>
+              <span>WebApp configurado (envío por POST).</span>
+            </span>
           </div>
         </div>
+      </aside>
+
+      <section class="panel">
+        <h3>Encuesta</h3>
+        <div class="help">
+          Cada ítem se define en el arreglo <b>ITEMS</b>. Responde del 1 al 5.
+        </div>
+
+        <div id="itemsContainer" class="items"></div>
 
         <div style="margin-top:12px;">
-          <button class="btn" onclick="cargarResultados()">Refrescar</button>
+          <label>Comentarios (opcional)</label>
+          <textarea id="comentarios" placeholder="Escribe tus comentarios..."></textarea>
         </div>
 
-        <div class="cards3">
-          <div class="kpi">
-            <div class="k">Encuestas consideradas</div>
-            <div class="v" id="kpiN">0</div>
-            <div class="s muted">registros filtrados</div>
-          </div>
-          <div class="kpi">
-            <div class="k">Promedio general</div>
-            <div class="v" id="kpiAvg">—</div>
-            <div class="s muted">Escala 0–100%</div>
-          </div>
-          <div class="kpi">
-            <div class="k">Última respuesta</div>
-            <div class="v" id="kpiLast">—</div>
-            <div class="s muted">fecha/hora</div>
-          </div>
+        <div class="footerActions">
+          <button id="btnGuardar" class="btn primary" onclick="guardar()">Guardar</button>
+          <button class="btn ghost" onclick="limpiar()">Limpiar</button>
         </div>
 
-        <div class="chartWrap">
-          <div class="subTitle">Calificación por ítem (barras)</div>
-          <div class="help" id="noDataMsg">Aún no hay datos para graficar. Presiona <b>Refrescar</b> o guarda al menos una encuesta.</div>
+        <div id="saveStatus" class="status">Estado: <b>Listo</b></div>
+      </section>
+    </div>
+  </section>
 
-          <div class="chartArea">
-            <canvas id="chartItems"></canvas>
-          </div>
+  <!-- RESULTADOS -->
+  <section id="viewResultados" class="hidden">
+    <div class="panel">
+      <h3>Resultados</h3>
+      <div class="help">
+        Puedes ver resultados por: <b>General, Género, Antigüedad, Localidad, Departamento y Nivel</b>.
+        Fuente: Google Sheets (hoja <b>Respuestas</b>) vía WebApp.
+      </div>
 
-          <div style="margin-top:18px;">
-            <div class="subTitle">Promedios por ítem (tabla)</div>
-            <div id="tableWrap" class="muted">Aún no hay datos para mostrar.</div>
-          </div>
+      <div class="filters">
+        <div>
+          <label>Resultado por</label>
+          <select id="groupBy" onchange="onGroupChange()"></select>
+        </div>
+        <div>
+          <label>Variable</label>
+          <select id="groupValue" onchange="onGroupValueChange()"></select>
         </div>
       </div>
-    </section>
 
-    <!-- RESUMEN -->
-    <section id="viewResumen" class="hidden">
-      <div class="panel">
-        <h3>Resumen</h3>
-        <div class="help">
-          Resumen rápido según el filtro actual de Resultados.
-        </div>
-
-        <div class="filters">
-          <div>
-            <label>Resultado por</label>
-            <select id="sumGroupBy" onchange="syncSummaryFilter()"></select>
-          </div>
-          <div>
-            <label>Variable</label>
-            <select id="sumGroupValue" onchange="cargarResumen()"></select>
-          </div>
-        </div>
-
-        <div style="margin-top:12px;">
-          <button class="btn" onclick="cargarResumen()">Refrescar</button>
-        </div>
-
-        <div id="summaryBox" style="margin-top:14px; line-height:1.5; color:var(--text);"></div>
+      <div style="margin-top:12px;">
+        <button class="btn" onclick="cargarResultados()">Refrescar</button>
       </div>
-    </section>
-  </main>
 
-  <script>
-    /***********************
-     * CONFIG (EDITA AQUÍ)
-     ***********************/
-    const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwaLuvlNns-7sDaJXXGgQYFfnFr4ndyZ3NAko20AvNXxqVoEh9NrM0UNbXSeuhc8hYuhQ/exec";
-
-    const DEMOGRAPHICS = [
-      { key:"Genero",      label:"Género",      options:["Masculino","Femenino"] },
-      { key:"Antiguedad",  label:"Antigüedad",  options:["De 0 a 5 años","De 6 a 10 años","De 11 a 20 años","Más de 20 años"] },
-      { key:"Localidad",   label:"Localidad",   options:["Tegucigalpa","San Pedro Sula","La Ceiba"] },
-      { key:"Departamento",label:"Departamento",options:["Recursos Humanos","Ventas","Contabilidad","Compras"] },
-      { key:"Nivel",       label:"Nivel",       options:["Operativo","Administrativo","Técnico","Jefe - Gerente"] }
-    ];
-
-    const ITEMS = [
-      { id:1,  text:"Mi jefe proporciona supervisión clara y consistente.", factor:"Liderazgo / Supervisión" },
-      { id:2,  text:"La comunicación con mi jefe es abierta y efectiva.", factor:"Comunicación / Liderazgo" },
-      { id:3,  text:"Los salarios en esta empresa son justos.", factor:"Compensación / Equidad salarial" },
-      { id:4,  text:"Mis compañeros ayudan a crear un ambiente de trabajo positivo.", factor:"Clima laboral / Relaciones interpersonales" },
-      { id:5,  text:"Mi jefe reconoce y valora mi trabajo.", factor:"Reconocimiento / Liderazgo" },
-      { id:6,  text:"Mis horarios de trabajo son adecuados para mi vida personal.", factor:"Equilibrio vida-trabajo / Condiciones laborales" },
-      { id:7,  text:"Mi jefe reconoce y valora mi trabajo.", factor:"Reconocimiento / Liderazgo" },
-      { id:8,  text:"Siento confianza para hablar con mi jefe sobre problemas del trabajo.", factor:"Confianza / Comunicación con liderazgo" },
-      { id:9,  text:"La colaboración con mis compañeros es positiva.", factor:"Trabajo en equipo / Colaboración" },
-      { id:10, text:"La colaboración con mis compañeros es positiva.", factor:"Trabajo en equipo / Colaboración" },
-      { id:11, text:"El plan de beneficios de mi empresa es competitivo.", factor:"Beneficios / Compensación total" },
-      { id:12, text:"Los horarios de trabajo me permiten mantener un buen equilibrio laboral y personal.", factor:"Equilibrio vida-trabajo / Bienestar" }
-    ];
-
-    const SCALE_OPTIONS = [
-      {v:"",  t:"Selecciona..."},
-      {v:1, t:"1. Totalmente en desacuerdo"},
-      {v:2, t:"2. En desacuerdo"},
-      {v:3, t:"3. Ni en desacuerdo ni de acuerdo"},
-      {v:4, t:"4. De acuerdo"},
-      {v:5, t:"5. Totalmente de acuerdo"},
-    ];
-
-    /***********************
-     * UI + UTILS
-     ***********************/
-    const $ = (id)=>document.getElementById(id);
-
-    function escapeHtml(s){
-      return String(s).replace(/[&<>"']/g, m => ({
-        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
-      }[m]));
-    }
-
-    function pretty(k){
-      const map = {
-        Genero:"Género",
-        Antiguedad:"Antigüedad",
-        Localidad:"Localidad",
-        Departamento:"Departamento",
-        Nivel:"Nivel"
-      };
-      return map[k] || k;
-    }
-
-    function prettyDepartmentValue(v){
-  const s = String(v || "").trim();
-
-  // Normaliza variantes comunes/erróneas que puedan venir de Sheets
-  if (/^recursos\s*human/i.test(s)) return "Recursos Humanos";   // "Recursos human", "Recursos humanos", etc.
-
-  // Puedes agregar más normalizaciones si aparecen
-  return s;
-}
-    
-    function setRemote(ok, text){
-      const dot = $("remoteDot");
-      dot.classList.toggle("ok", !!ok);
-      $("remoteText").textContent = "Remote: " + (text || (ok ? "conectado" : "sin conexión"));
-    }
-
-    function setStatus(msg, type="info"){
-      const el = $("saveStatus");
-      el.innerHTML = `Estado: <b>${escapeHtml(msg)}</b>`;
-      if(type==="ok") el.style.color = "rgba(34,197,94,.9)";
-      else if(type==="err") el.style.color = "rgba(239,68,68,.95)";
-      else el.style.color = "var(--muted)";
-    }
-
-    function showTab(tab){
-      $("viewEncuesta").classList.toggle("hidden", tab!=="encuesta");
-      $("viewResultados").classList.toggle("hidden", tab!=="resultados");
-      $("viewResumen").classList.toggle("hidden", tab!=="resumen");
-
-      $("tabEncuesta").classList.toggle("active", tab==="encuesta");
-      $("tabResultados").classList.toggle("active", tab==="resultados");
-      $("tabResumen").classList.toggle("active", tab==="resumen");
-
-      if(tab==="resultados") cargarResultados();
-      if(tab==="resumen") cargarResumen();
-    }
-
-    function buildDemographics(){
-      const wrap = document.createElement("div");
-      const rows = [
-        ["Genero","Antiguedad"],
-        ["Localidad","Departamento"],
-        ["Nivel"]
-      ];
-
-      rows.forEach(keys=>{
-        const row = document.createElement("div");
-        row.className = "row" + (keys.length===1 ? " one" : "");
-        keys.forEach(k=>{
-          const def = DEMOGRAPHICS.find(d=>d.key===k);
-          const box = document.createElement("div");
-          const lab = document.createElement("label");
-          lab.textContent = def.label;
-
-          const sel = document.createElement("select");
-          sel.id = "dem_" + def.key;
-          sel.innerHTML =
-            `<option value="">Selecciona...</option>` +
-            def.options.map(o=>`<option value="${escapeHtml(o)}">${escapeHtml(o)}</option>`).join("");
-
-          box.appendChild(lab);
-          box.appendChild(sel);
-          row.appendChild(box);
-        });
-        wrap.appendChild(row);
-      });
-
-      $("demographicsFields").innerHTML = "";
-      $("demographicsFields").appendChild(wrap);
-    }
-
-    function buildItems(){
-      const cont = $("itemsContainer");
-      cont.innerHTML = "";
-      ITEMS.forEach(it=>{
-        const card = document.createElement("div");
-        card.className = "itemCard";
-
-        const top = document.createElement("div");
-        top.className = "itemTop";
-
-        const left = document.createElement("div");
-        const title = document.createElement("p");
-        title.className = "itemTitle";
-        title.textContent = `${it.id}. ${it.text}`;
-        const meta = document.createElement("div");
-        meta.className = "itemMeta";
-        meta.textContent = "Factor: " + it.factor;
-        left.appendChild(title);
-        left.appendChild(meta);
-
-        const right = document.createElement("div");
-        right.className = "itemRight";
-        const lab = document.createElement("label");
-        lab.textContent = "Respuesta";
-        const sel = document.createElement("select");
-        sel.id = "item_" + it.id;
-        sel.innerHTML = SCALE_OPTIONS.map(o=>`<option value="${o.v}">${escapeHtml(o.t)}</option>`).join("");
-        right.appendChild(lab);
-        right.appendChild(sel);
-
-        top.appendChild(left);
-        top.appendChild(right);
-
-        card.appendChild(top);
-        cont.appendChild(card);
-      });
-    }
-
-    function initFilters(){
-      const opts = [
-        {v:"General", t:"General"},
-        {v:"Genero", t:"Género"},
-        {v:"Antiguedad", t:"Antigüedad"},
-        {v:"Departamento", t:"Departamento"},
-        {v:"Localidad", t:"Localidad"},
-        {v:"Nivel", t:"Nivel"},
-      ];
-      $("groupBy").innerHTML = opts.map(o=>`<option value="${o.v}">${o.t}</option>`).join("");
-      $("sumGroupBy").innerHTML = $("groupBy").innerHTML;
-
-      $("groupBy").value = "General";
-      $("sumGroupBy").value = "General";
-      onGroupChange();
-      syncSummaryFilter();
-    }
-
-    async function onGroupChange(){
-      const gb = $("groupBy").value;
-
-      if(gb === "General"){
-        $("groupValue").innerHTML = `<option value="">—</option>`;
-        $("groupValue").disabled = true;
-        await cargarResultados(); // ✅ auto refresca en General
-      }else{
-        $("groupValue").disabled = false;
-        await cargarOpcionesFiltro(gb, $("groupValue"));
-        // ✅ si existe al menos una opción real, selecciona la primera y refresca
-        const hasValue = $("groupValue").options.length > 1;
-        if(hasValue){
-          $("groupValue").selectedIndex = 1;
-        }
-        await cargarResultados();
-      }
-
-      // sync resumen
-      $("sumGroupBy").value = gb;
-      syncSummaryFilter();
-    }
-
-    function onGroupValueChange(){
-      // ✅ auto refresca al cambiar Variable
-      cargarResultados();
-    }
-
-    async function syncSummaryFilter(){
-      const gb = $("sumGroupBy").value;
-      if(gb==="General"){
-        $("sumGroupValue").innerHTML = `<option value="">—</option>`;
-        $("sumGroupValue").disabled = true;
-        await cargarResumen();
-      }else{
-        $("sumGroupValue").disabled = false;
-        await cargarOpcionesFiltro(gb, $("sumGroupValue"));
-        const hasValue = $("sumGroupValue").options.length > 1;
-        if(hasValue){
-          $("sumGroupValue").selectedIndex = 1;
-        }
-        await cargarResumen();
-      }
-    }
-
-    /***********************
-     * PAYLOAD / VALIDACIÓN
-     ***********************/
-    function getPayload(){
-      const row = {};
-    for(const d of DEMOGRAPHICS){
-  let val = ($("dem_"+d.key).value || "").trim();
-  if(d.key === "Departamento") val = prettyDepartmentValue(val); // normaliza al guardar
-  row[d.key] = val;
-}
-      for(const it of ITEMS){
-        row["I" + it.id] = Number($("item_" + it.id).value || 0);
-      }
-      row["Comentarios"] = ($("comentarios").value || "").trim();
-      row["_schema"] = "clima_v1";
-      row["_submissionId"] = (crypto?.randomUUID?.() || ("sub_" + Date.now() + "_" + Math.random().toString(16).slice(2)));
-      return row;
-    }
-
-    function validatePayload(row){
-      for(const d of DEMOGRAPHICS){
-        if(!row[d.key]) return `Falta seleccionar: ${d.label}`;
-      }
-      for(const it of ITEMS){
-        if(!(row["I"+it.id] >= 1 && row["I"+it.id] <= 5)) return `Falta responder el ítem ${it.id}`;
-      }
-      return null;
-    }
-
-    function limpiar(){
-      for(const d of DEMOGRAPHICS){ $("dem_"+d.key).value = ""; }
-      for(const it of ITEMS){ $("item_"+it.id).value = ""; }
-      $("comentarios").value = "";
-      setStatus("Listo");
-    }
-
-    /***********************
-     * JSONP (sin CORS)
-     ***********************/
-    function jsonpRequest(params){
-      return new Promise((resolve, reject)=>{
-        const cbName = "__cb_" + Math.random().toString(36).slice(2);
-        const q = new URLSearchParams(params || {});
-        q.set("callback", cbName);
-        q.set("_ts", String(Date.now())); // anti-cache
-
-        const script = document.createElement("script");
-        script.async = true;
-        script.src = WEBAPP_URL + (WEBAPP_URL.includes("?") ? "&" : "?") + q.toString();
-
-        const timeout = setTimeout(()=>{
-          cleanup();
-          reject(new Error("timeout"));
-        }, 15000);
-
-        function cleanup(){
-          clearTimeout(timeout);
-          try{ delete window[cbName]; }catch(_){}
-          if(script && script.parentNode) script.parentNode.removeChild(script);
-        }
-
-        window[cbName] = (data)=>{
-          cleanup();
-          resolve(data);
-        };
-
-        script.onerror = ()=>{
-          cleanup();
-          reject(new Error("network_error"));
-        };
-
-        document.body.appendChild(script);
-      });
-    }
-
-    /***********************
-     * POST no-cors + confirm
-     ***********************/
-    function postNoCors(fields){
-      const body = new URLSearchParams();
-      Object.keys(fields || {}).forEach(k => body.set(k, String(fields[k] ?? "")));
-
-      return fetch(WEBAPP_URL, {
-        method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
-        body: body.toString()
-      }).then(() => ({ ok:true, transport:"fetch-no-cors" }));
-    }
-
-    async function confirmSubmission(submissionId){
-      const start = Date.now();
-      const MAX_MS = 12000;
-      const STEP_MS = 600;
-
-      while(Date.now() - start < MAX_MS){
-        try{
-          const j = await jsonpRequest({ action:"confirm", submissionId });
-          if(j && j.ok === true && j.confirmed === true) return true;
-        }catch(_){}
-        await new Promise(r => setTimeout(r, STEP_MS));
-      }
-      return false;
-    }
-
-    let saving = false;
-
-    async function ping(){
-      try{
-        const j = await jsonpRequest({ action:"ping" });
-        if(!j || !j.ok) throw new Error(j?.error || "ping error");
-        setRemote(true, j?.status || "ok");
-      }catch(e){
-        setRemote(false, "sin conexión");
-      }
-    }
-
-    async function guardar(){
-      if (saving) return;
-      saving = true;
-
-      const p = getPayload();
-      const err = validatePayload(p);
-      if(err){
-        setStatus(err, "err");
-        saving = false;
-        return;
-      }
-
-      const btn = $("btnGuardar");
-      if(btn) btn.disabled = true;
-
-      setStatus("Guardando...", "info");
-
-      try{
-        await postNoCors({ action:"save", payload: JSON.stringify(p) });
-
-        const ok = await confirmSubmission(p._submissionId);
-        if(!ok) throw new Error("timeout");
-
-        setStatus("Guardado ✅", "ok");
-        limpiar();
-        setTimeout(()=> setStatus("Listo"), 1200);
-
-      }catch(e){
-        setStatus("Error al guardar: " + (e.message || e), "err");
-      }finally{
-        saving = false;
-        if(btn) btn.disabled = false;
-      }
-    }
-
-    /***********************
-     * Resultados / Resumen
-     ***********************/
-    async function cargarOpcionesFiltro(groupBy, selectEl){
-      selectEl.innerHTML = `<option value="">Cargando...</option>`;
-      try{
-        const j = await jsonpRequest({ action:"unique", groupBy });
-        if(!j.ok) throw new Error(j.error || "No se pudo cargar variables");
-        const values = j.values || [];
-        selectEl.innerHTML =
-  `<option value="">Selecciona...</option>` +
-  values.map(v=>{
-    const label = (groupBy === "Departamento") ? prettyDepartmentValue(v) : v;
-    return `<option value="${escapeHtml(v)}">${escapeHtml(label)}</option>`;
-  }).join("");
-      }catch(e){
-        selectEl.innerHTML = `<option value="">(error)</option>`;
-      }
-    }
-
-    let chart = null;
-
-    async function cargarResultados(){
-      $("noDataMsg").style.display = "block";
-      $("tableWrap").innerHTML = `<div class="muted">Cargando...</div>`;
-
-      const groupBy = $("groupBy").value;
-      const groupValue = $("groupValue").disabled ? "" : ($("groupValue").value || "");
-
-      try{
-        const j = await jsonpRequest({ action:"results", groupBy, groupValue });
-        if(!j.ok) throw new Error(j.error || "No se pudo cargar resultados");
-        renderResults(j.data);
-      }catch(e){
-        $("kpiN").textContent = "0";
-        $("kpiAvg").textContent = "—";
-        $("kpiLast").textContent = "—";
-        $("tableWrap").innerHTML = `<div class="muted">Error: ${escapeHtml(e.message || e)}</div>`;
-        destroyChart();
-      }
-    }
-
-    async function cargarResumen(){
-      const groupBy = $("sumGroupBy").value;
-      const groupValue = $("sumGroupValue").disabled ? "" : ($("sumGroupValue").value || "");
-
-      $("summaryBox").innerHTML = `<div class="muted">Cargando...</div>`;
-      try{
-        const j = await jsonpRequest({ action:"results", groupBy, groupValue });
-        if(!j.ok) throw new Error(j.error || "No se pudo cargar resumen");
-        renderSummary(j.data, groupBy, groupValue);
-      }catch(e){
-        $("summaryBox").innerHTML = `<div class="muted">Error: ${escapeHtml(e.message || e)}</div>`;
-      }
-    }
-
-    function renderResults(data){
-      const n = data.n || 0;
-      const last = data.lastTimestamp || "";
-      const items = data.items || [];
-      const avg = (data.avgPercent === undefined || data.avgPercent === null) ? null : data.avgPercent;
-
-      $("kpiN").textContent = String(n);
-      $("kpiLast").textContent = last ? last : "—";
-      $("kpiAvg").textContent = (avg==null ? "—" : (avg + "%"));
-
-      if(n<=0 || items.length===0){
-        $("noDataMsg").style.display = "block";
-        $("tableWrap").innerHTML = `<div class="muted">Aún no hay datos para mostrar.</div>`;
-        destroyChart();
-        return;
-      }
-
-      $("noDataMsg").style.display = "none";
-
-      const labels = items.map(x=>`Ítem ${x.id}`);
-      const values = items.map(x=>x.percent);
-
-      renderChart(labels, values);
-
-      const rows = items.map(x=>`
-        <tr>
-          <td><b>${x.id}</b></td>
-          <td>${escapeHtml(x.label || "")}</td>
-          <td><b>${x.percent}%</b></td>
-          <td class="muted">${x.count}</td>
-        </tr>
-      `).join("");
-
-      $("tableWrap").innerHTML = `
-        <table>
-          <thead>
-            <tr>
-              <th>Ítem</th>
-              <th>Descripción</th>
-              <th>%</th>
-              <th>#Resp</th>
-            </tr>
-          </thead>
-          <tbody>${rows}</tbody>
-        </table>
-      `;
-    }
-
-    function renderSummary(data, groupBy, groupValue){
-      const n = data.n || 0;
-      const items = (data.items || []).slice();
-      if(n<=0 || items.length===0){
-        $("summaryBox").innerHTML = `<div class="muted">No hay datos para el filtro seleccionado.</div>`;
-        return;
-      }
-
-      items.sort((a,b)=>b.percent-a.percent);
-      const top = items.slice(0,3);
-      const bottom = items.slice(-3).reverse();
-
-      const title = (groupBy==="General")
-        ? "General"
-        : `${pretty(groupBy)} = ${groupValue || "(sin seleccionar)"}`;
-
-      $("summaryBox").innerHTML = `
-        <div style="font-weight:900; font-size:16px; margin-bottom:8px;">Resumen (${escapeHtml(title)})</div>
-        <div class="muted" style="margin-bottom:12px;">Encuestas consideradas: <b style="color:var(--text)">${n}</b></div>
-
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-          <div class="kpi">
-            <div class="k">Top 3 ítems</div>
-            <div class="s" style="margin-top:10px;">
-              ${top.map(x=>`<div>• <b>${x.percent}%</b> — Ítem ${x.id}: ${escapeHtml(x.label||"")}</div>`).join("")}
-            </div>
-          </div>
-
-          <div class="kpi">
-            <div class="k">Bottom 3 ítems</div>
-            <div class="s" style="margin-top:10px;">
-              ${bottom.map(x=>`<div>• <b>${x.percent}%</b> — Ítem ${x.id}: ${escapeHtml(x.label||"")}</div>`).join("")}
-            </div>
-          </div>
+      <div class="cards3">
+        <div class="kpi">
+          <div class="k">Encuestas consideradas</div>
+          <div class="v" id="kpiN">0</div>
+          <div class="s muted">registros filtrados</div>
         </div>
-      `;
+        <div class="kpi">
+          <div class="k">Promedio general</div>
+          <div class="v" id="kpiAvg">—</div>
+          <div class="s muted">Escala 0–100%</div>
+        </div>
+        <div class="kpi">
+          <div class="k">Última respuesta</div>
+          <div class="v" id="kpiLast">—</div>
+          <div class="s muted">fecha/hora</div>
+        </div>
+      </div>
+
+      <div class="chartWrap">
+        <div class="subTitle">Calificación por ítem (barras)</div>
+        <div class="help" id="noDataMsg">Aún no hay datos para graficar. Presiona <b>Refrescar</b> o guarda al menos una encuesta.</div>
+
+        <div class="chartArea">
+          <canvas id="chartItems"></canvas>
+        </div>
+
+        <div style="margin-top:18px;">
+          <div class="subTitle">Promedios por ítem (tabla)</div>
+          <div id="tableWrap" class="muted">Aún no hay datos para mostrar.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RESUMEN -->
+  <section id="viewResumen" class="hidden">
+    <div class="panel">
+      <h3>Resumen</h3>
+      <div class="help">
+        Resumen rápido según el filtro actual de Resultados.
+      </div>
+
+      <div class="filters">
+        <div>
+          <label>Resultado por</label>
+          <select id="sumGroupBy" onchange="syncSummaryFilter()"></select>
+        </div>
+        <div>
+          <label>Variable</label>
+          <select id="sumGroupValue" onchange="cargarResumen()"></select>
+        </div>
+      </div>
+
+      <div style="margin-top:12px;">
+        <button class="btn" onclick="cargarResumen()">Refrescar</button>
+      </div>
+
+      <div id="summaryBox" style="margin-top:14px; line-height:1.5; color:var(--text);"></div>
+    </div>
+  </section>
+</main>
+
+<script>
+/***********************
+ * CONFIG (EDITA AQUÍ)
+ ***********************/
+const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbw5GnU0Re5PO66bBishMUiFaiBUaM397AiD3bIOG_XP-SMW8WG8uwmk0MueXhCP8mdPLA/exec";
+
+const DEMOGRAPHICS = [
+  { key:"Genero",      label:"Género",      options:["Masculino","Femenino"] },
+  { key:"Antiguedad",  label:"Antigüedad",  options:["De 0 a 5 años","De 6 a 10 años","De 11 a 20 años","Más de 20 años"] },
+  { key:"Localidad",   label:"Localidad",   options:["Tegucigalpa","San Pedro Sula","La Ceiba"] },
+  { key:"Departamento",label:"Departamento",options:["Recursos Humanos","Ventas","Contabilidad","Compras"] },
+  { key:"Nivel",       label:"Nivel",       options:["Operativo","Administrativo","Técnico","Jefe - Gerente"] }
+];
+
+const ITEMS = [
+  { id:1,  text:"Mi jefe proporciona supervisión clara y consistente.", factor:"Liderazgo / Supervisión" },
+  { id:2,  text:"La comunicación con mi jefe es abierta y efectiva.", factor:"Comunicación / Liderazgo" },
+  { id:3,  text:"Los salarios en esta empresa son justos.", factor:"Compensación / Equidad salarial" },
+  { id:4,  text:"Mis compañeros ayudan a crear un ambiente de trabajo positivo.", factor:"Clima laboral / Relaciones interpersonales" },
+  { id:5,  text:"Mi jefe reconoce y valora mi trabajo.", factor:"Reconocimiento / Liderazgo" },
+  { id:6,  text:"Mis horarios de trabajo son adecuados para mi vida personal.", factor:"Equilibrio vida-trabajo / Condiciones laborales" },
+  { id:7,  text:"Mi jefe reconoce y valora mi trabajo.", factor:"Reconocimiento / Liderazgo" },
+  { id:8,  text:"Siento confianza para hablar con mi jefe sobre problemas del trabajo.", factor:"Confianza / Comunicación con liderazgo" },
+  { id:9,  text:"La colaboración con mis compañeros es positiva.", factor:"Trabajo en equipo / Colaboración" },
+  { id:10, text:"La colaboración con mis compañeros es positiva.", factor:"Trabajo en equipo / Colaboración" },
+  { id:11, text:"El plan de beneficios de mi empresa es competitivo.", factor:"Beneficios / Compensación total" },
+  { id:12, text:"Los horarios de trabajo me permiten mantener un buen equilibrio laboral y personal.", factor:"Equilibrio vida-trabajo / Bienestar" }
+];
+
+const SCALE_OPTIONS = [
+  {v:"",  t:"Selecciona..."},
+  {v:1, t:"1. Totalmente en desacuerdo"},
+  {v:2, t:"2. En desacuerdo"},
+  {v:3, t:"3. Ni en desacuerdo ni de acuerdo"},
+  {v:4, t:"4. De acuerdo"},
+  {v:5, t:"5. Totalmente de acuerdo"},
+];
+
+/***********************
+ * UI + UTILS
+ ***********************/
+const $ = (id)=>document.getElementById(id);
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, m => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+  }[m]));
+}
+
+function pretty(k){
+  const map = {
+    Genero:"Género",
+    Antiguedad:"Antigüedad",
+    Localidad:"Localidad",
+    Departamento:"Departamento",
+    Nivel:"Nivel"
+  };
+  return map[k] || k;
+}
+
+function setRemote(ok, text){
+  const dot = $("remoteDot");
+  dot.classList.toggle("ok", !!ok);
+  $("remoteText").textContent = "Remote: " + (text || (ok ? "conectado" : "sin conexión"));
+}
+
+function setStatus(msg, type="info"){
+  const el = $("saveStatus");
+  el.innerHTML = `Estado: <b>${escapeHtml(msg)}</b>`;
+  if(type==="ok") el.style.color = "rgba(34,197,94,.9)";
+  else if(type==="err") el.style.color = "rgba(239,68,68,.95)";
+  else el.style.color = "var(--muted)";
+}
+
+function showTab(tab){
+  $("viewEncuesta").classList.toggle("hidden", tab!=="encuesta");
+  $("viewResultados").classList.toggle("hidden", tab!=="resultados");
+  $("viewResumen").classList.toggle("hidden", tab!=="resumen");
+
+  $("tabEncuesta").classList.toggle("active", tab==="encuesta");
+  $("tabResultados").classList.toggle("active", tab==="resultados");
+  $("tabResumen").classList.toggle("active", tab==="resumen");
+
+  if(tab==="resultados") cargarResultados();
+  if(tab==="resumen") cargarResumen();
+}
+
+function buildDemographics(){
+  const wrap = document.createElement("div");
+  const rows = [
+    ["Genero","Antiguedad"],
+    ["Localidad","Departamento"],
+    ["Nivel"]
+  ];
+
+  rows.forEach(keys=>{
+    const row = document.createElement("div");
+    row.className = "row" + (keys.length===1 ? " one" : "");
+    keys.forEach(k=>{
+      const def = DEMOGRAPHICS.find(d=>d.key===k);
+      const box = document.createElement("div");
+      const lab = document.createElement("label");
+      lab.textContent = def.label;
+
+      const sel = document.createElement("select");
+      sel.id = "dem_" + def.key;
+      sel.innerHTML =
+        `<option value="">Selecciona...</option>` +
+        def.options.map(o=>`<option value="${escapeHtml(o)}">${escapeHtml(o)}</option>`).join("");
+
+      box.appendChild(lab);
+      box.appendChild(sel);
+      row.appendChild(box);
+    });
+    wrap.appendChild(row);
+  });
+
+  $("demographicsFields").innerHTML = "";
+  $("demographicsFields").appendChild(wrap);
+}
+
+function buildItems(){
+  const cont = $("itemsContainer");
+  cont.innerHTML = "";
+  ITEMS.forEach(it=>{
+    const card = document.createElement("div");
+    card.className = "itemCard";
+
+    const top = document.createElement("div");
+    top.className = "itemTop";
+
+    const left = document.createElement("div");
+    const title = document.createElement("p");
+    title.className = "itemTitle";
+    title.textContent = `${it.id}. ${it.text}`;
+    const meta = document.createElement("div");
+    meta.className = "itemMeta";
+    meta.textContent = "Factor: " + it.factor;
+    left.appendChild(title);
+    left.appendChild(meta);
+
+    const right = document.createElement("div");
+    right.className = "itemRight";
+    const lab = document.createElement("label");
+    lab.textContent = "Respuesta";
+    const sel = document.createElement("select");
+    sel.id = "item_" + it.id;
+    sel.innerHTML = SCALE_OPTIONS.map(o=>`<option value="${o.v}">${escapeHtml(o.t)}</option>`).join("");
+    right.appendChild(lab);
+    right.appendChild(sel);
+
+    top.appendChild(left);
+    top.appendChild(right);
+
+    card.appendChild(top);
+    cont.appendChild(card);
+  });
+}
+
+function initFilters(){
+  const opts = [
+    {v:"General", t:"General"},
+    {v:"Genero", t:"Género"},
+    {v:"Antiguedad", t:"Antigüedad"},
+    {v:"Departamento", t:"Departamento"},
+    {v:"Localidad", t:"Localidad"},
+    {v:"Nivel", t:"Nivel"},
+  ];
+  $("groupBy").innerHTML = opts.map(o=>`<option value="${o.v}">${o.t}</option>`).join("");
+  $("sumGroupBy").innerHTML = $("groupBy").innerHTML;
+
+  $("groupBy").value = "General";
+  $("sumGroupBy").value = "General";
+  onGroupChange();
+  syncSummaryFilter();
+}
+
+async function onGroupChange(){
+  const gb = $("groupBy").value;
+
+  if(gb === "General"){
+    $("groupValue").innerHTML = `<option value="">—</option>`;
+    $("groupValue").disabled = true;
+    await cargarResultados();
+  }else{
+    $("groupValue").disabled = false;
+    await cargarOpcionesFiltro(gb, $("groupValue"));
+    const hasValue = $("groupValue").options.length > 1;
+    if(hasValue){
+      $("groupValue").selectedIndex = 1;
     }
+    await cargarResultados();
+  }
 
-    function renderChart(labels, values){
-      const ctx = $("chartItems").getContext("2d");
-      destroyChart();
+  $("sumGroupBy").value = gb;
+  syncSummaryFilter();
+}
 
-      const valueLabelPlugin = {
-        id: 'valueLabelPlugin',
-        afterDatasetsDraw(chart){
-          const {ctx} = chart;
-          ctx.save();
-          ctx.font = "bold 12px system-ui, -apple-system, Segoe UI, Roboto, Arial";
-          ctx.fillStyle = "#e8eefc";
-          ctx.textAlign = "center";
-          ctx.textBaseline = "bottom";
+function onGroupValueChange(){
+  cargarResultados();
+}
 
-          chart.data.datasets.forEach((dataset, i)=>{
-            const meta = chart.getDatasetMeta(i);
-            meta.data.forEach((bar, idx)=>{
-              const val = dataset.data[idx];
-              ctx.fillText(String(val) + "%", bar.x, bar.y - 6);
-            });
-          });
-
-          ctx.restore();
-        }
-      };
-
-      chart = new Chart(ctx, {
-        type: "bar",
-        data: {
-          labels,
-          datasets: [{
-            label: "% por ítem",
-            data: values,
-            borderWidth: 1,
-            backgroundColor: "rgba(59,130,246,.35)",
-            borderColor: "rgba(59,130,246,.75)"
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          scales: {
-            x: { ticks: { color: "#cfe0ff" } },
-           y: {
-  min: 0,
-  max: 100,
-  ticks: {
-    stepSize: 10, // ✅ asegura que exista la marca/línea del 70%
-    callback: (v)=> v + "%",
-    color: "#cfe0ff"
-  },
-  grid: {
-    // ✅ resalta SOLO la línea del 70%
-    color: (ctx) => (ctx.tick && ctx.tick.value === 70)
-      ? "rgba(245,158,11,.85)"   // color destacado (amarillo)
-      : "rgba(255,255,255,.08)", // color normal
-    lineWidth: (ctx) => (ctx.tick && ctx.tick.value === 70) ? 2.5 : 1
+async function syncSummaryFilter(){
+  const gb = $("sumGroupBy").value;
+  if(gb==="General"){
+    $("sumGroupValue").innerHTML = `<option value="">—</option>`;
+    $("sumGroupValue").disabled = true;
+    await cargarResumen();
+  }else{
+    $("sumGroupValue").disabled = false;
+    await cargarOpcionesFiltro(gb, $("sumGroupValue"));
+    const hasValue = $("sumGroupValue").options.length > 1;
+    if(hasValue){
+      $("sumGroupValue").selectedIndex = 1;
+    }
+    await cargarResumen();
   }
 }
-          },
-          plugins: {
-            legend: { display:false },
-            tooltip: { callbacks:{ label: (ctx)=> `${ctx.raw}%` } }
-          }
-        },
-        plugins:[valueLabelPlugin]
+
+/***********************
+ * PAYLOAD / VALIDACIÓN
+ ***********************/
+function getPayload(){
+  const row = {};
+  for(const d of DEMOGRAPHICS){
+    row[d.key] = ($("dem_"+d.key).value || "").trim();
+  }
+  for(const it of ITEMS){
+    row["I" + it.id] = Number($("item_" + it.id).value || 0);
+  }
+  row["Comentarios"] = ($("comentarios").value || "").trim();
+  row["_schema"] = "clima_v1";
+  row["_submissionId"] = (crypto?.randomUUID?.() || ("sub_" + Date.now() + "_" + Math.random().toString(16).slice(2)));
+  return row;
+}
+
+function validatePayload(row){
+  for(const d of DEMOGRAPHICS){
+    if(!row[d.key]) return `Falta seleccionar: ${d.label}`;
+  }
+  for(const it of ITEMS){
+    if(!(row["I"+it.id] >= 1 && row["I"+it.id] <= 5)) return `Falta responder el ítem ${it.id}`;
+  }
+  return null;
+}
+
+function limpiar(){
+  for(const d of DEMOGRAPHICS){ $("dem_"+d.key).value = ""; }
+  for(const it of ITEMS){ $("item_"+it.id).value = ""; }
+  $("comentarios").value = "";
+  setStatus("Listo");
+}
+
+/***********************
+ * JSONP (sin CORS)
+ ***********************/
+function jsonpRequest(params){
+  return new Promise((resolve, reject)=>{
+    const cbName = "__cb_" + Math.random().toString(36).slice(2);
+    const q = new URLSearchParams(params || {});
+    q.set("callback", cbName);
+    q.set("_ts", String(Date.now()));
+
+    const script = document.createElement("script");
+    script.async = true;
+    script.src = WEBAPP_URL + (WEBAPP_URL.includes("?") ? "&" : "?") + q.toString();
+
+    const timeout = setTimeout(()=>{
+      cleanup();
+      reject(new Error("timeout"));
+    }, 15000);
+
+    function cleanup(){
+      clearTimeout(timeout);
+      try{ delete window[cbName]; }catch(_){}
+      if(script && script.parentNode) script.parentNode.removeChild(script);
+    }
+
+    window[cbName] = (data)=>{
+      cleanup();
+      resolve(data);
+    };
+
+    script.onerror = ()=>{
+      cleanup();
+      reject(new Error("network_error"));
+    };
+
+    document.body.appendChild(script);
+  });
+}
+
+/***********************
+ * POST no-cors + confirm
+ ***********************/
+function postNoCors(fields){
+  const body = new URLSearchParams();
+  Object.keys(fields || {}).forEach(k => body.set(k, String(fields[k] ?? "")));
+
+  return fetch(WEBAPP_URL, {
+    method: "POST",
+    mode: "no-cors",
+    headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+    body: body.toString()
+  }).then(() => ({ ok:true, transport:"fetch-no-cors" }));
+}
+
+async function confirmSubmission(submissionId){
+  const start = Date.now();
+  const MAX_MS = 12000;
+  const STEP_MS = 600;
+
+  while(Date.now() - start < MAX_MS){
+    try{
+      const j = await jsonpRequest({ action:"confirm", submissionId });
+      if(j && j.ok === true && j.confirmed === true) return true;
+    }catch(_){}
+    await new Promise(r => setTimeout(r, STEP_MS));
+  }
+  return false;
+}
+
+let saving = false;
+
+async function ping(){
+  try{
+    const j = await jsonpRequest({ action:"ping" });
+    if(!j || !j.ok) throw new Error(j?.error || "ping error");
+    setRemote(true, j?.status || "ok");
+  }catch(e){
+    setRemote(false, "sin conexión");
+  }
+}
+
+async function guardar(){
+  if (saving) return;
+  saving = true;
+
+  const p = getPayload();
+  const err = validatePayload(p);
+  if(err){
+    setStatus(err, "err");
+    saving = false;
+    return;
+  }
+
+  const btn = $("btnGuardar");
+  if(btn) btn.disabled = true;
+
+  setStatus("Guardando...", "info");
+
+  try{
+    await postNoCors({ action:"save", payload: JSON.stringify(p) });
+
+    const ok = await confirmSubmission(p._submissionId);
+    if(!ok) throw new Error("timeout");
+
+    setStatus("Guardado ✅", "ok");
+    limpiar();
+    setTimeout(()=> setStatus("Listo"), 1200);
+
+  }catch(e){
+    setStatus("Error al guardar: " + (e.message || e), "err");
+  }finally{
+    saving = false;
+    if(btn) btn.disabled = false;
+  }
+}
+
+/***********************
+ * Resultados / Resumen
+ ***********************/
+async function cargarOpcionesFiltro(groupBy, selectEl){
+  selectEl.innerHTML = `<option value="">Cargando...</option>`;
+  try{
+    const j = await jsonpRequest({ action:"unique", groupBy });
+    if(!j.ok) throw new Error(j.error || "No se pudo cargar variables");
+    const values = j.values || [];
+    selectEl.innerHTML =
+      `<option value="">Selecciona...</option>` +
+      values.map(v=>`<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join("");
+  }catch(e){
+    selectEl.innerHTML = `<option value="">(error)</option>`;
+  }
+}
+
+let chart = null;
+
+async function cargarResultados(){
+  $("noDataMsg").style.display = "block";
+  $("tableWrap").innerHTML = `<div class="muted">Cargando...</div>`;
+
+  const groupBy = $("groupBy").value;
+  const groupValue = $("groupValue").disabled ? "" : ($("groupValue").value || "");
+
+  try{
+    const j = await jsonpRequest({ action:"results", groupBy, groupValue });
+    if(!j.ok) throw new Error(j.error || "No se pudo cargar resultados");
+    renderResults(j.data);
+  }catch(e){
+    $("kpiN").textContent = "0";
+    $("kpiAvg").textContent = "—";
+    $("kpiLast").textContent = "—";
+    $("tableWrap").innerHTML = `<div class="muted">Error: ${escapeHtml(e.message || e)}</div>`;
+    destroyChart();
+  }
+}
+
+async function cargarResumen(){
+  const groupBy = $("sumGroupBy").value;
+  const groupValue = $("sumGroupValue").disabled ? "" : ($("sumGroupValue").value || "");
+
+  $("summaryBox").innerHTML = `<div class="muted">Cargando...</div>`;
+  try{
+    const j = await jsonpRequest({ action:"results", groupBy, groupValue });
+    if(!j.ok) throw new Error(j.error || "No se pudo cargar resumen");
+    renderSummary(j.data, groupBy, groupValue);
+  }catch(e){
+    $("summaryBox").innerHTML = `<div class="muted">Error: ${escapeHtml(e.message || e)}</div>`;
+  }
+}
+
+function renderResults(data){
+  const n = data.n || 0;
+  const last = data.lastTimestamp || "";
+  const items = data.items || [];
+  const avg = (data.avgPercent === undefined || data.avgPercent === null) ? null : data.avgPercent;
+
+  $("kpiN").textContent = String(n);
+  $("kpiLast").textContent = last ? last : "—";
+  $("kpiAvg").textContent = (avg==null ? "—" : (avg + "%"));
+
+  if(n<=0 || items.length===0){
+    $("noDataMsg").style.display = "block";
+    $("tableWrap").innerHTML = `<div class="muted">Aún no hay datos para mostrar.</div>`;
+    destroyChart();
+    return;
+  }
+
+  $("noDataMsg").style.display = "none";
+
+  const labels = items.map(x=>`Ítem ${x.id}`);
+  const values = items.map(x=>x.percent);
+
+  renderChart(labels, values);
+
+  const rows = items.map(x=>`
+    <tr>
+      <td><b>${x.id}</b></td>
+      <td>${escapeHtml(x.label || "")}</td>
+      <td><b>${x.percent}%</b></td>
+      <td class="muted">${x.count}</td>
+    </tr>
+  `).join("");
+
+  $("tableWrap").innerHTML = `
+    <table>
+      <thead>
+        <tr>
+          <th>Ítem</th>
+          <th>Descripción</th>
+          <th>%</th>
+          <th>#Resp</th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>
+  `;
+}
+
+function renderSummary(data, groupBy, groupValue){
+  const n = data.n || 0;
+  const items = (data.items || []).slice();
+  if(n<=0 || items.length===0){
+    $("summaryBox").innerHTML = `<div class="muted">No hay datos para el filtro seleccionado.</div>`;
+    return;
+  }
+
+  items.sort((a,b)=>b.percent-a.percent);
+  const top = items.slice(0,3);
+  const bottom = items.slice(-3).reverse();
+
+  const title = (groupBy==="General")
+    ? "General"
+    : `${pretty(groupBy)} = ${groupValue || "(sin seleccionar)"}`;
+
+  $("summaryBox").innerHTML = `
+    <div style="font-weight:900; font-size:16px; margin-bottom:8px;">Resumen (${escapeHtml(title)})</div>
+    <div class="muted" style="margin-bottom:12px;">Encuestas consideradas: <b style="color:var(--text)">${n}</b></div>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+      <div class="kpi">
+        <div class="k">Top 3 ítems</div>
+        <div class="s" style="margin-top:10px;">
+          ${top.map(x=>`<div>• <b>${x.percent}%</b> — Ítem ${x.id}: ${escapeHtml(x.label||"")}</div>`).join("")}
+        </div>
+      </div>
+
+      <div class="kpi">
+        <div class="k">Bottom 3 ítems</div>
+        <div class="s" style="margin-top:10px;">
+          ${bottom.map(x=>`<div>• <b>${x.percent}%</b> — Ítem ${x.id}: ${escapeHtml(x.label||"")}</div>`).join("")}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderChart(labels, values){
+  const ctx = $("chartItems").getContext("2d");
+  destroyChart();
+
+  const valueLabelPlugin = {
+    id: 'valueLabelPlugin',
+    afterDatasetsDraw(chart){
+      const {ctx} = chart;
+      ctx.save();
+      ctx.font = "bold 12px system-ui, -apple-system, Segoe UI, Roboto, Arial";
+      ctx.fillStyle = "#e8eefc";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "bottom";
+
+      chart.data.datasets.forEach((dataset, i)=>{
+        const meta = chart.getDatasetMeta(i);
+        meta.data.forEach((bar, idx)=>{
+          const val = dataset.data[idx];
+          ctx.fillText(String(val) + "%", bar.x, bar.y - 6);
+        });
       });
-    }
 
-    function destroyChart(){
-      if(chart){ chart.destroy(); chart = null; }
+      ctx.restore();
     }
+  };
 
-    /***********************
-     * INIT
-     ***********************/
-    buildDemographics();
-    buildItems();
-    initFilters();
-    ping();
-  </script>
+  chart = new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels,
+      datasets: [{
+        label: "% por ítem",
+        data: values,
+        borderWidth: 1,
+        backgroundColor: "rgba(59,130,246,.35)",
+        borderColor: "rgba(59,130,246,.75)"
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: { ticks: { color: "#cfe0ff" } },
+        y: {
+          min: 0,
+          max: 100,
+          ticks: {
+            stepSize: 10,
+            callback: (v)=> v + "%",
+            color: "#cfe0ff"
+          },
+          grid: {
+            color: (ctx) => (ctx.tick && ctx.tick.value === 70)
+              ? "rgba(245,158,11,.85)"
+              : "rgba(255,255,255,.08)",
+            lineWidth: (ctx) => (ctx.tick && ctx.tick.value === 70) ? 2.5 : 1
+          }
+        }
+      },
+      plugins: {
+        legend: { display:false },
+        tooltip: { callbacks:{ label: (ctx)=> `${ctx.raw}%` } }
+      }
+    },
+    plugins:[valueLabelPlugin]
+  });
+}
+
+function destroyChart(){
+  if(chart){ chart.destroy(); chart = null; }
+}
+
+/***********************
+ * INIT
+ ***********************/
+buildDemographics();
+buildItems();
+initFilters();
+ping();
+</script>
 </body>
 </html>
