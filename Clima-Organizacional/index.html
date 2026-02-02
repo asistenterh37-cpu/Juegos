@@ -446,7 +446,7 @@
       { key:"Genero",      label:"Género",      options:["Masculino","Femenino"] },
       { key:"Antiguedad",  label:"Antigüedad",  options:["De 0 a 5 años","De 6 a 10 años","De 11 a 20 años","Más de 20 años"] },
       { key:"Localidad",   label:"Localidad",   options:["Tegucigalpa","San Pedro Sula","La Ceiba"] },
-      { key:"Departamento",label:"Departamento",options:["Contabilidad","Recursos humanos","Ventas","Compras"] },
+      { key:"Departamento",label:"Departamento",options:["Recursos Humanos","Ventas","Contabilidad","Compras"] },
       { key:"Nivel",       label:"Nivel",       options:["Operativo","Administrativo","Técnico","Jefe - Gerente"] }
     ];
 
@@ -496,6 +496,16 @@
       return map[k] || k;
     }
 
+    function prettyDepartmentValue(v){
+  const s = String(v || "").trim();
+
+  // Normaliza variantes comunes/erróneas que puedan venir de Sheets
+  if (/^recursos\s*human/i.test(s)) return "Recursos Humanos";   // "Recursos human", "Recursos humanos", etc.
+
+  // Puedes agregar más normalizaciones si aparecen
+  return s;
+}
+    
     function setRemote(ok, text){
       const dot = $("remoteDot");
       dot.classList.toggle("ok", !!ok);
@@ -663,9 +673,11 @@
      ***********************/
     function getPayload(){
       const row = {};
-      for(const d of DEMOGRAPHICS){
-        row[d.key] = ($("dem_"+d.key).value || "").trim();
-      }
+    for(const d of DEMOGRAPHICS){
+  let val = ($("dem_"+d.key).value || "").trim();
+  if(d.key === "Departamento") val = prettyDepartmentValue(val); // normaliza al guardar
+  row[d.key] = val;
+}
       for(const it of ITEMS){
         row["I" + it.id] = Number($("item_" + it.id).value || 0);
       }
@@ -818,8 +830,11 @@
         if(!j.ok) throw new Error(j.error || "No se pudo cargar variables");
         const values = j.values || [];
         selectEl.innerHTML =
-          `<option value="">Selecciona...</option>` +
-          values.map(v=>`<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join("");
+  `<option value="">Selecciona...</option>` +
+  values.map(v=>{
+    const label = (groupBy === "Departamento") ? prettyDepartmentValue(v) : v;
+    return `<option value="${escapeHtml(v)}">${escapeHtml(label)}</option>`;
+  }).join("");
       }catch(e){
         selectEl.innerHTML = `<option value="">(error)</option>`;
       }
