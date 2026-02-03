@@ -273,17 +273,17 @@
       background: rgba(0,0,0,.55);
       backdrop-filter: blur(3px);
     }
-    .modal .panel{
-      position:relative;
-      width:min(860px, calc(100% - 28px));
-      margin: 70px auto;
-      border: 1px solid rgba(255,255,255,.18);
-      border-radius: var(--radius);
-      background: linear-gradient(180deg, rgba(15,32,63,.92), rgba(15,32,63,.70));
-      box-shadow: var(--shadow);
-      overflow:hidden;
-    }
-    .modal .panel header{
+      .modal .panel{
+  position:relative;
+  width:min(680px, calc(100% - 28px)); /* ✅ más angosto */
+  margin: 70px auto;
+  border: 1px solid rgba(255,255,255,.18);
+  border-radius: var(--radius);
+  background: linear-gradient(180deg, rgba(15,32,63,.92), rgba(15,32,63,.70));
+  box-shadow: var(--shadow);
+  overflow:hidden;
+}
+  .modal .panel header{
       padding:14px 16px;
       border-bottom:1px solid var(--line);
       display:flex;
