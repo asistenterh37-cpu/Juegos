@@ -214,6 +214,116 @@
     .toast strong{font-size:13px}
     .toast div{font-size:12px; color:var(--muted); margin-top:4px}
 
+    /* ✅ Top-right: Plan */
+    .top-right{
+      display:flex;
+      align-items:flex-start;
+      gap:12px;
+      flex: 0 0 auto;
+    }
+    .plan-chip{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:10px 12px;
+      border:1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(255,255,255,.03);
+      box-shadow: var(--shadow);
+      white-space:nowrap;
+    }
+    .plan-chip label{
+      margin:0;
+      font-size:13px;
+      color: var(--muted);
+    }
+    .plan-chip button{
+      border:1px solid rgba(106,166,255,.35);
+      background: rgba(106,166,255,.16);
+      color: var(--text);
+      border-radius: 12px;
+      padding:8px 10px;
+      cursor:pointer;
+      font-weight:700;
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    .plan-chip button:hover{background: rgba(106,166,255,.22)}
+    .plan-chip .mini{
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.04);
+      padding:8px 10px;
+      border-radius: 12px;
+      cursor:pointer;
+    }
+    .plan-chip .mini:hover{background: rgba(255,255,255,.06)}
+
+    /* ✅ Modal Plan */
+    .modal{
+      position:fixed;
+      inset:0;
+      display:none;
+      z-index: 9999;
+    }
+    .modal[data-open="true"]{display:block}
+    .modal .backdrop{
+      position:absolute;
+      inset:0;
+      background: rgba(0,0,0,.55);
+      backdrop-filter: blur(3px);
+    }
+    .modal .panel{
+      position:relative;
+      width:min(860px, calc(100% - 28px));
+      margin: 70px auto;
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, rgba(15,32,63,.92), rgba(15,32,63,.70));
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .modal .panel header{
+      padding:14px 16px;
+      border-bottom:1px solid var(--line);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .modal .panel header h4{
+      margin:0;
+      font-size:16px;
+      letter-spacing:.2px;
+    }
+    .modal .panel header .close{
+      width:auto;
+      padding:8px 10px;
+      border-radius: 12px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.04);
+      color:var(--text);
+      cursor:pointer;
+      font-weight:700;
+    }
+    .modal .panel header .close:hover{background: rgba(255,255,255,.07)}
+    .modal .content{
+      padding:16px;
+    }
+    .plan-text{
+      border:1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(255,255,255,.035);
+      padding:14px 14px;
+      max-height: 55vh;
+      overflow:auto;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 13px;
+      line-height: 1.45;
+      color: var(--text);
+      white-space: pre-wrap;
+    }
+
     form{
       display:grid;
       grid-template-columns: 1fr;
@@ -277,19 +387,19 @@
       font-size:14px;
       color: var(--muted);
     }
-   input, textarea, select{
-  width:100%;
-  border: 1px solid rgba(255,255,255,.18);
-  border-radius: 14px;
-  background: rgba(255,255,255,.045);
-  color: var(--text);
-  font-size: 16px;
-  line-height: 1.2; /* ✅ espacio sencillo en los campos */
-  padding:12px 14px;
-  outline:none;
-  box-shadow: 0 0 0 1px rgba(0,0,0,.18) inset;
-  transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
-}
+    input, textarea, select{
+      width:100%;
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: 14px;
+      background: rgba(255,255,255,.045);
+      color: var(--text);
+      font-size: 16px;
+      line-height: 1.2; /* ✅ espacio sencillo en los campos */
+      padding:12px 14px;
+      outline:none;
+      box-shadow: 0 0 0 1px rgba(0,0,0,.18) inset;
+      transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
+    }
     input:hover, textarea:hover, select:hover{
       border-color: rgba(255,255,255,.26);
       background: rgba(255,255,255,.06);
@@ -301,11 +411,11 @@
         0 0 0 1px rgba(106,166,255,.25) inset;
     }
     textarea{
-  min-height:110px;
-  resize:vertical;
-  line-height: 1.2; /* ✅ refuerzo por si algún navegador ignora el combo */
-  white-space: pre-wrap; /* ✅ conserva saltos de línea al pegar bullets */
-}
+      min-height:110px;
+      resize:vertical;
+      line-height: 1.2; /* ✅ refuerzo por si algún navegador ignora el combo */
+      white-space: pre-wrap; /* ✅ conserva saltos de línea al pegar bullets */
+    }
     .meta{
       font-size:12px;
       color: var(--muted);
@@ -348,6 +458,8 @@
       .main{padding:18px}
       .field.col-6, .field.col-4, .field.col-3{grid-column: span 12}
       .toast{display:none !important}
+      .top-right{flex-direction:column; align-items:stretch}
+      .plan-chip{width:100%}
     }
   </style>
 </head>
@@ -405,16 +517,16 @@
       </button>
     </nav>
 
-   <div class="hint">
-  Tip rápido: llena primero lo “doloroso” (amenazas/debilidades). Lo bonito se escribe solo. 😅
-</div>
+    <div class="hint">
+      Tip rápido: llena primero lo “doloroso” (amenazas/debilidades). Lo bonito se escribe solo. 😅
+    </div>
 
-<div class="side-actions">
-  <button class="btn danger" id="btnReset" type="button">🧨 Limpiar formulario</button>
-  <div class="hint" style="padding-bottom:0;">
-    Auto-guardado en tu navegador.
-  </div>
-</div>
+    <div class="side-actions">
+      <button class="btn danger" id="btnReset" type="button">🧨 Limpiar formulario</button>
+      <div class="hint" style="padding-bottom:0;">
+        Auto-guardado en tu navegador.
+      </div>
+    </div>
   </aside>
 
   <main class="main">
@@ -425,15 +537,29 @@
           Completa esta ficha para levantar insumos del plan estratégico.
           Todo queda guardado localmente y puedes exportarlo para integrarlo con tu pipeline en GitHub.
         </p>
-       <div class="meta">
-  <span>Guardado: <span class="kbd">localStorage</span></span>
-  <span>Envío: <span class="kbd">Google Sheets</span></span>
-</div>
+        <div class="meta">
+          <span>Guardado: <span class="kbd">localStorage</span></span>
+          <span>Envío: <span class="kbd">Google Sheets</span></span>
+        </div>
       </div>
 
-      <div class="toast" id="toast">
-        <strong id="toastTitle">Listo</strong>
-        <div id="toastMsg">Acción completada.</div>
+      <!-- ✅ Arriba a la derecha: Plan + Toast -->
+      <div class="top-right">
+        <div class="plan-chip" aria-label="Plan del documento">
+          <label>Plan:</label>
+          <button id="btnPlan" type="button" aria-haspopup="dialog" aria-controls="planModal">
+            📄 Ver
+            <span style="opacity:.9">Adjunto 3</span>
+          </button>
+          <button class="mini" id="btnCopyPlan" type="button" title="Copiar plan">
+            📋
+          </button>
+        </div>
+
+        <div class="toast" id="toast">
+          <strong id="toastTitle">Listo</strong>
+          <div id="toastMsg">Acción completada.</div>
+        </div>
       </div>
     </div>
 
@@ -669,6 +795,8 @@
               <span>Tip: completa primero lo “doloroso” (amenazas/debilidades). Lo bonito se escribe solo.</span>
             </div>
             <div class="right">
+              <!-- ✅ Abajo: Limpiar + Validar + Guardar -->
+              <button class="btn danger" type="button" id="btnClearBottom">🧽 Limpiar</button>
               <button class="btn" type="button" id="btnValidate">✅ Validar</button>
               <button class="btn primary" type="submit" id="btnSubmit">💾 Guardar</button>
             </div>
@@ -679,15 +807,71 @@
   </main>
 </div>
 
+<!-- ✅ Modal del Plan (Adjunto 3) -->
+<div class="modal" id="planModal" role="dialog" aria-modal="true" aria-labelledby="planTitle" data-open="false">
+  <div class="backdrop" data-close="true"></div>
+  <div class="panel" role="document">
+    <header>
+      <h4 id="planTitle">Plan (Adjunto 3)</h4>
+      <button class="close" type="button" id="btnClosePlan" aria-label="Cerrar">✕</button>
+    </header>
+    <div class="content">
+      <div class="plan-text" id="planText">
+Plan Estratégico
+Periodo:
+Nombre Empresa:
+Misión:
+Visión:
+Valores:
+
+Análisis estratégico
+I. Análisis Foda
+Fortalezas:
+Oportunidades:
+Debilidades:
+Amenazas:
+Conclusiones:
+
+II. Análisis Pestel
+Conclusiones:
+
+III. 5 fuerzas de Porter
+Reporte Análisis Modelo 5 Fuerzas de Porter
+Conclusiones:
+
+IV. Cadena de valor de Porter
+Actividades Primarias:
+Actividades de Apoyo:
+Generación de Mayor Valor y Oportunidades de Mejora:
+
+V. Canvas del modelo de negocio
+Propuesta de Valor
+Formulación Estratégica
+
+VI. Objetivos estratégicos
+VII. Metas específicas y KPIs
+VIII. Estrategias
+IX. Planes de acción
+X. Indicadores de gestión (KPIs)
+XI. Riesgos y planes de contingencia
+XII. Resumen ejecutivo
+      </div>
+      <div class="meta" style="margin-top:10px;">
+        <span>Tip: Puedes copiar este plan con el botón 📋.</span>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
   // ============================
   // ✅ CONFIG (Sheets WebApp + Sheet)
   // ============================
   const APPS_SCRIPT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxR0lAIu1BMBxuAEmF5TYrYwR8Zo2KVdIBs3NMEqGj4o7q5q6i_yzMpGW7-dh7h7HDiow/exec";
-// ✅ Tu spreadsheet real (PlanEstrategico1)
-const GOOGLE_SHEET_URL = "https://docs.google.com/spreadsheets/d/1NbYSAFO8p9Vget0hmmXxZMp-Q6u0Or8UpyJkxZs6YBY/edit?usp=sharing";
-// ✅ Tu pestaña real
-const ENCUESTAS_SHEET_NAME = "Encuestas";
+  // ✅ Tu spreadsheet real (PlanEstrategico1)
+  const GOOGLE_SHEET_URL = "https://docs.google.com/spreadsheets/d/1NbYSAFO8p9Vget0hmmXxZMp-Q6u0Or8UpyJkxZs6YBY/edit?usp=sharing";
+  // ✅ Tu pestaña real
+  const ENCUESTAS_SHEET_NAME = "Encuestas";
   const STORAGE_KEY = "strategic_planning_intake_v1";
 
   // ============================
@@ -868,6 +1052,7 @@ const ENCUESTAS_SHEET_NAME = "Encuestas";
     $("#progressBar").style.width = `${pct}%`;
     $(".progress").setAttribute("aria-valuenow", String(pct));
   }
+
   // ============================
   // 🧨 Limpiar formulario (reset total)
   // ============================
@@ -901,67 +1086,122 @@ const ENCUESTAS_SHEET_NAME = "Encuestas";
     updateProgress();
     $("#lastSaved").textContent = "Último guardado: —";
 
-    // Si quieres que vuelva a quedar guardado “vacío” inmediatamente, descomenta:
-    // saveToLocalStorage();
-
     toast("Formulario limpio", "Se borró el auto-guardado y se reiniciaron los campos.", "ok");
-  }  
+  }
+
   // ============================
   // ☁️ Guardar en Google Sheets vía WebApp (SIN preflight)
   // Tabula por fila (append) en hoja: Empresas
   // ============================
   async function guardarEnGoogleSheetsEmpresas() {
-  if (!APPS_SCRIPT_WEBAPP_URL) {
-    return { ok:false, error:"missing_webapp_url" };
-  }
+    if (!APPS_SCRIPT_WEBAPP_URL) {
+      return { ok:false, error:"missing_webapp_url" };
+    }
 
-  const data = buildEmpresasPayloadFromForm();
+    const data = buildEmpresasPayloadFromForm();
 
-  // mínimos
-  if (!data.periodo || !data.nombreEmpresa) {
-    return { ok:false, error:"missing_required_fields", msg:"Completa Período y Nombre de la empresa." };
-  }
+    // mínimos
+    if (!data.periodo || !data.nombreEmpresa) {
+      return { ok:false, error:"missing_required_fields", msg:"Completa Período y Nombre de la empresa." };
+    }
 
-  const payloadObj = { sheetName: ENCUESTAS_SHEET_NAME, data };
+    const payloadObj = { sheetName: ENCUESTAS_SHEET_NAME, data };
 
-  // ✅ Forma MÁS compatible para GitHub Pages → Apps Script (sin preflight):
-  // Content-Type simple: application/x-www-form-urlencoded
-  // Body: payload=<json_urlencoded>
-  const body = "payload=" + encodeURIComponent(JSON.stringify(payloadObj));
+    // ✅ Forma MÁS compatible para GitHub Pages → Apps Script (sin preflight):
+    // Content-Type simple: application/x-www-form-urlencoded
+    // Body: payload=<json_urlencoded>
+    const body = "payload=" + encodeURIComponent(JSON.stringify(payloadObj));
 
-  try{
-   const res = await fetch(APPS_SCRIPT_WEBAPP_URL, {
-  method: "POST",
-  mode: "cors",
-  headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
-  body,
-  cache: "no-store",
-  keepalive: true
-});
-
-const text = await res.text();
-let json = null;
-try { json = JSON.parse(text); } catch {}
-
-if (!res.ok || !json?.ok) {
-  return { ok:false, error:"apps_script_error", msg: json?.error || text || "Respuesta inválida" };
-}
-return { ok:true, action:"saved", row: json.row || null };
-
-    // No podemos leer respuesta por no-cors, pero al menos enviamos en el formato correcto
-    return { ok:true, action:"sent_form_urlencoded" };
-
-  } catch (err) {
-    // Fallback: sendBeacon
     try{
-      const blob = new Blob([body], { type: "application/x-www-form-urlencoded;charset=UTF-8" });
-      const queued = navigator.sendBeacon(APPS_SCRIPT_WEBAPP_URL, blob);
-      if (queued) return { ok:true, action:"beacon_queued" };
-    } catch {}
+      const res = await fetch(APPS_SCRIPT_WEBAPP_URL, {
+        method: "POST",
+        mode: "cors",
+        headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+        body,
+        cache: "no-store",
+        keepalive: true
+      });
 
-    return { ok:false, error:"network_error", msg:String(err?.message || err) };
+      const text = await res.text();
+      let json = null;
+      try { json = JSON.parse(text); } catch {}
+
+      if (!res.ok || !json?.ok) {
+        return { ok:false, error:"apps_script_error", msg: json?.error || text || "Respuesta inválida" };
+      }
+      return { ok:true, action:"saved", row: json.row || null };
+
+    } catch (err) {
+      // Fallback: sendBeacon
+      try{
+        const blob = new Blob([body], { type: "application/x-www-form-urlencoded;charset=UTF-8" });
+        const queued = navigator.sendBeacon(APPS_SCRIPT_WEBAPP_URL, blob);
+        if (queued) return { ok:true, action:"beacon_queued" };
+      } catch {}
+
+      return { ok:false, error:"network_error", msg:String(err?.message || err) };
+    }
   }
-}
+
+  // ============================
+  // ✅ Modal Plan (Adjunto 3)
+  // ============================
+  function initPlanModal(){
+    const modal = $("#planModal");
+    const btnOpen = $("#btnPlan");
+    const btnClose = $("#btnClosePlan");
+    const btnCopy = $("#btnCopyPlan");
+    const planText = $("#planText");
+
+    let lastFocus = null;
+
+    const open = () => {
+      lastFocus = document.activeElement;
+      modal.setAttribute("data-open", "true");
+      btnClose.focus();
+    };
+
+    const close = () => {
+      modal.setAttribute("data-open", "false");
+      if (lastFocus && typeof lastFocus.focus === "function") lastFocus.focus();
+    };
+
+    btnOpen?.addEventListener("click", open);
+    btnClose?.addEventListener("click", close);
+
+    modal?.addEventListener("click", (e) => {
+      const tgt = e.target;
+      if (tgt && tgt.getAttribute && tgt.getAttribute("data-close") === "true") close();
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (modal.getAttribute("data-open") === "true" && e.key === "Escape") close();
+    });
+
+    btnCopy?.addEventListener("click", async () => {
+      const text = planText?.innerText || "";
+      try{
+        await navigator.clipboard.writeText(text);
+        toast("Copiado", "Plan (Adjunto 3) copiado al portapapeles.", "ok");
+      } catch {
+        // fallback viejo
+        try{
+          const ta = document.createElement("textarea");
+          ta.value = text;
+          ta.style.position = "fixed";
+          ta.style.left = "-9999px";
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand("copy");
+          document.body.removeChild(ta);
+          toast("Copiado", "Plan copiado al portapapeles.", "ok");
+        } catch {
+          toast("No se pudo copiar", "Tu navegador bloqueó el portapapeles.", "warn");
+        }
+      }
+    });
+  }
+
   // ============================
   // 🧷 Eventos
   // ============================
@@ -977,17 +1217,25 @@ return { ok:true, action:"saved", row: json.row || null };
       saveToLocalStorage();
       updateProgress();
     });
+
     // ✅ Validar
-const btnValidate = $("#btnValidate");
-if (btnValidate) {
-  btnValidate.addEventListener("click", () => validateFormUI({ showToast:true }));
-}
-    // 🧨 Reset / Limpiar formulario
+    const btnValidate = $("#btnValidate");
+    if (btnValidate) {
+      btnValidate.addEventListener("click", () => validateFormUI({ showToast:true }));
+    }
+
+    // 🧨 Reset / Limpiar formulario (sidebar)
     const btnReset = $("#btnReset");
     if (btnReset) {
       btnReset.addEventListener("click", () => limpiarFormulario({ confirmUser:true }));
     }
-    
+
+    // 🧽 Limpiar (abajo)
+    const btnClearBottom = $("#btnClearBottom");
+    if (btnClearBottom) {
+      btnClearBottom.addEventListener("click", () => limpiarFormulario({ confirmUser:true }));
+    }
+
     // SUBMIT: Guardar en Sheets + Exportar JSON
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -1006,10 +1254,10 @@ if (btnValidate) {
       btn.disabled = false;
       btn.textContent = old;
 
-  if (out?.ok) {
-  toast("Guardado", "Datos enviados a Google Sheets.", "ok");
-  saveToLocalStorage();
-} else {
+      if (out?.ok) {
+        toast("Guardado", "Datos enviados a Google Sheets.", "ok");
+        saveToLocalStorage();
+      } else {
         const msg =
           out?.msg ||
           (out?.error === "html_response"
@@ -1021,8 +1269,6 @@ if (btnValidate) {
     });
   }
 
-    // saveToLocalStorage(); // (opcional) no guardar hasta que el usuario escriba
-
   // ============================
   // 🚀 Init
   // ============================
@@ -1030,7 +1276,8 @@ if (btnValidate) {
     initSectionsAndNav();
     loadFromLocalStorage();
     updateProgress();
-    
+
+    initPlanModal();
     initEvents();
   })();
 </script>
