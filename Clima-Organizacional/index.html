@@ -423,7 +423,6 @@
         <button class="btn" onclick="cargarResumenGlobalTabla()">Refrescar</button>
         <button class="btn ghost" onclick="descargarResumenCSV()">Descargar CSV</button>
 
-        <!-- ✅ NUEVO: Exportar a TablaF -->
         <button class="btn primary" onclick="enviarResumenATablaF()">Enviar a TablaF</button>
         <span class="pillN" id="exportMeta">TablaF: <b style="color:var(--text)">—</b></span>
 
@@ -440,6 +439,17 @@
  * CONFIG (EDITA AQUÍ)
  ***********************/
 const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyu3WPiQHLZD8LM6ShrdOmSxgIlU6mZUIee0mTp3br85FnZZD_zOVEWkFx-vEjuaMmJ4w/exec";
+
+/**
+ * Preferimos:
+ * 1) fetch GET (JSON) si el WebApp permite CORS/JSON
+ * 2) si no, JSONP (sin CORS)
+ */
+const NET = {
+  TIMEOUT_MS: 15000,
+  WARMUP_ON_LOAD: true,   // ✅ conecta automáticamente al abrir
+  PING_EVERY_MS: 30000    // ✅ refresca estado de conexión
+};
 
 const DEMOGRAPHICS = [
   { key:"Genero", label:"Género", options:["Masculino","Femenino"] },
@@ -640,8 +650,41 @@ function limpiar(){
 }
 
 /***********************
- * JSONP (sin CORS)
+ * RED ROBUSTA: fetch JSON -> fallback JSONP
  ***********************/
+function withTimeout(promise, ms, label="timeout"){
+  let t;
+  const timeout = new Promise((_, rej)=>{
+    t = setTimeout(()=>rej(new Error(label)), ms);
+  });
+  return Promise.race([promise, timeout]).finally(()=>clearTimeout(t));
+}
+
+async function fetchJSON(params){
+  const q = new URLSearchParams(params || {});
+  q.set("_ts", String(Date.now()));
+  const url = WEBAPP_URL + (WEBAPP_URL.includes("?") ? "&" : "?") + q.toString();
+
+  const res = await withTimeout(fetch(url, {
+    method: "GET",
+    cache: "no-store",
+    credentials: "omit",
+    headers: { "Accept": "application/json,text/plain,*/*" }
+  }), NET.TIMEOUT_MS, "timeout");
+
+  if(!res.ok) throw new Error("http_" + res.status);
+  const ct = (res.headers.get("content-type") || "").toLowerCase();
+  // Si viene JSON, perfecto. Si viene texto, intentamos parsear.
+  const text = await res.text();
+  try{
+    return JSON.parse(text);
+  }catch(_){
+    // Si el WebApp devuelve HTML/otra cosa, esto falla -> fallback JSONP
+    throw new Error("not_json");
+  }
+}
+
+// JSONP mejorado: captura errores de ejecución (ej: si el WebApp devuelve JSON puro)
 function jsonpRequest(params){
   return new Promise((resolve, reject)=>{
     const cbName = "__cb_" + Math.random().toString(36).slice(2);
@@ -653,29 +696,58 @@ function jsonpRequest(params){
     script.async = true;
     script.src = WEBAPP_URL + (WEBAPP_URL.includes("?") ? "&" : "?") + q.toString();
 
+    let done = false;
+
     const timeout = setTimeout(()=>{
       cleanup();
       reject(new Error("timeout"));
-    }, 15000);
+    }, NET.TIMEOUT_MS);
 
-    function cleanup(){
+    // Captura errores JS del script (por ejemplo si devuelve JSON “crudo”)
+    const onWinError = (ev)=>{
+      // solo si el error viene del script que cargamos
+      // (no siempre se puede detectar perfecto, pero evita colgarse)
+      if(done) return;
+      done = true;
+      cleanup(false);
+      reject(new Error("jsonp_parse_error"));
+    };
+
+    function cleanup(removeHandler=true){
       clearTimeout(timeout);
       try{ delete window[cbName]; }catch(_){}
+      if(removeHandler) window.removeEventListener("error", onWinError);
       if(script && script.parentNode) script.parentNode.removeChild(script);
     }
 
     window[cbName] = (data)=>{
+      if(done) return;
+      done = true;
       cleanup();
       resolve(data);
     };
 
     script.onerror = ()=>{
+      if(done) return;
+      done = true;
       cleanup();
       reject(new Error("network_error"));
     };
 
+    window.addEventListener("error", onWinError, { once:true });
+
     document.body.appendChild(script);
   });
+}
+
+async function requestData(params){
+  // 1) intentamos fetch JSON
+  try{
+    return await fetchJSON(params);
+  }catch(_){
+    // 2) fallback JSONP
+    return await jsonpRequest(params);
+  }
 }
 
 /***********************
@@ -699,7 +771,7 @@ async function confirmSubmission(submissionId){
 
   while(Date.now() - start < MAX_MS){
     try{
-      const j = await jsonpRequest({ action:"confirm", submissionId });
+      const j = await requestData({ action:"confirm", submissionId });
       if(j && j.ok === true && j.confirmed === true) return true;
     }catch(_){}
     await new Promise(r => setTimeout(r, STEP_MS));
@@ -711,11 +783,14 @@ let saving = false;
 
 async function ping(){
   try{
-    const j = await jsonpRequest({ action:"ping" });
-    if(!j || !j.ok) throw new Error(j?.error || "ping error");
+    // “ping” debería ser muy barato: si falla, dot amarillo.
+    const j = await requestData({ action:"ping" });
+    if(!j || j.ok !== true) throw new Error(j?.error || "ping_error");
     setRemote(true, j?.status || "ok");
-  }catch(e){
+    return true;
+  }catch(_){
     setRemote(false, "sin conexión");
+    return false;
   }
 }
 
@@ -756,13 +831,14 @@ async function guardar(){
 async function cargarOpcionesFiltro(groupBy, selectEl){
   selectEl.innerHTML = `<option value="">Cargando...</option>`;
   try{
-    const j = await jsonpRequest({ action:"unique", groupBy });
-    if(!j.ok) throw new Error(j.error || "No se pudo cargar variables");
+    const j = await requestData({ action:"unique", groupBy });
+    if(!j || j.ok !== true) throw new Error(j?.error || "No se pudo cargar variables");
     const values = j.values || [];
     selectEl.innerHTML = `<option value="">Selecciona...</option>` +
       values.map(v=>`<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join("");
-  }catch(e){
-    selectEl.innerHTML = `<option value="">(error)</option>`;
+  }catch(_){
+    // Si no hay conexión o no existe el endpoint, no “ensuciamos” con error rojo.
+    selectEl.innerHTML = `<option value="">(sin datos)</option>`;
   }
 }
 
@@ -793,20 +869,25 @@ async function cargarResultados(){
   const groupValue = $("groupValue").disabled ? "" : ($("groupValue").value || "");
 
   try{
-    const j = await jsonpRequest({ action:"results", groupBy, groupValue });
-    if(!j.ok) throw new Error(j.error || "No se pudo cargar resultados");
-    renderResults(j.data);
+    const j = await requestData({ action:"results", groupBy, groupValue });
+    if(!j || j.ok !== true){
+      // Si el server responde pero con ok=false, mostramos mensaje suave
+      throw new Error(j?.error || "Sin datos / sin acceso");
+    }
+    renderResults(j.data || {});
   }catch(e){
+    // ✅ No mostramos “network_error” como si fuera culpa del usuario
     $("kpiN").textContent = "0";
     $("kpiAvg").textContent = "—";
     $("kpiLast").textContent = "—";
-    $("tableWrap").innerHTML = `<div class="muted">Error: ${escapeHtml(e.message || e)}</div>`;
+    $("noDataMsg").style.display = "block";
+    $("tableWrap").innerHTML = `<div class="muted">No hay datos aún o no se pudo conectar. Presiona <b>Refrescar</b>.</div>`;
     destroyChart();
   }
 }
 
 function renderResults(data){
-  const n = data.n || 0;
+  const n = Number(data.n || 0);
   const last = data.lastTimestamp || "";
   const items = data.items || [];
   const avg = (data.avgPercent === undefined || data.avgPercent === null) ? null : data.avgPercent;
@@ -815,7 +896,7 @@ function renderResults(data){
   $("kpiLast").textContent = last ? last : "—";
   $("kpiAvg").textContent = (avg==null ? "—" : (avg + "%"));
 
-  if(n<=0 || items.length===0){
+  if(n<=0 || !items.length){
     $("noDataMsg").style.display = "block";
     $("tableWrap").innerHTML = `<div class="muted">Aún no hay datos para mostrar.</div>`;
     destroyChart();
@@ -929,8 +1010,8 @@ async function cargarResumenGlobalTabla(){
   __summaryFlatRows = [];
 
   try{
-    const j = await jsonpRequest({ action:"allSummary" });
-    if(!j.ok) throw new Error(j.error || "No se pudo cargar el resumen global");
+    const j = await requestData({ action:"allSummary" });
+    if(!j || j.ok !== true) throw new Error(j?.error || "No se pudo cargar el resumen global");
 
     const rows = j.data?.rows || [];
     __summaryFlatRows = rows;
@@ -968,8 +1049,8 @@ async function cargarResumenGlobalTabla(){
         <tbody>${body}</tbody>
       </table>
     `;
-  }catch(e){
-    $("summaryBox").innerHTML = `<div class="muted">Error: ${escapeHtml(e.message || e)}</div>`;
+  }catch(_){
+    $("summaryBox").innerHTML = `<div class="muted">No hay datos aún o no se pudo conectar. Presiona <b>Refrescar</b>.</div>`;
   }
 }
 
@@ -1016,7 +1097,7 @@ function csvCell(v){
 }
 
 /***********************
- * ✅ NUEVO: ENVIAR RESUMEN A TABLAF (en Sheets)
+ * ENVIAR RESUMEN A TABLAF (en Sheets)
  ***********************/
 let __exportingTablaF = false;
 
@@ -1028,8 +1109,8 @@ async function enviarResumenATablaF(){
   meta.innerHTML = `TablaF: <b style="color:var(--text)">Enviando...</b>`;
 
   try{
-    const j = await jsonpRequest({ action:"exportAllSummaryToTablaF" });
-    if(!j || !j.ok) throw new Error(j?.error || "No se pudo exportar");
+    const j = await requestData({ action:"exportAllSummaryToTablaF" });
+    if(!j || j.ok !== true) throw new Error(j?.error || "No se pudo exportar");
 
     const written = Number(j.written || 0);
     const when = j.time || "";
@@ -1043,12 +1124,46 @@ async function enviarResumenATablaF(){
 }
 
 /***********************
- * INIT
+ * INIT (AUTO-CONEXIÓN)
  ***********************/
-buildDemographics();
-buildItems();
-initFilters();
-ping();
+function sleep(ms){ return new Promise(r=>setTimeout(r, ms)); }
+
+async function warmup(){
+  // “calienta” endpoints para que al usuario no le truene al abrir Resultados/Resumen
+  // (sin cambiar de pestaña)
+  try{
+    // 1) ping primero
+    await ping();
+    // 2) carga opciones (si aplica)
+    const gb = $("groupBy")?.value || "General";
+    if(gb !== "General"){
+      await cargarOpcionesFiltro(gb, $("groupValue"));
+    }
+    // 3) precarga resultados/resumen silenciosa
+    await cargarResultados();
+    await cargarResumenGlobalTabla();
+  }catch(_){}
+}
+
+async function init(){
+  buildDemographics();
+  buildItems();
+  initFilters();
+
+  setRemote(false, "conectando...");
+  await ping();
+
+  if(NET.WARMUP_ON_LOAD){
+    // pequeño delay para no bloquear render inicial
+    await sleep(250);
+    warmup();
+  }
+
+  // ping periódico para el puntito (porque todos amamos puntitos que dicen la verdad)
+  setInterval(()=>ping(), NET.PING_EVERY_MS);
+}
+
+init();
 </script>
 
 </body>
