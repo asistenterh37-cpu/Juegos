@@ -223,21 +223,73 @@
     .modalBody{
       padding: 14px 16px 16px;
       color: var(--text);
+      max-height: min(72vh, 680px);
+      overflow:auto;
     }
-    .modalBody p{
-      margin: 0 0 10px;
-      color: #dce8ff;
-      line-height: 1.55;
-      white-space: pre-wrap;
+
+    /* ✅ Tabla del "Valor del Puesto" (texto del adjunto 2) */
+    .vpTop{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding: 10px 12px;
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: 14px;
+      background: rgba(255,255,255,.03);
+      margin-bottom: 12px;
     }
-    .modalBody .note{
-      color: var(--muted);
-      font-size: 12px;
-      margin-top: 10px;
+    .vpTop .k{ color: var(--muted); font-size: 12px; }
+    .vpTop .v{ font-weight: 900; letter-spacing:.2px; }
+
+    .vpTable{
+      width:100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      overflow:hidden;
+      border-radius: 14px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.18);
     }
-    .modalBody img{
+    .vpTable th, .vpTable td{
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      vertical-align: top;
+      font-size: 13px;
+      line-height: 1.35;
+    }
+    .vpTable th{
+      text-align:left;
+      color:#dce8ff;
+      background: rgba(255,255,255,.04);
+      font-weight: 800;
+      letter-spacing:.2px;
+    }
+    .vpTable td:nth-child(2){
+      text-align:right;
+      font-weight: 800;
+      width: 120px;
+      white-space: nowrap;
+    }
+    .vpTable tr:last-child td{ border-bottom:0; }
+
+    .vpTotal{
       margin-top: 12px;
+      display:flex;
+      justify-content:flex-end;
     }
+    .vpTotal .box{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border:1px solid rgba(34,197,94,.25);
+      background: linear-gradient(180deg, rgba(34,197,94,.16), rgba(255,255,255,.03));
+      font-weight: 900;
+      letter-spacing:.2px;
+    }
+    .vpTotal .box span:first-child{ color: var(--muted); font-weight: 700; }
   </style>
 </head>
 
@@ -291,15 +343,46 @@
         <h3 class="modalTitle" id="modalTitle">Valor de puesto</h3>
         <button class="modalClose" id="btnCerrarModal" type="button">Cerrar ✕</button>
       </div>
+
+      <!-- ✅ AQUÍ va el texto del Adjunto 2 (foto 2) -->
       <div class="modalBody">
-        <!-- ✅ 1) Texto (pega aquí el texto exacto del Adjunto 2 si lo tienes) -->
-        <p id="textoAdjunto2"></p>
+        <div class="vpTop">
+          <div>
+            <div class="k">Posición</div>
+            <div class="v">Jefe de Cobranzas</div>
+          </div>
+          <div style="text-align:right">
+            <div class="k">Puntaje total</div>
+            <div class="v">699</div>
+          </div>
+        </div>
 
-        <!-- ✅ 2) Respaldo: mostrar la imagen del adjunto 2 dentro del modal -->
-        <img class="adj2" src="adjunto2.png" alt="Adjunto 2 (referencia)" />
+        <table class="vpTable" aria-label="Tabla de factores y puntajes">
+          <thead>
+            <tr>
+              <th>Factor</th>
+              <th>Valor</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>1. Educación formal</td><td>80</td></tr>
+            <tr><td>2. Experiencia</td><td>72</td></tr>
+            <tr><td>3. Conocimientos técnicos</td><td>96</td></tr>
+            <tr><td>4. Competencias cognitivas</td><td>80</td></tr>
+            <tr><td>5. Habilidades interpersonales</td><td>80</td></tr>
+            <tr><td>6. Esfuerzo mental</td><td>64</td></tr>
+            <tr><td>7. Complejidad de problemas</td><td>60</td></tr>
+            <tr><td>8. Toma de decisiones</td><td>80</td></tr>
+            <tr><td>9. Impacto</td><td>60</td></tr>
+            <tr><td>10. Magnitud</td><td>27</td></tr>
+          </tbody>
+        </table>
 
-        <div class="note">
-          Tip: si quieres que salga SOLO texto (sin imagen), deja el texto pegado arriba y elimina la etiqueta &lt;img&gt;.
+        <div class="vpTotal">
+          <div class="box">
+            <span>Puntaje</span>
+            <span>699</span>
+          </div>
         </div>
       </div>
     </div>
@@ -315,11 +398,6 @@
     // ✅ Destino fijo
     const DEST_SHEET = "Descripcionpuesto";
     const DEST_CELL  = "A2";
-
-    // ✅ Texto del Adjunto 2 (reemplázalo por el texto exacto)
-    const TEXTO_ADJUNTO2 = `Pega aquí el texto exacto que aparece en el Adjunto 2.
-Puedes ponerlo en varias líneas.
-(Esto es solo un placeholder).`;
 
     const $ = (id) => document.getElementById(id);
 
@@ -337,15 +415,10 @@ Puedes ponerlo en varias líneas.
     const modalValor = $("modalValor");
     const btnValorPuesto = $("btnValorPuesto");
     const btnCerrarModal = $("btnCerrarModal");
-    const textoAdjunto2 = $("textoAdjunto2");
-
-    // Cargar texto en modal
-    textoAdjunto2.textContent = TEXTO_ADJUNTO2;
 
     function openModal(){
       modalValor.style.display = "flex";
       modalValor.setAttribute("aria-hidden", "false");
-      // foco al botón cerrar (nice UX)
       setTimeout(() => btnCerrarModal.focus(), 0);
     }
     function closeModal(){
