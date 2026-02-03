@@ -35,6 +35,7 @@
       padding:24px;
     }
     .wrap{ width:min(1000px, 100%); }
+
     header{
       display:flex;
       align-items:flex-end;
@@ -58,6 +59,28 @@
     }
     .pill:hover{ filter: brightness(1.12); }
 
+    /* ✅ Cuadrito superior derecha */
+    .valueBox{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      padding:10px 12px;
+      border-radius: 12px;
+      border:1px solid rgba(255,255,255,.12);
+      background: linear-gradient(180deg, rgba(59,130,246,.18), rgba(255,255,255,.03));
+      box-shadow: 0 10px 22px rgba(0,0,0,.22);
+      color: var(--text);
+      font-weight:800;
+      letter-spacing:.2px;
+      cursor:pointer;
+      user-select:none;
+      min-width: 150px;
+      text-align:center;
+    }
+    .valueBox:hover{ filter: brightness(1.08); }
+    .valueBox:active{ transform: translateY(1px); }
+
     .card{
       background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
       border:1px solid rgba(255,255,255,.06);
@@ -67,6 +90,7 @@
     }
     .card-body{ padding:18px; }
     label{ display:block; font-weight:600; margin:0 0 10px; color:#dce8ff; }
+
     textarea{
       width:100%;
       min-height: 240px;
@@ -79,12 +103,13 @@
       outline:none;
       font-size:14px;
       line-height:1.5;
-      white-space: pre; /* mantiene el bloque visualmente */
+      white-space: pre;
     }
     textarea:focus{
       border-color: rgba(59,130,246,.55);
       box-shadow: 0 0 0 4px rgba(59,130,246,.15);
     }
+
     .hint{
       margin-top:10px;
       color:var(--muted);
@@ -94,6 +119,7 @@
       gap:10px 16px;
       align-items:center;
     }
+
     .menu{
       display:flex;
       gap:10px;
@@ -150,6 +176,68 @@
       margin: 0 0 14px 0;
       display:block;
     }
+
+    /* ✅ Modal */
+    .modalOverlay{
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.55);
+      backdrop-filter: blur(6px);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding: 18px;
+      z-index: 999;
+    }
+    .modal{
+      width: min(900px, 100%);
+      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: 18px;
+      box-shadow: 0 22px 60px rgba(0,0,0,.55);
+      overflow:hidden;
+    }
+    .modalHead{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 12px;
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    .modalTitle{
+      margin:0;
+      font-size: 15px;
+      letter-spacing:.2px;
+    }
+    .modalClose{
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      padding: 8px 10px;
+      border-radius: 12px;
+      cursor:pointer;
+      font-weight: 800;
+    }
+    .modalClose:hover{ filter: brightness(1.12); }
+    .modalBody{
+      padding: 14px 16px 16px;
+      color: var(--text);
+    }
+    .modalBody p{
+      margin: 0 0 10px;
+      color: #dce8ff;
+      line-height: 1.55;
+      white-space: pre-wrap;
+    }
+    .modalBody .note{
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 10px;
+    }
+    .modalBody img{
+      margin-top: 12px;
+    }
   </style>
 </head>
 
@@ -159,6 +247,11 @@
       <div>
         <h1>Valoración de puesto:</h1>
         <p class="subtitle">Pegue su descripción de puesto.</p>
+      </div>
+
+      <!-- ✅ Cuadrito superior derecha -->
+      <div class="valueBox" id="btnValorPuesto" role="button" tabindex="0" aria-label="Abrir Valor de puesto">
+        Valor de puesto
       </div>
     </header>
 
@@ -191,6 +284,27 @@
     </section>
   </div>
 
+  <!-- ✅ Modal: Valor de puesto -->
+  <div class="modalOverlay" id="modalValor" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modalHead">
+        <h3 class="modalTitle" id="modalTitle">Valor de puesto</h3>
+        <button class="modalClose" id="btnCerrarModal" type="button">Cerrar ✕</button>
+      </div>
+      <div class="modalBody">
+        <!-- ✅ 1) Texto (pega aquí el texto exacto del Adjunto 2 si lo tienes) -->
+        <p id="textoAdjunto2"></p>
+
+        <!-- ✅ 2) Respaldo: mostrar la imagen del adjunto 2 dentro del modal -->
+        <img class="adj2" src="adjunto2.png" alt="Adjunto 2 (referencia)" />
+
+        <div class="note">
+          Tip: si quieres que salga SOLO texto (sin imagen), deja el texto pegado arriba y elimina la etiqueta &lt;img&gt;.
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
     // ✅ Pega aquí TU WebApp URL actual (Deployment vigente)
     const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwwuXWn59euNeXg3RbxeaUcjaHqVZTlbVKt_3bR_N_s6haRfRKoftF6K_7nLQXrgO_3/exec";
@@ -201,6 +315,11 @@
     // ✅ Destino fijo
     const DEST_SHEET = "Descripcionpuesto";
     const DEST_CELL  = "A2";
+
+    // ✅ Texto del Adjunto 2 (reemplázalo por el texto exacto)
+    const TEXTO_ADJUNTO2 = `Pega aquí el texto exacto que aparece en el Adjunto 2.
+Puedes ponerlo en varias líneas.
+(Esto es solo un placeholder).`;
 
     const $ = (id) => document.getElementById(id);
 
@@ -213,6 +332,49 @@
     const salida  = $("salida");
     const preview = $("preview");
     const meta    = $("meta");
+
+    // ✅ Modal refs
+    const modalValor = $("modalValor");
+    const btnValorPuesto = $("btnValorPuesto");
+    const btnCerrarModal = $("btnCerrarModal");
+    const textoAdjunto2 = $("textoAdjunto2");
+
+    // Cargar texto en modal
+    textoAdjunto2.textContent = TEXTO_ADJUNTO2;
+
+    function openModal(){
+      modalValor.style.display = "flex";
+      modalValor.setAttribute("aria-hidden", "false");
+      // foco al botón cerrar (nice UX)
+      setTimeout(() => btnCerrarModal.focus(), 0);
+    }
+    function closeModal(){
+      modalValor.style.display = "none";
+      modalValor.setAttribute("aria-hidden", "true");
+      btnValorPuesto.focus();
+    }
+
+    btnValorPuesto.addEventListener("click", openModal);
+    btnValorPuesto.addEventListener("keydown", (e) => {
+      if(e.key === "Enter" || e.key === " "){
+        e.preventDefault();
+        openModal();
+      }
+    });
+
+    btnCerrarModal.addEventListener("click", closeModal);
+
+    // Cerrar si hace click fuera del cuadro
+    modalValor.addEventListener("click", (e) => {
+      if(e.target === modalValor) closeModal();
+    });
+
+    // Cerrar con ESC
+    document.addEventListener("keydown", (e) => {
+      if(e.key === "Escape" && modalValor.style.display === "flex"){
+        closeModal();
+      }
+    });
 
     function metrics(text){
       const chars = text.length;
@@ -254,7 +416,7 @@
         if (ok) return { ok: true, via: "beacon" };
       } catch (_) {}
 
-      // 2) Fallback: fetch no-cors (tampoco permite leer respuesta, pero sí envía)
+      // 2) Fallback: fetch no-cors
       await fetch(WEBAPP_URL, {
         method: "POST",
         mode: "no-cors",
@@ -323,10 +485,8 @@
       try{
         setStatus("guardando...");
 
-        // Mandamos el bloque COMPLETO (raw), no el recortado
         const textToSend = raw;
 
-        // 1) POST no-cors (recomendado)
         const postRes = await saveViaPostNoCors(textToSend);
 
         setStatus("guardado ✅");
@@ -335,12 +495,7 @@
           `Hoja: ${DEST_SHEET} | Celda: ${DEST_CELL} | Vía: ${postRes.via} | Abrir hoja: ${SHEET_URL}`
         );
 
-        // 2) Si quieres validación con respuesta real, descomenta esto:
-        // const data = await saveViaJsonp(textToSend);
-        // console.log("JSONP validate:", data);
-
       } catch (err){
-        // Si falló POST, intentamos JSONP para obtener error “real”
         try{
           const data = await saveViaJsonp(descripcion.value ?? "");
           if (data && data.ok){
