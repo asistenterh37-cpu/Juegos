@@ -1,308 +1,235 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <base target="_top">
-  <script src="https://www.gstatic.com/charts/loader.js"></script>
-  <style>
-    :root { --bg:#0b1220; --panel:#0f1b33; --muted:#93a4c7; --text:#e8eefc; --stroke:rgba(255,255,255,.12); }
-    *{ box-sizing:border-box; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; }
-    body{
-      margin:0;
-      background:
-        radial-gradient(900px 500px at 20% 0%, rgba(37,99,235,.22), transparent 60%),
-        radial-gradient(700px 420px at 90% 20%, rgba(16,185,129,.18), transparent 60%),
-        var(--bg);
-      color:var(--text);
-    }
-    .wrap{ padding:14px; }
-    .topbar{
-      display:flex; align-items:center; justify-content:space-between;
-      padding:12px 12px; border:1px solid var(--stroke); border-radius:14px;
-      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
-      margin-bottom:12px;
-    }
-    .title{ font-weight:700; letter-spacing:.2px; }
-    .meta{ font-size:12px; color:var(--muted); display:flex; gap:10px; align-items:center; }
-    .dot{ width:8px; height:8px; border-radius:50%; background:#22c55e; box-shadow: 0 0 0 4px rgba(34,197,94,.15); }
-    .grid{ display:grid; grid-template-columns: 1.2fr 1fr; gap:12px; height: calc(100vh - 96px); }
-    .panel{ border:1px solid var(--stroke); background: rgba(255,255,255,.04); border-radius:14px; padding:10px; overflow:hidden; min-height:0; }
-    .filters{ display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:10px; }
-    .filters .panel{ padding:10px; }
-    .panel h3{ margin:0 0 8px; font-size:13px; color:var(--muted); font-weight:650; }
-    .charts{ display:grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr 1fr; gap:12px; height:100%; }
-    .span2{ grid-column: 1 / span 2; }
-    .chartBox{ height:100%; }
-    .hint{ font-size:12px; color:var(--muted); margin-top:6px; }
-    .small{ font-size:11px; color:var(--muted); }
-    @media (max-width: 980px){
-      .grid{ grid-template-columns: 1fr; height:auto; }
-      .charts{ height:auto; }
-      body{ overflow:auto; }
-    }
-  </style>
-</head>
+<script>
+  // ====== CONFIG: tu Web App /exec (Apps Script) ======
+  const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxClX3eA4oaBxNfpfP9669HynD_4aouCYMLmAsWOqkVtwFZGGY1IAtRZgYRxXQKTTaC/exec";
 
-<body>
-  <div class="wrap">
-    <div class="topbar">
-      <div class="title">Dashboard RH · Headcount</div>
-      <div class="meta">
-        <span class="dot"></span>
-        <span id="updatedAt">Actualizando…</span>
-        <span class="small" id="rowCount"></span>
-      </div>
-    </div>
+  google.charts.load('current', { packages: ['corechart', 'controls'] });
 
-    <div class="grid">
-      <div class="panel">
-        <h3>Filtros (selecciona y todo se recalcula)</h3>
-        <div class="filters">
-          <div class="panel"><div id="f_genero"></div></div>
-          <div class="panel"><div id="f_estado"></div></div>
-          <div class="panel"><div id="f_escolaridad"></div></div>
-          <div class="panel"><div id="f_depto"></div></div>
-          <div class="panel" style="grid-column: 1 / span 2;"><div id="f_pos"></div></div>
-        </div>
-        <div class="hint">Tip: también puedes hacer clic en una barra/porción para filtrar el resto.</div>
-      </div>
+  let dataTable;
+  const controls = {};
+  const charts = {};
 
-      <div class="charts">
-        <div class="panel chartBox"><div id="c_genero" style="width:100%;height:100%"></div></div>
-        <div class="panel chartBox"><div id="c_estado" style="width:100%;height:100%"></div></div>
-        <div class="panel chartBox"><div id="c_escolaridad" style="width:100%;height:100%"></div></div>
-        <div class="panel chartBox"><div id="c_depto" style="width:100%;height:100%"></div></div>
-        <div class="panel chartBox span2"><div id="c_pos" style="width:100%;height:100%"></div></div>
-      </div>
-    </div>
-  </div>
+  google.charts.setOnLoadCallback(init_);
 
-  <script>
-    // ====== CONFIG: tu Web App /exec (Apps Script) ======
-    const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbykdF9L_PTohld0tBkByDToOiLFIhdjvcppb-CDUbE59TjH4Qk7T9kwkPgj_xhf1rzO/exec";
+  function init_() {
+    loadData_()
+      .then(payload => {
+        document.getElementById('updatedAt').textContent =
+          'Actualizado: ' + new Date(payload.updatedAt).toLocaleString();
 
-    google.charts.load('current', {'packages':['corechart','controls']});
+        document.getElementById('rowCount').textContent =
+          payload.rows?.length ? `· Registros: ${payload.rows.length}` : '· Sin datos';
 
-    let dashboard, dataTable;
-    let controls = {};
-    let charts = {};
+        buildDataTable_(payload.rows || []);
+        buildControlsAndCharts_();
+        redrawAll_();
+      })
+      .catch(err => {
+        document.getElementById('updatedAt').textContent =
+          'Error: ' + (err?.message || err);
+      });
+  }
 
-    google.charts.setOnLoadCallback(() => {
-      // En vez de google.script.run (solo funciona dentro de Apps Script),
-      // aquí consumimos el /exec por fetch:
-      fetch(GAS_WEBAPP_URL, { method: "GET" })
-        .then(r => {
-          if (!r.ok) throw new Error("HTTP " + r.status);
-          return r.json();
-        })
-        .then(payload => {
-          document.getElementById('updatedAt').textContent =
-            'Actualizado: ' + new Date(payload.updatedAt).toLocaleString();
+  // ---------- DATA LOADER: fetch + fallback JSONP ----------
+  function loadData_() {
+    return fetch(GAS_WEBAPP_URL, { method: 'GET' })
+      .then(r => {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      })
+      .catch(() => jsonpLoad_(GAS_WEBAPP_URL)); // fallback anti-CORS
+  }
 
-          document.getElementById('rowCount').textContent =
-            payload.rows.length ? `· Registros: ${payload.rows.length}` : '· Sin datos';
+  function jsonpLoad_(url) {
+    return new Promise((resolve, reject) => {
+      const cbName = 'cb_' + Math.random().toString(36).slice(2);
+      const script = document.createElement('script');
 
-          buildDataTable(payload.rows);
-          drawDashboard();
-        })
-        .catch(err => {
-          document.getElementById('updatedAt').textContent = 'Error: ' + (err?.message || err);
-        });
+      window[cbName] = (data) => {
+        cleanup_();
+        resolve(data);
+      };
+
+      script.onerror = () => {
+        cleanup_();
+        reject(new Error('No se pudo cargar JSONP desde /exec'));
+      };
+
+      function cleanup_() {
+        delete window[cbName];
+        script.remove();
+      }
+
+      const sep = url.includes('?') ? '&' : '?';
+      script.src = url + sep + 'callback=' + cbName;
+      document.head.appendChild(script);
+    });
+  }
+
+  // ---------- BUILD DATATABLE ----------
+  function buildDataTable_(rows) {
+    dataTable = new google.visualization.DataTable();
+    dataTable.addColumn('string', 'Género');
+    dataTable.addColumn('string', 'Estado civil');
+    dataTable.addColumn('string', 'Escolaridad');
+    dataTable.addColumn('string', 'Departamento');
+    dataTable.addColumn('string', 'Posición');
+    dataTable.addRows(rows);
+  }
+
+  // ---------- CONTROLS + CHARTS ----------
+  function buildControlsAndCharts_() {
+    // Controls
+    controls.genero = new google.visualization.ControlWrapper({
+      controlType: 'CategoryFilter',
+      containerId: 'f_genero',
+      options: { filterColumnLabel: 'Género', ui: { label: 'Género', allowTyping: false, allowMultiple: false, caption: 'Todos' } }
     });
 
-    function buildDataTable(rows) {
-      dataTable = new google.visualization.DataTable();
-      dataTable.addColumn('string', 'Género');
-      dataTable.addColumn('string', 'Estado civil');
-      dataTable.addColumn('string', 'Escolaridad');
-      dataTable.addColumn('string', 'Departamento');
-      dataTable.addColumn('string', 'Posición');
-      dataTable.addRows(rows);
+    controls.estado = new google.visualization.ControlWrapper({
+      controlType: 'CategoryFilter',
+      containerId: 'f_estado',
+      options: { filterColumnLabel: 'Estado civil', ui: { label: 'Estado civil', allowTyping: false, allowMultiple: false, caption: 'Todos' } }
+    });
+
+    controls.escolaridad = new google.visualization.ControlWrapper({
+      controlType: 'CategoryFilter',
+      containerId: 'f_escolaridad',
+      options: { filterColumnLabel: 'Escolaridad', ui: { label: 'Escolaridad', allowTyping: false, allowMultiple: false, caption: 'Todos' } }
+    });
+
+    controls.depto = new google.visualization.ControlWrapper({
+      controlType: 'CategoryFilter',
+      containerId: 'f_depto',
+      options: { filterColumnLabel: 'Departamento', ui: { label: 'Departamento', allowTyping: false, allowMultiple: false, caption: 'Todos' } }
+    });
+
+    controls.pos = new google.visualization.ControlWrapper({
+      controlType: 'CategoryFilter',
+      containerId: 'f_pos',
+      options: { filterColumnLabel: 'Posición', ui: { label: 'Posición', allowTyping: true, allowMultiple: false, caption: 'Todos' } }
+    });
+
+    // Draw controls ONCE with the base table
+    Object.values(controls).forEach(c => c.draw(dataTable));
+
+    // When any control changes -> redraw
+    Object.values(controls).forEach(c => {
+      google.visualization.events.addListener(c, 'statechange', redrawAll_);
+    });
+
+    // Charts
+    charts.genero = new google.visualization.PieChart(document.getElementById('c_genero'));
+    charts.estado = new google.visualization.PieChart(document.getElementById('c_estado'));
+    charts.escolaridad = new google.visualization.PieChart(document.getElementById('c_escolaridad'));
+    charts.depto = new google.visualization.BarChart(document.getElementById('c_depto'));
+    charts.pos = new google.visualization.BarChart(document.getElementById('c_pos'));
+
+    // Click-to-filter (chart -> control)
+    wireChartToControl_(charts.genero, 0, controls.genero);
+    wireChartToControl_(charts.estado, 0, controls.estado);
+    wireChartToControl_(charts.escolaridad, 0, controls.escolaridad);
+    wireChartToControl_(charts.depto, 0, controls.depto);
+    wireChartToControl_(charts.pos, 0, controls.pos);
+  }
+
+  function baseChartOptions_(title) {
+    return {
+      title,
+      backgroundColor: 'transparent',
+      chartArea: { left: 10, top: 35, right: 10, bottom: 10, width: '100%', height: '80%' },
+      titleTextStyle: { color: '#e8eefc', fontSize: 14, bold: true },
+      legend: { textStyle: { color: '#e8eefc', fontSize: 12 } },
+      pieSliceTextStyle: { color: '#0b1220', fontSize: 12 },
+      hAxis: { textStyle: { color: '#e8eefc' }, gridlines: { color: 'rgba(255,255,255,.10)' } },
+      vAxis: { textStyle: { color: '#e8eefc' }, gridlines: { color: 'rgba(255,255,255,.10)' } },
+      tooltip: { textStyle: { color: '#0b1220' } }
+    };
+  }
+
+  // ---------- REDRAW ----------
+  function redrawAll_() {
+    const filtered = applyControlFiltersToDataTable_(dataTable);
+
+    const dtGenero = groupCount_(filtered, 0, 'Género');
+    const dtEstado = groupCount_(filtered, 1, 'Estado civil');
+    const dtEscol = groupCount_(filtered, 2, 'Escolaridad');
+    const dtDepto = groupCount_(filtered, 3, 'Departamento', true);
+    const dtPos = groupCount_(filtered, 4, 'Posición', true);
+
+    charts.genero.draw(dtGenero, baseChartOptions_('Género'));
+    charts.estado.draw(dtEstado, baseChartOptions_('Estado civil'));
+    charts.escolaridad.draw(dtEscol, baseChartOptions_('Escolaridad'));
+
+    charts.depto.draw(
+      dtDepto,
+      Object.assign(baseChartOptions_('Departamento'), { legend: { position: 'none' }, bars: 'horizontal' })
+    );
+
+    charts.pos.draw(
+      dtPos,
+      Object.assign(baseChartOptions_('Posición'), { legend: { position: 'none' }, bars: 'horizontal' })
+    );
+  }
+
+  function applyControlFiltersToDataTable_(dt) {
+    let rows = [];
+    for (let r = 0; r < dt.getNumberOfRows(); r++) rows.push(r);
+
+    const filters = [
+      [controls.genero, 0],
+      [controls.estado, 1],
+      [controls.escolaridad, 2],
+      [controls.depto, 3],
+      [controls.pos, 4],
+    ];
+
+    let current = rows;
+    filters.forEach(([ctrl, col]) => {
+      const state = ctrl.getState();
+      const val = state?.selectedValues?.[0];
+      if (!val) return;
+      current = current.filter(r => dt.getValue(r, col) === val);
+    });
+
+    const view = new google.visualization.DataView(dt);
+    view.setRows(current);
+    return view.toDataTable();
+  }
+
+  function groupCount_(dt, colIndex, label, isBar = false) {
+    const grouped = google.visualization.data.group(
+      dt,
+      [colIndex],
+      [{ column: colIndex, type: 'number', aggregation: google.visualization.data.count }]
+    );
+
+    grouped.setColumnLabel(0, label);
+    grouped.setColumnLabel(1, 'Total');
+
+    const view = new google.visualization.DataView(grouped);
+    view.setRows(grouped.getSortedRows({ column: 1, desc: true }));
+
+    if (isBar && grouped.getNumberOfRows() > 15) {
+      view.setRows(view.getViewRows().slice(0, 15));
     }
+    return view.toDataTable();
+  }
 
-    function drawDashboard() {
-      dashboard = new google.visualization.Dashboard(document.body);
+  function wireChartToControl_(chart, categoryColIndex, controlWrapper) {
+    google.visualization.events.addListener(chart, 'select', () => {
+      const sel = chart.getSelection();
+      if (!sel || !sel.length) return;
 
-      // Controls (dropdown)
-      controls.genero = new google.visualization.ControlWrapper({
-        controlType: 'CategoryFilter',
-        containerId: 'f_genero',
-        options: { filterColumnLabel: 'Género', ui: { label: 'Género', allowTyping: false, allowMultiple: false, caption: 'Todos' } }
-      });
+      const row = sel[0].row;
+      if (row == null) return;
 
-      controls.estado = new google.visualization.ControlWrapper({
-        controlType: 'CategoryFilter',
-        containerId: 'f_estado',
-        options: { filterColumnLabel: 'Estado civil', ui: { label: 'Estado civil', allowTyping: false, allowMultiple: false, caption: 'Todos' } }
-      });
+      // chart.getDataTable() existe en corechart
+      const dt = chart.getDataTable();
+      const value = dt.getValue(row, categoryColIndex);
 
-      controls.escolaridad = new google.visualization.ControlWrapper({
-        controlType: 'CategoryFilter',
-        containerId: 'f_escolaridad',
-        options: { filterColumnLabel: 'Escolaridad', ui: { label: 'Escolaridad', allowTyping: false, allowMultiple: false, caption: 'Todos' } }
-      });
-
-      controls.depto = new google.visualization.ControlWrapper({
-        controlType: 'CategoryFilter',
-        containerId: 'f_depto',
-        options: { filterColumnLabel: 'Departamento', ui: { label: 'Departamento', allowTyping: false, allowMultiple: false, caption: 'Todos' } }
-      });
-
-      controls.pos = new google.visualization.ControlWrapper({
-        controlType: 'CategoryFilter',
-        containerId: 'f_pos',
-        options: { filterColumnLabel: 'Posición', ui: { label: 'Posición', allowTyping: true, allowMultiple: false, caption: 'Todos' } }
-      });
-
-      // Charts
-      charts.genero = new google.visualization.ChartWrapper({
-        chartType: 'PieChart',
-        containerId: 'c_genero',
-        options: baseChartOptions_('Género')
-      });
-
-      charts.estado = new google.visualization.ChartWrapper({
-        chartType: 'PieChart',
-        containerId: 'c_estado',
-        options: baseChartOptions_('Estado civil')
-      });
-
-      charts.escolaridad = new google.visualization.ChartWrapper({
-        chartType: 'PieChart',
-        containerId: 'c_escolaridad',
-        options: baseChartOptions_('Escolaridad')
-      });
-
-      charts.depto = new google.visualization.ChartWrapper({
-        chartType: 'BarChart',
-        containerId: 'c_depto',
-        options: Object.assign(baseChartOptions_('Departamento'), { legend: { position: 'none' }, bars: 'horizontal' })
-      });
-
-      charts.pos = new google.visualization.ChartWrapper({
-        chartType: 'BarChart',
-        containerId: 'c_pos',
-        options: Object.assign(baseChartOptions_('Posición'), { legend: { position: 'none' }, bars: 'horizontal' })
-      });
-
-      const allControls = [controls.genero, controls.estado, controls.escolaridad, controls.depto, controls.pos];
-      const allCharts = [charts.genero, charts.estado, charts.escolaridad, charts.depto, charts.pos];
-
-      dashboard.bind(allControls, allCharts);
-
-      // Views (por columna)
-      charts.genero.setView({ columns: [0] });
-      charts.estado.setView({ columns: [1] });
-      charts.escolaridad.setView({ columns: [2] });
-      charts.depto.setView({ columns: [3] });
-      charts.pos.setView({ columns: [4] });
-
-      google.visualization.events.addListener(dashboard, 'ready', attachClickFilters_);
-      dashboard.draw(dataTable);
-
-      google.visualization.events.addListener(dashboard, 'statechange', redrawGroupedCharts_);
-      redrawGroupedCharts_();
-    }
-
-    function baseChartOptions_(title) {
-      return {
-        title,
-        backgroundColor: 'transparent',
-        chartArea: { left: 10, top: 35, right: 10, bottom: 10, width: '100%', height: '80%' },
-        titleTextStyle: { color: '#e8eefc', fontSize: 14, bold: true },
-        legend: { textStyle: { color: '#e8eefc', fontSize: 12 } },
-        pieSliceTextStyle: { color: '#0b1220', fontSize: 12 },
-        hAxis: { textStyle: { color: '#e8eefc' }, gridlines: { color: 'rgba(255,255,255,.10)' } },
-        vAxis: { textStyle: { color: '#e8eefc' }, gridlines: { color: 'rgba(255,255,255,.10)' } },
-        tooltip: { textStyle: { color: '#0b1220' } }
-      };
-    }
-
-    function redrawGroupedCharts_() {
-      const filtered = applyControlFiltersToDataTable_(dataTable);
-
-      charts.genero.setDataTable(groupCount_(filtered, 0, 'Género'));
-      charts.estado.setDataTable(groupCount_(filtered, 1, 'Estado civil'));
-      charts.escolaridad.setDataTable(groupCount_(filtered, 2, 'Escolaridad'));
-      charts.depto.setDataTable(groupCount_(filtered, 3, 'Departamento', true));
-      charts.pos.setDataTable(groupCount_(filtered, 4, 'Posición', true));
-
-      charts.genero.draw();
-      charts.estado.draw();
-      charts.escolaridad.draw();
-      charts.depto.draw();
-      charts.pos.draw();
-    }
-
-    function applyControlFiltersToDataTable_(dt) {
-      let rows = [];
-      for (let r = 0; r < dt.getNumberOfRows(); r++) rows.push(r);
-
-      const filters = [
-        [controls.genero, 0],
-        [controls.estado, 1],
-        [controls.escolaridad, 2],
-        [controls.depto, 3],
-        [controls.pos, 4],
-      ];
-
-      let current = rows;
-      filters.forEach(([ctrl, col]) => {
-        const state = ctrl.getState();
-        const val = state?.selectedValues?.[0];
-        if (!val) return;
-        current = current.filter(r => dt.getValue(r, col) === val);
-      });
-
-      const view = new google.visualization.DataView(dt);
-      view.setRows(current);
-      return view.toDataTable();
-    }
-
-    function groupCount_(dt, colIndex, label, isBar=false) {
-      const grouped = google.visualization.data.group(
-        dt,
-        [colIndex],
-        [{ column: colIndex, type: 'number', aggregation: google.visualization.data.count }]
-      );
-
-      grouped.setColumnLabel(0, label);
-      grouped.setColumnLabel(1, 'Total');
-
-      const view = new google.visualization.DataView(grouped);
-      view.setRows(grouped.getSortedRows({ column: 1, desc: true }));
-
-      if (isBar && grouped.getNumberOfRows() > 15) {
-        view.setRows(view.getViewRows().slice(0, 15));
-      }
-      return view.toDataTable();
-    }
-
-    function attachClickFilters_() {
-      wireChartToControl_(charts.genero, controls.genero);
-      wireChartToControl_(charts.estado, controls.estado);
-      wireChartToControl_(charts.escolaridad, controls.escolaridad);
-      wireChartToControl_(charts.depto, controls.depto);
-      wireChartToControl_(charts.pos, controls.pos);
-    }
-
-    function wireChartToControl_(chartWrapper, controlWrapper) {
-      const chart = chartWrapper.getChart();
-      if (!chart) return;
-
-      google.visualization.events.addListener(chart, 'select', () => {
-        const sel = chart.getSelection();
-        if (!sel || !sel.length) return;
-
-        const dt = chartWrapper.getDataTable();
-        const row = sel[0].row;
-        if (row == null) return;
-
-        const value = dt.getValue(row, 0);
-        controlWrapper.setState({ selectedValues: [value] });
-        controlWrapper.draw();
-        redrawGroupedCharts_();
-      });
-    }
-  </script>
-</body>
-</html>
+      controlWrapper.setState({ selectedValues: [value] });
+      controlWrapper.draw();
+      redrawAll_();
+    });
+  }
+</script>
