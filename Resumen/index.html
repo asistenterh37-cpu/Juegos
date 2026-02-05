@@ -52,9 +52,7 @@
       backdrop-filter: blur(10px);
     }
 
-    .brand{
-      display:flex; align-items:center; gap:12px;
-    }
+    .brand{ display:flex; align-items:center; gap:12px; }
     .dot{
       width:12px;height:12px;border-radius:99px;
       background: radial-gradient(circle at 30% 30%, #fff, rgba(255,255,255,.25) 35%, rgba(255,255,255,.05) 60%), #2563eb;
@@ -74,7 +72,6 @@
       gap:8px;
       flex-wrap:wrap;
     }
-    .sub span{opacity:.92}
     .pill{
       border:1px solid var(--stroke);
       background:rgba(255,255,255,.03);
@@ -82,13 +79,7 @@
       border-radius:999px;
     }
 
-    .actions{
-      display:flex;
-      gap:10px;
-      align-items:center;
-      flex-wrap:wrap;
-      justify-content:flex-end;
-    }
+    .actions{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:flex-end; }
 
     .btn{
       appearance:none;
@@ -112,10 +103,7 @@
       border-color: rgba(34,197,94,.35);
       background:linear-gradient(180deg, rgba(34,197,94,.28), rgba(34,197,94,.12));
     }
-    .btn.ghost{
-      background: rgba(255,255,255,.03);
-      box-shadow:none;
-    }
+    .btn.ghost{ background: rgba(255,255,255,.03); box-shadow:none; }
     .btn[disabled]{ opacity:.55; cursor:not-allowed; transform:none; }
 
     .grid{
@@ -150,26 +138,11 @@
       gap:10px;
       background:rgba(0,0,0,.10);
     }
-    .cardHeader .h{
-      font-weight:900;
-      font-size:13px;
-      letter-spacing:.2px;
-      margin:0;
-    }
-    .cardHeader .hint{
-      font-size:12px;
-      color:var(--muted);
-      margin-top:4px;
-    }
-    .cardBody{
-      padding:10px 12px 12px 12px;
-      min-height: 280px;
-    }
+    .cardHeader .h{ font-weight:900; font-size:13px; letter-spacing:.2px; margin:0; }
+    .cardHeader .hint{ font-size:12px; color:var(--muted); margin-top:4px; }
+    .cardBody{ padding:10px 12px 12px 12px; min-height: 280px; }
 
-    .chart{
-      width:100%;
-      height: 260px;
-    }
+    .chart{ width:100%; height: 260px; }
     .chart.tall{ height: 290px; }
 
     .kpis{
@@ -201,7 +174,6 @@
     .status.ok .led{ background:var(--good); box-shadow: 0 0 0 4px rgba(34,197,94,.16); }
     .status.bad .led{ background:var(--bad); box-shadow: 0 0 0 4px rgba(239,68,68,.16); }
 
-    /* Filters drawer */
     details.filters{
       border:1px solid var(--stroke);
       border-radius:14px;
@@ -256,11 +228,8 @@
       z-index:9;
     }
 
-    /* Make Google controls look nicer */
     .goog-inline-block{ max-width:100%; }
-    .google-visualization-controls-categoryfilter{
-      width:100% !important;
-    }
+    .google-visualization-controls-categoryfilter{ width:100% !important; }
   </style>
 </head>
 
@@ -289,7 +258,6 @@
   </div>
 
   <div class="grid">
-    <!-- 1: Género -->
     <div class="card">
       <div class="cardHeader">
         <div>
@@ -302,7 +270,6 @@
       </div>
     </div>
 
-    <!-- 2: Estado civil -->
     <div class="card">
       <div class="cardHeader">
         <div>
@@ -315,7 +282,6 @@
       </div>
     </div>
 
-    <!-- 3: Escolaridad -->
     <div class="card">
       <div class="cardHeader">
         <div>
@@ -328,7 +294,6 @@
       </div>
     </div>
 
-    <!-- 4: Departamento -->
     <div class="card">
       <div class="cardHeader">
         <div>
@@ -341,7 +306,6 @@
       </div>
     </div>
 
-    <!-- 5: Posición -->
     <div class="card">
       <div class="cardHeader">
         <div>
@@ -354,7 +318,6 @@
       </div>
     </div>
 
-    <!-- 6: Resumen / Filtros avanzados -->
     <div class="card">
       <div class="cardHeader">
         <div>
@@ -415,13 +378,14 @@
 
   <script>
     // ====== CONFIG: tu Web App /exec (Apps Script) ======
-    const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzmXIOSJtNQyCudZoTnxxCGAo5Zi-OMiuYxvnCl9-pMayZlPYjlCQ1fP7cSdh1rIfYT/exec";
+    const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbz2CFoL8FrrQHperv0vSBAy5nFZiTjemJLoHuz8ue-ry6a5sdC6sXTaOxuzNynEQTaq/exec";
 
     google.charts.load('current', { packages: ['corechart', 'controls'] });
 
     let dataTable;
     const controls = {};
     const charts = {};
+    const lastChartData = {}; // ✅ guarda el DataTable usado para cada chart (para click-to-filter)
 
     let latestPayload = null;
     let resizeTimer = null;
@@ -434,10 +398,16 @@
       loadData_({ forceRefresh: false })
         .then(payload => {
           latestPayload = payload;
+
+          if (payload?.error) {
+            setStatus_('bad', 'Error');
+            showToast_('Error desde GAS: ' + payload.error);
+          }
+
           setHeader_(payload);
           buildDataTable_(payload.rows || []);
           buildControlsAndCharts_();
-          redrawAll_();
+          safeRedrawAll_();
           setStatus_('ok', 'OK');
           attachResize_();
         })
@@ -482,7 +452,7 @@
         };
 
         function cleanup_() {
-          delete window[cbName];
+          try { delete window[cbName]; } catch(e) {}
           script.remove();
         }
 
@@ -509,46 +479,31 @@
       controls.genero = new google.visualization.ControlWrapper({
         controlType: 'CategoryFilter',
         containerId: 'f_genero',
-        options: {
-          filterColumnLabel: 'Género',
-          ui: { label: '', allowTyping: false, allowMultiple: false, caption: 'Todos' }
-        }
+        options: { filterColumnLabel: 'Género', ui: { label: '', allowTyping: false, allowMultiple: false, caption: 'Todos' } }
       });
 
       controls.estado = new google.visualization.ControlWrapper({
         controlType: 'CategoryFilter',
         containerId: 'f_estado',
-        options: {
-          filterColumnLabel: 'Estado civil',
-          ui: { label: '', allowTyping: false, allowMultiple: false, caption: 'Todos' }
-        }
+        options: { filterColumnLabel: 'Estado civil', ui: { label: '', allowTyping: false, allowMultiple: false, caption: 'Todos' } }
       });
 
       controls.escolaridad = new google.visualization.ControlWrapper({
         controlType: 'CategoryFilter',
         containerId: 'f_escolaridad',
-        options: {
-          filterColumnLabel: 'Escolaridad',
-          ui: { label: '', allowTyping: false, allowMultiple: false, caption: 'Todos' }
-        }
+        options: { filterColumnLabel: 'Escolaridad', ui: { label: '', allowTyping: false, allowMultiple: false, caption: 'Todos' } }
       });
 
       controls.depto = new google.visualization.ControlWrapper({
         controlType: 'CategoryFilter',
         containerId: 'f_depto',
-        options: {
-          filterColumnLabel: 'Departamento',
-          ui: { label: '', allowTyping: false, allowMultiple: false, caption: 'Todos' }
-        }
+        options: { filterColumnLabel: 'Departamento', ui: { label: '', allowTyping: false, allowMultiple: false, caption: 'Todos' } }
       });
 
       controls.pos = new google.visualization.ControlWrapper({
         controlType: 'CategoryFilter',
         containerId: 'f_pos',
-        options: {
-          filterColumnLabel: 'Posición',
-          ui: { label: '', allowTyping: true, allowMultiple: false, caption: 'Todos' }
-        }
+        options: { filterColumnLabel: 'Posición', ui: { label: '', allowTyping: true, allowMultiple: false, caption: 'Todos' } }
       });
 
       // Draw controls ONCE with the base table
@@ -556,7 +511,7 @@
 
       // When any control changes -> redraw
       Object.values(controls).forEach(c => {
-        google.visualization.events.addListener(c, 'statechange', redrawAll_);
+        google.visualization.events.addListener(c, 'statechange', safeRedrawAll_);
       });
 
       // Charts
@@ -566,12 +521,12 @@
       charts.depto = new google.visualization.BarChart(document.getElementById('c_depto'));
       charts.pos = new google.visualization.BarChart(document.getElementById('c_pos'));
 
-      // Click-to-filter (chart -> control)
-      wireChartToControl_(charts.genero, controls.genero);
-      wireChartToControl_(charts.estado, controls.estado);
-      wireChartToControl_(charts.escolaridad, controls.escolaridad);
-      wireChartToControl_(charts.depto, controls.depto);
-      wireChartToControl_(charts.pos, controls.pos);
+      // ✅ Click-to-filter seguro usando lastChartData
+      wireChartToControl_('genero', charts.genero, controls.genero);
+      wireChartToControl_('estado', charts.estado, controls.estado);
+      wireChartToControl_('escolaridad', charts.escolaridad, controls.escolaridad);
+      wireChartToControl_('depto', charts.depto, controls.depto);
+      wireChartToControl_('pos', charts.pos, controls.pos);
     }
 
     function baseChartOptions_(title) {
@@ -589,7 +544,17 @@
       };
     }
 
-    // ---------- REDRAW ----------
+    // ---------- REDRAW (con try/catch para no "matar" el dashboard) ----------
+    function safeRedrawAll_() {
+      try {
+        redrawAll_();
+      } catch (err) {
+        console.error(err);
+        setStatus_('bad', 'Error');
+        showToast_('JS reventó dibujando charts: ' + (err?.message || err));
+      }
+    }
+
     function redrawAll_() {
       if (!dataTable) return;
 
@@ -600,6 +565,13 @@
       const dtEscol  = groupCount_(filtered, 2, 'Escolaridad');
       const dtDepto  = groupCount_(filtered, 3, 'Departamento', true);
       const dtPos    = groupCount_(filtered, 4, 'Posición', true);
+
+      // ✅ guardar data usada en cada gráfico (para click-to-filter)
+      lastChartData.genero = dtGenero;
+      lastChartData.estado = dtEstado;
+      lastChartData.escolaridad = dtEscol;
+      lastChartData.depto = dtDepto;
+      lastChartData.pos = dtPos;
 
       charts.genero.draw(dtGenero, baseChartOptions_('Género'));
       charts.estado.draw(dtEstado, baseChartOptions_('Estado civil'));
@@ -649,6 +621,7 @@
       return view.toDataTable();
     }
 
+    // ✅ FIX CLAVE: DataView NO tiene getViewRows(). Hacemos top15 con arrays.
     function groupCount_(dt, colIndex, label, isBar = false) {
       const grouped = google.visualization.data.group(
         dt,
@@ -659,17 +632,16 @@
       grouped.setColumnLabel(0, label);
       grouped.setColumnLabel(1, 'Total');
 
-      const view = new google.visualization.DataView(grouped);
-      view.setRows(grouped.getSortedRows({ column: 1, desc: true }));
+      const sortedRows = grouped.getSortedRows({ column: 1, desc: true });
+      const topRows = (isBar ? sortedRows.slice(0, 15) : sortedRows);
 
-      if (isBar && grouped.getNumberOfRows() > 15) {
-        view.setRows(view.getViewRows().slice(0, 15));
-      }
+      const view = new google.visualization.DataView(grouped);
+      view.setRows(topRows);
       return view.toDataTable();
     }
 
     // Click category in any chart -> set its corresponding dropdown control
-    function wireChartToControl_(chart, controlWrapper) {
+    function wireChartToControl_(key, chart, controlWrapper) {
       google.visualization.events.addListener(chart, 'select', () => {
         const sel = chart.getSelection();
         if (!sel || !sel.length) return;
@@ -677,21 +649,22 @@
         const row = sel[0].row;
         if (row == null) return;
 
-        const dt = chart.getDataTable();
-        const value = dt.getValue(row, 0); // category always at col 0 in grouped dt
+        const dt = lastChartData[key];
+        if (!dt) return;
 
-        // toggle: click same value again -> clear
+        const value = dt.getValue(row, 0);
+
         const current = controlWrapper.getState()?.selectedValues?.[0];
         if (current === value) {
           controlWrapper.setState({ selectedValues: [] });
           controlWrapper.draw();
-          redrawAll_();
+          safeRedrawAll_();
           return;
         }
 
         controlWrapper.setState({ selectedValues: [value] });
         controlWrapper.draw();
-        redrawAll_();
+        safeRedrawAll_();
       });
     }
 
@@ -705,14 +678,18 @@
       loadData_({ forceRefresh: true })
         .then(payload => {
           latestPayload = payload;
+
+          if (payload?.error) {
+            setStatus_('bad', 'Error');
+            showToast_('Error desde GAS: ' + payload.error);
+          }
+
           setHeader_(payload);
 
-          // rebuild data table
           buildDataTable_(payload.rows || []);
 
-          // redraw controls and charts with fresh table
           Object.values(controls).forEach(c => c.draw(dataTable));
-          redrawAll_();
+          safeRedrawAll_();
 
           showToast_('Datos actualizados desde "Maestro".');
           setStatus_('ok', 'OK');
@@ -734,7 +711,7 @@
         c.setState({ selectedValues: [] });
         c.draw();
       });
-      redrawAll_();
+      safeRedrawAll_();
       showToast_('Filtros limpiados.');
     }
 
@@ -773,7 +750,7 @@
     function attachResize_(){
       window.addEventListener('resize', () => {
         clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(() => redrawAll_(), 180);
+        resizeTimer = setTimeout(() => safeRedrawAll_(), 180);
       });
     }
   </script>
