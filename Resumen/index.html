@@ -49,13 +49,18 @@
     .titleWrap .title{ font-size:15px; font-weight:800; letter-spacing:.2px; line-height:1.1; }
     .titleWrap .sub{ font-size:12px; color:var(--muted); margin-top:2px; display:flex; gap:8px; flex-wrap:wrap; }
     .pill{ border:1px solid var(--stroke); background:rgba(255,255,255,.03); padding:4px 10px; border-radius:999px; }
+
     .actions{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:flex-end; }
     .btn{
-      appearance:none; border:1px solid rgba(255,255,255,.14);
+      appearance:none;
+      border:1px solid rgba(255,255,255,.14);
       background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
       color:var(--text);
-      padding:10px 12px; border-radius:12px;
-      cursor:pointer; font-weight:700; font-size:13px;
+      padding:10px 12px;
+      border-radius:12px;
+      cursor:pointer;
+      font-weight:700;
+      font-size:13px;
       transition: transform .08s ease, border-color .2s ease, opacity .2s ease;
       box-shadow: 0 10px 24px rgba(0,0,0,.25);
       display:flex; align-items:center; gap:8px;
@@ -69,12 +74,14 @@
     .btn.ghost{ background: rgba(255,255,255,.03); box-shadow:none; }
     .btn[disabled]{ opacity:.55; cursor:not-allowed; transform:none; }
 
-    .grid{ margin-top:16px; display:grid; grid-template-columns: repeat(3, minmax(240px, 1fr)); gap:14px; }
-    @media (max-width: 1100px){ .grid{ grid-template-columns: repeat(2, minmax(240px, 1fr)); } }
-    @media (max-width: 720px){
-      .grid{ grid-template-columns: 1fr; }
-      body{ padding:12px; }
+    .grid{
+      margin-top:16px;
+      display:grid;
+      grid-template-columns: repeat(3, minmax(240px, 1fr));
+      gap:14px;
     }
+    @media (max-width: 1100px){ .grid{ grid-template-columns: repeat(2, minmax(240px, 1fr)); } }
+    @media (max-width: 720px){ .grid{ grid-template-columns: 1fr; } body{ padding:12px; } }
 
     .card{
       background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
@@ -100,9 +107,7 @@
     .nodata{
       width:100%;
       height:260px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
+      display:flex; align-items:center; justify-content:center;
       border:1px dashed rgba(255,255,255,.16);
       border-radius:14px;
       color:rgba(232,238,252,.75);
@@ -115,11 +120,14 @@
     .kpis{ display:grid; grid-template-columns: 1fr; gap:10px; padding:12px 14px 14px 14px; }
     .kpiRow{
       display:flex; justify-content:space-between; align-items:center; gap:10px;
-      padding:10px 12px; border:1px solid var(--stroke); border-radius:14px;
+      padding:10px 12px;
+      border:1px solid var(--stroke);
+      border-radius:14px;
       background:rgba(255,255,255,.03);
     }
     .kpiRow .k{ font-size:12px; color:var(--muted); font-weight:700;}
     .kpiRow .v{ font-size:13px; font-weight:900; }
+
     .status{ display:flex; align-items:center; gap:8px; font-size:12px; color:var(--muted); font-weight:700; }
     .status .led{ width:9px;height:9px;border-radius:99px;background:var(--warn); box-shadow: 0 0 0 4px rgba(245,158,11,.16); }
     .status.ok .led{ background:var(--good); box-shadow: 0 0 0 4px rgba(34,197,94,.16); }
@@ -128,7 +136,8 @@
     details.filters{ border:1px solid var(--stroke); border-radius:14px; background:rgba(255,255,255,.03); overflow:hidden; }
     details.filters summary{
       list-style:none; cursor:pointer;
-      padding:10px 12px; font-weight:900; font-size:13px;
+      padding:10px 12px;
+      font-weight:900; font-size:13px;
       display:flex; align-items:center; justify-content:space-between; gap:10px;
     }
     details.filters summary::-webkit-details-marker{display:none}
@@ -181,12 +190,8 @@
     </div>
 
     <div class="actions">
-      <button class="btn primary" id="btnRefresh" type="button">
-        <span>⟳</span> Actualizar
-      </button>
-      <button class="btn ghost" id="btnClear" type="button">
-        <span>✕</span> Limpiar filtros
-      </button>
+      <button class="btn primary" id="btnRefresh" type="button"><span>⟳</span> Actualizar</button>
+      <button class="btn ghost" id="btnClear" type="button"><span>✕</span> Limpiar filtros</button>
     </div>
   </div>
 
@@ -198,68 +203,42 @@
           <div class="hint">Click en una categoría para filtrar el resto.</div>
         </div>
       </div>
-      <div class="cardBody">
-        <div class="chart" id="c_genero"></div>
-      </div>
+      <div class="cardBody"><div class="chart" id="c_genero"></div></div>
     </div>
 
     <div class="card">
       <div class="cardHeader">
-        <div>
-          <div class="h">Estado civil</div>
-          <div class="hint">Frecuencia por categoría.</div>
-        </div>
+        <div><div class="h">Estado civil</div><div class="hint">Frecuencia por categoría.</div></div>
       </div>
-      <div class="cardBody">
-        <div class="chart" id="c_estado"></div>
-      </div>
+      <div class="cardBody"><div class="chart" id="c_estado"></div></div>
     </div>
 
     <div class="card">
       <div class="cardHeader">
-        <div>
-          <div class="h">Escolaridad</div>
-          <div class="hint">Frecuencia por categoría.</div>
-        </div>
+        <div><div class="h">Escolaridad</div><div class="hint">Frecuencia por categoría.</div></div>
       </div>
-      <div class="cardBody">
-        <div class="chart" id="c_escolaridad"></div>
-      </div>
+      <div class="cardBody"><div class="chart" id="c_escolaridad"></div></div>
     </div>
 
     <div class="card">
       <div class="cardHeader">
-        <div>
-          <div class="h">Departamento</div>
-          <div class="hint">Top 15 por frecuencia (si aplica).</div>
-        </div>
+        <div><div class="h">Departamento</div><div class="hint">Top 15 por frecuencia (si aplica).</div></div>
       </div>
-      <div class="cardBody">
-        <div class="chart tall" id="c_depto"></div>
-      </div>
+      <div class="cardBody"><div class="chart tall" id="c_depto"></div></div>
     </div>
 
     <div class="card">
       <div class="cardHeader">
-        <div>
-          <div class="h">Posición</div>
-          <div class="hint">Top 15 por frecuencia (si aplica).</div>
-        </div>
+        <div><div class="h">Posición</div><div class="hint">Top 15 por frecuencia (si aplica).</div></div>
       </div>
-      <div class="cardBody">
-        <div class="chart tall" id="c_pos"></div>
-      </div>
+      <div class="cardBody"><div class="chart tall" id="c_pos"></div></div>
     </div>
 
     <div class="card">
       <div class="cardHeader">
-        <div>
-          <div class="h">Resumen</div>
-          <div class="hint">Última actualización + filtros avanzados.</div>
-        </div>
+        <div><div class="h">Resumen</div><div class="hint">Última actualización + filtros avanzados.</div></div>
         <div class="status ok" id="statusBox">
-          <span class="led"></span>
-          <span id="statusText">OK</span>
+          <span class="led"></span> <span id="statusText">OK</span>
         </div>
       </div>
 
@@ -276,31 +255,13 @@
         </div>
 
         <details class="filters" open>
-          <summary>
-            <span>Filtros (dropdown)</span>
-            <span style="color:var(--muted); font-weight:800;">▾</span>
-          </summary>
+          <summary><span>Filtros (dropdown)</span><span style="color:var(--muted); font-weight:800;">▾</span></summary>
           <div class="filtersBody">
-            <div class="filterBox">
-              <div class="lbl">Género</div>
-              <div id="f_genero"></div>
-            </div>
-            <div class="filterBox">
-              <div class="lbl">Estado civil</div>
-              <div id="f_estado"></div>
-            </div>
-            <div class="filterBox">
-              <div class="lbl">Escolaridad</div>
-              <div id="f_escolaridad"></div>
-            </div>
-            <div class="filterBox">
-              <div class="lbl">Departamento</div>
-              <div id="f_depto"></div>
-            </div>
-            <div class="filterBox" style="grid-column:1/-1">
-              <div class="lbl">Posición</div>
-              <div id="f_pos"></div>
-            </div>
+            <div class="filterBox"><div class="lbl">Género</div><div id="f_genero"></div></div>
+            <div class="filterBox"><div class="lbl">Estado civil</div><div id="f_estado"></div></div>
+            <div class="filterBox"><div class="lbl">Escolaridad</div><div id="f_escolaridad"></div></div>
+            <div class="filterBox"><div class="lbl">Departamento</div><div id="f_depto"></div></div>
+            <div class="filterBox" style="grid-column:1/-1"><div class="lbl">Posición</div><div id="f_pos"></div></div>
           </div>
         </details>
       </div>
@@ -311,9 +272,9 @@
 
   <script>
     // ====== CONFIG: tu Web App /exec (Apps Script) ======
-    const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyiq69oJ-Qutujq8S8WvLJbLSjZBmbM9MFC47jXltmh_NHnBLM1UVuPB_SJIavXv2gv/exec";
+    const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyFts0YON9NqSHB-Us6CMKiomT8wYbsqApCK23fqrxHRHeMTz-IX1N0tAzfaKNTkIaK/exec";
 
-    // Paquetes necesarios
+    // Cargar paquetes
     google.charts.load('current', { packages: ['corechart', 'controls'] });
 
     // Estado global
@@ -325,7 +286,7 @@
     let resizeTimer = null;
     let uiReady_ = false;
 
-    // Arranque seguro: esperar DOM + Google Charts
+    // Boot seguro: DOM + Charts
     let domReady = false;
     let chartsReady = false;
 
@@ -342,13 +303,19 @@
 
     function tryBoot_(){
       if (!domReady || !chartsReady) return;
-      // Asegura que el layout ya pintó contenedores (evita container null por timing)
       requestAnimationFrame(() => init_());
     }
 
     function hookButtons_(){
       document.getElementById('btnRefresh').addEventListener('click', refreshNow_);
       document.getElementById('btnClear').addEventListener('click', clearAllFilters_);
+    }
+
+    function el_(id){ return document.getElementById(id); }
+
+    function requireEls_(ids){
+      const missing = ids.filter(id => !el_(id));
+      if (missing.length) throw new Error('Faltan contenedores en HTML: ' + missing.join(', '));
     }
 
     function init_() {
@@ -366,7 +333,6 @@
           setHeader_(payload);
           buildDataTable_(payload.rows || []);
           buildControlsAndCharts_();
-
           uiReady_ = true;
           safeRedrawAll_();
           setStatus_('ok', 'OK');
@@ -376,7 +342,7 @@
           console.error(err);
           setStatus_('bad', 'Error');
           showToast_('No se pudo inicializar: ' + (err?.message || err));
-          document.getElementById('updatedAt').textContent = 'Error: ' + (err?.message || err);
+          el_('updatedAt').textContent = 'Error: ' + (err?.message || err);
         });
     }
 
@@ -417,72 +383,62 @@
       dataTable.addColumn('string', 'Departamento');
       dataTable.addColumn('string', 'Posición');
 
-      const safeRows = (rows || []).map(r => [
-        (r && r[0] != null ? String(r[0]).trim() : '(Vacío)') || '(Vacío)',
-        (r && r[1] != null ? String(r[1]).trim() : '(Vacío)') || '(Vacío)',
-        (r && r[2] != null ? String(r[2]).trim() : '(Vacío)') || '(Vacío)',
-        (r && r[3] != null ? String(r[3]).trim() : '(Vacío)') || '(Vacío)',
-        (r && r[4] != null ? String(r[4]).trim() : '(Vacío)') || '(Vacío)',
-      ]);
+      const safeRows = (rows || []).map(r => ([
+        (r?.[0] != null ? String(r[0]).trim() : '(Vacío)') || '(Vacío)',
+        (r?.[1] != null ? String(r[1]).trim() : '(Vacío)') || '(Vacío)',
+        (r?.[2] != null ? String(r[2]).trim() : '(Vacío)') || '(Vacío)',
+        (r?.[3] != null ? String(r[3]).trim() : '(Vacío)') || '(Vacío)',
+        (r?.[4] != null ? String(r[4]).trim() : '(Vacío)') || '(Vacío)',
+      ]));
 
       if (safeRows.length) dataTable.addRows(safeRows);
-    }
-
-    function el_(id){ return document.getElementById(id); }
-
-    function requireEls_(ids){
-      const missing = ids.filter(id => !el_(id));
-      if (missing.length) throw new Error('Faltan contenedores en HTML: ' + missing.join(', '));
     }
 
     function buildControlsAndCharts_() {
       requireEls_(['c_genero','c_estado','c_escolaridad','c_depto','c_pos','f_genero','f_estado','f_escolaridad','f_depto','f_pos']);
 
-      // Charts (una sola vez)
-      charts.genero = charts.genero || new google.visualization.PieChart(el_('c_genero'));
-      charts.estado = charts.estado || new google.visualization.PieChart(el_('c_estado'));
+      // Charts (solo 1 vez)
+      charts.genero      = charts.genero      || new google.visualization.PieChart(el_('c_genero'));
+      charts.estado      = charts.estado      || new google.visualization.PieChart(el_('c_estado'));
       charts.escolaridad = charts.escolaridad || new google.visualization.PieChart(el_('c_escolaridad'));
-      charts.depto = charts.depto || new google.visualization.BarChart(el_('c_depto'));
-      charts.pos = charts.pos || new google.visualization.BarChart(el_('c_pos'));
+      charts.depto       = charts.depto       || new google.visualization.BarChart(el_('c_depto'));
+      charts.pos         = charts.pos         || new google.visualization.BarChart(el_('c_pos'));
 
-      // Controls (una sola vez)
+      // Controls (solo 1 vez)
       controls.genero = controls.genero || new google.visualization.ControlWrapper({
         controlType: 'CategoryFilter',
         containerId: 'f_genero',
-        options: { filterColumnLabel: 'Género', ui: { label: '', allowTyping: false, allowMultiple: false, caption: 'Todos' } }
+        options: { filterColumnLabel: 'Género', ui: { label:'', allowTyping:false, allowMultiple:false, caption:'Todos' } }
       });
 
       controls.estado = controls.estado || new google.visualization.ControlWrapper({
         controlType: 'CategoryFilter',
         containerId: 'f_estado',
-        options: { filterColumnLabel: 'Estado civil', ui: { label: '', allowTyping: false, allowMultiple: false, caption: 'Todos' } }
+        options: { filterColumnLabel: 'Estado civil', ui: { label:'', allowTyping:false, allowMultiple:false, caption:'Todos' } }
       });
 
       controls.escolaridad = controls.escolaridad || new google.visualization.ControlWrapper({
         controlType: 'CategoryFilter',
         containerId: 'f_escolaridad',
-        options: { filterColumnLabel: 'Escolaridad', ui: { label: '', allowTyping: false, allowMultiple: false, caption: 'Todos' } }
+        options: { filterColumnLabel: 'Escolaridad', ui: { label:'', allowTyping:false, allowMultiple:false, caption:'Todos' } }
       });
 
       controls.depto = controls.depto || new google.visualization.ControlWrapper({
         controlType: 'CategoryFilter',
         containerId: 'f_depto',
-        options: { filterColumnLabel: 'Departamento', ui: { label: '', allowTyping: false, allowMultiple: false, caption: 'Todos' } }
+        options: { filterColumnLabel: 'Departamento', ui: { label:'', allowTyping:false, allowMultiple:false, caption:'Todos' } }
       });
 
       controls.pos = controls.pos || new google.visualization.ControlWrapper({
         controlType: 'CategoryFilter',
         containerId: 'f_pos',
-        options: { filterColumnLabel: 'Posición', ui: { label: '', allowTyping: true, allowMultiple: false, caption: 'Todos' } }
+        options: { filterColumnLabel: 'Posición', ui: { label:'', allowTyping:true, allowMultiple:false, caption:'Todos' } }
       });
 
-      // DIBUJAR controles (aunque no haya filas; solo requiere columnas)
-      if (!dataTable || dataTable.getNumberOfColumns() === 0) {
-        throw new Error('DataTable no está lista para dibujar controles.');
-      }
+      // Dibujar controles (aunque no haya filas; con columnas basta)
       Object.values(controls).forEach(c => c.draw(dataTable));
 
-      // Wire (una sola vez)
+      // Wire (solo una vez)
       if (!buildControlsAndCharts_._wired) {
         Object.values(controls).forEach(c => {
           google.visualization.events.addListener(c, 'statechange', () => {
@@ -547,9 +503,7 @@
       drawChartSafe_('c_escolaridad', charts.escolaridad, dtEscol, baseChartOptions_('Escolaridad'));
 
       drawChartSafe_(
-        'c_depto',
-        charts.depto,
-        dtDepto,
+        'c_depto', charts.depto, dtDepto,
         Object.assign(baseChartOptions_('Departamento'), {
           legend: { position: 'none' },
           bars: 'horizontal',
@@ -559,9 +513,7 @@
       );
 
       drawChartSafe_(
-        'c_pos',
-        charts.pos,
-        dtPos,
+        'c_pos', charts.pos, dtPos,
         Object.assign(baseChartOptions_('Posición'), {
           legend: { position: 'none' },
           bars: 'horizontal',
@@ -573,15 +525,14 @@
 
     function drawChartSafe_(containerId, chart, dt, options, tall=false){
       const container = el_(containerId);
-      if (!container || !chart) return; // evita container null
+      if (!container || !chart) return;
 
-      // Si no hay datos dibujables, no llamamos a google.draw (evita "no data specified")
       if (!isDrawable_(dt)) {
         container.innerHTML = `<div class="nodata ${tall ? 'tall' : ''}">Sin datos para mostrar</div>`;
         return;
       }
 
-      // limpiar "Sin datos"
+      // limpiar placeholder
       if (container.querySelector('.nodata')) container.innerHTML = '';
       chart.draw(dt, options);
     }
@@ -591,7 +542,6 @@
       if (dt.getNumberOfColumns() < 2) return false;
       if (dt.getNumberOfRows() <= 0) return false;
 
-      // suma de la columna 1 (Total). Si todo es 0, Google Charts se queja.
       let sum = 0;
       for (let i = 0; i < dt.getNumberOfRows(); i++){
         const v = Number(dt.getValue(i, 1));
@@ -613,6 +563,7 @@
       ];
 
       let current = rows;
+
       filters.forEach(([ctrl, col]) => {
         const state = ctrl.getState();
         const val = state?.selectedValues?.[0];
@@ -658,14 +609,14 @@
         if (row == null) return;
 
         const dt = lastChartData[key];
-        if (!dt || !dt.getNumberOfRows) return;
-        if (dt.getNumberOfRows() === 0) return;
+        if (!dt || dt.getNumberOfRows() === 0) return;
 
         const value = dt.getValue(row, 0);
         if (!value) return;
 
         const current = controlWrapper.getState()?.selectedValues?.[0];
 
+        // toggle
         if (current === value) {
           controlWrapper.setState({ selectedValues: [] });
           controlWrapper.draw(dataTable);
@@ -680,11 +631,11 @@
     }
 
     function refreshNow_() {
-      const btn = document.getElementById('btnRefresh');
+      const btn = el_('btnRefresh');
       btn.disabled = true;
       btn.innerHTML = '<span>⟳</span> Actualizando…';
-      setStatus_('warn', 'Actualizando…');
 
+      setStatus_('warn', 'Actualizando…');
       uiReady_ = false;
 
       loadData_({ forceRefresh: true })
@@ -737,27 +688,29 @@
       const d = new Date(payload.updatedAt);
       const text = isNaN(d.getTime()) ? String(payload.updatedAt || '—') : d.toLocaleString();
 
-      document.getElementById('updatedAt').textContent = 'Actualizado: ' + text;
-      document.getElementById('updatedAtBig').textContent = text;
+      el_('updatedAt').textContent = 'Actualizado: ' + text;
+      el_('updatedAtBig').textContent = text;
 
       const n = payload.rows?.length || 0;
-      document.getElementById('rowCount').textContent = `· Registros: ${n}`;
-      document.getElementById('rowCountBig').textContent = String(n);
+      el_('rowCount').textContent = `· Registros: ${n}`;
+      el_('rowCountBig').textContent = String(n);
 
-      document.getElementById('sheetName').textContent = '· Hoja: ' + (payload.sheetName || 'Maestro');
+      el_('sheetName').textContent = '· Hoja: ' + (payload.sheetName || 'Maestro');
     }
 
     function setStatus_(mode, text){
-      const box = document.getElementById('statusBox');
-      const t = document.getElementById('statusText');
+      const box = el_('statusBox');
+      const t = el_('statusText');
+
       box.classList.remove('ok','bad');
       if (mode === 'ok') box.classList.add('ok');
       if (mode === 'bad') box.classList.add('bad');
+
       t.textContent = text;
     }
 
     function showToast_(msg){
-      const el = document.getElementById('toast');
+      const el = el_('toast');
       el.textContent = msg;
       el.style.display = 'block';
       clearTimeout(el._t);
