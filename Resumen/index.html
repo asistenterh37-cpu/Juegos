@@ -166,10 +166,10 @@
     </div>
 
     <div class="actions">
-      <button class="btn primary" id="btnRefresh" onclick="refreshNow_()">
+      <button class="btn primary" id="btnRefresh" type="button">
         <span>⟳</span> Actualizar
       </button>
-      <button class="btn ghost" onclick="clearAllFilters_()">
+      <button class="btn ghost" id="btnClear" type="button">
         <span>✕</span> Limpiar filtros
       </button>
     </div>
@@ -296,11 +296,13 @@
 
   <script>
     // ====== CONFIG: tu Web App /exec (Apps Script) ======
-    const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxa8G_-_SkP7psim_mwgkliKCcpo_Mw4MeITNNtDnOvISmbvQeD-wTA3cJzEZQxesPy/exec";
+    const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyfhfFft1xPHnYSKiyPm9yY9MJBhWfG-2kBZx5w_DlQ9SzkRKDdtZHBQ4IrLp5XJru2/exec";
 
+    // Cargar paquetes necesarios
     google.charts.load('current', { packages: ['corechart', 'controls'] });
 
-    let dataTable;
+    // Estado global
+    let dataTable = null;
     const controls = {};
     const charts = {};
     const lastChartData = {};
@@ -308,7 +310,30 @@
     let resizeTimer = null;
     let uiReady_ = false;
 
-    google.charts.setOnLoadCallback(init_);
+    // --- Arranque seguro: esperar DOM + Google Charts ---
+    let domReady = false;
+    let chartsReady = false;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      domReady = true;
+      hookButtons_();
+      tryBoot_();
+    });
+
+    google.charts.setOnLoadCallback(() => {
+      chartsReady = true;
+      tryBoot_();
+    });
+
+    function tryBoot_(){
+      if (!domReady || !chartsReady) return;
+      init_();
+    }
+
+    function hookButtons_(){
+      document.getElementById('btnRefresh').addEventListener('click', refreshNow_);
+      document.getElementById('btnClear').addEventListener('click', clearAllFilters_);
+    }
 
     function init_() {
       setStatus_('warn', 'Cargando…');
@@ -334,12 +359,12 @@
         .catch(err => {
           console.error(err);
           setStatus_('bad', 'Error');
-          showToast_('No se pudo cargar datos: ' + (err?.message || err));
+          showToast_('No se pudo inicializar: ' + (err?.message || err));
           document.getElementById('updatedAt').textContent = 'Error: ' + (err?.message || err);
         });
     }
 
-    // ✅ JSONP SIEMPRE (GitHub Pages + Apps Script = felicidad)
+    // ✅ JSONP SIEMPRE (GitHub Pages + Apps Script)
     function loadData_({ forceRefresh }) {
       const url = new URL(GAS_WEBAPP_URL);
       if (forceRefresh) url.searchParams.set('action', 'refresh');
@@ -363,7 +388,8 @@
 
         const u = new URL(url);
         u.searchParams.set('callback', cbName);
-        document.head.appendChild(Object.assign(script, { src: u.toString() }));
+        script.src = u.toString();
+        document.head.appendChild(script);
       });
     }
 
@@ -374,7 +400,17 @@
       dataTable.addColumn('string', 'Escolaridad');
       dataTable.addColumn('string', 'Departamento');
       dataTable.addColumn('string', 'Posición');
-      dataTable.addRows(rows);
+
+      // Asegurar shape: array de arrays con 5 columnas
+      const safeRows = (rows || []).map(r => [
+        (r && r[0] != null ? String(r[0]) : '(Vacío)'),
+        (r && r[1] != null ? String(r[1]) : '(Vacío)'),
+        (r && r[2] != null ? String(r[2]) : '(Vacío)'),
+        (r && r[3] != null ? String(r[3]) : '(Vacío)'),
+        (r && r[4] != null ? String(r[4]) : '(Vacío)'),
+      ]);
+
+      dataTable.addRows(safeRows);
     }
 
     function mustEl_(id){
@@ -384,12 +420,18 @@
     }
 
     function buildControlsAndCharts_() {
+      // Validar contenedores ANTES de crear wrappers (evita container=null)
+      ['c_genero','c_estado','c_escolaridad','c_depto','c_pos','f_genero','f_estado','f_escolaridad','f_depto','f_pos']
+        .forEach(mustEl_);
+
+      // Charts (una sola vez)
       charts.genero = charts.genero || new google.visualization.PieChart(mustEl_('c_genero'));
       charts.estado = charts.estado || new google.visualization.PieChart(mustEl_('c_estado'));
       charts.escolaridad = charts.escolaridad || new google.visualization.PieChart(mustEl_('c_escolaridad'));
       charts.depto = charts.depto || new google.visualization.BarChart(mustEl_('c_depto'));
       charts.pos = charts.pos || new google.visualization.BarChart(mustEl_('c_pos'));
 
+      // Controls (una sola vez)
       controls.genero = controls.genero || new google.visualization.ControlWrapper({
         controlType: 'CategoryFilter',
         containerId: 'f_genero',
@@ -420,8 +462,13 @@
         options: { filterColumnLabel: 'Posición', ui: { label: '', allowTyping: true, allowMultiple: false, caption: 'Todos' } }
       });
 
+      // DIBUJAR controles (con tabla válida)
+      if (!dataTable || dataTable.getNumberOfColumns() === 0) {
+        throw new Error('DataTable no está lista para dibujar controles.');
+      }
       Object.values(controls).forEach(c => c.draw(dataTable));
 
+      // Wire (una sola vez)
       if (!buildControlsAndCharts_._wired) {
         Object.values(controls).forEach(c => {
           google.visualization.events.addListener(c, 'statechange', () => {
@@ -460,7 +507,7 @@
       catch (err) {
         console.error(err);
         setStatus_('bad', 'Error');
-        showToast_('JS falló dibujando charts: ' + (err?.message || err));
+        showToast_('Falló al dibujar: ' + (err?.message || err));
       }
     }
 
@@ -529,7 +576,6 @@
       return view.toDataTable();
     }
 
-    // ✅ evita “no data specified”
     function groupCountSafe_(dt, colIndex, label, isBar = false) {
       if (!dt || dt.getNumberOfRows() === 0) return placeholder_(label);
 
@@ -611,6 +657,7 @@
           setHeader_(payload);
           buildDataTable_(payload.rows || []);
 
+          // Redibujar controles con data nueva (sin recrearlos)
           Object.values(controls).forEach(c => c.draw(dataTable));
 
           uiReady_ = true;
@@ -631,7 +678,7 @@
     }
 
     function clearAllFilters_() {
-      if (!controls.genero) return;
+      if (!controls.genero || !dataTable) return;
 
       uiReady_ = false;
       Object.values(controls).forEach(c => {
