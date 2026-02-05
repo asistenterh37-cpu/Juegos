@@ -97,6 +97,21 @@
     .chart{ width:100%; height: 260px; }
     .chart.tall{ height: 290px; }
 
+    .nodata{
+      width:100%;
+      height:260px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      border:1px dashed rgba(255,255,255,.16);
+      border-radius:14px;
+      color:rgba(232,238,252,.75);
+      background:rgba(0,0,0,.10);
+      font-weight:800;
+      letter-spacing:.2px;
+    }
+    .nodata.tall{ height:290px; }
+
     .kpis{ display:grid; grid-template-columns: 1fr; gap:10px; padding:12px 14px 14px 14px; }
     .kpiRow{
       display:flex; justify-content:space-between; align-items:center; gap:10px;
@@ -296,9 +311,9 @@
 
   <script>
     // ====== CONFIG: tu Web App /exec (Apps Script) ======
-    const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyfhfFft1xPHnYSKiyPm9yY9MJBhWfG-2kBZx5w_DlQ9SzkRKDdtZHBQ4IrLp5XJru2/exec";
+    const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyiq69oJ-Qutujq8S8WvLJbLSjZBmbM9MFC47jXltmh_NHnBLM1UVuPB_SJIavXv2gv/exec";
 
-    // Cargar paquetes necesarios
+    // Paquetes necesarios
     google.charts.load('current', { packages: ['corechart', 'controls'] });
 
     // Estado global
@@ -310,7 +325,7 @@
     let resizeTimer = null;
     let uiReady_ = false;
 
-    // --- Arranque seguro: esperar DOM + Google Charts ---
+    // Arranque seguro: esperar DOM + Google Charts
     let domReady = false;
     let chartsReady = false;
 
@@ -327,7 +342,8 @@
 
     function tryBoot_(){
       if (!domReady || !chartsReady) return;
-      init_();
+      // Asegura que el layout ya pintó contenedores (evita container null por timing)
+      requestAnimationFrame(() => init_());
     }
 
     function hookButtons_(){
@@ -401,35 +417,33 @@
       dataTable.addColumn('string', 'Departamento');
       dataTable.addColumn('string', 'Posición');
 
-      // Asegurar shape: array de arrays con 5 columnas
       const safeRows = (rows || []).map(r => [
-        (r && r[0] != null ? String(r[0]) : '(Vacío)'),
-        (r && r[1] != null ? String(r[1]) : '(Vacío)'),
-        (r && r[2] != null ? String(r[2]) : '(Vacío)'),
-        (r && r[3] != null ? String(r[3]) : '(Vacío)'),
-        (r && r[4] != null ? String(r[4]) : '(Vacío)'),
+        (r && r[0] != null ? String(r[0]).trim() : '(Vacío)') || '(Vacío)',
+        (r && r[1] != null ? String(r[1]).trim() : '(Vacío)') || '(Vacío)',
+        (r && r[2] != null ? String(r[2]).trim() : '(Vacío)') || '(Vacío)',
+        (r && r[3] != null ? String(r[3]).trim() : '(Vacío)') || '(Vacío)',
+        (r && r[4] != null ? String(r[4]).trim() : '(Vacío)') || '(Vacío)',
       ]);
 
-      dataTable.addRows(safeRows);
+      if (safeRows.length) dataTable.addRows(safeRows);
     }
 
-    function mustEl_(id){
-      const el = document.getElementById(id);
-      if (!el) throw new Error(`Falta contenedor en el HTML: #${id}`);
-      return el;
+    function el_(id){ return document.getElementById(id); }
+
+    function requireEls_(ids){
+      const missing = ids.filter(id => !el_(id));
+      if (missing.length) throw new Error('Faltan contenedores en HTML: ' + missing.join(', '));
     }
 
     function buildControlsAndCharts_() {
-      // Validar contenedores ANTES de crear wrappers (evita container=null)
-      ['c_genero','c_estado','c_escolaridad','c_depto','c_pos','f_genero','f_estado','f_escolaridad','f_depto','f_pos']
-        .forEach(mustEl_);
+      requireEls_(['c_genero','c_estado','c_escolaridad','c_depto','c_pos','f_genero','f_estado','f_escolaridad','f_depto','f_pos']);
 
       // Charts (una sola vez)
-      charts.genero = charts.genero || new google.visualization.PieChart(mustEl_('c_genero'));
-      charts.estado = charts.estado || new google.visualization.PieChart(mustEl_('c_estado'));
-      charts.escolaridad = charts.escolaridad || new google.visualization.PieChart(mustEl_('c_escolaridad'));
-      charts.depto = charts.depto || new google.visualization.BarChart(mustEl_('c_depto'));
-      charts.pos = charts.pos || new google.visualization.BarChart(mustEl_('c_pos'));
+      charts.genero = charts.genero || new google.visualization.PieChart(el_('c_genero'));
+      charts.estado = charts.estado || new google.visualization.PieChart(el_('c_estado'));
+      charts.escolaridad = charts.escolaridad || new google.visualization.PieChart(el_('c_escolaridad'));
+      charts.depto = charts.depto || new google.visualization.BarChart(el_('c_depto'));
+      charts.pos = charts.pos || new google.visualization.BarChart(el_('c_pos'));
 
       // Controls (una sola vez)
       controls.genero = controls.genero || new google.visualization.ControlWrapper({
@@ -462,7 +476,7 @@
         options: { filterColumnLabel: 'Posición', ui: { label: '', allowTyping: true, allowMultiple: false, caption: 'Todos' } }
       });
 
-      // DIBUJAR controles (con tabla válida)
+      // DIBUJAR controles (aunque no haya filas; solo requiere columnas)
       if (!dataTable || dataTable.getNumberOfColumns() === 0) {
         throw new Error('DataTable no está lista para dibujar controles.');
       }
@@ -528,31 +542,66 @@
       lastChartData.depto = dtDepto;
       lastChartData.pos = dtPos;
 
-      charts.genero.draw(dtGenero, baseChartOptions_('Género'));
-      charts.estado.draw(dtEstado, baseChartOptions_('Estado civil'));
-      charts.escolaridad.draw(dtEscol, baseChartOptions_('Escolaridad'));
+      drawChartSafe_('c_genero', charts.genero, dtGenero, baseChartOptions_('Género'));
+      drawChartSafe_('c_estado', charts.estado, dtEstado, baseChartOptions_('Estado civil'));
+      drawChartSafe_('c_escolaridad', charts.escolaridad, dtEscol, baseChartOptions_('Escolaridad'));
 
-      charts.depto.draw(
+      drawChartSafe_(
+        'c_depto',
+        charts.depto,
         dtDepto,
         Object.assign(baseChartOptions_('Departamento'), {
           legend: { position: 'none' },
           bars: 'horizontal',
           chartArea: { left: 120, top: 42, right: 14, bottom: 12, width: '100%', height: '78%' }
-        })
+        }),
+        true
       );
 
-      charts.pos.draw(
+      drawChartSafe_(
+        'c_pos',
+        charts.pos,
         dtPos,
         Object.assign(baseChartOptions_('Posición'), {
           legend: { position: 'none' },
           bars: 'horizontal',
           chartArea: { left: 160, top: 42, right: 14, bottom: 12, width: '100%', height: '78%' }
-        })
+        }),
+        true
       );
     }
 
+    function drawChartSafe_(containerId, chart, dt, options, tall=false){
+      const container = el_(containerId);
+      if (!container || !chart) return; // evita container null
+
+      // Si no hay datos dibujables, no llamamos a google.draw (evita "no data specified")
+      if (!isDrawable_(dt)) {
+        container.innerHTML = `<div class="nodata ${tall ? 'tall' : ''}">Sin datos para mostrar</div>`;
+        return;
+      }
+
+      // limpiar "Sin datos"
+      if (container.querySelector('.nodata')) container.innerHTML = '';
+      chart.draw(dt, options);
+    }
+
+    function isDrawable_(dt){
+      if (!dt) return false;
+      if (dt.getNumberOfColumns() < 2) return false;
+      if (dt.getNumberOfRows() <= 0) return false;
+
+      // suma de la columna 1 (Total). Si todo es 0, Google Charts se queja.
+      let sum = 0;
+      for (let i = 0; i < dt.getNumberOfRows(); i++){
+        const v = Number(dt.getValue(i, 1));
+        if (!isNaN(v)) sum += v;
+      }
+      return sum > 0;
+    }
+
     function applyControlFiltersToDataTable_(dt) {
-      let rows = [];
+      const rows = [];
       for (let r = 0; r < dt.getNumberOfRows(); r++) rows.push(r);
 
       const filters = [
@@ -577,7 +626,7 @@
     }
 
     function groupCountSafe_(dt, colIndex, label, isBar = false) {
-      if (!dt || dt.getNumberOfRows() === 0) return placeholder_(label);
+      if (!dt || dt.getNumberOfRows() === 0) return null;
 
       const grouped = google.visualization.data.group(
         dt,
@@ -588,7 +637,7 @@
       grouped.setColumnLabel(0, label);
       grouped.setColumnLabel(1, 'Total');
 
-      if (grouped.getNumberOfRows() === 0) return placeholder_(label);
+      if (grouped.getNumberOfRows() === 0) return null;
 
       const sortedRows = grouped.getSortedRows({ column: 1, desc: true });
       const topRows = (isBar ? sortedRows.slice(0, 15) : sortedRows);
@@ -596,14 +645,6 @@
       const view = new google.visualization.DataView(grouped);
       view.setRows(topRows);
       return view.toDataTable();
-    }
-
-    function placeholder_(label){
-      const dt = new google.visualization.DataTable();
-      dt.addColumn('string', label);
-      dt.addColumn('number', 'Total');
-      dt.addRow(['(Sin datos)', 0]);
-      return dt;
     }
 
     function wireChartToControl_(key, chart, controlWrapper) {
@@ -617,10 +658,11 @@
         if (row == null) return;
 
         const dt = lastChartData[key];
-        if (!dt || dt.getNumberOfRows() === 0) return;
+        if (!dt || !dt.getNumberOfRows) return;
+        if (dt.getNumberOfRows() === 0) return;
 
         const value = dt.getValue(row, 0);
-        if (!value || value === '(Sin datos)') return;
+        if (!value) return;
 
         const current = controlWrapper.getState()?.selectedValues?.[0];
 
@@ -657,7 +699,7 @@
           setHeader_(payload);
           buildDataTable_(payload.rows || []);
 
-          // Redibujar controles con data nueva (sin recrearlos)
+          // Redibujar controles con data nueva
           Object.values(controls).forEach(c => c.draw(dataTable));
 
           uiReady_ = true;
