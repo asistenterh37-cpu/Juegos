@@ -272,7 +272,8 @@
 
   <script>
     // ====== CONFIG: tu Web App /exec (Apps Script) ======
-    const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyFts0YON9NqSHB-Us6CMKiomT8wYbsqApCK23fqrxHRHeMTz-IX1N0tAzfaKNTkIaK/exec";
+    const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzRaHzm6i12x9WuTBr9v9mU1Qc8s7uBe2ZiLKoKYFrldwCmvYdg7h_UqoCrJ0R0OhxP/exec";
+    const SHEET_NAME = "Maestro";
 
     // Cargar paquetes
     google.charts.load('current', { packages: ['corechart', 'controls'] });
@@ -325,6 +326,10 @@
         .then(payload => {
           latestPayload = payload;
 
+          if (!payload || typeof payload !== 'object') {
+            throw new Error('Payload inválido (no es objeto).');
+          }
+
           if (payload?.error) {
             setStatus_('bad', 'Error');
             showToast_('Error desde GAS: ' + payload.error);
@@ -349,6 +354,7 @@
     // ✅ JSONP SIEMPRE (GitHub Pages + Apps Script)
     function loadData_({ forceRefresh }) {
       const url = new URL(GAS_WEBAPP_URL);
+      url.searchParams.set('sheet', SHEET_NAME);
       if (forceRefresh) url.searchParams.set('action', 'refresh');
       url.searchParams.set('_ts', Date.now().toString());
       return jsonpLoad_(url.toString());
@@ -383,6 +389,7 @@
       dataTable.addColumn('string', 'Departamento');
       dataTable.addColumn('string', 'Posición');
 
+      // rows esperado: [ [genero, estado, escolaridad, depto, pos], ... ]
       const safeRows = (rows || []).map(r => ([
         (r?.[0] != null ? String(r[0]).trim() : '(Vacío)') || '(Vacío)',
         (r?.[1] != null ? String(r[1]).trim() : '(Vacío)') || '(Vacío)',
@@ -404,35 +411,38 @@
       charts.depto       = charts.depto       || new google.visualization.BarChart(el_('c_depto'));
       charts.pos         = charts.pos         || new google.visualization.BarChart(el_('c_pos'));
 
+      // ✅ caption = "0 - Todos"
+      const CAPTION_ALL = '0 - Todos';
+
       // Controls (solo 1 vez)
       controls.genero = controls.genero || new google.visualization.ControlWrapper({
         controlType: 'CategoryFilter',
         containerId: 'f_genero',
-        options: { filterColumnLabel: 'Género', ui: { label:'', allowTyping:false, allowMultiple:false, caption:'Todos' } }
+        options: { filterColumnLabel: 'Género', ui: { label:'', allowTyping:false, allowMultiple:false, caption: CAPTION_ALL } }
       });
 
       controls.estado = controls.estado || new google.visualization.ControlWrapper({
         controlType: 'CategoryFilter',
         containerId: 'f_estado',
-        options: { filterColumnLabel: 'Estado civil', ui: { label:'', allowTyping:false, allowMultiple:false, caption:'Todos' } }
+        options: { filterColumnLabel: 'Estado civil', ui: { label:'', allowTyping:false, allowMultiple:false, caption: CAPTION_ALL } }
       });
 
       controls.escolaridad = controls.escolaridad || new google.visualization.ControlWrapper({
         controlType: 'CategoryFilter',
         containerId: 'f_escolaridad',
-        options: { filterColumnLabel: 'Escolaridad', ui: { label:'', allowTyping:false, allowMultiple:false, caption:'Todos' } }
+        options: { filterColumnLabel: 'Escolaridad', ui: { label:'', allowTyping:false, allowMultiple:false, caption: CAPTION_ALL } }
       });
 
       controls.depto = controls.depto || new google.visualization.ControlWrapper({
         controlType: 'CategoryFilter',
         containerId: 'f_depto',
-        options: { filterColumnLabel: 'Departamento', ui: { label:'', allowTyping:false, allowMultiple:false, caption:'Todos' } }
+        options: { filterColumnLabel: 'Departamento', ui: { label:'', allowTyping:false, allowMultiple:false, caption: CAPTION_ALL } }
       });
 
       controls.pos = controls.pos || new google.visualization.ControlWrapper({
         controlType: 'CategoryFilter',
         containerId: 'f_pos',
-        options: { filterColumnLabel: 'Posición', ui: { label:'', allowTyping:true, allowMultiple:false, caption:'Todos' } }
+        options: { filterColumnLabel: 'Posición', ui: { label:'', allowTyping:true, allowMultiple:false, caption: CAPTION_ALL } }
       });
 
       // Dibujar controles (aunque no haya filas; con columnas basta)
@@ -532,7 +542,6 @@
         return;
       }
 
-      // limpiar placeholder
       if (container.querySelector('.nodata')) container.innerHTML = '';
       chart.draw(dt, options);
     }
@@ -650,7 +659,6 @@
           setHeader_(payload);
           buildDataTable_(payload.rows || []);
 
-          // Redibujar controles con data nueva
           Object.values(controls).forEach(c => c.draw(dataTable));
 
           uiReady_ = true;
@@ -695,7 +703,7 @@
       el_('rowCount').textContent = `· Registros: ${n}`;
       el_('rowCountBig').textContent = String(n);
 
-      el_('sheetName').textContent = '· Hoja: ' + (payload.sheetName || 'Maestro');
+      el_('sheetName').textContent = '· Hoja: ' + (payload.sheetName || payload.sheet || SHEET_NAME);
     }
 
     function setStatus_(mode, text){
