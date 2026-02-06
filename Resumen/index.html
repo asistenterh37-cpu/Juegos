@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Dashboard Headcount</title>
 
-  <!-- ✅ Evita 404 de favicon.ico -->
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%232563eb'/><circle cx='22' cy='32' r='10' fill='%23fff' opacity='.9'/><circle cx='40' cy='32' r='10' fill='%23fff' opacity='.35'/></svg>">
 
   <script src="https://www.gstatic.com/charts/loader.js"></script>
@@ -345,35 +344,9 @@
   <div class="toast" id="toast"></div>
 
   <script>
-    /**
-     * ✅ CONFIG URL GAS
-     * - Puedes pasarla por querystring: ?exec=https%3A%2F%2Fscript.google.com%2Fmacros%2Fs%2F...%2Fexec
-     * - O guardarla con el botón "Config URL" (localStorage).
-     */
-    const DEFAULT_GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbz1yexvRz8Uk7SDlZYJdcBrTF0rFpvkl4stTWX2h2Irk6ljapTUqCHUz9qSvwk5BAnC/exec";
+    // ✅ URL FIJA del WebApp (DEBE terminar en /exec)
+    const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbz1yexvRz8Uk7SDlZYJdcBrTF0rFpvkl4stTWX2h2Irk6ljapTUqCHUz9qSvwk5BAnC/exec";
     const SHEET_NAME = "Maestro";
-
-    function getExecUrl_() {
-      const qs = new URLSearchParams(location.search);
-      const fromQS = (qs.get('exec') || '').trim();
-      const fromLS = (localStorage.getItem('gas_exec_url') || '').trim();
-      const url = fromQS || fromLS || DEFAULT_GAS_WEBAPP_URL;
-
-      // Normaliza: si te pasan /dev o falta /exec, intenta corregir
-      try {
-        const u = new URL(url);
-        if (!u.pathname.endsWith('/exec')) {
-          // si termina en /dev, lo cambia a /exec; si termina en /, agrega exec
-          u.pathname = u.pathname.replace(/\/dev\/?$/,'/exec').replace(/\/$/,'') + (u.pathname.endsWith('/exec') ? '' : '');
-          if (!u.pathname.endsWith('/exec')) u.pathname = u.pathname.replace(/\/$/,'') + '/exec';
-        }
-        return u.toString();
-      } catch {
-        return url; // lo valida el JSONP luego
-      }
-    }
-
-    let GAS_WEBAPP_URL = getExecUrl_();
 
     google.charts.load('current', { packages: ['corechart'] });
 
@@ -419,20 +392,9 @@
       document.getElementById('btnConfig').addEventListener('click', configUrl_);
     }
 
+    // Si quieres URL FIJA, este botón no debería cambiarla. Lo dejamos solo informativo.
     function configUrl_(){
-      const current = (localStorage.getItem('gas_exec_url') || GAS_WEBAPP_URL || '').trim();
-      const next = prompt(
-        'Pega aquí la URL del WebApp (DEBE terminar en /exec).\n\nTip: Deploy -> Web app -> Who has access: Anyone (Cualquiera).\n',
-        current
-      );
-      if (next == null) return;
-      const v = next.trim();
-      if (!v) {
-        localStorage.removeItem('gas_exec_url');
-      } else {
-        localStorage.setItem('gas_exec_url', v);
-      }
-      location.reload();
+      alert('La URL está fijada en el código (GAS_WEBAPP_URL).');
     }
 
     function hookSelects_(){
@@ -483,7 +445,6 @@
     async function init_() {
       setStatus_('warn', 'Cargando…');
 
-      // ✅ Verifica URL rápida (formato)
       if (!/^https:\/\/script\.google\.com\/macros\/s\//.test(GAS_WEBAPP_URL) || !/\/exec(\?|$)/.test(GAS_WEBAPP_URL)) {
         setStatus_('bad', 'Error');
         showToast_('URL GAS inválida. Debe ser https://script.google.com/macros/s/.../exec');
@@ -491,7 +452,6 @@
         return;
       }
 
-      // ✅ Ping (si falla, te da mensaje claro)
       try {
         await ping_();
       } catch (e) {
@@ -548,12 +508,6 @@
       return jsonpLoad_(url.toString(), { timeoutMs: 15000 });
     }
 
-    /**
-     * ✅ JSONP robusto + diagnóstico:
-     * - onerror => 404/403/blocked
-     * - timeout => devolvió HTML/login o no ejecutó callback
-     * - si parece HTML, te avisa (muchas veces es "necesita login")
-     */
     function jsonpLoad_(url, { timeoutMs = 12000 } = {}) {
       return new Promise((resolve, reject) => {
         const cbName = 'cb_' + Math.random().toString(36).slice(2);
