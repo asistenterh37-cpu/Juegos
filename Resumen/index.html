@@ -204,7 +204,6 @@
       max-width: 360px;
       z-index:9;
     }
-
     .summaryWrap{ margin-top:14px; }
   </style>
 </head>
@@ -320,15 +319,25 @@
   <div class="toast" id="toast"></div>
 
   <script>
-    // ✅ URL FIJA del WebApp (DEBE terminar en /exec)
-    const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxGXGnvgG7CMdDneEC48Ryvod8y9cqEoFK-57Zqs3kNJIQDYoYHEycQKYcFpoy6VnGa/exec";
+    /******************************************************************
+     * ✅ CONFIG (IMPORTANTE)
+     * - DEFAULT_GAS_URL: tu /exec por defecto
+     * - El usuario puede cambiarla con "Config URL" (se guarda localStorage)
+     ******************************************************************/
+    const DEFAULT_GAS_URL = "https://script.google.com/macros/s/AKfycbxVQ8myx0vcnveUf1G8RwDP1ibW3scEZ_ENtL-ueKltMoiTQToBD-yaMm9Zx87RybHY/exec";
+    const GAS_URL_STORAGE_KEY = "RH_DASHBOARD_GAS_URL";
     const SHEET_NAME = "Maestro";
+
+    function getGasUrl_(){
+      return (localStorage.getItem(GAS_URL_STORAGE_KEY) || DEFAULT_GAS_URL).trim();
+    }
+
+    function setGasUrl_(u){
+      localStorage.setItem(GAS_URL_STORAGE_KEY, u.trim());
+    }
 
     /**
      * ✅ FILTROS POR VARIABLE (keys unificadas)
-     * key: variable interna (filterState / MENUS / lastChartData)
-     * payloadKey: key que viene desde GAS (filters/menus)
-     * colIndex: columna en DataTable
      */
     const FILTER_META = [
       { key:'genero',      label:'Género',       selectId:'sel_genero',      payloadKey:'genero',      colIndex:0 },
@@ -339,7 +348,6 @@
       { key:'localidad',   label:'Localidad',    selectId:'sel_localidad',   payloadKey:'localidad',   colIndex:5 },
     ];
 
-    // ✅ Opciones (viven en variables)
     const MENUS = {
       genero: [], estado: [], escolaridad: [], departamento: [], posicion: [], localidad: []
     };
@@ -353,7 +361,6 @@
     let resizeTimer = null;
     let uiReady_ = false;
 
-    // ✅ Estado de filtros (por variable)
     const filterState = {};
     FILTER_META.forEach(m => filterState[m.key] = 'Todos');
 
@@ -395,7 +402,21 @@
     }
 
     function configUrl_(){
-      alert('La URL está fijada en el código (GAS_WEBAPP_URL).');
+      const current = getGasUrl_();
+      const next = prompt(
+        "Pega aquí la URL del WebApp (DEBE terminar en /exec):",
+        current
+      );
+      if (next == null) return;
+
+      const u = next.trim();
+      if (!/^https:\/\/script\.google\.com\/macros\/s\//.test(u) || !/\/exec(\?|$)/.test(u)) {
+        showToast_("Esa URL no parece válida. Debe verse como https://script.google.com/macros/s/.../exec");
+        return;
+      }
+      setGasUrl_(u);
+      showToast_("URL guardada. Ahora sí, que ruede el headcount. 😄");
+      refreshNow_();
     }
 
     function hookSelects_(){
@@ -448,27 +469,29 @@
     async function init_() {
       setStatus_('warn', 'Cargando…');
 
+      const GAS_WEBAPP_URL = getGasUrl_();
+
       if (!/^https:\/\/script\.google\.com\/macros\/s\//.test(GAS_WEBAPP_URL) || !/\/exec(\?|$)/.test(GAS_WEBAPP_URL)) {
         setStatus_('bad', 'Error');
-        showToast_('URL GAS inválida. Debe ser https://script.google.com/macros/s/.../exec');
+        showToast_('URL GAS inválida. Debe terminar en /exec (usa Config URL).');
         el_('updatedAt').textContent = 'Error: URL /exec inválida';
         return;
       }
 
       try {
-        await ping_();
+        await ping_(GAS_WEBAPP_URL);
       } catch (e) {
         setStatus_('bad', 'Error');
         showToast_(
           'No responde el WebApp (/exec) o no es público. ' +
-          'Revisa Deploy: "Cualquiera/Anyone". ' +
+          'Revisa Deploy: "Anyone/Cualquiera". ' +
           'Detalle: ' + (e?.message || e)
         );
         el_('updatedAt').textContent = 'Error: ' + (e?.message || e);
         return;
       }
 
-      loadData_({ forceRefresh: false })
+      loadData_(GAS_WEBAPP_URL, { forceRefresh: false })
         .then(payload => {
           latestPayload = payload;
 
@@ -496,21 +519,22 @@
         });
     }
 
-    function ping_(){
-      const url = new URL(GAS_WEBAPP_URL);
+    function ping_(baseUrl){
+      const url = new URL(baseUrl);
       url.searchParams.set('ping','1');
       url.searchParams.set('_ts', Date.now().toString());
       return jsonpLoad_(url.toString(), { timeoutMs: 12000 });
     }
 
-    function loadData_({ forceRefresh }) {
-      const url = new URL(GAS_WEBAPP_URL);
+    function loadData_(baseUrl, { forceRefresh }) {
+      const url = new URL(baseUrl);
       url.searchParams.set('sheet', SHEET_NAME);
       if (forceRefresh) url.searchParams.set('action', 'refresh');
       url.searchParams.set('_ts', Date.now().toString());
       return jsonpLoad_(url.toString(), { timeoutMs: 15000 });
     }
 
+    // ✅ JSONP robusto
     function jsonpLoad_(url, { timeoutMs = 12000 } = {}) {
       return new Promise((resolve, reject) => {
         const cbName = 'cb_' + Math.random().toString(36).slice(2);
@@ -611,7 +635,7 @@
       const f = payload.menus || payload.filters || {};
 
       MENUS.genero       = ensureTodos_(f.genero || uniqueFromData_(0));
-      MENUS.estado       = ensureTodos_(f.estado || uniqueFromData_(1));
+      MENUS.estado       = ensureTodos_(f.estado || f['estado civil'] || uniqueFromData_(1));
       MENUS.escolaridad  = ensureTodos_(f.escolaridad || uniqueFromData_(2));
       MENUS.departamento = ensureTodos_(f.departamento || f.depto || uniqueFromData_(3));
       MENUS.posicion     = ensureTodos_(f.posicion || f.pos || uniqueFromData_(4));
@@ -875,7 +899,9 @@
       setStatus_('warn', 'Actualizando…');
       uiReady_ = false;
 
-      loadData_({ forceRefresh: true })
+      const GAS_WEBAPP_URL = getGasUrl_();
+
+      loadData_(GAS_WEBAPP_URL, { forceRefresh: true })
         .then(payload => {
           latestPayload = payload;
 
