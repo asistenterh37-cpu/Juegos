@@ -341,7 +341,8 @@
   <div class="toast" id="toast"></div>
 
   <script>
-    const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwOkGrKsSsSTkpKllAz_Hr09bzAISFeBItz5wSIum9uB_dEp1Pt-QFQUzUV7HoH6ceG/exec";
+    // ⚠️ IMPORTANTE: si el webapp no está como "Cualquiera", JSONP fallará.
+    const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzHv0yZrxX7RzgSRulkibPCZjPIvxw0TjTvBujtSEeb3PYq_uPgFMa3GYbsUaRADsl6/exec";
     const SHEET_NAME = "Maestro";
 
     google.charts.load('current', { packages: ['corechart'] });
@@ -398,7 +399,6 @@
 
     function el_(id){ return document.getElementById(id); }
 
-    // ✅ Normalizador Localidad (arregla Tegucigaloa → Tegucigalpa)
     function norm_(s){
       return String(s || '')
         .trim()
@@ -411,13 +411,7 @@
       const raw = String(v ?? '').trim();
       if (!raw) return '(Vacío)';
       const k = norm_(raw);
-
-      // variantes comunes
-      const map = {
-        'tegucigaloa': 'Tegucigalpa',
-        'tegus': 'Tegucigalpa',
-        'tegucigalpaa': 'Tegucigalpa'
-      };
+      const map = { 'tegucigaloa': 'Tegucigalpa', 'tegus': 'Tegucigalpa', 'tegucigalpaa': 'Tegucigalpa' };
       return map[k] || raw;
     }
     function uniqKeepOrder_(arr){
@@ -439,8 +433,22 @@
       if (missing.length) throw new Error('Faltan contenedores en HTML: ' + missing.join(', '));
     }
 
-    function init_() {
+    async function init_() {
       setStatus_('warn', 'Cargando…');
+
+      // ✅ Ping rápido para diagnosticar (no rompe nada)
+      try {
+        await ping_();
+      } catch (e) {
+        setStatus_('bad', 'Error');
+        showToast_(
+          'No responde el WebApp (/exec). Revisa despliegue: "Cualquiera" + URL vigente. Detalle: ' +
+          (e?.message || e)
+        );
+        el_('updatedAt').textContent = 'Error: ' + (e?.message || e);
+        return;
+      }
+
       loadData_({ forceRefresh: false })
         .then(payload => {
           latestPayload = payload;
@@ -469,33 +477,66 @@
         });
     }
 
+    function ping_(){
+      const url = new URL(GAS_WEBAPP_URL);
+      url.searchParams.set('ping','1');
+      url.searchParams.set('_ts', Date.now().toString());
+      return jsonpLoad_(url.toString(), { timeoutMs: 12000 });
+    }
+
     function loadData_({ forceRefresh }) {
       const url = new URL(GAS_WEBAPP_URL);
       url.searchParams.set('sheet', SHEET_NAME);
       if (forceRefresh) url.searchParams.set('action', 'refresh');
       url.searchParams.set('_ts', Date.now().toString());
-      return jsonpLoad_(url.toString());
+      return jsonpLoad_(url.toString(), { timeoutMs: 15000 });
     }
 
-    function jsonpLoad_(url) {
+    // ✅ JSONP robusto: timeout + onload+guard + referrerPolicy
+    function jsonpLoad_(url, { timeoutMs = 12000 } = {}) {
       return new Promise((resolve, reject) => {
         const cbName = 'cb_' + Math.random().toString(36).slice(2);
         const script = document.createElement('script');
+        script.async = true;
+        script.referrerPolicy = 'no-referrer';
 
-        window[cbName] = (data) => {
+        let done = false;
+        let t = null;
+
+        function finishOk(data){
+          if (done) return;
+          done = true;
           cleanup_();
           resolve(data);
-        };
-
-        script.onerror = () => {
+        }
+        function finishErr(err){
+          if (done) return;
+          done = true;
           cleanup_();
-          reject(new Error('No se pudo cargar JSONP desde /exec'));
-        };
-
-        function cleanup_() {
+          reject(err);
+        }
+        function cleanup_(){
+          if (t) clearTimeout(t);
           try { delete window[cbName]; } catch(e) {}
           script.remove();
         }
+
+        window[cbName] = (data) => finishOk(data);
+
+        script.onerror = () => {
+          finishErr(new Error(
+            'No se pudo cargar JSONP desde /exec. ' +
+            'Causa típica: WebApp no es "Cualquiera" o URL /exec inválida.'
+          ));
+        };
+
+        // Si carga algo (HTML/login) y no ejecuta callback, caerá por timeout
+        t = setTimeout(() => {
+          finishErr(new Error(
+            'Timeout JSONP. Posible login/HTML en vez de JS. ' +
+            'Revisa despliegue: "Cualquiera" (anónimo) y URL correcta.'
+          ));
+        }, timeoutMs);
 
         const u = new URL(url);
         u.searchParams.set('callback', cbName);
@@ -519,7 +560,6 @@
         (r?.[2] != null ? String(r[2]).trim() : '(Vacío)') || '(Vacío)',
         (r?.[3] != null ? String(r[3]).trim() : '(Vacío)') || '(Vacío)',
         (r?.[4] != null ? String(r[4]).trim() : '(Vacío)') || '(Vacío)',
-        // ✅ aquí se corrige el typo
         fixLocalidad_(r?.[5]),
       ]));
 
@@ -559,7 +599,6 @@
       const depto = ensureTodos_(f.departamento || f.depto || uniqueFromData_(3));
       const pos = ensureTodos_(f.posicion || f.pos || uniqueFromData_(4));
 
-      // ✅ Localidad: normaliza lista (si viene con Tegucigaloa, se vuelve Tegucigalpa)
       const rawLoc = (f.localidad || f.loc || uniqueFromData_(5));
       const loc = ensureTodos_(uniqKeepOrder_((rawLoc || []).map(x => fixLocalidad_(x))));
 
@@ -569,10 +608,8 @@
       fillSelect_('sel_depto', depto, filterState.depto);
       fillSelect_('sel_pos', pos, filterState.pos);
 
-      // si el estado tenía el typo guardado, lo endereza también
       const currentLoc = fixLocalidad_(filterState.loc);
       filterState.loc = currentLoc === '(Vacío)' ? filterState.loc : currentLoc;
-
       fillSelect_('sel_loc', loc, filterState.loc);
 
       syncStateWithSelect_('genero','sel_genero');
@@ -641,11 +678,7 @@
     function addBarAnnotations_(dt){
       if (!dt || dt.getNumberOfRows() === 0) return dt;
       const view = new google.visualization.DataView(dt);
-      view.setColumns([
-        0,
-        1,
-        { calc: 'stringify', sourceColumn: 1, type: 'string', role: 'annotation' }
-      ]);
+      view.setColumns([0, 1, { calc: 'stringify', sourceColumn: 1, type: 'string', role: 'annotation' }]);
       return view.toDataTable();
     }
 
@@ -927,7 +960,7 @@
       el.textContent = msg;
       el.style.display = 'block';
       clearTimeout(el._t);
-      el._t = setTimeout(() => (el.style.display = 'none'), 2800);
+      el._t = setTimeout(() => (el.style.display = 'none'), 3200);
     }
 
     function attachResize_(){
