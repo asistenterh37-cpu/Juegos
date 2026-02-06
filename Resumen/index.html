@@ -229,32 +229,8 @@
     </div>
   </div>
 
-  <div class="filtersTop" aria-label="Filtros superiores">
-    <div class="filterBox">
-      <div class="lbl">Género</div>
-      <div class="selWrap"><select class="sel" id="sel_genero"></select></div>
-    </div>
-    <div class="filterBox">
-      <div class="lbl">Estado civil</div>
-      <div class="selWrap"><select class="sel" id="sel_estado"></select></div>
-    </div>
-    <div class="filterBox">
-      <div class="lbl">Escolaridad</div>
-      <div class="selWrap"><select class="sel" id="sel_escolaridad"></select></div>
-    </div>
-    <div class="filterBox">
-      <div class="lbl">Departamento</div>
-      <div class="selWrap"><select class="sel" id="sel_depto"></select></div>
-    </div>
-    <div class="filterBox">
-      <div class="lbl">Posición</div>
-      <div class="selWrap"><select class="sel" id="sel_pos"></select></div>
-    </div>
-    <div class="filterBox">
-      <div class="lbl">Localidad</div>
-      <div class="selWrap"><select class="sel" id="sel_loc"></select></div>
-    </div>
-  </div>
+  <!-- ✅ Aquí se pintan los menús desde FILTER_META -->
+  <div class="filtersTop" id="filtersTop" aria-label="Filtros superiores"></div>
 
   <div class="grid">
     <div class="card">
@@ -308,7 +284,7 @@
       <div class="cardHeader">
         <div>
           <div class="h">Resumen</div>
-          <div class="hint">Última actualización (los filtros ya viven arriba: independencia declarada).</div>
+          <div class="hint">Los filtros viven arriba (como Dios manda).</div>
         </div>
         <div class="status ok" id="statusBox">
           <span class="led"></span> <span id="statusText">OK</span>
@@ -345,8 +321,31 @@
 
   <script>
     // ✅ URL FIJA del WebApp (DEBE terminar en /exec)
-    const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbz1yexvRz8Uk7SDlZYJdcBrTF0rFpvkl4stTWX2h2Irk6ljapTUqCHUz9qSvwk5BAnC/exec";
+    const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzYA2X-KSLBrmNqhdO4HhuDNfSKkHwkVjlwl380pmn0PyKn1o359GvJif9xjkTK6V9V/exec";
     const SHEET_NAME = "Maestro";
+
+    /**
+     * ✅ MENÚS DE CATEGORÍAS (como en tu adjunto)
+     * - Orden
+     * - Label
+     * - SelectId
+     * - Key interno (filterState + lastChartData)
+     * - Key en payload (filters/menus)
+     * - Columna en DataTable
+     */
+    const FILTER_META = [
+      { key:'genero',      label:'Género',       selectId:'sel_genero', payloadKey:'genero',      colIndex:0 },
+      { key:'estado',      label:'Estado civil', selectId:'sel_estado', payloadKey:'estado',      colIndex:1 },
+      { key:'escolaridad', label:'Escolaridad',  selectId:'sel_escolaridad', payloadKey:'escolaridad', colIndex:2 },
+      { key:'depto',       label:'Departamento', selectId:'sel_depto',  payloadKey:'departamento', colIndex:3 },
+      { key:'pos',         label:'Posición',     selectId:'sel_pos',    payloadKey:'posicion',    colIndex:4 },
+      { key:'loc',         label:'Localidad',    selectId:'sel_loc',    payloadKey:'localidad',   colIndex:5 },
+    ];
+
+    // ✅ Aquí se guardan las opciones reales de cada menú (para debugging/uso futuro)
+    const MENUS = {
+      genero: [], estado: [], escolaridad: [], departamento: [], posicion: [], localidad: []
+    };
 
     google.charts.load('current', { packages: ['corechart'] });
 
@@ -357,22 +356,18 @@
     let resizeTimer = null;
     let uiReady_ = false;
 
-    const filterState = {
-      genero: 'Todos',
-      estado: 'Todos',
-      escolaridad: 'Todos',
-      depto: 'Todos',
-      pos: 'Todos',
-      loc: 'Todos'
-    };
+    // ✅ Estado de filtros desde FILTER_META
+    const filterState = {};
+    FILTER_META.forEach(m => filterState[m.key] = 'Todos');
 
     let domReady = false;
     let chartsReady = false;
 
     document.addEventListener('DOMContentLoaded', () => {
       domReady = true;
+      renderFilterMenus_();     // ✅ pinta los selects desde FILTER_META
       hookButtons_();
-      hookSelects_();
+      hookSelects_();           // ✅ engancha eventos dinámicos
       tryBoot_();
     });
 
@@ -386,24 +381,33 @@
       requestAnimationFrame(() => init_());
     }
 
+    function renderFilterMenus_(){
+      const wrap = el_('filtersTop');
+      wrap.innerHTML = FILTER_META.map(m => `
+        <div class="filterBox">
+          <div class="lbl">${m.label}</div>
+          <div class="selWrap"><select class="sel" id="${m.selectId}"></select></div>
+        </div>
+      `).join('');
+    }
+
     function hookButtons_(){
       document.getElementById('btnRefresh').addEventListener('click', refreshNow_);
       document.getElementById('btnClear').addEventListener('click', clearAllFilters_);
       document.getElementById('btnConfig').addEventListener('click', configUrl_);
     }
 
-    // Si quieres URL FIJA, este botón no debería cambiarla. Lo dejamos solo informativo.
     function configUrl_(){
       alert('La URL está fijada en el código (GAS_WEBAPP_URL).');
     }
 
     function hookSelects_(){
-      el_('sel_genero').addEventListener('change', () => { filterState.genero = el_('sel_genero').value; safeRedrawAll_(); });
-      el_('sel_estado').addEventListener('change', () => { filterState.estado = el_('sel_estado').value; safeRedrawAll_(); });
-      el_('sel_escolaridad').addEventListener('change', () => { filterState.escolaridad = el_('sel_escolaridad').value; safeRedrawAll_(); });
-      el_('sel_depto').addEventListener('change', () => { filterState.depto = el_('sel_depto').value; safeRedrawAll_(); });
-      el_('sel_pos').addEventListener('change', () => { filterState.pos = el_('sel_pos').value; safeRedrawAll_(); });
-      el_('sel_loc').addEventListener('change', () => { filterState.loc = el_('sel_loc').value; safeRedrawAll_(); });
+      FILTER_META.forEach(m => {
+        el_(m.selectId).addEventListener('change', () => {
+          filterState[m.key] = el_(m.selectId).value || 'Todos';
+          safeRedrawAll_();
+        });
+      });
     }
 
     function el_(id){ return document.getElementById(id); }
@@ -582,8 +586,8 @@
     function buildCharts_() {
       requireEls_([
         'c_genero','c_estado','c_escolaridad','c_depto','c_pos','c_loc',
-        'sel_genero','sel_estado','sel_escolaridad','sel_depto','sel_pos','sel_loc',
-        'filtersActive'
+        'filtersActive',
+        ...FILTER_META.map(m => m.selectId)
       ]);
 
       charts.genero = charts.genero || new google.visualization.PieChart(el_('c_genero'));
@@ -605,32 +609,31 @@
     }
 
     function buildDropdownsFromPayload_(payload){
-      const f = payload.filters || {};
-      const genero = ensureTodos_(f.genero || uniqueFromData_(0));
-      const estado = ensureTodos_(f.estado || uniqueFromData_(1));
-      const escolaridad = ensureTodos_(f.escolaridad || uniqueFromData_(2));
-      const depto = ensureTodos_(f.departamento || f.depto || uniqueFromData_(3));
-      const pos = ensureTodos_(f.posicion || f.pos || uniqueFromData_(4));
+      // ✅ Acepta filters o menus (GS manda ambos)
+      const f = payload.menus || payload.filters || {};
+
+      // Guardamos en variable MENUS (para que “vivan en variables” como pediste)
+      MENUS.genero      = ensureTodos_(f.genero || uniqueFromData_(0));
+      MENUS.estado      = ensureTodos_(f.estado || uniqueFromData_(1));
+      MENUS.escolaridad = ensureTodos_(f.escolaridad || uniqueFromData_(2));
+      MENUS.departamento= ensureTodos_(f.departamento || f.depto || f.departamento || uniqueFromData_(3));
+      MENUS.posicion    = ensureTodos_(f.posicion || f.pos || f.posicion || uniqueFromData_(4));
 
       const rawLoc = (f.localidad || f.loc || uniqueFromData_(5));
-      const loc = ensureTodos_(uniqKeepOrder_((rawLoc || []).map(x => fixLocalidad_(x))));
+      MENUS.localidad = ensureTodos_(uniqKeepOrder_((rawLoc || []).map(x => fixLocalidad_(x))));
 
-      fillSelect_('sel_genero', genero, filterState.genero);
-      fillSelect_('sel_estado', estado, filterState.estado);
-      fillSelect_('sel_escolaridad', escolaridad, filterState.escolaridad);
-      fillSelect_('sel_depto', depto, filterState.depto);
-      fillSelect_('sel_pos', pos, filterState.pos);
+      fillSelect_('sel_genero', MENUS.genero, filterState.genero);
+      fillSelect_('sel_estado', MENUS.estado, filterState.estado);
+      fillSelect_('sel_escolaridad', MENUS.escolaridad, filterState.escolaridad);
+      fillSelect_('sel_depto', MENUS.departamento, filterState.depto);
+      fillSelect_('sel_pos', MENUS.posicion, filterState.pos);
 
       const currentLoc = fixLocalidad_(filterState.loc);
       filterState.loc = currentLoc === '(Vacío)' ? filterState.loc : currentLoc;
-      fillSelect_('sel_loc', loc, filterState.loc);
+      fillSelect_('sel_loc', MENUS.localidad, filterState.loc);
 
-      syncStateWithSelect_('genero','sel_genero');
-      syncStateWithSelect_('estado','sel_estado');
-      syncStateWithSelect_('escolaridad','sel_escolaridad');
-      syncStateWithSelect_('depto','sel_depto');
-      syncStateWithSelect_('pos','sel_pos');
-      syncStateWithSelect_('loc','sel_loc');
+      // ✅ sincroniza estado real con selects
+      FILTER_META.forEach(m => syncStateWithSelect_(m.key, m.selectId));
     }
 
     function syncStateWithSelect_(key, selId){
@@ -808,14 +811,7 @@
       const rows = [];
       for (let r = 0; r < dt.getNumberOfRows(); r++) rows.push(r);
 
-      const rules = [
-        ['genero', 0],
-        ['estado', 1],
-        ['escolaridad', 2],
-        ['depto', 3],
-        ['pos', 4],
-        ['loc', 5],
-      ];
+      const rules = FILTER_META.map(m => [m.key, m.colIndex]);
 
       let current = rows;
       rules.forEach(([key, col]) => {
@@ -872,12 +868,8 @@
 
         select.value = (current === value) ? 'Todos' : value;
 
-        if (key === 'genero') filterState.genero = select.value;
-        if (key === 'estado') filterState.estado = select.value;
-        if (key === 'escolaridad') filterState.escolaridad = select.value;
-        if (key === 'depto') filterState.depto = select.value;
-        if (key === 'pos') filterState.pos = select.value;
-        if (key === 'loc') filterState.loc = select.value;
+        // ✅ asignación por key
+        filterState[key] = select.value;
 
         safeRedrawAll_();
       });
@@ -924,19 +916,10 @@
     function clearAllFilters_() {
       uiReady_ = false;
 
-      filterState.genero = 'Todos';
-      filterState.estado = 'Todos';
-      filterState.escolaridad = 'Todos';
-      filterState.depto = 'Todos';
-      filterState.pos = 'Todos';
-      filterState.loc = 'Todos';
-
-      el_('sel_genero').value = 'Todos';
-      el_('sel_estado').value = 'Todos';
-      el_('sel_escolaridad').value = 'Todos';
-      el_('sel_depto').value = 'Todos';
-      el_('sel_pos').value = 'Todos';
-      el_('sel_loc').value = 'Todos';
+      FILTER_META.forEach(m => {
+        filterState[m.key] = 'Todos';
+        el_(m.selectId).value = 'Todos';
+      });
 
       uiReady_ = true;
       safeRedrawAll_();
