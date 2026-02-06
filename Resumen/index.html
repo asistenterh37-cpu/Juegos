@@ -76,7 +76,6 @@
     .btn.ghost{ background: rgba(255,255,255,.03); box-shadow:none; }
     .btn[disabled]{ opacity:.55; cursor:not-allowed; transform:none; }
 
-    /* ✅ barra de filtros arriba de los gráficos (una sola línea) */
     .filtersTop{
       margin-top:14px;
       padding:10px 12px;
@@ -130,7 +129,6 @@
       font-weight:900;
     }
 
-    /* ✅ 3 por fila */
     .grid{
       margin-top:14px;
       display:grid;
@@ -205,7 +203,6 @@
       z-index:9;
     }
 
-    /* ✅ Resumen fuera del grid (para que el grid quede exacto 3x2) */
     .summaryWrap{ margin-top:14px; }
   </style>
 </head>
@@ -229,7 +226,6 @@
     </div>
   </div>
 
-  <!-- ✅ 6 filtros (incluye Localidad) -->
   <div class="filtersTop" aria-label="Filtros superiores">
     <div class="filterBox">
       <div class="lbl">Género</div>
@@ -257,7 +253,6 @@
     </div>
   </div>
 
-  <!-- ✅ 6 gráficos exactos (3 por fila) -->
   <div class="grid">
     <div class="card">
       <div class="cardHeader">
@@ -305,7 +300,6 @@
     </div>
   </div>
 
-  <!-- ✅ Resumen / KPIs fuera del grid -->
   <div class="summaryWrap">
     <div class="card">
       <div class="cardHeader">
@@ -347,8 +341,7 @@
   <div class="toast" id="toast"></div>
 
   <script>
-    // ====== CONFIG: tu Web App /exec (Apps Script) ======
-    const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyy9ULLHnFBv0P7bTGaIEXd5pD1EcQ_ZgALrKuEjhvIEcm1mzLsjRD-XtARqt4wn037/exec";
+    const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwOkGrKsSsSTkpKllAz_Hr09bzAISFeBItz5wSIum9uB_dEp1Pt-QFQUzUV7HoH6ceG/exec";
     const SHEET_NAME = "Maestro";
 
     google.charts.load('current', { packages: ['corechart'] });
@@ -360,7 +353,6 @@
     let resizeTimer = null;
     let uiReady_ = false;
 
-    // ✅ 6 filtros
     const filterState = {
       genero: 'Todos',
       estado: 'Todos',
@@ -405,6 +397,42 @@
     }
 
     function el_(id){ return document.getElementById(id); }
+
+    // ✅ Normalizador Localidad (arregla Tegucigaloa → Tegucigalpa)
+    function norm_(s){
+      return String(s || '')
+        .trim()
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g,'')
+        .replace(/\s+/g,' ');
+    }
+    function fixLocalidad_(v){
+      const raw = String(v ?? '').trim();
+      if (!raw) return '(Vacío)';
+      const k = norm_(raw);
+
+      // variantes comunes
+      const map = {
+        'tegucigaloa': 'Tegucigalpa',
+        'tegus': 'Tegucigalpa',
+        'tegucigalpaa': 'Tegucigalpa'
+      };
+      return map[k] || raw;
+    }
+    function uniqKeepOrder_(arr){
+      const seen = new Set();
+      const out = [];
+      (arr || []).forEach(x => {
+        const v = String(x ?? '').trim();
+        if (!v) return;
+        const k = norm_(v);
+        if (seen.has(k)) return;
+        seen.add(k);
+        out.push(v);
+      });
+      return out;
+    }
 
     function requireEls_(ids){
       const missing = ids.filter(id => !el_(id));
@@ -476,7 +504,6 @@
       });
     }
 
-    // ✅ ahora 6 columnas (incluye Localidad)
     function buildDataTable_(rows) {
       dataTable = new google.visualization.DataTable();
       dataTable.addColumn('string', 'Género');
@@ -492,7 +519,8 @@
         (r?.[2] != null ? String(r[2]).trim() : '(Vacío)') || '(Vacío)',
         (r?.[3] != null ? String(r[3]).trim() : '(Vacío)') || '(Vacío)',
         (r?.[4] != null ? String(r[4]).trim() : '(Vacío)') || '(Vacío)',
-        (r?.[5] != null ? String(r[5]).trim() : '(Vacío)') || '(Vacío)',
+        // ✅ aquí se corrige el typo
+        fixLocalidad_(r?.[5]),
       ]));
 
       if (safeRows.length) dataTable.addRows(safeRows);
@@ -531,14 +559,20 @@
       const depto = ensureTodos_(f.departamento || f.depto || uniqueFromData_(3));
       const pos = ensureTodos_(f.posicion || f.pos || uniqueFromData_(4));
 
-      // ✅ Localidad: si viene desde hoja Filtros úsalo; si no, fallback desde datos
-      const loc = ensureTodos_(f.localidad || f.loc || uniqueFromData_(5));
+      // ✅ Localidad: normaliza lista (si viene con Tegucigaloa, se vuelve Tegucigalpa)
+      const rawLoc = (f.localidad || f.loc || uniqueFromData_(5));
+      const loc = ensureTodos_(uniqKeepOrder_((rawLoc || []).map(x => fixLocalidad_(x))));
 
       fillSelect_('sel_genero', genero, filterState.genero);
       fillSelect_('sel_estado', estado, filterState.estado);
       fillSelect_('sel_escolaridad', escolaridad, filterState.escolaridad);
       fillSelect_('sel_depto', depto, filterState.depto);
       fillSelect_('sel_pos', pos, filterState.pos);
+
+      // si el estado tenía el typo guardado, lo endereza también
+      const currentLoc = fixLocalidad_(filterState.loc);
+      filterState.loc = currentLoc === '(Vacío)' ? filterState.loc : currentLoc;
+
       fillSelect_('sel_loc', loc, filterState.loc);
 
       syncStateWithSelect_('genero','sel_genero');
