@@ -47,9 +47,11 @@
       box-shadow: 0 0 0 4px rgba(37,99,235,.15);
     }
     .titleWrap .title{ font-size:15px; font-weight:800; letter-spacing:.2px; line-height:1.1; }
-    .titleWrap .sub{ font-size:12px; color:var(--muted); margin-top:2px; display:flex; gap:8px; flex-wrap:wrap; }
+    .titleWrap .sub{
+      font-size:12px; color:var(--muted); margin-top:2px;
+      display:flex; gap:8px; flex-wrap:wrap;
+    }
     .pill{ border:1px solid var(--stroke); background:rgba(255,255,255,.03); padding:4px 10px; border-radius:999px; }
-
     .actions{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:flex-end; }
     .btn{
       appearance:none;
@@ -73,7 +75,6 @@
     }
     .btn.ghost{ background: rgba(255,255,255,.03); box-shadow:none; }
     .btn[disabled]{ opacity:.55; cursor:not-allowed; transform:none; }
-
     .grid{
       margin-top:16px;
       display:grid;
@@ -81,8 +82,10 @@
       gap:14px;
     }
     @media (max-width: 1100px){ .grid{ grid-template-columns: repeat(2, minmax(240px, 1fr)); } }
-    @media (max-width: 720px){ .grid{ grid-template-columns: 1fr; } body{ padding:12px; } }
-
+    @media (max-width: 720px){
+      .grid{ grid-template-columns: 1fr; }
+      body{ padding:12px; }
+    }
     .card{
       background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
       border:1px solid var(--stroke);
@@ -100,23 +103,18 @@
     .cardHeader .h{ font-weight:900; font-size:13px; letter-spacing:.2px; margin:0; }
     .cardHeader .hint{ font-size:12px; color:var(--muted); margin-top:4px; }
     .cardBody{ padding:10px 12px 12px 12px; min-height: 280px; }
-
     .chart{ width:100%; height: 260px; }
     .chart.tall{ height: 290px; }
-
     .nodata{
-      width:100%;
-      height:260px;
+      width:100%; height:260px;
       display:flex; align-items:center; justify-content:center;
       border:1px dashed rgba(255,255,255,.16);
       border-radius:14px;
       color:rgba(232,238,252,.75);
       background:rgba(0,0,0,.10);
-      font-weight:800;
-      letter-spacing:.2px;
+      font-weight:800; letter-spacing:.2px;
     }
     .nodata.tall{ height:290px; }
-
     .kpis{ display:grid; grid-template-columns: 1fr; gap:10px; padding:12px 14px 14px 14px; }
     .kpiRow{
       display:flex; justify-content:space-between; align-items:center; gap:10px;
@@ -127,12 +125,10 @@
     }
     .kpiRow .k{ font-size:12px; color:var(--muted); font-weight:700;}
     .kpiRow .v{ font-size:13px; font-weight:900; }
-
     .status{ display:flex; align-items:center; gap:8px; font-size:12px; color:var(--muted); font-weight:700; }
     .status .led{ width:9px;height:9px;border-radius:99px;background:var(--warn); box-shadow: 0 0 0 4px rgba(245,158,11,.16); }
     .status.ok .led{ background:var(--good); box-shadow: 0 0 0 4px rgba(34,197,94,.16); }
     .status.bad .led{ background:var(--bad); box-shadow: 0 0 0 4px rgba(239,68,68,.16); }
-
     details.filters{ border:1px solid var(--stroke); border-radius:14px; background:rgba(255,255,255,.03); overflow:hidden; }
     details.filters summary{
       list-style:none; cursor:pointer;
@@ -155,8 +151,6 @@
       background:rgba(0,0,0,.08);
     }
     .filterBox .lbl{ font-size:12px; color:var(--muted); font-weight:800; margin-bottom:6px; }
-
-    /* ✅ dropdown nativo */
     .sel{
       width:100%;
       appearance:none;
@@ -173,17 +167,15 @@
     .selWrap{ position:relative; }
     .selWrap:after{
       content:"▾";
-      position:absolute;
-      right:12px;
-      top:50%;
+      position:absolute; right:12px; top:50%;
       transform:translateY(-50%);
       color:rgba(232,238,252,.75);
       pointer-events:none;
       font-weight:900;
     }
-
     .toast{
-      position:fixed; right:16px; bottom:16px;
+      position:fixed;
+      right:16px; bottom:16px;
       background:rgba(15,27,51,.95);
       border:1px solid var(--stroke);
       padding:10px 12px;
@@ -211,7 +203,6 @@
         </div>
       </div>
     </div>
-
     <div class="actions">
       <button class="btn primary" id="btnRefresh" type="button"><span>⟳</span> Actualizar</button>
       <button class="btn ghost" id="btnClear" type="button"><span>✕</span> Limpiar filtros</button>
@@ -324,14 +315,8 @@
     let resizeTimer = null;
     let uiReady_ = false;
 
-    // filtros UI (como Excel)
-    const filterState = {
-      genero: 'Todos',
-      estado: 'Todos',
-      escolaridad: 'Todos',
-      depto: 'Todos',
-      pos: 'Todos'
-    };
+    // filtros UI
+    const filterState = { genero: 'Todos', estado: 'Todos', escolaridad: 'Todos', depto: 'Todos', pos: 'Todos' };
 
     // Boot seguro: DOM + Charts
     let domReady = false;
@@ -376,7 +361,6 @@
 
     function init_() {
       setStatus_('warn', 'Cargando…');
-
       loadData_({ forceRefresh: false })
         .then(payload => {
           latestPayload = payload;
@@ -419,9 +403,15 @@
         const cbName = 'cb_' + Math.random().toString(36).slice(2);
         const script = document.createElement('script');
 
-        window[cbName] = (data) => { cleanup_(); resolve(data); };
+        window[cbName] = (data) => {
+          cleanup_();
+          resolve(data);
+        };
 
-        script.onerror = () => { cleanup_(); reject(new Error('No se pudo cargar JSONP desde /exec')); };
+        script.onerror = () => {
+          cleanup_();
+          reject(new Error('No se pudo cargar JSONP desde /exec'));
+        };
 
         function cleanup_() {
           try { delete window[cbName]; } catch(e) {}
@@ -457,11 +447,11 @@
     function buildCharts_() {
       requireEls_(['c_genero','c_estado','c_escolaridad','c_depto','c_pos','sel_genero','sel_estado','sel_escolaridad','sel_depto','sel_pos']);
 
-      charts.genero      = charts.genero      || new google.visualization.PieChart(el_('c_genero'));
-      charts.estado      = charts.estado      || new google.visualization.PieChart(el_('c_estado'));
+      charts.genero = charts.genero || new google.visualization.PieChart(el_('c_genero'));
+      charts.estado = charts.estado || new google.visualization.PieChart(el_('c_estado'));
       charts.escolaridad = charts.escolaridad || new google.visualization.PieChart(el_('c_escolaridad'));
-      charts.depto       = charts.depto       || new google.visualization.BarChart(el_('c_depto'));
-      charts.pos         = charts.pos         || new google.visualization.BarChart(el_('c_pos'));
+      charts.depto = charts.depto || new google.visualization.BarChart(el_('c_depto'));
+      charts.pos = charts.pos || new google.visualization.BarChart(el_('c_pos'));
 
       if (!buildCharts_._wired) {
         wireChartToSelect_('genero', charts.genero, 'sel_genero');
@@ -505,8 +495,7 @@
     function ensureTodos_(arr){
       const a = (arr || []).map(x => String(x).trim()).filter(Boolean);
       if (!a.length) return ['Todos'];
-      if (a[0].toLowerCase() !== 'todos' && !a.some(x => x.toLowerCase() === 'todos')) return ['Todos', ...a];
-      // si existe pero no está arriba, lo subimos al inicio
+      if (!a.some(x => x.toLowerCase() === 'todos')) return ['Todos', ...a];
       const rest = a.filter(x => x.toLowerCase() !== 'todos');
       return ['Todos', ...rest];
     }
@@ -536,6 +525,9 @@
       sel.value = list.includes(selected) ? selected : (list.includes('Todos') ? 'Todos' : (list[0] || 'Todos'));
     }
 
+    // ✅ Base options (con lo que pediste)
+    // - Pies: mostrar % + frecuencia (valor) dentro del slice
+    // - Barras: mostrar frecuencia (anotación) dentro de la barra al final
     function baseChartOptions_(title) {
       return {
         title,
@@ -544,11 +536,28 @@
         titleTextStyle: { color: '#e8eefc', fontSize: 14, bold: true },
         legend: { textStyle: { color: '#e8eefc', fontSize: 12 } },
         pieSliceTextStyle: { color: '#0b1220', fontSize: 12 },
+
+        // 👇 PIE: % + frecuencia
+        pieSliceText: 'both',
+        tooltip: { text: 'both', textStyle: { color: '#0b1220' } },
+
         hAxis: { textStyle: { color: '#e8eefc' }, gridlines: { color: 'rgba(255,255,255,.10)' } },
         vAxis: { textStyle: { color: '#e8eefc' }, gridlines: { color: 'rgba(255,255,255,.10)' } },
-        tooltip: { textStyle: { color: '#0b1220' } },
+
         animation: { startup: true, duration: 450, easing: 'out' }
       };
+    }
+
+    // ✅ helper para barras con anotación (frecuencia) “dentro de la barra al final”
+    function addBarAnnotations_(dt){
+      if (!dt || dt.getNumberOfRows() === 0) return dt;
+      const view = new google.visualization.DataView(dt);
+      view.setColumns([
+        0,
+        1,
+        { calc: 'stringify', sourceColumn: 1, type: 'string', role: 'annotation' }
+      ]);
+      return view.toDataTable();
     }
 
     function safeRedrawAll_() {
@@ -567,36 +576,58 @@
 
       const dtGenero = groupCountSafe_(filtered, 0, 'Género');
       const dtEstado = groupCountSafe_(filtered, 1, 'Estado civil');
-      const dtEscol  = groupCountSafe_(filtered, 2, 'Escolaridad');
-      const dtDepto  = groupCountSafe_(filtered, 3, 'Departamento', true);
-      const dtPos    = groupCountSafe_(filtered, 4, 'Posición', true);
+      const dtEscol = groupCountSafe_(filtered, 2, 'Escolaridad');
+
+      // Barras (Top 15)
+      const dtDeptoBase = groupCountSafe_(filtered, 3, 'Departamento', true);
+      const dtPosBase = groupCountSafe_(filtered, 4, 'Posición', true);
+
+      // 👇 aquí agregamos la anotación de frecuencia para barras
+      const dtDepto = addBarAnnotations_(dtDeptoBase);
+      const dtPos   = addBarAnnotations_(dtPosBase);
 
       lastChartData.genero = dtGenero;
       lastChartData.estado = dtEstado;
       lastChartData.escolaridad = dtEscol;
-      lastChartData.depto = dtDepto;
-      lastChartData.pos = dtPos;
+      lastChartData.depto = dtDepto;   // (ya con anotación)
+      lastChartData.pos = dtPos;       // (ya con anotación)
 
+      // PIE
       drawChartSafe_('c_genero', charts.genero, dtGenero, baseChartOptions_('Género'));
       drawChartSafe_('c_estado', charts.estado, dtEstado, baseChartOptions_('Estado civil'));
       drawChartSafe_('c_escolaridad', charts.escolaridad, dtEscol, baseChartOptions_('Escolaridad'));
 
+      // BAR
       drawChartSafe_(
-        'c_depto', charts.depto, dtDepto,
+        'c_depto',
+        charts.depto,
+        dtDepto,
         Object.assign(baseChartOptions_('Departamento'), {
           legend: { position: 'none' },
           bars: 'horizontal',
-          chartArea: { left: 120, top: 42, right: 14, bottom: 12, width: '100%', height: '78%' }
+          chartArea: { left: 120, top: 42, right: 22, bottom: 12, width: '100%', height: '78%' },
+
+          // 👇 anotación dentro de la barra (al final)
+          annotations: {
+            alwaysOutside: false,
+            textStyle: { color: '#e8eefc', fontSize: 12, bold: true }
+          }
         }),
         true
       );
 
       drawChartSafe_(
-        'c_pos', charts.pos, dtPos,
+        'c_pos',
+        charts.pos,
+        dtPos,
         Object.assign(baseChartOptions_('Posición'), {
           legend: { position: 'none' },
           bars: 'horizontal',
-          chartArea: { left: 160, top: 42, right: 14, bottom: 12, width: '100%', height: '78%' }
+          chartArea: { left: 160, top: 42, right: 22, bottom: 12, width: '100%', height: '78%' },
+          annotations: {
+            alwaysOutside: false,
+            textStyle: { color: '#e8eefc', fontSize: 12, bold: true }
+          }
         }),
         true
       );
@@ -641,7 +672,6 @@
       ];
 
       let current = rows;
-
       rules.forEach(([key, col]) => {
         const val = (filterState[key] || 'Todos').trim();
         if (!val || val.toLowerCase() === 'todos') return;
@@ -695,13 +725,8 @@
         const current = select.value;
 
         // toggle: si ya está, vuelve a Todos
-        if (current === value) {
-          select.value = 'Todos';
-        } else {
-          select.value = value;
-        }
+        select.value = (current === value) ? 'Todos' : value;
 
-        // sync state
         if (key === 'genero') filterState.genero = select.value;
         if (key === 'estado') filterState.estado = select.value;
         if (key === 'escolaridad') filterState.escolaridad = select.value;
