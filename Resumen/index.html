@@ -4,18 +4,21 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Dashboard Headcount</title>
-
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%232563eb'/><circle cx='22' cy='32' r='10' fill='%23fff' opacity='.9'/><circle cx='40' cy='32' r='10' fill='%23fff' opacity='.35'/></svg>">
 
   <script src="https://www.gstatic.com/charts/loader.js"></script>
 
   <style>
     :root{
-      --bg:#0b1220; --panel:#0f1b33; --panel2:#0d1a30;
+      --bg:#0b1220;
+      --panel:#0f1b33;
+      --panel2:#0d1a30;
       --stroke:rgba(255,255,255,.10);
       --muted:rgba(232,238,252,.72);
       --text:#e8eefc;
-      --good:#22c55e; --warn:#f59e0b; --bad:#ef4444;
+      --good:#22c55e;
+      --warn:#f59e0b;
+      --bad:#ef4444;
       --shadow: 0 14px 40px rgba(0,0,0,.35);
       --radius:18px;
     }
@@ -33,13 +36,18 @@
       padding:18px;
     }
     .topbar{
-      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
       padding:14px 16px;
       background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
       border:1px solid var(--stroke);
       border-radius:var(--radius);
       box-shadow: var(--shadow);
-      position:sticky; top:10px; z-index:5;
+      position:sticky;
+      top:10px;
+      z-index:5;
       backdrop-filter: blur(10px);
     }
     .brand{ display:flex; align-items:center; gap:12px; }
@@ -67,14 +75,13 @@
       font-size:13px;
       transition: transform .08s ease, border-color .2s ease, opacity .2s ease;
       box-shadow: 0 10px 24px rgba(0,0,0,.25);
-      display:flex; align-items:center; gap:8px;
+      display:flex;
+      align-items:center;
+      gap:8px;
     }
     .btn:hover{ transform: translateY(-1px); border-color: rgba(255,255,255,.24); }
     .btn:active{ transform: translateY(0px); opacity:.9; }
-    .btn.primary{
-      border-color: rgba(34,197,94,.35);
-      background:linear-gradient(180deg, rgba(34,197,94,.28), rgba(34,197,94,.12));
-    }
+    .btn.primary{ border-color: rgba(34,197,94,.35); background:linear-gradient(180deg, rgba(34,197,94,.28), rgba(34,197,94,.12)); }
     .btn.ghost{ background: rgba(255,255,255,.03); box-shadow:none; }
     .btn[disabled]{ opacity:.55; cursor:not-allowed; transform:none; }
 
@@ -108,35 +115,12 @@
       background:rgba(0,0,0,.08);
     }
     .filterBox .lbl{ font-size:12px; color:var(--muted); font-weight:800; margin-bottom:6px; }
-    .sel{
-      width:100%;
-      appearance:none;
-      outline:none;
-      border:1px solid rgba(255,255,255,.14);
-      background:rgba(255,255,255,.05);
-      color:var(--text);
-      padding:10px 12px;
-      border-radius:12px;
-      font-weight:800;
-      font-size:13px;
-    }
+    .sel{ width:100%; appearance:none; outline:none; border:1px solid rgba(255,255,255,.14); background:rgba(255,255,255,.05); color:var(--text); padding:10px 12px; border-radius:12px; font-weight:800; font-size:13px; }
     .sel option{ color:#0b1220; }
     .selWrap{ position:relative; }
-    .selWrap:after{
-      content:"▾";
-      position:absolute; right:12px; top:50%;
-      transform:translateY(-50%);
-      color:rgba(232,238,252,.75);
-      pointer-events:none;
-      font-weight:900;
-    }
+    .selWrap:after{ content:"▾"; position:absolute; right:12px; top:50%; transform:translateY(-50%); color:rgba(232,238,252,.75); pointer-events:none; font-weight:900; }
 
-    .grid{
-      margin-top:14px;
-      display:grid;
-      grid-template-columns: repeat(3, minmax(240px, 1fr));
-      gap:14px;
-    }
+    .grid{ margin-top:14px; display:grid; grid-template-columns: repeat(3, minmax(240px, 1fr)); gap:14px; }
     @media (max-width: 1100px){ .grid{ grid-template-columns: repeat(2, minmax(240px, 1fr)); } }
     @media (max-width: 720px){
       .grid{ grid-template-columns: 1fr; }
@@ -156,7 +140,10 @@
     .cardHeader{
       padding:12px 14px 8px 14px;
       border-bottom:1px solid var(--stroke);
-      display:flex; align-items:flex-start; justify-content:space-between; gap:10px;
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:10px;
       background:rgba(0,0,0,.10);
     }
     .cardHeader .h{ font-weight:900; font-size:13px; letter-spacing:.2px; margin:0; }
@@ -164,14 +151,19 @@
     .cardBody{ padding:10px 12px 12px 12px; min-height: 280px; }
     .chart{ width:100%; height: 260px; }
     .chart.tall{ height: 290px; }
+
     .nodata{
-      width:100%; height:260px;
-      display:flex; align-items:center; justify-content:center;
+      width:100%;
+      height:260px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
       border:1px dashed rgba(255,255,255,.16);
       border-radius:14px;
       color:rgba(232,238,252,.75);
       background:rgba(0,0,0,.10);
-      font-weight:800; letter-spacing:.2px;
+      font-weight:800;
+      letter-spacing:.2px;
     }
     .nodata.tall{ height:290px; }
 
@@ -185,6 +177,7 @@
     }
     .kpiRow .k{ font-size:12px; color:var(--muted); font-weight:700;}
     .kpiRow .v{ font-size:13px; font-weight:900; }
+
     .status{ display:flex; align-items:center; gap:8px; font-size:12px; color:var(--muted); font-weight:700; }
     .status .led{ width:9px;height:9px;border-radius:99px;background:var(--warn); box-shadow: 0 0 0 4px rgba(245,158,11,.16); }
     .status.ok .led{ background:var(--good); box-shadow: 0 0 0 4px rgba(34,197,94,.16); }
@@ -192,7 +185,8 @@
 
     .toast{
       position:fixed;
-      right:16px; bottom:16px;
+      right:16px;
+      bottom:16px;
       background:rgba(15,27,51,.95);
       border:1px solid var(--stroke);
       padding:10px 12px;
@@ -228,7 +222,7 @@
     </div>
   </div>
 
-  <!-- ✅ Filtros superiores (por variable) -->
+  <!-- ✅ Menús por variable -->
   <div class="filtersTop" id="filtersTop" aria-label="Filtros superiores"></div>
 
   <div class="grid">
@@ -318,671 +312,683 @@
 
   <div class="toast" id="toast"></div>
 
-  <script>
-    /******************************************************************
-     * ✅ CONFIG (IMPORTANTE)
-     * - DEFAULT_GAS_URL: tu /exec por defecto
-     * - El usuario puede cambiarla con "Config URL" (se guarda localStorage)
-     ******************************************************************/
-    const DEFAULT_GAS_URL = "https://script.google.com/macros/s/AKfycbxVQ8myx0vcnveUf1G8RwDP1ibW3scEZ_ENtL-ueKltMoiTQToBD-yaMm9Zx87RybHY/exec";
-    const GAS_URL_STORAGE_KEY = "RH_DASHBOARD_GAS_URL";
-    const SHEET_NAME = "Maestro";
+<script>
+/******************************************************************
+ * ✅ CONFIG
+ ******************************************************************/
+const DEFAULT_GAS_URL = "https://script.google.com/macros/s/AKfycbxPTlxPn0_fDvtQ4Jj07snoufAkRyZ0d4zr-dtte5q4ZJ4Kqe-yKSXNgFWGMXH_xrwx/exec";
+const GAS_URL_STORAGE_KEY = "RH_DASHBOARD_GAS_URL";
+const SHEET_NAME = "Maestro";
 
-    function getGasUrl_(){
-      return (localStorage.getItem(GAS_URL_STORAGE_KEY) || DEFAULT_GAS_URL).trim();
-    }
+/******************************************************************
+ * ✅ FILTROS / MENÚS POR VARIABLE
+ ******************************************************************/
+const FILTER_META = [
+  { key:'genero',      label:'Género',       selectId:'sel_genero',      colIndex:0 },
+  { key:'estado',      label:'Estado civil', selectId:'sel_estado',      colIndex:1 },
+  { key:'escolaridad', label:'Escolaridad',  selectId:'sel_escolaridad', colIndex:2 },
+  { key:'departamento',label:'Departamento', selectId:'sel_departamento',colIndex:3 },
+  { key:'posicion',    label:'Posición',     selectId:'sel_posicion',    colIndex:4 },
+  { key:'localidad',   label:'Localidad',    selectId:'sel_localidad',   colIndex:5 },
+];
 
-    function setGasUrl_(u){
-      localStorage.setItem(GAS_URL_STORAGE_KEY, u.trim());
-    }
+const MENUS = { genero:[], estado:[], escolaridad:[], departamento:[], posicion:[], localidad:[] };
+const filterState = {};
+FILTER_META.forEach(m => filterState[m.key] = 'Todos'); // ✅ por defecto
 
-    /**
-     * ✅ FILTROS POR VARIABLE (keys unificadas)
-     */
-    const FILTER_META = [
-      { key:'genero',      label:'Género',       selectId:'sel_genero',      payloadKey:'genero',      colIndex:0 },
-      { key:'estado',      label:'Estado civil', selectId:'sel_estado',      payloadKey:'estado',      colIndex:1 },
-      { key:'escolaridad', label:'Escolaridad',  selectId:'sel_escolaridad', payloadKey:'escolaridad', colIndex:2 },
-      { key:'departamento',label:'Departamento', selectId:'sel_departamento',payloadKey:'departamento',colIndex:3 },
-      { key:'posicion',    label:'Posición',     selectId:'sel_posicion',    payloadKey:'posicion',    colIndex:4 },
-      { key:'localidad',   label:'Localidad',    selectId:'sel_localidad',   payloadKey:'localidad',   colIndex:5 },
-    ];
+/******************************************************************
+ * ✅ GOOGLE CHARTS
+ ******************************************************************/
+google.charts.load('current', { packages: ['corechart'] });
 
-    const MENUS = {
-      genero: [], estado: [], escolaridad: [], departamento: [], posicion: [], localidad: []
-    };
+let dataTable = null;
+const charts = {};
+const lastChartData = {};
+let latestPayload = null;
+let resizeTimer = null;
+let uiReady_ = false;
 
-    google.charts.load('current', { packages: ['corechart'] });
+let domReady = false;
+let chartsReady = false;
 
-    let dataTable = null;
-    const charts = {};
-    const lastChartData = {};
-    let latestPayload = null;
-    let resizeTimer = null;
-    let uiReady_ = false;
+document.addEventListener('DOMContentLoaded', () => {
+  domReady = true;
+  renderFilterMenus_();
+  hookButtons_();
+  hookSelects_();
+  tryBoot_();
+});
+google.charts.setOnLoadCallback(() => {
+  chartsReady = true;
+  tryBoot_();
+});
 
-    const filterState = {};
-    FILTER_META.forEach(m => filterState[m.key] = 'Todos');
+function tryBoot_(){
+  if (!domReady || !chartsReady) return;
+  requestAnimationFrame(() => init_());
+}
 
-    let domReady = false;
-    let chartsReady = false;
+/******************************************************************
+ * ✅ UI helpers
+ ******************************************************************/
+function el_(id){ return document.getElementById(id); }
 
-    document.addEventListener('DOMContentLoaded', () => {
-      domReady = true;
-      renderFilterMenus_();
-      hookButtons_();
-      hookSelects_();
-      tryBoot_();
+function getGasUrl_(){
+  return (localStorage.getItem(GAS_URL_STORAGE_KEY) || DEFAULT_GAS_URL).trim();
+}
+function setGasUrl_(u){
+  localStorage.setItem(GAS_URL_STORAGE_KEY, u.trim());
+}
+
+function renderFilterMenus_(){
+  const wrap = el_('filtersTop');
+  wrap.innerHTML = FILTER_META.map(m => `
+    <div class="filterBox">
+      <div class="lbl">${m.label}</div>
+      <div class="selWrap">
+        <select class="sel" id="${m.selectId}"></select>
+      </div>
+    </div>
+  `).join('');
+}
+
+function hookButtons_(){
+  el_('btnRefresh').addEventListener('click', refreshNow_);
+  el_('btnClear').addEventListener('click', clearAllFilters_);
+  el_('btnConfig').addEventListener('click', configUrl_);
+}
+
+function hookSelects_(){
+  FILTER_META.forEach(m => {
+    el_(m.selectId).addEventListener('change', () => {
+      filterState[m.key] = el_(m.selectId).value || 'Todos';
+      safeRedrawAll_();
     });
+  });
+}
 
-    google.charts.setOnLoadCallback(() => {
-      chartsReady = true;
-      tryBoot_();
-    });
+function configUrl_(){
+  const current = getGasUrl_();
+  const next = prompt("Pega aquí la URL del WebApp (DEBE terminar en /exec):", current);
+  if (next == null) return;
+  const u = next.trim();
+  if (!/^https:\/\/script\.google\.com\/macros\/s\//.test(u) || !/\/exec(\?|$)/.test(u)) {
+    showToast_("Esa URL no parece válida. Debe verse como https://script.google.com/macros/s/.../exec");
+    return;
+  }
+  setGasUrl_(u);
+  showToast_("URL guardada. Ahora sí, que ruede el headcount. 😄");
+  refreshNow_();
+}
 
-    function tryBoot_(){
-      if (!domReady || !chartsReady) return;
-      requestAnimationFrame(() => init_());
-    }
+function setStatus_(mode, text){
+  const box = el_('statusBox');
+  const t = el_('statusText');
+  box.classList.remove('ok','bad');
+  if (mode === 'ok') box.classList.add('ok');
+  if (mode === 'bad') box.classList.add('bad');
+  t.textContent = text;
+}
 
-    function renderFilterMenus_(){
-      const wrap = el_('filtersTop');
-      wrap.innerHTML = FILTER_META.map(m => `
-        <div class="filterBox">
-          <div class="lbl">${m.label}</div>
-          <div class="selWrap"><select class="sel" id="${m.selectId}"></select></div>
-        </div>
-      `).join('');
-    }
+function showToast_(msg){
+  const el = el_('toast');
+  el.textContent = msg;
+  el.style.display = 'block';
+  clearTimeout(el._t);
+  el._t = setTimeout(() => (el.style.display = 'none'), 4200);
+}
 
-    function hookButtons_(){
-      el_('btnRefresh').addEventListener('click', refreshNow_);
-      el_('btnClear').addEventListener('click', clearAllFilters_);
-      el_('btnConfig').addEventListener('click', configUrl_);
-    }
+function attachResize_(){
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => safeRedrawAll_(), 180);
+  });
+}
 
-    function configUrl_(){
-      const current = getGasUrl_();
-      const next = prompt(
-        "Pega aquí la URL del WebApp (DEBE terminar en /exec):",
-        current
-      );
-      if (next == null) return;
+/******************************************************************
+ * ✅ Normalización / utilidades
+ ******************************************************************/
+function norm_(s){
+  return String(s || '')
+    .trim().toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/\s+/g,' ');
+}
 
-      const u = next.trim();
-      if (!/^https:\/\/script\.google\.com\/macros\/s\//.test(u) || !/\/exec(\?|$)/.test(u)) {
-        showToast_("Esa URL no parece válida. Debe verse como https://script.google.com/macros/s/.../exec");
-        return;
-      }
-      setGasUrl_(u);
-      showToast_("URL guardada. Ahora sí, que ruede el headcount. 😄");
-      refreshNow_();
-    }
+function fixLocalidad_(v){
+  const raw = String(v ?? '').trim();
+  if (!raw) return '(Vacío)';
+  const k = norm_(raw);
+  const map = {
+    'tegucigaloa': 'Tegucigalpa',
+    'tegus': 'Tegucigalpa',
+    'tegucigalpaa': 'Tegucigalpa'
+  };
+  return map[k] || raw;
+}
 
-    function hookSelects_(){
-      FILTER_META.forEach(m => {
-        el_(m.selectId).addEventListener('change', () => {
-          filterState[m.key] = el_(m.selectId).value || 'Todos';
-          safeRedrawAll_();
-        });
-      });
-    }
+function uniqKeepOrder_(arr){
+  const seen = new Set();
+  const out = [];
+  (arr || []).forEach(x => {
+    const v = String(x ?? '').trim();
+    if (!v) return;
+    const k = norm_(v);
+    if (seen.has(k)) return;
+    seen.add(k);
+    out.push(v);
+  });
+  return out;
+}
 
-    function el_(id){ return document.getElementById(id); }
+function ensureTodos_(arr){
+  const a = (arr || []).map(x => String(x).trim()).filter(Boolean);
+  if (!a.length) return ['Todos'];
+  const has = a.some(x => norm_(x) === 'todos');
+  const rest = a.filter(x => norm_(x) !== 'todos');
+  return has ? ['Todos', ...rest] : ['Todos', ...a];
+}
 
-    function norm_(s){
-      return String(s || '')
-        .trim()
-        .toLowerCase()
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g,'')
-        .replace(/\s+/g,' ');
-    }
+/******************************************************************
+ * ✅ Init / Data load (JSONP)
+ ******************************************************************/
+async function init_(){
+  setStatus_('warn', 'Cargando…');
 
-    function fixLocalidad_(v){
-      const raw = String(v ?? '').trim();
-      if (!raw) return '(Vacío)';
-      const k = norm_(raw);
-      const map = { 'tegucigaloa': 'Tegucigalpa', 'tegus': 'Tegucigalpa', 'tegucigalpaa': 'Tegucigalpa' };
-      return map[k] || raw;
-    }
+  const GAS_WEBAPP_URL = getGasUrl_();
+  if (!/^https:\/\/script\.google\.com\/macros\/s\//.test(GAS_WEBAPP_URL) || !/\/exec(\?|$)/.test(GAS_WEBAPP_URL)) {
+    setStatus_('bad', 'Error');
+    showToast_('URL GAS inválida. Debe terminar en /exec (usa Config URL).');
+    el_('updatedAt').textContent = 'Error: URL /exec inválida';
+    return;
+  }
 
-    function uniqKeepOrder_(arr){
-      const seen = new Set();
-      const out = [];
-      (arr || []).forEach(x => {
-        const v = String(x ?? '').trim();
-        if (!v) return;
-        const k = norm_(v);
-        if (seen.has(k)) return;
-        seen.add(k);
-        out.push(v);
-      });
-      return out;
-    }
+  try {
+    await ping_(GAS_WEBAPP_URL);
+  } catch (e) {
+    setStatus_('bad', 'Error');
+    showToast_(
+      'No responde el WebApp (/exec) o no es público. ' +
+      'Revisa Deploy: "Anyone/Cualquiera". ' +
+      'Detalle: ' + (e?.message || e)
+    );
+    el_('updatedAt').textContent = 'Error: ' + (e?.message || e);
+    return;
+  }
 
-    function requireEls_(ids){
-      const missing = ids.filter(id => !el_(id));
-      if (missing.length) throw new Error('Faltan contenedores en HTML: ' + missing.join(', '));
-    }
+  loadData_(GAS_WEBAPP_URL, { forceRefresh:false })
+    .then(payload => {
+      latestPayload = payload;
 
-    async function init_() {
-      setStatus_('warn', 'Cargando…');
-
-      const GAS_WEBAPP_URL = getGasUrl_();
-
-      if (!/^https:\/\/script\.google\.com\/macros\/s\//.test(GAS_WEBAPP_URL) || !/\/exec(\?|$)/.test(GAS_WEBAPP_URL)) {
+      if (!payload || typeof payload !== 'object') throw new Error('Payload inválido (no es objeto).');
+      if (payload?.error) {
         setStatus_('bad', 'Error');
-        showToast_('URL GAS inválida. Debe terminar en /exec (usa Config URL).');
-        el_('updatedAt').textContent = 'Error: URL /exec inválida';
-        return;
+        showToast_('Error desde GAS: ' + payload.error);
       }
 
-      try {
-        await ping_(GAS_WEBAPP_URL);
-      } catch (e) {
-        setStatus_('bad', 'Error');
-        showToast_(
-          'No responde el WebApp (/exec) o no es público. ' +
-          'Revisa Deploy: "Anyone/Cualquiera". ' +
-          'Detalle: ' + (e?.message || e)
-        );
-        el_('updatedAt').textContent = 'Error: ' + (e?.message || e);
-        return;
-      }
-
-      loadData_(GAS_WEBAPP_URL, { forceRefresh: false })
-        .then(payload => {
-          latestPayload = payload;
-
-          if (!payload || typeof payload !== 'object') throw new Error('Payload inválido (no es objeto).');
-          if (payload?.error) {
-            setStatus_('bad', 'Error');
-            showToast_('Error desde GAS: ' + payload.error);
-          }
-
-          setHeader_(payload);
-          buildDataTable_(payload.rows || []);
-          buildCharts_();
-          buildDropdownsFromPayload_(payload);
-
-          uiReady_ = true;
-          safeRedrawAll_();
-          setStatus_('ok', 'OK');
-          attachResize_();
-        })
-        .catch(err => {
-          console.error(err);
-          setStatus_('bad', 'Error');
-          showToast_('No se pudo inicializar: ' + (err?.message || err));
-          el_('updatedAt').textContent = 'Error: ' + (err?.message || err);
-        });
-    }
-
-    function ping_(baseUrl){
-      const url = new URL(baseUrl);
-      url.searchParams.set('ping','1');
-      url.searchParams.set('_ts', Date.now().toString());
-      return jsonpLoad_(url.toString(), { timeoutMs: 12000 });
-    }
-
-    function loadData_(baseUrl, { forceRefresh }) {
-      const url = new URL(baseUrl);
-      url.searchParams.set('sheet', SHEET_NAME);
-      if (forceRefresh) url.searchParams.set('action', 'refresh');
-      url.searchParams.set('_ts', Date.now().toString());
-      return jsonpLoad_(url.toString(), { timeoutMs: 15000 });
-    }
-
-    // ✅ JSONP robusto
-    function jsonpLoad_(url, { timeoutMs = 12000 } = {}) {
-      return new Promise((resolve, reject) => {
-        const cbName = 'cb_' + Math.random().toString(36).slice(2);
-        const script = document.createElement('script');
-        script.async = true;
-
-        let done = false;
-        let t = null;
-
-        function finishOk(data){
-          if (done) return;
-          done = true;
-          cleanup_();
-          resolve(data);
-        }
-        function finishErr(err){
-          if (done) return;
-          done = true;
-          cleanup_();
-          reject(err);
-        }
-        function cleanup_(){
-          if (t) clearTimeout(t);
-          try { delete window[cbName]; } catch(e) {}
-          script.remove();
-        }
-
-        window[cbName] = (data) => finishOk(data);
-
-        script.onerror = () => {
-          finishErr(new Error(
-            'Fallo al cargar el script JSONP. ' +
-            'Causas típicas: URL /exec incorrecta (404) o WebApp no público.'
-          ));
-        };
-
-        t = setTimeout(() => {
-          finishErr(new Error(
-            'Timeout JSONP. Muchas veces significa que GAS devolvió HTML/login en vez de JS. ' +
-            'Revisa Deploy: "Who has access: Anyone/Cualquiera".'
-          ));
-        }, timeoutMs);
-
-        const u = new URL(url);
-        u.searchParams.set('callback', cbName);
-        script.src = u.toString();
-        document.head.appendChild(script);
-      });
-    }
-
-    function buildDataTable_(rows) {
-      dataTable = new google.visualization.DataTable();
-      dataTable.addColumn('string', 'Género');
-      dataTable.addColumn('string', 'Estado civil');
-      dataTable.addColumn('string', 'Escolaridad');
-      dataTable.addColumn('string', 'Departamento');
-      dataTable.addColumn('string', 'Posición');
-      dataTable.addColumn('string', 'Localidad');
-
-      const safeRows = (rows || []).map(r => ([
-        (r?.[0] != null ? String(r[0]).trim() : '(Vacío)') || '(Vacío)',
-        (r?.[1] != null ? String(r[1]).trim() : '(Vacío)') || '(Vacío)',
-        (r?.[2] != null ? String(r[2]).trim() : '(Vacío)') || '(Vacío)',
-        (r?.[3] != null ? String(r[3]).trim() : '(Vacío)') || '(Vacío)',
-        (r?.[4] != null ? String(r[4]).trim() : '(Vacío)') || '(Vacío)',
-        fixLocalidad_(r?.[5]),
-      ]));
-
-      if (safeRows.length) dataTable.addRows(safeRows);
-    }
-
-    function buildCharts_() {
-      requireEls_([
-        'c_genero','c_estado','c_escolaridad','c_departamento','c_posicion','c_localidad',
-        'filtersActive',
-        ...FILTER_META.map(m => m.selectId)
-      ]);
-
-      charts.genero = charts.genero || new google.visualization.PieChart(el_('c_genero'));
-      charts.estado = charts.estado || new google.visualization.PieChart(el_('c_estado'));
-      charts.escolaridad = charts.escolaridad || new google.visualization.PieChart(el_('c_escolaridad'));
-      charts.departamento = charts.departamento || new google.visualization.BarChart(el_('c_departamento'));
-      charts.posicion = charts.posicion || new google.visualization.BarChart(el_('c_posicion'));
-      charts.localidad = charts.localidad || new google.visualization.PieChart(el_('c_localidad'));
-
-      if (!buildCharts_._wired) {
-        wireChartToSelect_('genero', charts.genero, 'sel_genero');
-        wireChartToSelect_('estado', charts.estado, 'sel_estado');
-        wireChartToSelect_('escolaridad', charts.escolaridad, 'sel_escolaridad');
-        wireChartToSelect_('departamento', charts.departamento, 'sel_departamento');
-        wireChartToSelect_('posicion', charts.posicion, 'sel_posicion');
-        wireChartToSelect_('localidad', charts.localidad, 'sel_localidad');
-        buildCharts_._wired = true;
-      }
-    }
-
-    function buildDropdownsFromPayload_(payload){
-      const f = payload.menus || payload.filters || {};
-
-      MENUS.genero       = ensureTodos_(f.genero || uniqueFromData_(0));
-      MENUS.estado       = ensureTodos_(f.estado || f['estado civil'] || uniqueFromData_(1));
-      MENUS.escolaridad  = ensureTodos_(f.escolaridad || uniqueFromData_(2));
-      MENUS.departamento = ensureTodos_(f.departamento || f.depto || uniqueFromData_(3));
-      MENUS.posicion     = ensureTodos_(f.posicion || f.pos || uniqueFromData_(4));
-
-      const rawLoc = (f.localidad || f.loc || uniqueFromData_(5));
-      MENUS.localidad = ensureTodos_(uniqKeepOrder_((rawLoc || []).map(x => fixLocalidad_(x))));
-
-      fillSelect_('sel_genero', MENUS.genero, filterState.genero);
-      fillSelect_('sel_estado', MENUS.estado, filterState.estado);
-      fillSelect_('sel_escolaridad', MENUS.escolaridad, filterState.escolaridad);
-      fillSelect_('sel_departamento', MENUS.departamento, filterState.departamento);
-      fillSelect_('sel_posicion', MENUS.posicion, filterState.posicion);
-
-      const currentLoc = fixLocalidad_(filterState.localidad);
-      filterState.localidad = currentLoc === '(Vacío)' ? filterState.localidad : currentLoc;
-      fillSelect_('sel_localidad', MENUS.localidad, filterState.localidad);
-
-      FILTER_META.forEach(m => syncStateWithSelect_(m.key, m.selectId));
-    }
-
-    function syncStateWithSelect_(key, selId){
-      const s = el_(selId);
-      const v = s.value;
-      filterState[key] = v || 'Todos';
-    }
-
-    function ensureTodos_(arr){
-      const a = (arr || []).map(x => String(x).trim()).filter(Boolean);
-      if (!a.length) return ['Todos'];
-      if (!a.some(x => x.toLowerCase() === 'todos')) return ['Todos', ...a];
-      const rest = a.filter(x => x.toLowerCase() !== 'todos');
-      return ['Todos', ...rest];
-    }
-
-    function uniqueFromData_(colIndex){
-      const set = new Set();
-      if (!dataTable) return [];
-      for (let r=0; r<dataTable.getNumberOfRows(); r++){
-        const v = dataTable.getValue(r, colIndex);
-        set.add(String(v || '(Vacío)').trim() || '(Vacío)');
-      }
-      return Array.from(set);
-    }
-
-    function fillSelect_(selId, items, selected){
-      const sel = el_(selId);
-      sel.innerHTML = '';
-      const list = (items || []).map(x => String(x).trim()).filter(Boolean);
-
-      list.forEach(v => {
-        const opt = document.createElement('option');
-        opt.value = v;
-        opt.textContent = v;
-        sel.appendChild(opt);
-      });
-
-      sel.value = list.includes(selected) ? selected : (list.includes('Todos') ? 'Todos' : (list[0] || 'Todos'));
-    }
-
-    function baseChartOptions_(title) {
-      return {
-        title,
-        backgroundColor: 'transparent',
-        chartArea: { left: 14, top: 42, right: 14, bottom: 12, width: '100%', height: '78%' },
-        titleTextStyle: { color: '#e8eefc', fontSize: 14, bold: true },
-        legend: { textStyle: { color: '#e8eefc', fontSize: 12 } },
-        pieSliceTextStyle: { color: '#0b1220', fontSize: 12 },
-        pieSliceText: 'both',
-        tooltip: { text: 'both', textStyle: { color: '#0b1220' } },
-        hAxis: { textStyle: { color: '#e8eefc' }, gridlines: { color: 'rgba(255,255,255,.10)' } },
-        vAxis: { textStyle: { color: '#e8eefc' }, gridlines: { color: 'rgba(255,255,255,.10)' } },
-        animation: { startup: true, duration: 450, easing: 'out' }
-      };
-    }
-
-    function addBarAnnotations_(dt){
-      if (!dt || dt.getNumberOfRows() === 0) return dt;
-      const view = new google.visualization.DataView(dt);
-      view.setColumns([0, 1, { calc: 'stringify', sourceColumn: 1, type: 'string', role: 'annotation' }]);
-      return view.toDataTable();
-    }
-
-    function safeRedrawAll_() {
-      try { redrawAll_(); }
-      catch (err) {
-        console.error(err);
-        setStatus_('bad', 'Error');
-        showToast_('Falló al dibujar: ' + (err?.message || err));
-      }
-    }
-
-    function redrawAll_() {
-      if (!dataTable) return;
-
-      const filtered = applySelectFiltersToDataTable_(dataTable);
-
-      const dtGenero = groupCountSafe_(filtered, 0, 'Género');
-      const dtEstado = groupCountSafe_(filtered, 1, 'Estado civil');
-      const dtEscol  = groupCountSafe_(filtered, 2, 'Escolaridad');
-      const dtLoc    = groupCountSafe_(filtered, 5, 'Localidad');
-
-      const dtDeptoBase = groupCountSafe_(filtered, 3, 'Departamento', true);
-      const dtPosBase   = groupCountSafe_(filtered, 4, 'Posición', true);
-
-      const dtDepto = addBarAnnotations_(dtDeptoBase);
-      const dtPos   = addBarAnnotations_(dtPosBase);
-
-      lastChartData.genero = dtGenero;
-      lastChartData.estado = dtEstado;
-      lastChartData.escolaridad = dtEscol;
-      lastChartData.departamento = dtDepto;
-      lastChartData.posicion = dtPos;
-      lastChartData.localidad = dtLoc;
-
-      drawChartSafe_('c_genero', charts.genero, dtGenero, baseChartOptions_('Género'));
-      drawChartSafe_('c_estado', charts.estado, dtEstado, baseChartOptions_('Estado civil'));
-      drawChartSafe_('c_escolaridad', charts.escolaridad, dtEscol, baseChartOptions_('Escolaridad'));
-      drawChartSafe_('c_localidad', charts.localidad, dtLoc, baseChartOptions_('Localidad'));
-
-      drawChartSafe_(
-        'c_departamento',
-        charts.departamento,
-        dtDepto,
-        Object.assign(baseChartOptions_('Departamento'), {
-          legend: { position: 'none' },
-          bars: 'horizontal',
-          chartArea: { left: 120, top: 42, right: 22, bottom: 12, width: '100%', height: '78%' },
-          annotations: { alwaysOutside: false, textStyle: { color: '#e8eefc', fontSize: 12, bold: true } }
-        }),
-        true
-      );
-
-      drawChartSafe_(
-        'c_posicion',
-        charts.posicion,
-        dtPos,
-        Object.assign(baseChartOptions_('Posición'), {
-          legend: { position: 'none' },
-          bars: 'horizontal',
-          chartArea: { left: 160, top: 42, right: 22, bottom: 12, width: '100%', height: '78%' },
-          annotations: { alwaysOutside: false, textStyle: { color: '#e8eefc', fontSize: 12, bold: true } }
-        }),
-        true
-      );
-
-      updateFiltersActive_();
-    }
-
-    function updateFiltersActive_(){
-      const pretty = {
-        genero: 'Género',
-        estado: 'Estado civil',
-        escolaridad: 'Escolaridad',
-        departamento: 'Departamento',
-        posicion: 'Posición',
-        localidad: 'Localidad'
-      };
-      const parts = [];
-      Object.keys(pretty).forEach(k => {
-        const v = (filterState[k] || 'Todos').trim();
-        if (v && v.toLowerCase() !== 'todos') parts.push(`${pretty[k]}: ${v}`);
-      });
-      el_('filtersActive').textContent = parts.length ? parts.join(' · ') : 'Todos';
-    }
-
-    function drawChartSafe_(containerId, chart, dt, options, tall=false){
-      const container = el_(containerId);
-      if (!container || !chart) return;
-
-      if (!isDrawable_(dt)) {
-        container.innerHTML = `<div class="nodata ${tall ? 'tall' : ''}">Sin datos para mostrar</div>`;
-        return;
-      }
-
-      if (container.querySelector('.nodata')) container.innerHTML = '';
-      chart.draw(dt, options);
-    }
-
-    function isDrawable_(dt){
-      if (!dt) return false;
-      if (dt.getNumberOfColumns() < 2) return false;
-      if (dt.getNumberOfRows() <= 0) return false;
-
-      let sum = 0;
-      for (let i = 0; i < dt.getNumberOfRows(); i++){
-        const v = Number(dt.getValue(i, 1));
-        if (!isNaN(v)) sum += v;
-      }
-      return sum > 0;
-    }
-
-    function applySelectFiltersToDataTable_(dt) {
-      const rows = [];
-      for (let r = 0; r < dt.getNumberOfRows(); r++) rows.push(r);
-
-      let current = rows;
-      FILTER_META.forEach(m => {
-        const val = (filterState[m.key] || 'Todos').trim();
-        if (!val || val.toLowerCase() === 'todos') return;
-        current = current.filter(r => dt.getValue(r, m.colIndex) === val);
-      });
-
-      const view = new google.visualization.DataView(dt);
-      view.setRows(current);
-      return view.toDataTable();
-    }
-
-    function groupCountSafe_(dt, colIndex, label, isBar = false) {
-      if (!dt || dt.getNumberOfRows() === 0) return null;
-
-      const grouped = google.visualization.data.group(
-        dt,
-        [colIndex],
-        [{ column: colIndex, type: 'number', aggregation: google.visualization.data.count }]
-      );
-
-      grouped.setColumnLabel(0, label);
-      grouped.setColumnLabel(1, 'Total');
-
-      if (grouped.getNumberOfRows() === 0) return null;
-
-      const sortedRows = grouped.getSortedRows({ column: 1, desc: true });
-      const topRows = (isBar ? sortedRows.slice(0, 15) : sortedRows);
-
-      const view = new google.visualization.DataView(grouped);
-      view.setRows(topRows);
-      return view.toDataTable();
-    }
-
-    function wireChartToSelect_(key, chart, selectId) {
-      google.visualization.events.addListener(chart, 'select', () => {
-        if (!uiReady_) return;
-
-        const sel = chart.getSelection();
-        if (!sel || !sel.length) return;
-
-        const row = sel[0].row;
-        if (row == null) return;
-
-        const dt = lastChartData[key];
-        if (!dt || dt.getNumberOfRows() === 0) return;
-
-        const value = dt.getValue(row, 0);
-        if (!value) return;
-
-        const select = el_(selectId);
-        const current = select.value;
-
-        select.value = (current === value) ? 'Todos' : value;
-        filterState[key] = select.value;
-
-        safeRedrawAll_();
-      });
-    }
-
-    function refreshNow_() {
-      const btn = el_('btnRefresh');
-      btn.disabled = true;
-      btn.innerHTML = '<span>⟳</span> Actualizando…';
-
-      setStatus_('warn', 'Actualizando…');
-      uiReady_ = false;
-
-      const GAS_WEBAPP_URL = getGasUrl_();
-
-      loadData_(GAS_WEBAPP_URL, { forceRefresh: true })
-        .then(payload => {
-          latestPayload = payload;
-
-          if (payload?.error) {
-            setStatus_('bad', 'Error');
-            showToast_('Error desde GAS: ' + payload.error);
-          }
-
-          setHeader_(payload);
-          buildDataTable_(payload.rows || []);
-          buildDropdownsFromPayload_(payload);
-
-          uiReady_ = true;
-          safeRedrawAll_();
-
-          showToast_('Datos actualizados desde "Maestro".');
-          setStatus_('ok', 'OK');
-        })
-        .catch(err => {
-          console.error(err);
-          setStatus_('bad', 'Error');
-          showToast_('Error al actualizar: ' + (err?.message || err));
-        })
-        .finally(() => {
-          btn.disabled = false;
-          btn.innerHTML = '<span>⟳</span> Actualizar';
-        });
-    }
-
-    function clearAllFilters_() {
-      uiReady_ = false;
-
-      FILTER_META.forEach(m => {
-        filterState[m.key] = 'Todos';
-        el_(m.selectId).value = 'Todos';
-      });
+      setHeader_(payload);
+      buildDataTable_(payload.rows || []);
+      buildCharts_();
+
+      // ✅ Menús por variable desde "Filtros" (o fallback)
+      // ✅ Default = "Todos" en todos los selects al iniciar
+      FILTER_META.forEach(m => filterState[m.key] = 'Todos');
+      buildDropdownsFromPayload_(payload);
 
       uiReady_ = true;
       safeRedrawAll_();
-      showToast_('Filtros limpiados.');
+      setStatus_('ok', 'OK');
+      attachResize_();
+    })
+    .catch(err => {
+      console.error(err);
+      setStatus_('bad', 'Error');
+      showToast_('No se pudo inicializar: ' + (err?.message || err));
+      el_('updatedAt').textContent = 'Error: ' + (err?.message || err);
+    });
+}
+
+function ping_(baseUrl){
+  const url = new URL(baseUrl);
+  url.searchParams.set('ping','1');
+  url.searchParams.set('_ts', Date.now().toString());
+  return jsonpLoad_(url.toString(), { timeoutMs: 12000 });
+}
+
+function loadData_(baseUrl, { forceRefresh }){
+  const url = new URL(baseUrl);
+  url.searchParams.set('sheet', SHEET_NAME);
+  if (forceRefresh) url.searchParams.set('action', 'refresh');
+  url.searchParams.set('_ts', Date.now().toString());
+  return jsonpLoad_(url.toString(), { timeoutMs: 15000 });
+}
+
+// ✅ JSONP robusto
+function jsonpLoad_(url, { timeoutMs = 12000 } = {}){
+  return new Promise((resolve, reject) => {
+    const cbName = 'cb_' + Math.random().toString(36).slice(2);
+    const script = document.createElement('script');
+    script.async = true;
+
+    let done = false;
+    let t = null;
+
+    function cleanup_(){
+      if (t) clearTimeout(t);
+      try { delete window[cbName]; } catch(e) {}
+      script.remove();
     }
 
-    function setHeader_(payload){
-      const d = new Date(payload.updatedAt);
-      const text = isNaN(d.getTime()) ? String(payload.updatedAt || '—') : d.toLocaleString();
+    window[cbName] = (data) => {
+      if (done) return;
+      done = true;
+      cleanup_();
+      resolve(data);
+    };
 
-      el_('updatedAt').textContent = 'Actualizado: ' + text;
-      el_('updatedAtBig').textContent = text;
+    script.onerror = () => {
+      if (done) return;
+      done = true;
+      cleanup_();
+      reject(new Error(
+        'Fallo al cargar el script JSONP. ' +
+        'Causas típicas: URL /exec incorrecta (404) o WebApp no público.'
+      ));
+    };
 
-      const n = payload.rows?.length || 0;
-      el_('rowCount').textContent = `· Registros: ${n}`;
-      el_('rowCountBig').textContent = String(n);
+    t = setTimeout(() => {
+      if (done) return;
+      done = true;
+      cleanup_();
+      reject(new Error(
+        'Timeout JSONP. Muchas veces significa que GAS devolvió HTML/login en vez de JS. ' +
+        'Revisa Deploy: "Who has access: Anyone/Cualquiera".'
+      ));
+    }, timeoutMs);
 
-      el_('sheetName').textContent = '· Hoja: ' + (payload.sheetName || payload.sheet || SHEET_NAME);
-    }
+    const u = new URL(url);
+    u.searchParams.set('callback', cbName);
+    script.src = u.toString();
+    document.head.appendChild(script);
+  });
+}
 
-    function setStatus_(mode, text){
-      const box = el_('statusBox');
-      const t = el_('statusText');
+/******************************************************************
+ * ✅ Construcción de DataTable
+ ******************************************************************/
+function buildDataTable_(rows){
+  dataTable = new google.visualization.DataTable();
+  dataTable.addColumn('string', 'Género');
+  dataTable.addColumn('string', 'Estado civil');
+  dataTable.addColumn('string', 'Escolaridad');
+  dataTable.addColumn('string', 'Departamento');
+  dataTable.addColumn('string', 'Posición');
+  dataTable.addColumn('string', 'Localidad');
 
-      box.classList.remove('ok','bad');
-      if (mode === 'ok') box.classList.add('ok');
-      if (mode === 'bad') box.classList.add('bad');
+  const safeRows = (rows || []).map(r => ([
+    (r?.[0] != null ? String(r[0]).trim() : '(Vacío)') || '(Vacío)',
+    (r?.[1] != null ? String(r[1]).trim() : '(Vacío)') || '(Vacío)',
+    (r?.[2] != null ? String(r[2]).trim() : '(Vacío)') || '(Vacío)',
+    (r?.[3] != null ? String(r[3]).trim() : '(Vacío)') || '(Vacío)',
+    (r?.[4] != null ? String(r[4]).trim() : '(Vacío)') || '(Vacío)',
+    fixLocalidad_(r?.[5]),
+  ]));
 
-      t.textContent = text;
-    }
+  if (safeRows.length) dataTable.addRows(safeRows);
+}
 
-    function showToast_(msg){
-      const el = el_('toast');
-      el.textContent = msg;
-      el.style.display = 'block';
-      clearTimeout(el._t);
-      el._t = setTimeout(() => (el.style.display = 'none'), 4200);
-    }
+/******************************************************************
+ * ✅ Charts
+ ******************************************************************/
+function requireEls_(ids){
+  const missing = ids.filter(id => !el_(id));
+  if (missing.length) throw new Error('Faltan contenedores en HTML: ' + missing.join(', '));
+}
 
-    function attachResize_(){
-      window.addEventListener('resize', () => {
-        clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(() => safeRedrawAll_(), 180);
-      });
-    }
-  </script>
+function buildCharts_(){
+  requireEls_([
+    'c_genero','c_estado','c_escolaridad','c_departamento','c_posicion','c_localidad',
+    'filtersActive',
+    ...FILTER_META.map(m => m.selectId)
+  ]);
+
+  charts.genero      = charts.genero      || new google.visualization.PieChart(el_('c_genero'));
+  charts.estado      = charts.estado      || new google.visualization.PieChart(el_('c_estado'));
+  charts.escolaridad = charts.escolaridad || new google.visualization.PieChart(el_('c_escolaridad'));
+  charts.departamento= charts.departamento|| new google.visualization.BarChart(el_('c_departamento'));
+  charts.posicion    = charts.posicion    || new google.visualization.BarChart(el_('c_posicion'));
+  charts.localidad   = charts.localidad   || new google.visualization.PieChart(el_('c_localidad'));
+
+  if (!buildCharts_._wired) {
+    wireChartToSelect_('genero', charts.genero, 'sel_genero');
+    wireChartToSelect_('estado', charts.estado, 'sel_estado');
+    wireChartToSelect_('escolaridad', charts.escolaridad, 'sel_escolaridad');
+    wireChartToSelect_('departamento', charts.departamento, 'sel_departamento');
+    wireChartToSelect_('posicion', charts.posicion, 'sel_posicion');
+    wireChartToSelect_('localidad', charts.localidad, 'sel_localidad');
+    buildCharts_._wired = true;
+  }
+}
+
+/******************************************************************
+ * ✅ Menús desde payload (hoja Filtros) con default "Todos"
+ ******************************************************************/
+function uniqueFromData_(colIndex){
+  const set = new Set();
+  if (!dataTable) return [];
+  for (let r=0; r<dataTable.getNumberOfRows(); r++){
+    const v = dataTable.getValue(r, colIndex);
+    set.add(String(v || '(Vacío)').trim() || '(Vacío)');
+  }
+  return Array.from(set);
+}
+
+function fillSelect_(selId, items, selected){
+  const sel = el_(selId);
+  sel.innerHTML = '';
+  const list = (items || []).map(x => String(x).trim()).filter(Boolean);
+
+  list.forEach(v => {
+    const opt = document.createElement('option');
+    opt.value = v;
+    opt.textContent = v;
+    sel.appendChild(opt);
+  });
+
+  // ✅ Default: "Todos"
+  const target = (selected && list.includes(selected)) ? selected : (list.includes('Todos') ? 'Todos' : (list[0] || 'Todos'));
+  sel.value = target;
+}
+
+function buildDropdownsFromPayload_(payload){
+  const f = payload.menus || payload.filters || {};
+
+  MENUS.genero      = ensureTodos_(f.genero || uniqueFromData_(0));
+  MENUS.estado      = ensureTodos_(f.estado || f['estado civil'] || uniqueFromData_(1));
+  MENUS.escolaridad = ensureTodos_(f.escolaridad || uniqueFromData_(2));
+  MENUS.departamento= ensureTodos_(f.departamento || f.depto || uniqueFromData_(3));
+  MENUS.posicion    = ensureTodos_(f.posicion || f.pos || uniqueFromData_(4));
+
+  const rawLoc = (f.localidad || f.loc || uniqueFromData_(5));
+  MENUS.localidad = ensureTodos_(uniqKeepOrder_((rawLoc || []).map(x => fixLocalidad_(x))));
+
+  // ✅ Siempre arranca en Todos (por requerimiento)
+  fillSelect_('sel_genero',      MENUS.genero,      'Todos');
+  fillSelect_('sel_estado',      MENUS.estado,      'Todos');
+  fillSelect_('sel_escolaridad', MENUS.escolaridad, 'Todos');
+  fillSelect_('sel_departamento',MENUS.departamento,'Todos');
+  fillSelect_('sel_posicion',    MENUS.posicion,    'Todos');
+  fillSelect_('sel_localidad',   MENUS.localidad,   'Todos');
+
+  // ✅ sincroniza estado
+  FILTER_META.forEach(m => filterState[m.key] = el_(m.selectId).value || 'Todos');
+}
+
+/******************************************************************
+ * ✅ Dibujo / filtros
+ ******************************************************************/
+function safeRedrawAll_(){
+  try { redrawAll_(); }
+  catch (err){
+    console.error(err);
+    setStatus_('bad', 'Error');
+    showToast_('Falló al dibujar: ' + (err?.message || err));
+  }
+}
+
+function applySelectFiltersToDataTable_(dt){
+  const rows = [];
+  for (let r=0; r<dt.getNumberOfRows(); r++) rows.push(r);
+
+  let current = rows;
+  FILTER_META.forEach(m => {
+    const val = (filterState[m.key] || 'Todos').trim();
+    if (!val || norm_(val) === 'todos') return;
+    current = current.filter(r => dt.getValue(r, m.colIndex) === val);
+  });
+
+  const view = new google.visualization.DataView(dt);
+  view.setRows(current);
+  return view.toDataTable();
+}
+
+function groupCountSafe_(dt, colIndex, label, isBar=false){
+  if (!dt || dt.getNumberOfRows() === 0) return null;
+
+  const grouped = google.visualization.data.group(
+    dt,
+    [colIndex],
+    [{ column: colIndex, type:'number', aggregation: google.visualization.data.count }]
+  );
+
+  grouped.setColumnLabel(0, label);
+  grouped.setColumnLabel(1, 'Total');
+
+  if (grouped.getNumberOfRows() === 0) return null;
+
+  const sortedRows = grouped.getSortedRows({ column: 1, desc: true });
+  const topRows = isBar ? sortedRows.slice(0, 15) : sortedRows;
+
+  const view = new google.visualization.DataView(grouped);
+  view.setRows(topRows);
+  return view.toDataTable();
+}
+
+function addBarAnnotations_(dt){
+  if (!dt || dt.getNumberOfRows() === 0) return dt;
+  const view = new google.visualization.DataView(dt);
+  view.setColumns([0, 1, { calc:'stringify', sourceColumn:1, type:'string', role:'annotation' }]);
+  return view.toDataTable();
+}
+
+function baseChartOptions_(title){
+  return {
+    title,
+    backgroundColor:'transparent',
+    chartArea:{ left:14, top:42, right:14, bottom:12, width:'100%', height:'78%' },
+    titleTextStyle:{ color:'#e8eefc', fontSize:14, bold:true },
+    legend:{ textStyle:{ color:'#e8eefc', fontSize:12 } },
+    pieSliceTextStyle:{ color:'#0b1220', fontSize:12 },
+    pieSliceText:'both',
+    tooltip:{ text:'both', textStyle:{ color:'#0b1220' } },
+    hAxis:{ textStyle:{ color:'#e8eefc' }, gridlines:{ color:'rgba(255,255,255,.10)' } },
+    vAxis:{ textStyle:{ color:'#e8eefc' }, gridlines:{ color:'rgba(255,255,255,.10)' } },
+    animation:{ startup:true, duration:450, easing:'out' }
+  };
+}
+
+function isDrawable_(dt){
+  if (!dt) return false;
+  if (dt.getNumberOfColumns() < 2) return false;
+  if (dt.getNumberOfRows() <= 0) return false;
+  let sum = 0;
+  for (let i=0; i<dt.getNumberOfRows(); i++){
+    const v = Number(dt.getValue(i, 1));
+    if (!isNaN(v)) sum += v;
+  }
+  return sum > 0;
+}
+
+function drawChartSafe_(containerId, chart, dt, options, tall=false){
+  const container = el_(containerId);
+  if (!container || !chart) return;
+
+  if (!isDrawable_(dt)) {
+    container.innerHTML = `<div class="nodata ${tall ? 'tall' : ''}">Sin datos para mostrar</div>`;
+    return;
+  }
+
+  if (container.querySelector('.nodata')) container.innerHTML = '';
+  chart.draw(dt, options);
+}
+
+function updateFiltersActive_(){
+  const pretty = {
+    genero:'Género',
+    estado:'Estado civil',
+    escolaridad:'Escolaridad',
+    departamento:'Departamento',
+    posicion:'Posición',
+    localidad:'Localidad'
+  };
+  const parts = [];
+  Object.keys(pretty).forEach(k => {
+    const v = (filterState[k] || 'Todos').trim();
+    if (v && norm_(v) !== 'todos') parts.push(`${pretty[k]}: ${v}`);
+  });
+  el_('filtersActive').textContent = parts.length ? parts.join(' · ') : 'Todos';
+}
+
+function redrawAll_(){
+  if (!dataTable) return;
+
+  const filtered = applySelectFiltersToDataTable_(dataTable);
+
+  const dtGenero = groupCountSafe_(filtered, 0, 'Género');
+  const dtEstado = groupCountSafe_(filtered, 1, 'Estado civil');
+  const dtEscol  = groupCountSafe_(filtered, 2, 'Escolaridad');
+  const dtLoc    = groupCountSafe_(filtered, 5, 'Localidad');
+
+  const dtDeptoBase = groupCountSafe_(filtered, 3, 'Departamento', true);
+  const dtPosBase   = groupCountSafe_(filtered, 4, 'Posición', true);
+
+  const dtDepto = addBarAnnotations_(dtDeptoBase);
+  const dtPos   = addBarAnnotations_(dtPosBase);
+
+  lastChartData.genero = dtGenero;
+  lastChartData.estado = dtEstado;
+  lastChartData.escolaridad = dtEscol;
+  lastChartData.departamento = dtDepto;
+  lastChartData.posicion = dtPos;
+  lastChartData.localidad = dtLoc;
+
+  drawChartSafe_('c_genero', charts.genero, dtGenero, baseChartOptions_('Género'));
+  drawChartSafe_('c_estado', charts.estado, dtEstado, baseChartOptions_('Estado civil'));
+  drawChartSafe_('c_escolaridad', charts.escolaridad, dtEscol, baseChartOptions_('Escolaridad'));
+  drawChartSafe_('c_localidad', charts.localidad, dtLoc, baseChartOptions_('Localidad'));
+
+  drawChartSafe_(
+    'c_departamento',
+    charts.departamento,
+    dtDepto,
+    Object.assign(baseChartOptions_('Departamento'), {
+      legend:{ position:'none' },
+      bars:'horizontal',
+      chartArea:{ left:120, top:42, right:22, bottom:12, width:'100%', height:'78%' },
+      annotations:{ alwaysOutside:false, textStyle:{ color:'#e8eefc', fontSize:12, bold:true } }
+    }),
+    true
+  );
+
+  drawChartSafe_(
+    'c_posicion',
+    charts.posicion,
+    dtPos,
+    Object.assign(baseChartOptions_('Posición'), {
+      legend:{ position:'none' },
+      bars:'horizontal',
+      chartArea:{ left:160, top:42, right:22, bottom:12, width:'100%', height:'78%' },
+      annotations:{ alwaysOutside:false, textStyle:{ color:'#e8eefc', fontSize:12, bold:true } }
+    }),
+    true
+  );
+
+  updateFiltersActive_();
+}
+
+function wireChartToSelect_(key, chart, selectId){
+  google.visualization.events.addListener(chart, 'select', () => {
+    if (!uiReady_) return;
+    const sel = chart.getSelection();
+    if (!sel || !sel.length) return;
+
+    const row = sel[0].row;
+    if (row == null) return;
+
+    const dt = lastChartData[key];
+    if (!dt || dt.getNumberOfRows() === 0) return;
+
+    const value = dt.getValue(row, 0);
+    if (!value) return;
+
+    const select = el_(selectId);
+    const current = select.value;
+    select.value = (current === value) ? 'Todos' : value;
+
+    filterState[key] = select.value;
+    safeRedrawAll_();
+  });
+}
+
+/******************************************************************
+ * ✅ Acciones
+ ******************************************************************/
+function refreshNow_(){
+  const btn = el_('btnRefresh');
+  btn.disabled = true;
+  btn.innerHTML = '<span>⟳</span> Actualizando…';
+
+  setStatus_('warn', 'Actualizando…');
+  uiReady_ = false;
+
+  const GAS_WEBAPP_URL = getGasUrl_();
+
+  loadData_(GAS_WEBAPP_URL, { forceRefresh:true })
+    .then(payload => {
+      latestPayload = payload;
+
+      if (payload?.error) {
+        setStatus_('bad', 'Error');
+        showToast_('Error desde GAS: ' + payload.error);
+      }
+
+      setHeader_(payload);
+      buildDataTable_(payload.rows || []);
+
+      // ✅ Por requerimiento: al regenerar, arranca con Todos
+      FILTER_META.forEach(m => filterState[m.key] = 'Todos');
+      buildDropdownsFromPayload_(payload);
+
+      uiReady_ = true;
+      safeRedrawAll_();
+      showToast_('Datos actualizados desde "Maestro".');
+      setStatus_('ok', 'OK');
+    })
+    .catch(err => {
+      console.error(err);
+      setStatus_('bad', 'Error');
+      showToast_('Error al actualizar: ' + (err?.message || err));
+    })
+    .finally(() => {
+      btn.disabled = false;
+      btn.innerHTML = '<span>⟳</span> Actualizar';
+    });
+}
+
+function clearAllFilters_(){
+  uiReady_ = false;
+  FILTER_META.forEach(m => {
+    filterState[m.key] = 'Todos';
+    el_(m.selectId).value = 'Todos';
+  });
+  uiReady_ = true;
+  safeRedrawAll_();
+  showToast_('Filtros limpiados.');
+}
+
+function setHeader_(payload){
+  const d = new Date(payload.updatedAt);
+  const text = isNaN(d.getTime()) ? String(payload.updatedAt || '—') : d.toLocaleString();
+
+  el_('updatedAt').textContent = 'Actualizado: ' + text;
+  el_('updatedAtBig').textContent = text;
+
+  const n = payload.rows?.length || 0;
+  el_('rowCount').textContent = `· Registros: ${n}`;
+  el_('rowCountBig').textContent = String(n);
+
+  el_('sheetName').textContent = '· Hoja: ' + (payload.sheetName || payload.sheet || SHEET_NAME);
+}
+</script>
 </body>
 </html>
