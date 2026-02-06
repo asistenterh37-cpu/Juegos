@@ -229,7 +229,7 @@
     </div>
   </div>
 
-  <!-- ✅ Aquí se pintan los menús desde FILTER_META -->
+  <!-- ✅ Filtros superiores (por variable) -->
   <div class="filtersTop" id="filtersTop" aria-label="Filtros superiores"></div>
 
   <div class="grid">
@@ -261,21 +261,21 @@
       <div class="cardHeader">
         <div><div class="h">Departamento</div><div class="hint">Top 15 por frecuencia (si aplica).</div></div>
       </div>
-      <div class="cardBody"><div class="chart tall" id="c_depto"></div></div>
+      <div class="cardBody"><div class="chart tall" id="c_departamento"></div></div>
     </div>
 
     <div class="card">
       <div class="cardHeader">
         <div><div class="h">Posición</div><div class="hint">Top 15 por frecuencia (si aplica).</div></div>
       </div>
-      <div class="cardBody"><div class="chart tall" id="c_pos"></div></div>
+      <div class="cardBody"><div class="chart tall" id="c_posicion"></div></div>
     </div>
 
     <div class="card">
       <div class="cardHeader">
         <div><div class="h">Localidad</div><div class="hint">Tegucigalpa · San Pedro Sula · La Ceiba · Choluteca.</div></div>
       </div>
-      <div class="cardBody"><div class="chart" id="c_loc"></div></div>
+      <div class="cardBody"><div class="chart" id="c_localidad"></div></div>
     </div>
   </div>
 
@@ -284,7 +284,7 @@
       <div class="cardHeader">
         <div>
           <div class="h">Resumen</div>
-          <div class="hint">Los filtros viven arriba (como Dios manda).</div>
+          <div class="hint">Los filtros viven arriba.</div>
         </div>
         <div class="status ok" id="statusBox">
           <span class="led"></span> <span id="statusText">OK</span>
@@ -321,28 +321,25 @@
 
   <script>
     // ✅ URL FIJA del WebApp (DEBE terminar en /exec)
-    const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzYA2X-KSLBrmNqhdO4HhuDNfSKkHwkVjlwl380pmn0PyKn1o359GvJif9xjkTK6V9V/exec";
+    const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxGXGnvgG7CMdDneEC48Ryvod8y9cqEoFK-57Zqs3kNJIQDYoYHEycQKYcFpoy6VnGa/exec";
     const SHEET_NAME = "Maestro";
 
     /**
-     * ✅ MENÚS DE CATEGORÍAS (como en tu adjunto)
-     * - Orden
-     * - Label
-     * - SelectId
-     * - Key interno (filterState + lastChartData)
-     * - Key en payload (filters/menus)
-     * - Columna en DataTable
+     * ✅ FILTROS POR VARIABLE (keys unificadas)
+     * key: variable interna (filterState / MENUS / lastChartData)
+     * payloadKey: key que viene desde GAS (filters/menus)
+     * colIndex: columna en DataTable
      */
     const FILTER_META = [
-      { key:'genero',      label:'Género',       selectId:'sel_genero', payloadKey:'genero',      colIndex:0 },
-      { key:'estado',      label:'Estado civil', selectId:'sel_estado', payloadKey:'estado',      colIndex:1 },
+      { key:'genero',      label:'Género',       selectId:'sel_genero',      payloadKey:'genero',      colIndex:0 },
+      { key:'estado',      label:'Estado civil', selectId:'sel_estado',      payloadKey:'estado',      colIndex:1 },
       { key:'escolaridad', label:'Escolaridad',  selectId:'sel_escolaridad', payloadKey:'escolaridad', colIndex:2 },
-      { key:'depto',       label:'Departamento', selectId:'sel_depto',  payloadKey:'departamento', colIndex:3 },
-      { key:'pos',         label:'Posición',     selectId:'sel_pos',    payloadKey:'posicion',    colIndex:4 },
-      { key:'loc',         label:'Localidad',    selectId:'sel_loc',    payloadKey:'localidad',   colIndex:5 },
+      { key:'departamento',label:'Departamento', selectId:'sel_departamento',payloadKey:'departamento',colIndex:3 },
+      { key:'posicion',    label:'Posición',     selectId:'sel_posicion',    payloadKey:'posicion',    colIndex:4 },
+      { key:'localidad',   label:'Localidad',    selectId:'sel_localidad',   payloadKey:'localidad',   colIndex:5 },
     ];
 
-    // ✅ Aquí se guardan las opciones reales de cada menú (para debugging/uso futuro)
+    // ✅ Opciones (viven en variables)
     const MENUS = {
       genero: [], estado: [], escolaridad: [], departamento: [], posicion: [], localidad: []
     };
@@ -356,7 +353,7 @@
     let resizeTimer = null;
     let uiReady_ = false;
 
-    // ✅ Estado de filtros desde FILTER_META
+    // ✅ Estado de filtros (por variable)
     const filterState = {};
     FILTER_META.forEach(m => filterState[m.key] = 'Todos');
 
@@ -365,9 +362,9 @@
 
     document.addEventListener('DOMContentLoaded', () => {
       domReady = true;
-      renderFilterMenus_();     // ✅ pinta los selects desde FILTER_META
+      renderFilterMenus_();
       hookButtons_();
-      hookSelects_();           // ✅ engancha eventos dinámicos
+      hookSelects_();
       tryBoot_();
     });
 
@@ -392,9 +389,9 @@
     }
 
     function hookButtons_(){
-      document.getElementById('btnRefresh').addEventListener('click', refreshNow_);
-      document.getElementById('btnClear').addEventListener('click', clearAllFilters_);
-      document.getElementById('btnConfig').addEventListener('click', configUrl_);
+      el_('btnRefresh').addEventListener('click', refreshNow_);
+      el_('btnClear').addEventListener('click', clearAllFilters_);
+      el_('btnConfig').addEventListener('click', configUrl_);
     }
 
     function configUrl_(){
@@ -420,6 +417,7 @@
         .replace(/[\u0300-\u036f]/g,'')
         .replace(/\s+/g,' ');
     }
+
     function fixLocalidad_(v){
       const raw = String(v ?? '').trim();
       if (!raw) return '(Vacío)';
@@ -427,6 +425,7 @@
       const map = { 'tegucigaloa': 'Tegucigalpa', 'tegus': 'Tegucigalpa', 'tegucigalpaa': 'Tegucigalpa' };
       return map[k] || raw;
     }
+
     function uniqKeepOrder_(arr){
       const seen = new Set();
       const out = [];
@@ -585,7 +584,7 @@
 
     function buildCharts_() {
       requireEls_([
-        'c_genero','c_estado','c_escolaridad','c_depto','c_pos','c_loc',
+        'c_genero','c_estado','c_escolaridad','c_departamento','c_posicion','c_localidad',
         'filtersActive',
         ...FILTER_META.map(m => m.selectId)
       ]);
@@ -593,31 +592,29 @@
       charts.genero = charts.genero || new google.visualization.PieChart(el_('c_genero'));
       charts.estado = charts.estado || new google.visualization.PieChart(el_('c_estado'));
       charts.escolaridad = charts.escolaridad || new google.visualization.PieChart(el_('c_escolaridad'));
-      charts.depto = charts.depto || new google.visualization.BarChart(el_('c_depto'));
-      charts.pos = charts.pos || new google.visualization.BarChart(el_('c_pos'));
-      charts.loc = charts.loc || new google.visualization.PieChart(el_('c_loc'));
+      charts.departamento = charts.departamento || new google.visualization.BarChart(el_('c_departamento'));
+      charts.posicion = charts.posicion || new google.visualization.BarChart(el_('c_posicion'));
+      charts.localidad = charts.localidad || new google.visualization.PieChart(el_('c_localidad'));
 
       if (!buildCharts_._wired) {
         wireChartToSelect_('genero', charts.genero, 'sel_genero');
         wireChartToSelect_('estado', charts.estado, 'sel_estado');
         wireChartToSelect_('escolaridad', charts.escolaridad, 'sel_escolaridad');
-        wireChartToSelect_('depto', charts.depto, 'sel_depto');
-        wireChartToSelect_('pos', charts.pos, 'sel_pos');
-        wireChartToSelect_('loc', charts.loc, 'sel_loc');
+        wireChartToSelect_('departamento', charts.departamento, 'sel_departamento');
+        wireChartToSelect_('posicion', charts.posicion, 'sel_posicion');
+        wireChartToSelect_('localidad', charts.localidad, 'sel_localidad');
         buildCharts_._wired = true;
       }
     }
 
     function buildDropdownsFromPayload_(payload){
-      // ✅ Acepta filters o menus (GS manda ambos)
       const f = payload.menus || payload.filters || {};
 
-      // Guardamos en variable MENUS (para que “vivan en variables” como pediste)
-      MENUS.genero      = ensureTodos_(f.genero || uniqueFromData_(0));
-      MENUS.estado      = ensureTodos_(f.estado || uniqueFromData_(1));
-      MENUS.escolaridad = ensureTodos_(f.escolaridad || uniqueFromData_(2));
-      MENUS.departamento= ensureTodos_(f.departamento || f.depto || f.departamento || uniqueFromData_(3));
-      MENUS.posicion    = ensureTodos_(f.posicion || f.pos || f.posicion || uniqueFromData_(4));
+      MENUS.genero       = ensureTodos_(f.genero || uniqueFromData_(0));
+      MENUS.estado       = ensureTodos_(f.estado || uniqueFromData_(1));
+      MENUS.escolaridad  = ensureTodos_(f.escolaridad || uniqueFromData_(2));
+      MENUS.departamento = ensureTodos_(f.departamento || f.depto || uniqueFromData_(3));
+      MENUS.posicion     = ensureTodos_(f.posicion || f.pos || uniqueFromData_(4));
 
       const rawLoc = (f.localidad || f.loc || uniqueFromData_(5));
       MENUS.localidad = ensureTodos_(uniqKeepOrder_((rawLoc || []).map(x => fixLocalidad_(x))));
@@ -625,14 +622,13 @@
       fillSelect_('sel_genero', MENUS.genero, filterState.genero);
       fillSelect_('sel_estado', MENUS.estado, filterState.estado);
       fillSelect_('sel_escolaridad', MENUS.escolaridad, filterState.escolaridad);
-      fillSelect_('sel_depto', MENUS.departamento, filterState.depto);
-      fillSelect_('sel_pos', MENUS.posicion, filterState.pos);
+      fillSelect_('sel_departamento', MENUS.departamento, filterState.departamento);
+      fillSelect_('sel_posicion', MENUS.posicion, filterState.posicion);
 
-      const currentLoc = fixLocalidad_(filterState.loc);
-      filterState.loc = currentLoc === '(Vacío)' ? filterState.loc : currentLoc;
-      fillSelect_('sel_loc', MENUS.localidad, filterState.loc);
+      const currentLoc = fixLocalidad_(filterState.localidad);
+      filterState.localidad = currentLoc === '(Vacío)' ? filterState.localidad : currentLoc;
+      fillSelect_('sel_localidad', MENUS.localidad, filterState.localidad);
 
-      // ✅ sincroniza estado real con selects
       FILTER_META.forEach(m => syncStateWithSelect_(m.key, m.selectId));
     }
 
@@ -726,18 +722,18 @@
       lastChartData.genero = dtGenero;
       lastChartData.estado = dtEstado;
       lastChartData.escolaridad = dtEscol;
-      lastChartData.depto = dtDepto;
-      lastChartData.pos = dtPos;
-      lastChartData.loc = dtLoc;
+      lastChartData.departamento = dtDepto;
+      lastChartData.posicion = dtPos;
+      lastChartData.localidad = dtLoc;
 
       drawChartSafe_('c_genero', charts.genero, dtGenero, baseChartOptions_('Género'));
       drawChartSafe_('c_estado', charts.estado, dtEstado, baseChartOptions_('Estado civil'));
       drawChartSafe_('c_escolaridad', charts.escolaridad, dtEscol, baseChartOptions_('Escolaridad'));
-      drawChartSafe_('c_loc', charts.loc, dtLoc, baseChartOptions_('Localidad'));
+      drawChartSafe_('c_localidad', charts.localidad, dtLoc, baseChartOptions_('Localidad'));
 
       drawChartSafe_(
-        'c_depto',
-        charts.depto,
+        'c_departamento',
+        charts.departamento,
         dtDepto,
         Object.assign(baseChartOptions_('Departamento'), {
           legend: { position: 'none' },
@@ -749,8 +745,8 @@
       );
 
       drawChartSafe_(
-        'c_pos',
-        charts.pos,
+        'c_posicion',
+        charts.posicion,
         dtPos,
         Object.assign(baseChartOptions_('Posición'), {
           legend: { position: 'none' },
@@ -765,15 +761,15 @@
     }
 
     function updateFiltersActive_(){
-      const parts = [];
       const pretty = {
         genero: 'Género',
         estado: 'Estado civil',
         escolaridad: 'Escolaridad',
-        depto: 'Departamento',
-        pos: 'Posición',
-        loc: 'Localidad'
+        departamento: 'Departamento',
+        posicion: 'Posición',
+        localidad: 'Localidad'
       };
+      const parts = [];
       Object.keys(pretty).forEach(k => {
         const v = (filterState[k] || 'Todos').trim();
         if (v && v.toLowerCase() !== 'todos') parts.push(`${pretty[k]}: ${v}`);
@@ -811,13 +807,11 @@
       const rows = [];
       for (let r = 0; r < dt.getNumberOfRows(); r++) rows.push(r);
 
-      const rules = FILTER_META.map(m => [m.key, m.colIndex]);
-
       let current = rows;
-      rules.forEach(([key, col]) => {
-        const val = (filterState[key] || 'Todos').trim();
+      FILTER_META.forEach(m => {
+        const val = (filterState[m.key] || 'Todos').trim();
         if (!val || val.toLowerCase() === 'todos') return;
-        current = current.filter(r => dt.getValue(r, col) === val);
+        current = current.filter(r => dt.getValue(r, m.colIndex) === val);
       });
 
       const view = new google.visualization.DataView(dt);
@@ -867,8 +861,6 @@
         const current = select.value;
 
         select.value = (current === value) ? 'Todos' : value;
-
-        // ✅ asignación por key
         filterState[key] = select.value;
 
         safeRedrawAll_();
