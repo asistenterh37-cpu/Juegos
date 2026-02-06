@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Dashboard Headcount</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%232563eb'/><circle cx='22' cy='32' r='10' fill='%23fff' opacity='.9'/><circle cx='40' cy='32' r='10' fill='%23fff' opacity='.35'/></svg>">
-
   <script src="https://www.gstatic.com/charts/loader.js"></script>
 
   <style>
@@ -316,7 +315,7 @@
 /******************************************************************
  * ✅ CONFIG
  ******************************************************************/
-const DEFAULT_GAS_URL = "https://script.google.com/macros/s/AKfycbxPTlxPn0_fDvtQ4Jj07snoufAkRyZ0d4zr-dtte5q4ZJ4Kqe-yKSXNgFWGMXH_xrwx/exec";
+const DEFAULT_GAS_URL = "https://script.google.com/macros/s/AKfycby5LRszggFk0NEKErFARvvJIQ04gKafpGWz8dkPMsTd2XPcs0APqP2hAoXU2PgmP8A5/exec";
 const GAS_URL_STORAGE_KEY = "RH_DASHBOARD_GAS_URL";
 const SHEET_NAME = "Maestro";
 
@@ -324,12 +323,12 @@ const SHEET_NAME = "Maestro";
  * ✅ FILTROS / MENÚS POR VARIABLE
  ******************************************************************/
 const FILTER_META = [
-  { key:'genero',      label:'Género',       selectId:'sel_genero',      colIndex:0 },
-  { key:'estado',      label:'Estado civil', selectId:'sel_estado',      colIndex:1 },
-  { key:'escolaridad', label:'Escolaridad',  selectId:'sel_escolaridad', colIndex:2 },
-  { key:'departamento',label:'Departamento', selectId:'sel_departamento',colIndex:3 },
-  { key:'posicion',    label:'Posición',     selectId:'sel_posicion',    colIndex:4 },
-  { key:'localidad',   label:'Localidad',    selectId:'sel_localidad',   colIndex:5 },
+  { key:'genero',      label:'Género',       selectId:'sel_genero',       colIndex:0 },
+  { key:'estado',      label:'Estado civil', selectId:'sel_estado',       colIndex:1 },
+  { key:'escolaridad', label:'Escolaridad',  selectId:'sel_escolaridad',  colIndex:2 },
+  { key:'departamento',label:'Departamento', selectId:'sel_departamento', colIndex:3 },
+  { key:'posicion',    label:'Posición',     selectId:'sel_posicion',     colIndex:4 },
+  { key:'localidad',   label:'Localidad',    selectId:'sel_localidad',    colIndex:5 },
 ];
 
 const MENUS = { genero:[], estado:[], escolaridad:[], departamento:[], posicion:[], localidad:[] };
@@ -530,8 +529,7 @@ async function init_(){
       buildDataTable_(payload.rows || []);
       buildCharts_();
 
-      // ✅ Menús por variable desde "Filtros" (o fallback)
-      // ✅ Default = "Todos" en todos los selects al iniciar
+      // ✅ Default = "Todos"
       FILTER_META.forEach(m => filterState[m.key] = 'Todos');
       buildDropdownsFromPayload_(payload);
 
@@ -652,12 +650,12 @@ function buildCharts_(){
     ...FILTER_META.map(m => m.selectId)
   ]);
 
-  charts.genero      = charts.genero      || new google.visualization.PieChart(el_('c_genero'));
-  charts.estado      = charts.estado      || new google.visualization.PieChart(el_('c_estado'));
-  charts.escolaridad = charts.escolaridad || new google.visualization.PieChart(el_('c_escolaridad'));
-  charts.departamento= charts.departamento|| new google.visualization.BarChart(el_('c_departamento'));
-  charts.posicion    = charts.posicion    || new google.visualization.BarChart(el_('c_posicion'));
-  charts.localidad   = charts.localidad   || new google.visualization.PieChart(el_('c_localidad'));
+  charts.genero       = charts.genero       || new google.visualization.PieChart(el_('c_genero'));
+  charts.estado       = charts.estado       || new google.visualization.PieChart(el_('c_estado'));
+  charts.escolaridad  = charts.escolaridad  || new google.visualization.PieChart(el_('c_escolaridad'));
+  charts.departamento = charts.departamento || new google.visualization.BarChart(el_('c_departamento'));
+  charts.posicion     = charts.posicion     || new google.visualization.BarChart(el_('c_posicion'));
+  charts.localidad    = charts.localidad    || new google.visualization.PieChart(el_('c_localidad'));
 
   if (!buildCharts_._wired) {
     wireChartToSelect_('genero', charts.genero, 'sel_genero');
@@ -696,31 +694,32 @@ function fillSelect_(selId, items, selected){
   });
 
   // ✅ Default: "Todos"
-  const target = (selected && list.includes(selected)) ? selected : (list.includes('Todos') ? 'Todos' : (list[0] || 'Todos'));
+  const target =
+    (selected && list.includes(selected)) ? selected :
+    (list.includes('Todos') ? 'Todos' : (list[0] || 'Todos'));
   sel.value = target;
 }
 
 function buildDropdownsFromPayload_(payload){
   const f = payload.menus || payload.filters || {};
 
-  MENUS.genero      = ensureTodos_(f.genero || uniqueFromData_(0));
-  MENUS.estado      = ensureTodos_(f.estado || f['estado civil'] || uniqueFromData_(1));
-  MENUS.escolaridad = ensureTodos_(f.escolaridad || uniqueFromData_(2));
-  MENUS.departamento= ensureTodos_(f.departamento || f.depto || uniqueFromData_(3));
-  MENUS.posicion    = ensureTodos_(f.posicion || f.pos || uniqueFromData_(4));
+  MENUS.genero       = ensureTodos_(f.genero || uniqueFromData_(0));
+  MENUS.estado       = ensureTodos_(f.estado || f['estado civil'] || uniqueFromData_(1));
+  MENUS.escolaridad  = ensureTodos_(f.escolaridad || uniqueFromData_(2));
+  MENUS.departamento = ensureTodos_(f.departamento || f.depto || uniqueFromData_(3));
+  MENUS.posicion     = ensureTodos_(f.posicion || f.pos || uniqueFromData_(4));
 
   const rawLoc = (f.localidad || f.loc || uniqueFromData_(5));
   MENUS.localidad = ensureTodos_(uniqKeepOrder_((rawLoc || []).map(x => fixLocalidad_(x))));
 
-  // ✅ Siempre arranca en Todos (por requerimiento)
-  fillSelect_('sel_genero',      MENUS.genero,      'Todos');
-  fillSelect_('sel_estado',      MENUS.estado,      'Todos');
-  fillSelect_('sel_escolaridad', MENUS.escolaridad, 'Todos');
-  fillSelect_('sel_departamento',MENUS.departamento,'Todos');
-  fillSelect_('sel_posicion',    MENUS.posicion,    'Todos');
-  fillSelect_('sel_localidad',   MENUS.localidad,   'Todos');
+  // ✅ Siempre arranca en Todos
+  fillSelect_('sel_genero',       MENUS.genero,       'Todos');
+  fillSelect_('sel_estado',       MENUS.estado,       'Todos');
+  fillSelect_('sel_escolaridad',  MENUS.escolaridad,  'Todos');
+  fillSelect_('sel_departamento', MENUS.departamento, 'Todos');
+  fillSelect_('sel_posicion',     MENUS.posicion,     'Todos');
+  fillSelect_('sel_localidad',    MENUS.localidad,    'Todos');
 
-  // ✅ sincroniza estado
   FILTER_META.forEach(m => filterState[m.key] = el_(m.selectId).value || 'Todos');
 }
 
@@ -945,7 +944,6 @@ function refreshNow_(){
       setHeader_(payload);
       buildDataTable_(payload.rows || []);
 
-      // ✅ Por requerimiento: al regenerar, arranca con Todos
       FILTER_META.forEach(m => filterState[m.key] = 'Todos');
       buildDropdownsFromPayload_(payload);
 
