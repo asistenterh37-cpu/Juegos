@@ -75,8 +75,63 @@
     }
     .btn.ghost{ background: rgba(255,255,255,.03); box-shadow:none; }
     .btn[disabled]{ opacity:.55; cursor:not-allowed; transform:none; }
+
+    /* ✅ NUEVO: barra de filtros arriba de los gráficos (una sola línea) */
+    .filtersTop{
+      margin-top:14px;
+      padding:10px 12px;
+      border:1px solid var(--stroke);
+      border-radius:var(--radius);
+      background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      box-shadow: var(--shadow);
+      display:flex;
+      gap:10px;
+      align-items:flex-end;
+      flex-wrap:nowrap;          /* una sola línea */
+      overflow-x:auto;           /* si no cabe, scroll horizontal */
+      overscroll-behavior-x: contain;
+      -webkit-overflow-scrolling: touch;
+    }
+    .filtersTop::-webkit-scrollbar{ height:10px; }
+    .filtersTop::-webkit-scrollbar-thumb{
+      background: rgba(255,255,255,.12);
+      border-radius: 999px;
+      border: 2px solid rgba(0,0,0,.25);
+    }
+    .filtersTop .filterBox{
+      flex:0 0 auto;             /* evita que se rompa la línea */
+      min-width: 190px;
+      border:1px solid var(--stroke);
+      border-radius:12px;
+      padding:8px 10px;
+      background:rgba(0,0,0,.08);
+    }
+    .filterBox .lbl{ font-size:12px; color:var(--muted); font-weight:800; margin-bottom:6px; }
+    .sel{
+      width:100%;
+      appearance:none;
+      outline:none;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.05);
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:12px;
+      font-weight:800;
+      font-size:13px;
+    }
+    .sel option{ color:#0b1220; }
+    .selWrap{ position:relative; }
+    .selWrap:after{
+      content:"▾";
+      position:absolute; right:12px; top:50%;
+      transform:translateY(-50%);
+      color:rgba(232,238,252,.75);
+      pointer-events:none;
+      font-weight:900;
+    }
+
     .grid{
-      margin-top:16px;
+      margin-top:14px;
       display:grid;
       grid-template-columns: repeat(3, minmax(240px, 1fr));
       gap:14px;
@@ -85,7 +140,10 @@
     @media (max-width: 720px){
       .grid{ grid-template-columns: 1fr; }
       body{ padding:12px; }
+      .filtersTop{ padding:10px; }
+      .filtersTop .filterBox{ min-width: 210px; } /* más cómodo en móvil */
     }
+
     .card{
       background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
       border:1px solid var(--stroke);
@@ -129,50 +187,7 @@
     .status .led{ width:9px;height:9px;border-radius:99px;background:var(--warn); box-shadow: 0 0 0 4px rgba(245,158,11,.16); }
     .status.ok .led{ background:var(--good); box-shadow: 0 0 0 4px rgba(34,197,94,.16); }
     .status.bad .led{ background:var(--bad); box-shadow: 0 0 0 4px rgba(239,68,68,.16); }
-    details.filters{ border:1px solid var(--stroke); border-radius:14px; background:rgba(255,255,255,.03); overflow:hidden; }
-    details.filters summary{
-      list-style:none; cursor:pointer;
-      padding:10px 12px;
-      font-weight:900; font-size:13px;
-      display:flex; align-items:center; justify-content:space-between; gap:10px;
-    }
-    details.filters summary::-webkit-details-marker{display:none}
-    .filtersBody{
-      padding:10px 12px 12px 12px;
-      border-top:1px solid var(--stroke);
-      display:grid;
-      grid-template-columns: repeat(2, minmax(180px, 1fr));
-      gap:10px;
-    }
-    .filterBox{
-      border:1px solid var(--stroke);
-      border-radius:12px;
-      padding:8px 10px;
-      background:rgba(0,0,0,.08);
-    }
-    .filterBox .lbl{ font-size:12px; color:var(--muted); font-weight:800; margin-bottom:6px; }
-    .sel{
-      width:100%;
-      appearance:none;
-      outline:none;
-      border:1px solid rgba(255,255,255,.14);
-      background:rgba(255,255,255,.05);
-      color:var(--text);
-      padding:10px 12px;
-      border-radius:12px;
-      font-weight:800;
-      font-size:13px;
-    }
-    .sel option{ color:#0b1220; }
-    .selWrap{ position:relative; }
-    .selWrap:after{
-      content:"▾";
-      position:absolute; right:12px; top:50%;
-      transform:translateY(-50%);
-      color:rgba(232,238,252,.75);
-      pointer-events:none;
-      font-weight:900;
-    }
+
     .toast{
       position:fixed;
       right:16px; bottom:16px;
@@ -206,6 +221,30 @@
     <div class="actions">
       <button class="btn primary" id="btnRefresh" type="button"><span>⟳</span> Actualizar</button>
       <button class="btn ghost" id="btnClear" type="button"><span>✕</span> Limpiar filtros</button>
+    </div>
+  </div>
+
+  <!-- ✅ Filtros arriba de los gráficos, en una sola línea -->
+  <div class="filtersTop" aria-label="Filtros superiores">
+    <div class="filterBox">
+      <div class="lbl">Género</div>
+      <div class="selWrap"><select class="sel" id="sel_genero"></select></div>
+    </div>
+    <div class="filterBox">
+      <div class="lbl">Estado civil</div>
+      <div class="selWrap"><select class="sel" id="sel_estado"></select></div>
+    </div>
+    <div class="filterBox">
+      <div class="lbl">Escolaridad</div>
+      <div class="selWrap"><select class="sel" id="sel_escolaridad"></select></div>
+    </div>
+    <div class="filterBox">
+      <div class="lbl">Departamento</div>
+      <div class="selWrap"><select class="sel" id="sel_depto"></select></div>
+    </div>
+    <div class="filterBox">
+      <div class="lbl">Posición</div>
+      <div class="selWrap"><select class="sel" id="sel_pos"></select></div>
     </div>
   </div>
 
@@ -250,7 +289,7 @@
 
     <div class="card">
       <div class="cardHeader">
-        <div><div class="h">Resumen</div><div class="hint">Última actualización + filtros avanzados.</div></div>
+        <div><div class="h">Resumen</div><div class="hint">Última actualización (y sí: los filtros ya se mudaron “arriba”, se emanciparon).</div></div>
         <div class="status ok" id="statusBox">
           <span class="led"></span> <span id="statusText">OK</span>
         </div>
@@ -268,31 +307,16 @@
           </div>
         </div>
 
-        <details class="filters" open>
-          <summary><span>Filtros (dropdown)</span><span style="color:var(--muted); font-weight:800;">▾</span></summary>
-          <div class="filtersBody">
-            <div class="filterBox">
-              <div class="lbl">Género</div>
-              <div class="selWrap"><select class="sel" id="sel_genero"></select></div>
-            </div>
-            <div class="filterBox">
-              <div class="lbl">Estado civil</div>
-              <div class="selWrap"><select class="sel" id="sel_estado"></select></div>
-            </div>
-            <div class="filterBox">
-              <div class="lbl">Escolaridad</div>
-              <div class="selWrap"><select class="sel" id="sel_escolaridad"></select></div>
-            </div>
-            <div class="filterBox">
-              <div class="lbl">Departamento</div>
-              <div class="selWrap"><select class="sel" id="sel_depto"></select></div>
-            </div>
-            <div class="filterBox" style="grid-column:1/-1">
-              <div class="lbl">Posición</div>
-              <div class="selWrap"><select class="sel" id="sel_pos"></select></div>
-            </div>
+        <div class="kpiRow">
+          <div>
+            <div class="k">Filtros activos</div>
+            <div class="v" id="filtersActive">—</div>
           </div>
-        </details>
+          <div style="text-align:right">
+            <div class="k">Tip</div>
+            <div class="v" style="font-size:12px; font-weight:800; color:var(--muted)">Scroll horizontal en filtros</div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -445,7 +469,7 @@
     }
 
     function buildCharts_() {
-      requireEls_(['c_genero','c_estado','c_escolaridad','c_depto','c_pos','sel_genero','sel_estado','sel_escolaridad','sel_depto','sel_pos']);
+      requireEls_(['c_genero','c_estado','c_escolaridad','c_depto','c_pos','sel_genero','sel_estado','sel_escolaridad','sel_depto','sel_pos','filtersActive']);
 
       charts.genero = charts.genero || new google.visualization.PieChart(el_('c_genero'));
       charts.estado = charts.estado || new google.visualization.PieChart(el_('c_estado'));
@@ -631,6 +655,24 @@
         }),
         true
       );
+
+      updateFiltersActive_();
+    }
+
+    function updateFiltersActive_(){
+      const parts = [];
+      const pretty = {
+        genero: 'Género',
+        estado: 'Estado civil',
+        escolaridad: 'Escolaridad',
+        depto: 'Departamento',
+        pos: 'Posición'
+      };
+      Object.keys(pretty).forEach(k => {
+        const v = (filterState[k] || 'Todos').trim();
+        if (v && v.toLowerCase() !== 'todos') parts.push(`${pretty[k]}: ${v}`);
+      });
+      el_('filtersActive').textContent = parts.length ? parts.join(' · ') : 'Todos';
     }
 
     function drawChartSafe_(containerId, chart, dt, options, tall=false){
