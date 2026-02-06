@@ -156,6 +156,32 @@
     }
     .filterBox .lbl{ font-size:12px; color:var(--muted); font-weight:800; margin-bottom:6px; }
 
+    /* ✅ dropdown nativo */
+    .sel{
+      width:100%;
+      appearance:none;
+      outline:none;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.05);
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:12px;
+      font-weight:800;
+      font-size:13px;
+    }
+    .sel option{ color:#0b1220; }
+    .selWrap{ position:relative; }
+    .selWrap:after{
+      content:"▾";
+      position:absolute;
+      right:12px;
+      top:50%;
+      transform:translateY(-50%);
+      color:rgba(232,238,252,.75);
+      pointer-events:none;
+      font-weight:900;
+    }
+
     .toast{
       position:fixed; right:16px; bottom:16px;
       background:rgba(15,27,51,.95);
@@ -169,9 +195,6 @@
       max-width: 360px;
       z-index:9;
     }
-
-    .goog-inline-block{ max-width:100%; }
-    .google-visualization-controls-categoryfilter{ width:100% !important; }
   </style>
 </head>
 
@@ -257,11 +280,26 @@
         <details class="filters" open>
           <summary><span>Filtros (dropdown)</span><span style="color:var(--muted); font-weight:800;">▾</span></summary>
           <div class="filtersBody">
-            <div class="filterBox"><div class="lbl">Género</div><div id="f_genero"></div></div>
-            <div class="filterBox"><div class="lbl">Estado civil</div><div id="f_estado"></div></div>
-            <div class="filterBox"><div class="lbl">Escolaridad</div><div id="f_escolaridad"></div></div>
-            <div class="filterBox"><div class="lbl">Departamento</div><div id="f_depto"></div></div>
-            <div class="filterBox" style="grid-column:1/-1"><div class="lbl">Posición</div><div id="f_pos"></div></div>
+            <div class="filterBox">
+              <div class="lbl">Género</div>
+              <div class="selWrap"><select class="sel" id="sel_genero"></select></div>
+            </div>
+            <div class="filterBox">
+              <div class="lbl">Estado civil</div>
+              <div class="selWrap"><select class="sel" id="sel_estado"></select></div>
+            </div>
+            <div class="filterBox">
+              <div class="lbl">Escolaridad</div>
+              <div class="selWrap"><select class="sel" id="sel_escolaridad"></select></div>
+            </div>
+            <div class="filterBox">
+              <div class="lbl">Departamento</div>
+              <div class="selWrap"><select class="sel" id="sel_depto"></select></div>
+            </div>
+            <div class="filterBox" style="grid-column:1/-1">
+              <div class="lbl">Posición</div>
+              <div class="selWrap"><select class="sel" id="sel_pos"></select></div>
+            </div>
           </div>
         </details>
       </div>
@@ -272,20 +310,28 @@
 
   <script>
     // ====== CONFIG: tu Web App /exec (Apps Script) ======
-    const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzRaHzm6i12x9WuTBr9v9mU1Qc8s7uBe2ZiLKoKYFrldwCmvYdg7h_UqoCrJ0R0OhxP/exec";
+    const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwmQo_n7R8YXF9tHofhzR7aJhy14sneu3iwIG2SDABr9tdT3eOzpi3MU_aSVMQa_yvM/exec";
     const SHEET_NAME = "Maestro";
 
-    // Cargar paquetes
-    google.charts.load('current', { packages: ['corechart', 'controls'] });
+    // Charts
+    google.charts.load('current', { packages: ['corechart'] });
 
     // Estado global
     let dataTable = null;
-    const controls = {};
     const charts = {};
     const lastChartData = {};
     let latestPayload = null;
     let resizeTimer = null;
     let uiReady_ = false;
+
+    // filtros UI (como Excel)
+    const filterState = {
+      genero: 'Todos',
+      estado: 'Todos',
+      escolaridad: 'Todos',
+      depto: 'Todos',
+      pos: 'Todos'
+    };
 
     // Boot seguro: DOM + Charts
     let domReady = false;
@@ -294,6 +340,7 @@
     document.addEventListener('DOMContentLoaded', () => {
       domReady = true;
       hookButtons_();
+      hookSelects_();
       tryBoot_();
     });
 
@@ -312,6 +359,14 @@
       document.getElementById('btnClear').addEventListener('click', clearAllFilters_);
     }
 
+    function hookSelects_(){
+      el_('sel_genero').addEventListener('change', () => { filterState.genero = el_('sel_genero').value; safeRedrawAll_(); });
+      el_('sel_estado').addEventListener('change', () => { filterState.estado = el_('sel_estado').value; safeRedrawAll_(); });
+      el_('sel_escolaridad').addEventListener('change', () => { filterState.escolaridad = el_('sel_escolaridad').value; safeRedrawAll_(); });
+      el_('sel_depto').addEventListener('change', () => { filterState.depto = el_('sel_depto').value; safeRedrawAll_(); });
+      el_('sel_pos').addEventListener('change', () => { filterState.pos = el_('sel_pos').value; safeRedrawAll_(); });
+    }
+
     function el_(id){ return document.getElementById(id); }
 
     function requireEls_(ids){
@@ -326,10 +381,7 @@
         .then(payload => {
           latestPayload = payload;
 
-          if (!payload || typeof payload !== 'object') {
-            throw new Error('Payload inválido (no es objeto).');
-          }
-
+          if (!payload || typeof payload !== 'object') throw new Error('Payload inválido (no es objeto).');
           if (payload?.error) {
             setStatus_('bad', 'Error');
             showToast_('Error desde GAS: ' + payload.error);
@@ -337,7 +389,9 @@
 
           setHeader_(payload);
           buildDataTable_(payload.rows || []);
-          buildControlsAndCharts_();
+          buildCharts_();
+          buildDropdownsFromPayload_(payload);
+
           uiReady_ = true;
           safeRedrawAll_();
           setStatus_('ok', 'OK');
@@ -389,7 +443,6 @@
       dataTable.addColumn('string', 'Departamento');
       dataTable.addColumn('string', 'Posición');
 
-      // rows esperado: [ [genero, estado, escolaridad, depto, pos], ... ]
       const safeRows = (rows || []).map(r => ([
         (r?.[0] != null ? String(r[0]).trim() : '(Vacío)') || '(Vacío)',
         (r?.[1] != null ? String(r[1]).trim() : '(Vacío)') || '(Vacío)',
@@ -401,70 +454,86 @@
       if (safeRows.length) dataTable.addRows(safeRows);
     }
 
-    function buildControlsAndCharts_() {
-      requireEls_(['c_genero','c_estado','c_escolaridad','c_depto','c_pos','f_genero','f_estado','f_escolaridad','f_depto','f_pos']);
+    function buildCharts_() {
+      requireEls_(['c_genero','c_estado','c_escolaridad','c_depto','c_pos','sel_genero','sel_estado','sel_escolaridad','sel_depto','sel_pos']);
 
-      // Charts (solo 1 vez)
       charts.genero      = charts.genero      || new google.visualization.PieChart(el_('c_genero'));
       charts.estado      = charts.estado      || new google.visualization.PieChart(el_('c_estado'));
       charts.escolaridad = charts.escolaridad || new google.visualization.PieChart(el_('c_escolaridad'));
       charts.depto       = charts.depto       || new google.visualization.BarChart(el_('c_depto'));
       charts.pos         = charts.pos         || new google.visualization.BarChart(el_('c_pos'));
 
-      // ✅ caption = "0 - Todos"
-      const CAPTION_ALL = '0 - Todos';
-
-      // Controls (solo 1 vez)
-      controls.genero = controls.genero || new google.visualization.ControlWrapper({
-        controlType: 'CategoryFilter',
-        containerId: 'f_genero',
-        options: { filterColumnLabel: 'Género', ui: { label:'', allowTyping:false, allowMultiple:false, caption: CAPTION_ALL } }
-      });
-
-      controls.estado = controls.estado || new google.visualization.ControlWrapper({
-        controlType: 'CategoryFilter',
-        containerId: 'f_estado',
-        options: { filterColumnLabel: 'Estado civil', ui: { label:'', allowTyping:false, allowMultiple:false, caption: CAPTION_ALL } }
-      });
-
-      controls.escolaridad = controls.escolaridad || new google.visualization.ControlWrapper({
-        controlType: 'CategoryFilter',
-        containerId: 'f_escolaridad',
-        options: { filterColumnLabel: 'Escolaridad', ui: { label:'', allowTyping:false, allowMultiple:false, caption: CAPTION_ALL } }
-      });
-
-      controls.depto = controls.depto || new google.visualization.ControlWrapper({
-        controlType: 'CategoryFilter',
-        containerId: 'f_depto',
-        options: { filterColumnLabel: 'Departamento', ui: { label:'', allowTyping:false, allowMultiple:false, caption: CAPTION_ALL } }
-      });
-
-      controls.pos = controls.pos || new google.visualization.ControlWrapper({
-        controlType: 'CategoryFilter',
-        containerId: 'f_pos',
-        options: { filterColumnLabel: 'Posición', ui: { label:'', allowTyping:true, allowMultiple:false, caption: CAPTION_ALL } }
-      });
-
-      // Dibujar controles (aunque no haya filas; con columnas basta)
-      Object.values(controls).forEach(c => c.draw(dataTable));
-
-      // Wire (solo una vez)
-      if (!buildControlsAndCharts_._wired) {
-        Object.values(controls).forEach(c => {
-          google.visualization.events.addListener(c, 'statechange', () => {
-            if (!uiReady_) return;
-            safeRedrawAll_();
-          });
-        });
-
-        wireChartToControl_('genero', charts.genero, controls.genero);
-        wireChartToControl_('estado', charts.estado, controls.estado);
-        wireChartToControl_('escolaridad', charts.escolaridad, controls.escolaridad);
-        wireChartToControl_('depto', charts.depto, controls.depto);
-        wireChartToControl_('pos', charts.pos, controls.pos);
-
-        buildControlsAndCharts_._wired = true;
+      if (!buildCharts_._wired) {
+        wireChartToSelect_('genero', charts.genero, 'sel_genero');
+        wireChartToSelect_('estado', charts.estado, 'sel_estado');
+        wireChartToSelect_('escolaridad', charts.escolaridad, 'sel_escolaridad');
+        wireChartToSelect_('depto', charts.depto, 'sel_depto');
+        wireChartToSelect_('pos', charts.pos, 'sel_pos');
+        buildCharts_._wired = true;
       }
+    }
+
+    function buildDropdownsFromPayload_(payload){
+      // payload.filters viene desde GAS (hoja "Filtros"). fallback si no viene.
+      const f = payload.filters || {};
+      const genero = ensureTodos_(f.genero || uniqueFromData_(0));
+      const estado = ensureTodos_(f.estado || uniqueFromData_(1));
+      const escolaridad = ensureTodos_(f.escolaridad || uniqueFromData_(2));
+      const depto = ensureTodos_(f.departamento || f.depto || uniqueFromData_(3));
+      const pos = ensureTodos_(f.posicion || f.pos || uniqueFromData_(4));
+
+      fillSelect_('sel_genero', genero, filterState.genero);
+      fillSelect_('sel_estado', estado, filterState.estado);
+      fillSelect_('sel_escolaridad', escolaridad, filterState.escolaridad);
+      fillSelect_('sel_depto', depto, filterState.depto);
+      fillSelect_('sel_pos', pos, filterState.pos);
+
+      // si el valor actual no existe en lista, reset a Todos
+      syncStateWithSelect_('genero','sel_genero');
+      syncStateWithSelect_('estado','sel_estado');
+      syncStateWithSelect_('escolaridad','sel_escolaridad');
+      syncStateWithSelect_('depto','sel_depto');
+      syncStateWithSelect_('pos','sel_pos');
+    }
+
+    function syncStateWithSelect_(key, selId){
+      const s = el_(selId);
+      const v = s.value;
+      filterState[key] = v || 'Todos';
+    }
+
+    function ensureTodos_(arr){
+      const a = (arr || []).map(x => String(x).trim()).filter(Boolean);
+      if (!a.length) return ['Todos'];
+      if (a[0].toLowerCase() !== 'todos' && !a.some(x => x.toLowerCase() === 'todos')) return ['Todos', ...a];
+      // si existe pero no está arriba, lo subimos al inicio
+      const rest = a.filter(x => x.toLowerCase() !== 'todos');
+      return ['Todos', ...rest];
+    }
+
+    function uniqueFromData_(colIndex){
+      const set = new Set();
+      if (!dataTable) return [];
+      for (let r=0; r<dataTable.getNumberOfRows(); r++){
+        const v = dataTable.getValue(r, colIndex);
+        set.add(String(v || '(Vacío)').trim() || '(Vacío)');
+      }
+      return Array.from(set);
+    }
+
+    function fillSelect_(selId, items, selected){
+      const sel = el_(selId);
+      sel.innerHTML = '';
+      const list = (items || []).map(x => String(x).trim()).filter(Boolean);
+
+      list.forEach(v => {
+        const opt = document.createElement('option');
+        opt.value = v;
+        opt.textContent = v;
+        sel.appendChild(opt);
+      });
+
+      sel.value = list.includes(selected) ? selected : (list.includes('Todos') ? 'Todos' : (list[0] || 'Todos'));
     }
 
     function baseChartOptions_(title) {
@@ -494,7 +563,7 @@
     function redrawAll_() {
       if (!dataTable) return;
 
-      const filtered = applyControlFiltersToDataTable_(dataTable);
+      const filtered = applySelectFiltersToDataTable_(dataTable);
 
       const dtGenero = groupCountSafe_(filtered, 0, 'Género');
       const dtEstado = groupCountSafe_(filtered, 1, 'Estado civil');
@@ -559,24 +628,23 @@
       return sum > 0;
     }
 
-    function applyControlFiltersToDataTable_(dt) {
+    function applySelectFiltersToDataTable_(dt) {
       const rows = [];
       for (let r = 0; r < dt.getNumberOfRows(); r++) rows.push(r);
 
-      const filters = [
-        [controls.genero, 0],
-        [controls.estado, 1],
-        [controls.escolaridad, 2],
-        [controls.depto, 3],
-        [controls.pos, 4],
+      const rules = [
+        ['genero', 0],
+        ['estado', 1],
+        ['escolaridad', 2],
+        ['depto', 3],
+        ['pos', 4],
       ];
 
       let current = rows;
 
-      filters.forEach(([ctrl, col]) => {
-        const state = ctrl.getState();
-        const val = state?.selectedValues?.[0];
-        if (!val) return;
+      rules.forEach(([key, col]) => {
+        const val = (filterState[key] || 'Todos').trim();
+        if (!val || val.toLowerCase() === 'todos') return;
         current = current.filter(r => dt.getValue(r, col) === val);
       });
 
@@ -607,7 +675,7 @@
       return view.toDataTable();
     }
 
-    function wireChartToControl_(key, chart, controlWrapper) {
+    function wireChartToSelect_(key, chart, selectId) {
       google.visualization.events.addListener(chart, 'select', () => {
         if (!uiReady_) return;
 
@@ -623,18 +691,23 @@
         const value = dt.getValue(row, 0);
         if (!value) return;
 
-        const current = controlWrapper.getState()?.selectedValues?.[0];
+        const select = el_(selectId);
+        const current = select.value;
 
-        // toggle
+        // toggle: si ya está, vuelve a Todos
         if (current === value) {
-          controlWrapper.setState({ selectedValues: [] });
-          controlWrapper.draw(dataTable);
-          safeRedrawAll_();
-          return;
+          select.value = 'Todos';
+        } else {
+          select.value = value;
         }
 
-        controlWrapper.setState({ selectedValues: [value] });
-        controlWrapper.draw(dataTable);
+        // sync state
+        if (key === 'genero') filterState.genero = select.value;
+        if (key === 'estado') filterState.estado = select.value;
+        if (key === 'escolaridad') filterState.escolaridad = select.value;
+        if (key === 'depto') filterState.depto = select.value;
+        if (key === 'pos') filterState.pos = select.value;
+
         safeRedrawAll_();
       });
     }
@@ -658,8 +731,7 @@
 
           setHeader_(payload);
           buildDataTable_(payload.rows || []);
-
-          Object.values(controls).forEach(c => c.draw(dataTable));
+          buildDropdownsFromPayload_(payload);
 
           uiReady_ = true;
           safeRedrawAll_();
@@ -679,15 +751,21 @@
     }
 
     function clearAllFilters_() {
-      if (!controls.genero || !dataTable) return;
-
       uiReady_ = false;
-      Object.values(controls).forEach(c => {
-        c.setState({ selectedValues: [] });
-        c.draw(dataTable);
-      });
-      uiReady_ = true;
 
+      filterState.genero = 'Todos';
+      filterState.estado = 'Todos';
+      filterState.escolaridad = 'Todos';
+      filterState.depto = 'Todos';
+      filterState.pos = 'Todos';
+
+      el_('sel_genero').value = 'Todos';
+      el_('sel_estado').value = 'Todos';
+      el_('sel_escolaridad').value = 'Todos';
+      el_('sel_depto').value = 'Todos';
+      el_('sel_pos').value = 'Todos';
+
+      uiReady_ = true;
       safeRedrawAll_();
       showToast_('Filtros limpiados.');
     }
