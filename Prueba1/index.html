@@ -1,4 +1,4 @@
-<! html>
+<!doctype html>
 <html lang="es">
 <head>
   <meta charset="utf-8" />
@@ -19,215 +19,194 @@
       --shadow: 0 20px 60px rgba(0,0,0,.55);
       --radius: 16px;
       --radius2: 12px;
+      --maxw: 980px;
     }
     *{box-sizing:border-box}
     body{
       margin:0;
-      color:var(--text);
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
       background:
-        radial-gradient(1200px 600px at 50% 20%, rgba(59,130,246,.18), transparent 60%),
-        radial-gradient(900px 500px at 70% 55%, rgba(168,85,247,.12), transparent 60%),
-        radial-gradient(900px 500px at 30% 55%, rgba(34,197,94,.08), transparent 60%),
+        radial-gradient(1200px 600px at 15% 10%, rgba(59,130,246,.28), transparent 60%),
+        radial-gradient(900px 500px at 80% 30%, rgba(34,197,94,.18), transparent 55%),
+        radial-gradient(1200px 600px at 50% 120%, rgba(245,158,11,.14), transparent 60%),
         var(--bg);
+      color:var(--text);
       min-height:100vh;
     }
-    .wrap{max-width: 980px; margin: 0 auto; padding: 18px 14px 60px;}
+    .wrap{max-width:var(--maxw); margin:24px auto; padding:0 16px;}
     .topbar{
-      position: sticky; top: 0; z-index: 10;
+      position:sticky; top:0; z-index:10;
       backdrop-filter: blur(10px);
-      padding: 10px 0;
-    }
-    .topbarInner{
-      display:flex; gap:10px; align-items:center; justify-content:space-between;
-      background: rgba(2,6,23,.65);
-      border: 1px solid var(--stroke);
-      border-radius: 999px;
-      padding: 10px 12px;
-      box-shadow: var(--shadow);
-    }
-    .brand{display:flex; gap:10px; align-items:center; padding-left:6px;}
-    .dot{
-      width:10px;height:10px;border-radius:50%;
-      background: var(--brand2);
-      box-shadow: 0 0 0 6px rgba(34,197,94,.12);
-    }
-    .title{font-weight:700; letter-spacing:.2px; font-size: 13px; line-height:1;}
-    .subtitle{font-size: 11px; color: var(--muted); margin-top:2px;}
-
-    /* ====== NUEVO: selector de Fase ====== */
-    .faseWrap{
-      display:flex;
-      align-items:center;
-      gap:8px;
-      justify-content:flex-end;
-      flex: 0 0 auto;
-    }
-    .faseWrap label{
-      margin:0;
-      font-size:12px;
-      color:var(--muted);
-      white-space:nowrap;
-    }
-    .faseSelect{
-      width: 330px;
-      max-width: 48vw;
-      padding: 8px 10px;
-      border-radius: 999px;
-      border:1px solid var(--stroke);
-      background: rgba(15,23,42,.55);
-      color: var(--text);
-      outline:none;
-      font-size: 12px;
-      cursor:pointer;
-    }
-    .faseSelect:focus{
-      border-color: rgba(59,130,246,.55);
-      box-shadow: 0 0 0 4px rgba(59,130,246,.12);
-    }
-
-    .card{
-      margin-top: 14px;
-      background: var(--panel);
+      background: linear-gradient(180deg, rgba(7,11,20,.92), rgba(7,11,20,.55));
       border: 1px solid var(--stroke);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      overflow:hidden;
+      padding: 14px 14px;
     }
-    .cardHead{
-      padding: 14px 14px 10px;
-      border-bottom: 1px solid var(--stroke);
-      background: linear-gradient(180deg, rgba(15,23,42,.85), rgba(15,23,42,.55));
+    .row{display:flex; gap:12px; flex-wrap:wrap; align-items:center;}
+    .title{
+      display:flex; align-items:center; gap:10px; font-weight:700;
+      letter-spacing:.2px;
     }
-    .cardHead h2{margin:0;font-size:14px}
-    .cardHead p{margin:6px 0 0; color:var(--muted); font-size:12px}
-    .cardBody{padding: 14px}
-
-    .grid2{display:grid; grid-template-columns: 1fr 1fr; gap:10px}
-    .grid3{display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px}
-    .grid4{display:grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap:10px}
-    @media (max-width: 780px){
-      .grid2,.grid3,.grid4{grid-template-columns:1fr}
-      .topbarInner{flex-wrap:wrap; border-radius: 18px}
-      .faseWrap{justify-content:flex-start; width:100%}
-      .faseSelect{width:100%; max-width:100%}
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:6px 10px; border:1px solid var(--stroke);
+      background: rgba(2,6,23,.35);
+      border-radius:999px;
+      color:var(--muted);
+      font-size:12px;
     }
-
-    label{display:block; font-size:11px; color: var(--muted); margin: 0 0 6px}
-    input, select, textarea{
+    .dot{width:8px; height:8px; border-radius:50%; background:var(--brand2); box-shadow:0 0 0 3px rgba(34,197,94,.12)}
+    .spacer{flex:1}
+    select,input,textarea,button{
+      font: inherit;
+    }
+    .control{
+      display:flex; flex-direction:column; gap:6px;
+      min-width: 240px;
+    }
+    label{font-size:12px; color:var(--muted)}
+    select,input{
       width:100%;
-      padding: 10px 10px;
-      border-radius: 10px;
-      border: 1px solid rgba(148,163,184,.25);
-      background: rgba(2,6,23,.55);
+      padding:10px 12px;
+      border-radius: 12px;
+      border:1px solid rgba(148,163,184,.28);
+      background: rgba(2,6,23,.42);
       color: var(--text);
       outline:none;
     }
-    input:focus, select:focus, textarea:focus{
-      border-color: rgba(59,130,246,.55);
-      box-shadow: 0 0 0 4px rgba(59,130,246,.12);
-    }
-    textarea{min-height: 92px; resize: vertical}
-
-    .actions{
-      display:flex; flex-wrap:wrap; gap:8px;
-      align-items:center; justify-content:flex-end;
-      margin-top: 12px;
+    textarea{
+      width:100%;
+      min-height:88px;
+      padding:10px 12px;
+      border-radius: 12px;
+      border:1px solid rgba(148,163,184,.28);
+      background: rgba(2,6,23,.42);
+      color: var(--text);
+      outline:none;
+      resize: vertical;
     }
     .btn{
-      border: 1px solid var(--stroke);
-      background: rgba(15,23,42,.75);
+      border:1px solid rgba(148,163,184,.25);
+      background: rgba(15,23,42,.55);
       color: var(--text);
-      padding: 10px 12px;
-      border-radius: 12px;
-      font-size: 12px;
-      cursor:pointer;
-      transition:.15s;
-    }
-    .btn:hover{transform: translateY(-1px); border-color: rgba(59,130,246,.35)}
-    .btn.primary{background: rgba(59,130,246,.18); border-color: rgba(59,130,246,.45)}
-    .btn.good{background: rgba(34,197,94,.14); border-color: rgba(34,197,94,.35)}
-    .btn.warn{background: rgba(245,158,11,.14); border-color: rgba(245,158,11,.35)}
-    .btn.danger{background: rgba(239,68,68,.14); border-color: rgba(239,68,68,.35)}
-    .hint{font-size:12px; color: var(--muted); margin-top: 10px}
-    .status{
-      margin-top:10px;
-      padding: 10px 12px;
-      border-radius: 12px;
-      border:1px solid var(--stroke);
-      background: rgba(2,6,23,.55);
-      font-size:12px;
-      color: var(--muted);
-    }
-    .status strong{color: var(--text)}
-    .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;}
-
-    .factor{
-      margin-top: 12px;
-      padding-top: 12px;
-      border-top: 1px dashed rgba(148,163,184,.22);
-    }
-    .factor h3{margin:0 0 8px; font-size:13px}
-    .q{
-      padding: 10px 10px;
-      border: 1px solid rgba(148,163,184,.18);
-      background: rgba(2,6,23,.42);
-      border-radius: 12px;
-      margin-bottom: 10px;
-      display:grid;
-      grid-template-columns: 1fr 220px;
-      gap: 10px;
-      align-items:center;
-    }
-    @media (max-width:780px){ .q{grid-template-columns:1fr} }
-    .qTitle{font-size:12px; font-weight:600}
-    .qMeta{font-size:11px; color: var(--muted); margin-top:4px}
-    .badge{
-      display:inline-flex; gap:6px; align-items:center;
-      padding: 4px 8px;
+      padding:10px 12px;
       border-radius: 999px;
-      border:1px solid rgba(148,163,184,.20);
-      background: rgba(15,23,42,.6);
-      font-size: 11px;
-      color: var(--muted);
+      cursor:pointer;
+      transition: transform .05s ease, background .2s ease;
+      white-space:nowrap;
     }
+    .btn:hover{background: rgba(15,23,42,.72)}
+    .btn:active{transform: translateY(1px)}
+    .btn.primary{background: rgba(59,130,246,.25); border-color: rgba(59,130,246,.45)}
+    .btn.good{background: rgba(34,197,94,.18); border-color: rgba(34,197,94,.35)}
+    .btn.warn{background: rgba(245,158,11,.16); border-color: rgba(245,158,11,.35)}
+    .btn.danger{background: rgba(239,68,68,.14); border-color: rgba(239,68,68,.35)}
+    .panel{
+      margin-top:14px;
+      border:1px solid var(--stroke);
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, var(--panel), var(--panel2));
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .panel-h{
+      padding:14px 16px;
+      border-bottom:1px solid var(--stroke);
+      display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+    }
+    .panel-h h2{margin:0; font-size:14px; letter-spacing:.2px}
+    .panel-b{padding:14px 16px;}
+    .grid2{display:grid; grid-template-columns: 1fr 1fr; gap:12px}
+    @media (max-width: 840px){ .grid2{grid-template-columns:1fr} .control{min-width: 200px;} }
+    .muted{color:var(--muted); font-size:12px}
+    .section{
+      border:1px dashed rgba(148,163,184,.22);
+      border-radius: 14px;
+      padding:12px 12px;
+      margin-top:12px;
+      background: rgba(2,6,23,.25);
+    }
+    .factor-title{
+      display:flex; align-items:center; justify-content:space-between;
+      gap:10px;
+      margin:0 0 10px 0;
+      font-size:13px;
+    }
+    .item{
+      display:grid;
+      grid-template-columns: 1fr 260px;
+      gap:12px;
+      padding:10px 10px;
+      border:1px solid rgba(148,163,184,.14);
+      border-radius: 14px;
+      background: rgba(2,6,23,.22);
+      margin-bottom:10px;
+    }
+    .item:last-child{margin-bottom:0}
+    .item .ititle{margin:0; font-size:13px; font-weight:650}
+    .item .isub{margin:4px 0 0 0; color:var(--muted); font-size:12px}
+    .right label{display:block; margin-bottom:6px}
+    .statusline{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+    .badge{font-size:12px; padding:6px 10px; border-radius:999px; border:1px solid var(--stroke); background: rgba(2,6,23,.35); color: var(--muted)}
+    .hr{height:1px; background: var(--stroke); margin:10px 0}
 
+    /* impresión */
     @media print{
-      .topbar, .actions{display:none !important}
-      body{background:#fff; color:#000}
-      .card{box-shadow:none}
-      input, select, textarea{border:1px solid #ccc; background:#fff; color:#000}
-      .status{display:none}
+      body{background:white; color:black}
+      .topbar, .btn, .badge, .pill{display:none !important}
+      .panel{box-shadow:none; border-color:#ddd; background:white}
+      select, input, textarea{border:1px solid #bbb; background:white; color:black}
+      .item{page-break-inside: avoid}
     }
   </style>
 </head>
-
 <body>
   <div class="wrap">
     <div class="topbar">
-      <div class="topbarInner">
-        <div class="brand">
-          <span class="dot" id="apiDot"></span>
-          <div>
-            <div class="title">Proceso de evaluación del desempeño</div>
-            <div class="subtitle" id="apiSubtitle">Conectando con Apps Script…</div>
-          </div>
+      <div class="row">
+        <div class="title">
+          <span class="pill"><span class="dot"></span> Proceso de evaluación del desempeño</span>
+          <span class="pill" id="envPill">Empresa: <b style="color:var(--text); font-weight:650">No implementado</b></span>
+          <span class="pill" id="verPill">Versión: <b style="color:var(--text); font-weight:650">Prueba</b></span>
+        </div>
+        <div class="spacer"></div>
+
+        <div class="control" style="min-width: 360px;">
+          <label for="phaseSel">Fase</label>
+          <select id="phaseSel">
+            <option>Formularios</option>
+            <option>Pesos</option>
+            <option selected>Formulario de autoevaluación</option>
+            <option>Formulario de evaluación de clientes</option>
+            <option>Formulario de evaluación del desempeño</option>
+            <option>Resultados evaluación del desempeño</option>
+            <option>Informe consolidado</option>
+            <option>Informe de necesidades de capacitación</option>
+            <option>Informe de plan de desarrollo</option>
+          </select>
         </div>
 
-        <!-- NUEVO: selector Fase (reemplaza chips) -->
-        <div class="faseWrap">
-          <label for="faseSelect">Fase</label>
-          <select id="faseSelect" class="faseSelect" aria-label="Selector de fase"></select>
-        </div>
+        <button class="btn warn" id="btnNew">Nuevo</button>
+        <button class="btn good" id="btnSave">Guardar</button>
+        <button class="btn" id="btnPrint">Imprimir / Enviar a PDF</button>
+      </div>
+
+      <div class="statusline" style="margin-top:10px;">
+        <span class="badge" id="apiStatus">API: sin configurar</span>
+        <span class="badge" id="formsStatus">Formularios: —</span>
+        <span class="badge" id="weightsStatus">Pesos: —</span>
       </div>
     </div>
 
-    <div class="card" id="viewCard">
-      <div class="cardHead">
-        <h2 id="viewTitle">Cargando…</h2>
-        <p id="viewDesc">Inicializando interfaz.</p>
+    <div class="panel" id="panelMain">
+      <div class="panel-h">
+        <h2 id="panelTitle">Formulario de autoevaluación</h2>
+        <span class="muted" id="panelHint">Por defecto: Nivel 1</span>
       </div>
-      <div class="cardBody" id="viewBody"></div>
+      <div class="panel-b" id="panelBody">
+        <!-- Aquí se renderiza la vista -->
+      </div>
     </div>
   </div>
 
@@ -235,556 +214,452 @@
 /** =========================
  * CONFIG
  * ========================= */
-const MAX_RESP = 20;
-
-// URL por defecto (tu deploy)
-const DEFAULT_WEBAPP_URL =
-  "https://script.google.com/macros/s/AKfycbwIzScQY1SRk28ks5V0I97rp2LYDfm0DS7KJYJ2mF_RgVn_DlL12C9KtPmIA00e21Cm/exec";
-
-/** Normaliza URL: acepta /exec o /dev (pero recomienda /exec) */
-function normalizeWebAppUrl(raw){
-  const s = String(raw || "").trim();
-  if (!s) return "";
-
-  // aceptamos tanto script.google.com como script.googleusercontent.com (a veces la gente pega esa)
-  if (!/^https:\/\/script\.google\.(com|usercontent\.com)\/macros\/s\//.test(s)) return "";
-
-  let u;
-  try { u = new URL(s); } catch { return ""; }
-
-  // limpia query/hash
-  u.search = "";
-  u.hash = "";
-
-  // fuerza a terminar en /exec o /dev (preferimos exec)
-  const isDev = u.pathname.endsWith("/dev");
-  const isExec = u.pathname.endsWith("/exec");
-
-  if (!isDev && !isExec){
-    // por defecto: /exec
-    u.pathname = u.pathname.replace(/\/+$/,"") + "/exec";
-  }
-  return u.toString();
-}
-
-function isDevUrl(url){
-  try { return new URL(url).pathname.endsWith("/dev"); } catch { return false; }
-}
-
-// override por querystring: ?webapp=https://script.google.com/macros/s/.../exec
-function getWebAppUrl(){
-  const u = new URL(location.href);
-  const qs = u.searchParams.get("webapp");
-  const qsNorm = normalizeWebAppUrl(qs);
-  if (qsNorm) return qsNorm;
-
-  const saved = localStorage.getItem("WEBAPP_URL");
-  const savedNorm = normalizeWebAppUrl(saved);
-  if (savedNorm) return savedNorm;
-
-  return normalizeWebAppUrl(DEFAULT_WEBAPP_URL);
-}
-
-let SCRIPT_WEBAPP_URL = getWebAppUrl();
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyqy8Vi-OHjCl9TkZY5m1WicNkdJPjBxavk-pCNhze2UzytkvdZEZvc9VZJKeJCdm9d/exec";
 
 /** =========================
- * JSONP helper (GitHub Pages friendly)
+ * JSONP helper (GitHub-friendly)
  * ========================= */
-function jsonp(url, params = {}) {
+function jsonpRequest(params){
   return new Promise((resolve, reject) => {
     const cb = "cb_" + Math.random().toString(36).slice(2);
+    const url = new URL(SCRIPT_URL);
+    Object.entries(params || {}).forEach(([k,v]) => url.searchParams.set(k, v));
+    url.searchParams.set("callback", cb);
+
     const script = document.createElement("script");
-    const qs = new URLSearchParams({ ...params, callback: cb, _ts: Date.now() });
-
-    script.src = url + (url.includes("?") ? "&" : "?") + qs.toString();
-    script.async = true;
-    script.referrerPolicy = "no-referrer";
-
-    const timer = setTimeout(() => {
+    const timeout = setTimeout(() => {
       cleanup();
-      reject(new Error("Timeout JSONP. Revisa si el WebApp está publicado como 'Anyone' y que sea /exec."));
+      reject(new Error("Tiempo de espera agotado en JSONP"));
     }, 25000);
 
     function cleanup(){
-      clearTimeout(timer);
-      try { delete window[cb]; } catch {}
-      try { script.remove(); } catch {}
+      clearTimeout(timeout);
+      delete window[cb];
+      script.remove();
     }
 
-    window[cb] = (data) => { cleanup(); resolve(data); };
-    script.onerror = () => {
+    window[cb] = (data) => {
       cleanup();
-      reject(new Error(
-        "Error cargando JSONP. Casi seguro: 403 (WebApp privada / permisos) o URL inválida."
-      ));
+      resolve(data);
     };
 
+    script.onerror = () => {
+      cleanup();
+      reject(new Error("Error cargando JSONP (revisa URL / permisos Web App)"));
+    };
+
+    script.src = url.toString();
     document.body.appendChild(script);
   });
 }
 
-/** =========================
- * UI helpers
- * ========================= */
-const menuItems = [
-  { id:"forms", label:"Formularios y pesos" },
-  { id:"autoevaluacion", label:"Formulario de autoevaluación" },
-  { id:"clientes", label:"Formulario evaluación de clientes" },
-  { id:"desempeno", label:"Formulario evaluación del desempeño" },
-  { id:"resultados", label:"Resultados evaluación del desempeño" },
-  { id:"consolidado", label:"Informe consolidado" },
-  { id:"capacitacion", label:"Informe necesidades de capacitación" },
-  { id:"desarrollo", label:"Informe plan de desarrollo" },
-];
-
-// ✅ Por default: Formulario de autoevaluación
-const state = { view: "autoevaluacion", levels: [], form: null };
-
-function setStatus(ok, msg){
-  const dot = document.getElementById("apiDot");
-  const sub = document.getElementById("apiSubtitle");
-  dot.style.background = ok ? "var(--brand2)" : "var(--danger)";
-  dot.style.boxShadow = ok ? "0 0 0 6px rgba(34,197,94,.12)" : "0 0 0 6px rgba(239,68,68,.12)";
-  sub.textContent = msg;
-}
-
-function escapeHtml(str){
-  return String(str ?? "")
-    .replaceAll("&","&amp;").replaceAll("<","&lt;")
-    .replaceAll(">","&gt;").replaceAll('"',"&quot;")
-    .replaceAll("'","&#039;");
-}
-
-function setView(title, desc){
-  document.getElementById("viewTitle").textContent = title;
-  document.getElementById("viewDesc").textContent = desc;
-}
-
-/** NUEVO: Render del selector "Fase" */
-function renderFaseSelector(){
-  const sel = document.getElementById("faseSelect");
-  if (!sel) return;
-
-  sel.innerHTML = menuItems
-    .map(m => `<option value="${escapeHtml(m.id)}">${escapeHtml(m.label)}</option>`)
-    .join("");
-
-  // asegúrate de que el valor exista
-  const exists = menuItems.some(m => m.id === state.view);
-  sel.value = exists ? state.view : "autoevaluacion";
-
-  sel.onchange = () => {
-    state.view = sel.value;
-    renderView();
-  };
-}
-
-/** Mantiene el selector sincronizado si state.view cambia por código */
-function syncFaseSelector(){
-  const sel = document.getElementById("faseSelect");
-  if (!sel) return;
-  if (sel.value !== state.view) sel.value = state.view;
-}
+const API = {
+  ping: () => jsonpRequest({action:"ping"}),
+  getMeta: () => jsonpRequest({action:"getMeta"}), // niveles + estados
+  loadForms: () => jsonpRequest({action:"loadForms"}),
+  clearForms: () => jsonpRequest({action:"clearForms"}),
+  loadWeights: () => jsonpRequest({action:"loadWeights"}),
+  clearWeights: () => jsonpRequest({action:"clearWeights"}),
+  getQuestionnaire: (nivel) => jsonpRequest({action:"getQuestionnaire", nivel:String(nivel)}),
+  saveAutoeval: (payloadObj) => jsonpRequest({action:"saveAutoeval", payload: encodeURIComponent(JSON.stringify(payloadObj))}),
+};
 
 /** =========================
- * API
+ * State
  * ========================= */
-async function api(action, params={}){
-  SCRIPT_WEBAPP_URL = getWebAppUrl();
-  if (!SCRIPT_WEBAPP_URL) throw new Error("No hay WebApp URL válida. Usa “Configurar WebApp”.");
+const state = {
+  phase: "Formulario de autoevaluación",
+  meta: null,
+  currentLevel: 1,
+  questionnaire: null,
+  answers: new Map(), // key=itemId, value=score
+};
 
-  if (isDevUrl(SCRIPT_WEBAPP_URL) && action !== "ping"){
-    setStatus(false, "URL parece /dev. Publica /exec para acceso correcto (deploy).");
+/** =========================
+ * DOM
+ * ========================= */
+const phaseSel = document.getElementById("phaseSel");
+const panelTitle = document.getElementById("panelTitle");
+const panelHint = document.getElementById("panelHint");
+const panelBody = document.getElementById("panelBody");
+const apiStatus = document.getElementById("apiStatus");
+const formsStatus = document.getElementById("formsStatus");
+const weightsStatus = document.getElementById("weightsStatus");
+const btnNew = document.getElementById("btnNew");
+const btnSave = document.getElementById("btnSave");
+const btnPrint = document.getElementById("btnPrint");
+
+/** =========================
+ * Init
+ * ========================= */
+(async function init(){
+  // Fase por defecto
+  state.phase = phaseSel.value;
+
+  // Botones
+  btnPrint.addEventListener("click", () => window.print());
+  btnNew.addEventListener("click", onNew);
+  btnSave.addEventListener("click", onSave);
+
+  phaseSel.addEventListener("change", async () => {
+    state.phase = phaseSel.value;
+    await renderPhase();
+  });
+
+  // Ping API
+  try{
+    const pong = await API.ping();
+    apiStatus.textContent = "API: OK";
+    apiStatus.style.borderColor = "rgba(34,197,94,.35)";
+    apiStatus.style.background = "rgba(34,197,94,.16)";
+    await refreshMeta();
+    await renderPhase();
+  }catch(err){
+    apiStatus.textContent = "API: error (revisa SCRIPT_URL)";
+    apiStatus.style.borderColor = "rgba(239,68,68,.35)";
+    apiStatus.style.background = "rgba(239,68,68,.14)";
+    panelBody.innerHTML = `<div class="muted">
+      <b>Falta configurar la API.</b><br/>
+      1) Publica tu Apps Script como Web App (acceso: Cualquiera).<br/>
+      2) Pega la URL /exec en <code>SCRIPT_URL</code>.<br/>
+      <div style="margin-top:8px;color:#fca5a5">${escapeHtml(String(err.message||err))}</div>
+    </div>`;
   }
+})();
 
-  const res = await jsonp(SCRIPT_WEBAPP_URL, { action, ...params });
+async function refreshMeta(){
+  const meta = await API.getMeta();
+  state.meta = meta;
 
-  if (!res || res.ok !== true) {
-    const msg = (res && res.error) ? res.error : "Respuesta inválida del servidor";
-    throw new Error(msg);
+  formsStatus.textContent = "Formularios: " + (meta?.formsLoaded ? "cargados" : "no cargados");
+  weightsStatus.textContent = "Pesos: " + (meta?.weightsLoaded ? "cargados" : "no cargados");
+
+  if(meta?.levels?.length){
+    state.currentLevel = meta.levels.includes(1) ? 1 : meta.levels[0];
+  }else{
+    state.currentLevel = 1;
   }
-  return res;
 }
 
-async function init(){
-  renderFaseSelector();
-  await checkConnection();
-  renderView();
-}
+/** =========================
+ * Render router
+ * ========================= */
+async function renderPhase(){
+  panelTitle.textContent = state.phase;
 
-async function checkConnection(){
-  const url = getWebAppUrl();
-  if (!url){
-    setStatus(false, "Sin WebApp URL. Usa “Configurar WebApp”.");
+  // botones visibles solo cuando aplica
+  const phase = state.phase;
+  const showActions = (phase === "Formulario de autoevaluación");
+  btnNew.style.display = showActions ? "" : "none";
+  btnSave.style.display = showActions ? "" : "none";
+  btnPrint.style.display = showActions ? "" : "none";
+
+  if(phase === "Formularios"){
+    panelHint.textContent = "Carga/limpieza de base de cuestionarios";
+    renderLoadPanel("Formularios",
+      "Cargar los datos desde la pestaña 'Formularios' (Nivel, Factor, Item y escala 1–5).",
+      async () => { await API.loadForms(); await refreshMeta(); toast("Formularios cargados ✅"); },
+      async () => { await API.clearForms(); await refreshMeta(); toast("Base de formularios limpiada 🧹"); }
+    );
     return;
   }
+
+  if(phase === "Pesos"){
+    panelHint.textContent = "Carga/limpieza de pesos por ítem";
+    renderLoadPanel("Pesos",
+      "Cargar los pesos desde la hoja 'Pesos' en el mismo orden de los ítems.",
+      async () => { await API.loadWeights(); await refreshMeta(); toast("Pesos cargados ✅"); },
+      async () => { await API.clearWeights(); await refreshMeta(); toast("Base de pesos limpiada 🧹"); }
+    );
+    return;
+  }
+
+  if(phase === "Formulario de autoevaluación"){
+    panelHint.textContent = "Por defecto: Nivel 1";
+    await renderAutoeval();
+    return;
+  }
+
+  // placeholders para fases futuras
+  panelHint.textContent = "Módulo en construcción (estructura lista para agregar).";
+  panelBody.innerHTML = `<div class="muted">
+    Este módulo aún no está implementado, pero ya está “enchufado” en el menú.<br/>
+    <div class="hr"></div>
+    Tip: aquí conectarás consultas y reportes sin tocar la autoevaluación.
+  </div>`;
+}
+
+function renderLoadPanel(title, desc, onLoad, onClear){
+  panelBody.innerHTML = `
+    <div class="section">
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;">
+        <div>
+          <div style="font-weight:700">${escapeHtml(title)}</div>
+          <div class="muted" style="margin-top:4px">${escapeHtml(desc)}</div>
+        </div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="btn primary" id="btnLoad">Cargar</button>
+          <button class="btn danger" id="btnClear">Limpiar</button>
+        </div>
+      </div>
+    </div>
+    <div class="muted" style="margin-top:10px">
+      Nota: “Cargar” valida y deja disponible la base para renderizar cuestionarios; “Limpiar” solo limpia la base de cache (no borra tus hojas fuente).
+    </div>
+  `;
+  document.getElementById("btnLoad").onclick = safeRun(onLoad);
+  document.getElementById("btnClear").onclick = safeRun(onClear);
+}
+
+/** =========================
+ * Autoevaluación
+ * ========================= */
+async function renderAutoeval(){
+  // UI base
+  const levels = (state.meta?.levels?.length ? state.meta.levels : [1]);
+  const today = new Date();
+  const yyyy = today.getFullYear();
+  const mm = String(today.getMonth()+1).padStart(2,"0");
+  const dd = String(today.getDate()).padStart(2,"0");
+  const todayStr = `${yyyy}-${mm}-${dd}`;
+
+  panelBody.innerHTML = `
+    <div class="section">
+      <div class="factor-title">
+        <div><b>Datos del colaborador</b></div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+          <div class="control" style="min-width:220px">
+            <label>Nivel</label>
+            <select id="levelSel">
+              ${levels.map(n => `<option value="${n}" ${n===state.currentLevel?"selected":""}>${n}</option>`).join("")}
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid2">
+        <div class="control"><label>No de personal</label><input id="noPersonal" placeholder="Ej: 00123"/></div>
+        <div class="control"><label>Nombre</label><input id="nombre" placeholder="Nombre completo"/></div>
+        <div class="control"><label>Posición</label><input id="posicion" placeholder="Puesto"/></div>
+        <div class="control"><label>Departamento</label><input id="depto" placeholder="Área"/></div>
+        <div class="control"><label>Periodo</label><input id="periodo" placeholder="Ej: 2026-Q1"/></div>
+        <div class="control"><label>Versión</label><input id="version" placeholder="Ej: v1"/></div>
+        <div class="control"><label>Fecha</label><input id="fecha" value="${todayStr}" readonly/></div>
+      </div>
+    </div>
+
+    <div class="section" id="formSection">
+      <div class="muted">Cargando cuestionario del nivel ${state.currentLevel}…</div>
+    </div>
+
+    <div class="section">
+      <div class="factor-title">
+        <div><b>Comentarios del colaborador</b></div>
+        <div class="muted">Incluye observaciones, ejemplos, mejoras o apoyo requerido.</div>
+      </div>
+      <textarea id="comentarios" placeholder="Comentarios del colaborador..."></textarea>
+    </div>
+  `;
+
+  const levelSel = document.getElementById("levelSel");
+  levelSel.addEventListener("change", async () => {
+    state.currentLevel = Number(levelSel.value);
+    state.answers.clear();
+    await loadAndRenderQuestionnaire();
+  });
+
+  await loadAndRenderQuestionnaire();
+}
+
+async function loadAndRenderQuestionnaire(){
+  const formSection = document.getElementById("formSection");
   try{
-    const r = await api("ping");
-    const note = isDevUrl(url) ? " (pero es /dev… ojo 😅)" : "";
-    setStatus(true, `Apps Script conectado${note} — ${r.ts || ""}`.trim());
-  }catch(e){
-    setStatus(false, "Sin conexión (si ves 403: el WebApp está privado o no está publicado como 'Anyone').");
+    const q = await API.getQuestionnaire(state.currentLevel);
+    state.questionnaire = q;
+    renderQuestionnaire(formSection, q);
+  }catch(err){
+    formSection.innerHTML = `<div class="muted" style="color:#fca5a5">
+      Error cargando el cuestionario: ${escapeHtml(String(err.message||err))}<br/>
+      Tip: ve a Fase “Formularios” y presiona “Cargar”.
+    </div>`;
+  }
+}
+
+function renderQuestionnaire(container, q){
+  if(!q?.items?.length){
+    container.innerHTML = `<div class="muted">No hay ítems para este nivel.</div>`;
+    return;
+  }
+
+  // Agrupar por Factor
+  const byFactor = new Map();
+  for(const it of q.items){
+    const factor = it.factor || "Sin factor";
+    if(!byFactor.has(factor)) byFactor.set(factor, []);
+    byFactor.get(factor).push(it);
+  }
+
+  let html = `
+    <div class="factor-title">
+      <div><b>Evaluación (1–5)</b></div>
+      <div class="muted">Selecciona una opción por ítem.</div>
+    </div>
+  `;
+
+  for(const [factor, items] of byFactor.entries()){
+    html += `<div class="section">
+      <div class="factor-title">
+        <div>${escapeHtml(factor)}</div>
+        <div class="muted">Nivel ${q.nivel}</div>
+      </div>
+    `;
+
+    items.forEach((it, idx) => {
+      const itemId = it.itemId;
+      const title = it.itemText;
+      const opts = it.scale; // [{score, desc}]
+      html += `
+        <div class="item">
+          <div>
+            <p class="ititle">${escapeHtml(title)}</p>
+            <p class="isub">Selecciona 1–5 según la rúbrica.</p>
+          </div>
+          <div class="right">
+            <label>Puntaje (1–5)</label>
+            <select data-itemid="${escapeHtml(itemId)}">
+              <option value="">Seleccionar…</option>
+              ${opts.map(o => `<option value="${o.score}">${o.score} — ${escapeHtml(o.desc || "")}</option>`).join("")}
+            </select>
+          </div>
+        </div>
+      `;
+    });
+
+    html += `</div>`;
+  }
+
+  container.innerHTML = html;
+
+  // bind selects
+  container.querySelectorAll("select[data-itemid]").forEach(sel => {
+    sel.addEventListener("change", () => {
+      const id = sel.getAttribute("data-itemid");
+      const v = sel.value ? Number(sel.value) : null;
+      if(v==null) state.answers.delete(id);
+      else state.answers.set(id, v);
+    });
+  });
+}
+
+/** =========================
+ * Actions
+ * ========================= */
+function onNew(){
+  if(state.phase !== "Formulario de autoevaluación") return;
+  // reset inputs + answers
+  ["noPersonal","nombre","posicion","depto","periodo","version","comentarios"].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.value = "";
+  });
+  state.answers.clear();
+  // reset all selects in questionnaire
+  const formSection = document.getElementById("formSection");
+  if(formSection){
+    formSection.querySelectorAll("select[data-itemid]").forEach(s=> s.value="");
+  }
+  toast("Formulario reiniciado 🧼");
+}
+
+async function onSave(){
+  if(state.phase !== "Formulario de autoevaluación") return;
+  if(!state.questionnaire?.items?.length){
+    toast("No hay cuestionario cargado para guardar.", true);
+    return;
+  }
+
+  // Validar básicos
+  const noPersonal = val("noPersonal");
+  const nombre = val("nombre");
+  const posicion = val("posicion");
+  const depto = val("depto");
+  const periodo = val("periodo");
+  const version = val("version");
+  const fecha = val("fecha");
+  const comentarios = val("comentarios");
+
+  // Validar que todos los ítems tengan respuesta
+  const missing = state.questionnaire.items.filter(it => !state.answers.has(it.itemId));
+  if(missing.length){
+    toast(`Faltan ${missing.length} respuestas. Completa el formulario antes de guardar.`, true);
+    return;
+  }
+
+  const payload = {
+    fase: "Autoevaluacion",
+    nivel: state.currentLevel,
+    colaborador: { noPersonal, nombre, posicion, departamento:depto, periodo, version, fecha },
+    comentarios,
+    respuestas: state.questionnaire.items.map((it, i) => ({
+      idx: i+1,
+      itemId: it.itemId,
+      factor: it.factor,
+      itemText: it.itemText,
+      score: state.answers.get(it.itemId)
+    }))
+  };
+
+  try{
+    btnSave.disabled = true;
+    btnSave.textContent = "Guardando...";
+    const res = await API.saveAutoeval(payload);
+    if(res?.ok){
+      toast(`Guardado ✅ (fila ${res.row || "?"})`);
+    }else{
+      toast("No se pudo guardar: " + (res?.error || "desconocido"), true);
+    }
+  }catch(err){
+    toast("Error guardando: " + (err.message||err), true);
+  }finally{
+    btnSave.disabled = false;
+    btnSave.textContent = "Guardar";
   }
 }
 
 /** =========================
- * Views
+ * Utils
  * ========================= */
-function renderView(){
-  const body = document.getElementById("viewBody");
-  body.innerHTML = "";
+function val(id){ return (document.getElementById(id)?.value || "").trim(); }
 
-  // asegura selector sincronizado
-  syncFaseSelector();
-
-  if (state.view === "forms") return renderFormsAndWeights(body);
-  if (state.view === "autoevaluacion") return renderAutoevaluacion(body);
-
-  setView(menuItems.find(m=>m.id===state.view)?.label || "Módulo", "Módulo en preparación.");
-  const box = document.createElement("div");
-  box.className = "status";
-  box.innerHTML = `<strong>Listo para expandir:</strong> la fase ya está seleccionable desde arriba.`;
-  body.appendChild(box);
+function safeRun(fn){
+  return async () => {
+    try{ await fn(); }
+    catch(err){ toast(String(err.message||err), true); }
+  }
 }
 
-async function renderFormsAndWeights(body){
-  setView("Formularios y pesos", "Cargar (importa desde la pestaña Formularios) o Limpiar (borra banco de cuestionarios).");
-
-  const grid = document.createElement("div");
-  grid.className = "grid2";
-
-  const left = document.createElement("div");
-  left.innerHTML = `
-    <div class="status">
-      <div><strong>Acciones</strong></div>
-      <div class="hint">“Cargar” arma el banco por Nivel. “Limpiar” borra el banco para recargar.</div>
-
-      <div class="actions" style="justify-content:flex-start">
-        <button class="btn good" id="btnLoad">Cargar</button>
-        <button class="btn danger" id="btnClear">Limpiar</button>
-        <button class="btn primary" id="btnCfg">Configurar WebApp</button>
-        <button class="btn" id="btnTest">Probar conexión</button>
-        <button class="btn" id="btnOpenPing">Abrir ping</button>
-      </div>
-
-      <div class="hint">
-        URL actual: <span class="mono" id="urlNow"></span>
-        <div id="urlHint" class="hint"></div>
-        <br>Tip: tu hoja debe llamarse exactamente <b>Formularios</b> y tener headers: Nivel, Factor, Item, Pesos, 1..5
-      </div>
-    </div>
-  `;
-
-  const right = document.createElement("div");
-  right.innerHTML = `<div class="status" id="bankInfo"><strong>Banco:</strong> consultando…</div>`;
-
-  grid.appendChild(left);
-  grid.appendChild(right);
-  body.appendChild(grid);
-
-  const urlNow = getWebAppUrl() || "—";
-  document.getElementById("urlNow").textContent = urlNow;
-
-  const urlHint = document.getElementById("urlHint");
-  if (urlNow !== "—" && isDevUrl(urlNow)){
-    urlHint.innerHTML = `⚠️ Estás usando <b>/dev</b>. Para GitHub Pages lo correcto es <b>/exec</b> (deploy público).`;
-  } else {
-    urlHint.innerHTML = "";
-  }
-
-  async function refreshInfo(){
-    try{
-      const info = await api("bankInfo");
-      document.getElementById("bankInfo").innerHTML =
-        `<strong>Banco:</strong> ${info.count} ítems en ${info.levels} niveles.<br><span class="hint">Última carga: ${escapeHtml(info.lastLoad || "—")}</span>`;
-    }catch(e){
-      document.getElementById("bankInfo").innerHTML =
-        `<strong>Banco:</strong> no disponible.<br><span class="hint">❌ ${escapeHtml(e.message)}</span>`;
-    }
-  }
-
-  document.getElementById("btnCfg").onclick = async () => {
-    const cur = getWebAppUrl() || DEFAULT_WEBAPP_URL;
-    const next = prompt("Pega aquí la URL /exec del WebApp (Apps Script):", cur);
-    if (!next) return;
-
-    const norm = normalizeWebAppUrl(next);
-    if (!norm){
-      alert("Esa URL no parece un WebApp válido. Debe empezar con https://script.google.com/macros/s/ y terminar en /exec (o /dev).");
-      return;
-    }
-    localStorage.setItem("WEBAPP_URL", norm);
-    document.getElementById("urlNow").textContent = getWebAppUrl();
-    await checkConnection();
-    await refreshInfo();
-  };
-
-  document.getElementById("btnTest").onclick = async () => {
-    await checkConnection();
-    await refreshInfo();
-  };
-
-  document.getElementById("btnOpenPing").onclick = () => {
-    const base = getWebAppUrl();
-    if (!base) return alert("Configura la URL primero.");
-    const u = base + (base.includes("?") ? "&" : "?") + "action=ping";
-    window.open(u, "_blank", "noopener,noreferrer");
-  };
-
-  document.getElementById("btnLoad").onclick = async () => {
-    const s = document.createElement("div");
-    s.className="status";
-    s.textContent = "Cargando cuestionarios…";
-    body.appendChild(s);
-    try{
-      const r = await api("loadBank");
-      s.innerHTML = `✅ <strong>Carga completada:</strong> ${r.count} ítems en ${r.levels} niveles.`;
-      await refreshInfo();
-    }catch(e){
-      s.innerHTML = `❌ <strong>Error:</strong> ${escapeHtml(e.message)}`;
-    }
-  };
-
-  document.getElementById("btnClear").onclick = async () => {
-    const s = document.createElement("div");
-    s.className="status";
-    s.textContent = "Limpiando banco…";
-    body.appendChild(s);
-    try{
-      await api("clearBank");
-      s.innerHTML = `✅ <strong>Banco limpiado.</strong>`;
-      await refreshInfo();
-    }catch(e){
-      s.innerHTML = `❌ <strong>Error:</strong> ${escapeHtml(e.message)}`;
-    }
-  };
-
-  await refreshInfo();
+function toast(msg, isBad=false){
+  const el = document.createElement("div");
+  el.textContent = msg;
+  el.style.position = "fixed";
+  el.style.right = "16px";
+  el.style.bottom = "16px";
+  el.style.padding = "10px 12px";
+  el.style.borderRadius = "12px";
+  el.style.border = "1px solid rgba(148,163,184,.25)";
+  el.style.background = isBad ? "rgba(239,68,68,.18)" : "rgba(34,197,94,.16)";
+  el.style.color = "white";
+  el.style.zIndex = 9999;
+  el.style.maxWidth = "520px";
+  el.style.boxShadow = "0 20px 60px rgba(0,0,0,.55)";
+  document.body.appendChild(el);
+  setTimeout(()=> el.remove(), 3600);
 }
 
-async function renderAutoevaluacion(body){
-  setView("Formulario de autoevaluación", "Selecciona Nivel, responde y guarda en la hoja Autoevaluacion.");
-
-  const head = document.createElement("div");
-  head.className = "grid2";
-
-  const left = document.createElement("div");
-  left.innerHTML = `
-    <label>Formulario (Nivel)</label>
-    <select id="levelSelect"><option value="1">Nivel 1</option></select>
-    <div class="hint">Si no ves niveles, primero ve a “Formularios y pesos” → <b>Cargar</b>.</div>
-  `;
-
-  const right = document.createElement("div");
-  const today = new Date();
-  const fechaHoy = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,"0")}-${String(today.getDate()).padStart(2,"0")}`;
-  right.innerHTML = `
-    <div class="status">
-      <strong>Acciones</strong>
-      <div class="actions" style="justify-content:flex-start">
-        <button class="btn warn" id="btnNew">Nuevo</button>
-        <button class="btn good" id="btnSave">Guardar</button>
-        <button class="btn primary" id="btnPrint">Imprimir / PDF</button>
-      </div>
-      <div class="hint">“Imprimir/PDF” usa el diálogo del navegador.</div>
-    </div>
-  `;
-
-  head.appendChild(left);
-  head.appendChild(right);
-  body.appendChild(head);
-
-  const datos = document.createElement("div");
-  datos.className = "card";
-  datos.style.marginTop = "12px";
-  datos.innerHTML = `
-    <div class="cardHead">
-      <h2>Datos del colaborador</h2>
-      <p>Completa la información base.</p>
-    </div>
-    <div class="cardBody">
-      <div class="grid4">
-        <div><label>No. de personal</label><input id="noPersonal" placeholder="Ej. 1000"></div>
-        <div><label>Nombre</label><input id="nombre" placeholder="Ej. Carlos Paz"></div>
-        <div><label>Posición</label><input id="posicion" placeholder="Ej. Asistente"></div>
-        <div><label>Departamento</label><input id="depto" placeholder="Ej. Contabilidad"></div>
-      </div>
-      <div class="grid3" style="margin-top:10px">
-        <div><label>Periodo</label><input id="periodo" placeholder="Ej. 2026"></div>
-        <div><label>Versión</label><input id="version" placeholder="Ej. 1.1"></div>
-        <div><label>Fecha</label><input id="fecha" value="${fechaHoy}" readonly></div>
-      </div>
-    </div>
-  `;
-  body.appendChild(datos);
-
-  const qWrap = document.createElement("div");
-  qWrap.className = "card";
-  qWrap.style.marginTop = "12px";
-  qWrap.innerHTML = `
-    <div class="cardHead">
-      <h2>Autoevaluación</h2>
-      <p>Selecciona un valor por ítem.</p>
-    </div>
-    <div class="cardBody" id="questions"></div>
-  `;
-  body.appendChild(qWrap);
-
-  const comm = document.createElement("div");
-  comm.className = "card";
-  comm.style.marginTop = "12px";
-  comm.innerHTML = `
-    <div class="cardHead">
-      <h2>Comentarios del colaborador</h2>
-      <p>Opcional.</p>
-    </div>
-    <div class="cardBody">
-      <label>Comentarios</label>
-      <textarea id="comentarios" placeholder="Escribe aquí…"></textarea>
-    </div>
-  `;
-  body.appendChild(comm);
-
-  const status = document.createElement("div");
-  status.className = "status";
-  status.id = "saveStatus";
-  status.textContent = "Listo.";
-  body.appendChild(status);
-
-  let levels = ["1"];
-  try{
-    const r = await api("getLevels");
-    levels = (r.levels && r.levels.length) ? r.levels : ["1"];
-    state.levels = levels;
-  }catch(_){}
-
-  const levelSelect = document.getElementById("levelSelect");
-  levelSelect.innerHTML = levels.map(l => `<option value="${escapeHtml(l)}">Nivel ${escapeHtml(l)}</option>`).join("");
-  levelSelect.value = levels.includes("1") ? "1" : levels[0];
-
-  async function loadForm(level){
-    document.getElementById("questions").innerHTML = `<div class="status">Cargando formulario Nivel ${escapeHtml(level)}…</div>`;
-    try{
-      const r = await api("getForm", { level });
-      state.form = r.form;
-      renderQuestions(state.form);
-      document.getElementById("saveStatus").textContent = `Formulario Nivel ${level} cargado.`;
-    }catch(e){
-      document.getElementById("questions").innerHTML =
-        `<div class="status">❌ No se pudo cargar el formulario: <strong>${escapeHtml(e.message)}</strong>
-          <div class="hint">Si ves 403, el WebApp está privado. Si ves “Banco no cargado”, ve a “Formularios y pesos” → Cargar.</div>
-        </div>`;
-    }
-  }
-
-  function renderQuestions(form){
-    const host = document.getElementById("questions");
-    host.innerHTML = "";
-    if (!form || !Array.isArray(form.questions) || !form.questions.length){
-      host.innerHTML = `<div class="status">No hay preguntas para este nivel.</div>`;
-      return;
-    }
-
-    const byFactor = new Map();
-    form.questions.forEach(q => {
-      const f = String(q.factor || "Sin factor");
-      if (!byFactor.has(f)) byFactor.set(f, []);
-      byFactor.get(f).push(q);
-    });
-
-    let respIndex = 0;
-
-    for (const [factor, qs] of byFactor.entries()){
-      const f = document.createElement("div");
-      f.className = "factor";
-      f.innerHTML = `<h3>${escapeHtml(factor)}</h3>`;
-      qs.forEach(q => {
-        respIndex++;
-        const div = document.createElement("div");
-        div.className = "q";
-        div.innerHTML = `
-          <div>
-            <div class="qTitle">${escapeHtml(q.item)}</div>
-            <div class="qMeta">
-              <span class="badge">Peso: ${escapeHtml(q.peso)}</span>
-              <span class="badge">Resp${respIndex}</span>
-            </div>
-          </div>
-          <div>
-            <label>Puntuación (1–5)</label>
-            <select data-resp="r${respIndex}">
-              <option value="">Seleccionar…</option>
-              ${(q.scale || []).map(s => `<option value="${escapeHtml(s.value)}">${escapeHtml(s.value)} — ${escapeHtml(s.label)}</option>`).join("")}
-            </select>
-          </div>
-        `;
-        f.appendChild(div);
-      });
-      host.appendChild(f);
-    }
-
-    if (form.questions.length > MAX_RESP){
-      const warn = document.createElement("div");
-      warn.className="status";
-      warn.innerHTML = `⚠️ <strong>Advertencia:</strong> Este nivel tiene ${form.questions.length} ítems, pero MAX_RESP = ${MAX_RESP}. Ajusta MAX_RESP (HTML y Apps Script) o reduce ítems.`;
-      host.appendChild(warn);
-    }
-  }
-
-  function clearForm(){
-    ["noPersonal","nombre","posicion","depto","periodo","version","comentarios"].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.value = "";
-    });
-    document.querySelectorAll("#questions select[data-resp]").forEach(s => s.value = "");
-    document.getElementById("saveStatus").textContent = "Formulario limpio (Nuevo).";
-  }
-
-  function collectParams(){
-    const params = {
-      level: levelSelect.value,
-      noPersonal: document.getElementById("noPersonal").value.trim(),
-      nombre: document.getElementById("nombre").value.trim(),
-      posicion: document.getElementById("posicion").value.trim(),
-      departamento: document.getElementById("depto").value.trim(),
-      periodo: document.getElementById("periodo").value.trim(),
-      version: document.getElementById("version").value.trim(),
-      fecha: document.getElementById("fecha").value.trim(),
-      comentarios: document.getElementById("comentarios").value.trim(),
-    };
-
-    const selects = document.querySelectorAll("#questions select[data-resp]");
-    selects.forEach(sel => { params[sel.dataset.resp] = sel.value || ""; });
-
-    for (let i=1;i<=MAX_RESP;i++){
-      if (!(("r"+i) in params)) params["r"+i] = "";
-    }
-    return params;
-  }
-
-  levelSelect.onchange = () => loadForm(levelSelect.value);
-  document.getElementById("btnNew").onclick = clearForm;
-  document.getElementById("btnPrint").onclick = () => window.print();
-
-  document.getElementById("btnSave").onclick = async () => {
-    const p = collectParams();
-    if (!p.noPersonal || !p.nombre){
-      document.getElementById("saveStatus").innerHTML = `⚠️ <strong>Completa al menos:</strong> No. de personal y Nombre.`;
-      return;
-    }
-    document.getElementById("saveStatus").textContent = "Guardando…";
-    try{
-      const r = await api("saveAutoeval", p);
-      document.getElementById("saveStatus").innerHTML = `✅ <strong>Guardado:</strong> fila #${r.row} en Autoevaluacion.`;
-    }catch(e){
-      document.getElementById("saveStatus").innerHTML = `❌ <strong>Error al guardar:</strong> ${escapeHtml(e.message)}`;
-    }
-  };
-
-  await loadForm(levelSelect.value);
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, m => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+  }[m]));
 }
-
-init();
 </script>
 </body>
 </html>
