@@ -46,29 +46,15 @@
       padding: 10px 12px;
       box-shadow: var(--shadow);
     }
-    .brand{
-      display:flex; gap:10px; align-items:center;
-      padding-left:6px;
-    }
+    .brand{display:flex; gap:10px; align-items:center; padding-left:6px;}
     .dot{
       width:10px;height:10px;border-radius:50%;
       background: var(--brand2);
       box-shadow: 0 0 0 6px rgba(34,197,94,.12);
     }
-    .title{
-      font-weight:700;
-      letter-spacing:.2px;
-      font-size: 13px;
-      line-height:1;
-    }
-    .subtitle{
-      font-size: 11px;
-      color: var(--muted);
-      margin-top:2px;
-    }
-    .nav{
-      display:flex; flex-wrap:wrap; gap:8px; justify-content:flex-end;
-    }
+    .title{font-weight:700; letter-spacing:.2px; font-size: 13px; line-height:1;}
+    .subtitle{font-size: 11px; color: var(--muted); margin-top:2px;}
+    .nav{display:flex; flex-wrap:wrap; gap:8px; justify-content:flex-end;}
     .chip{
       border:1px solid var(--stroke);
       background: rgba(15,23,42,.55);
@@ -82,10 +68,7 @@
       white-space:nowrap;
     }
     .chip:hover{transform: translateY(-1px); border-color: rgba(59,130,246,.35)}
-    .chip.active{
-      background: rgba(59,130,246,.18);
-      border-color: rgba(59,130,246,.45);
-    }
+    .chip.active{background: rgba(59,130,246,.18); border-color: rgba(59,130,246,.45);}
 
     .card{
       margin-top: 14px;
@@ -178,7 +161,6 @@
       align-items:center;
     }
     @media (max-width:780px){ .q{grid-template-columns:1fr} }
-    .q small{color: var(--muted)}
     .qTitle{font-size:12px; font-weight:600}
     .qMeta{font-size:11px; color: var(--muted); margin-top:4px}
     .badge{
@@ -191,7 +173,6 @@
       color: var(--muted);
     }
 
-    /* Impresión (PDF por el diálogo del navegador) */
     @media print{
       .topbar, .actions, .chip{display:none !important}
       body{background:#fff; color:#000}
@@ -213,7 +194,6 @@
             <div class="subtitle" id="apiSubtitle">Conectando con Apps Script…</div>
           </div>
         </div>
-
         <div class="nav" id="menu"></div>
       </div>
     </div>
@@ -231,11 +211,11 @@
 /** =========================
  * CONFIG
  * ========================= */
-const SCRIPT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwOiUO70kaKD0vq-AAd6SHZdOXNFIh6bCqssA46ZINvVfVo1xEZs8Yp80axITgXw8hw/exec";
-const MAX_RESP = 20; // Resp1..Resp20 (si tu hoja tiene más, sube esto y ajusta GS también)
+const SCRIPT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzlB8GoMNRFJupXr1nnh9So2nGqnCg-bGzp8GJXMxcxPh-4xRLjsoXtnWw-vjELKoj4/exec";
+const MAX_RESP = 20;
 
 /** =========================
- * JSONP helper (para GitHub Pages sin CORS drama)
+ * JSONP helper (GitHub Pages friendly)
  * ========================= */
 function jsonp(url, params = {}) {
   return new Promise((resolve, reject) => {
@@ -251,7 +231,7 @@ function jsonp(url, params = {}) {
 
     function cleanup(){
       clearTimeout(timer);
-      delete window[cb];
+      try{ delete window[cb]; }catch(_){}
       script.remove();
     }
 
@@ -263,13 +243,9 @@ function jsonp(url, params = {}) {
 }
 
 /** =========================
- * App state
+ * State
  * ========================= */
-const state = {
-  view: "autoevaluacion",
-  levels: [],
-  form: null, // {level, questions:[...], order:[...], factors:[...]}
-};
+const state = { view: "autoevaluacion", levels: [], form: null };
 
 const menuItems = [
   { id:"forms", label:"Formularios y pesos" },
@@ -308,7 +284,7 @@ function setView(title, desc){
 }
 
 /** =========================
- * API calls
+ * API
  * ========================= */
 async function api(action, params={}){
   const res = await jsonp(SCRIPT_WEBAPP_URL, { action, ...params });
@@ -319,7 +295,6 @@ async function api(action, params={}){
 async function init(){
   renderMenu();
   try{
-    // ping
     await api("ping");
     setStatus(true, "Apps Script conectado");
   }catch(e){
@@ -335,11 +310,10 @@ function renderView(){
   if (state.view === "forms") return renderFormsAndWeights(body);
   if (state.view === "autoevaluacion") return renderAutoevaluacion(body);
 
-  // Placeholder para crecer (sin romper)
-  setView(menuItems.find(m=>m.id===state.view)?.label || "Módulo", "Módulo en preparación. La estructura ya está lista para agregar funcionalidad.");
+  setView(menuItems.find(m=>m.id===state.view)?.label || "Módulo", "Módulo en preparación.");
   const box = document.createElement("div");
   box.className = "status";
-  box.innerHTML = `<strong>Listo para expandir:</strong> este menú ya está cableado. Solo falta implementar su API/HTML como el módulo de autoevaluación.`;
+  box.innerHTML = `<strong>Listo para expandir:</strong> el menú ya está cableado.`;
   body.appendChild(box);
 }
 
@@ -353,21 +327,17 @@ async function renderFormsAndWeights(body){
   left.innerHTML = `
     <div class="status">
       <div><strong>Acciones</strong></div>
-      <div class="hint">“Cargar” arma el banco de cuestionarios por Nivel. “Limpiar” borra ese banco para recargar todo.</div>
+      <div class="hint">“Cargar” arma el banco por Nivel. “Limpiar” borra el banco para recargar.</div>
       <div class="actions" style="justify-content:flex-start">
         <button class="btn good" id="btnLoad">Cargar</button>
         <button class="btn danger" id="btnClear">Limpiar</button>
       </div>
-      <div class="hint">Tip: si algo falla, el problema casi siempre es “encabezados cambiados” o la hoja no se llama exactamente <b>Formularios</b>.</div>
+      <div class="hint">Tip: revisa que la hoja se llame exactamente <b>Formularios</b> y los headers existan.</div>
     </div>
   `;
 
   const right = document.createElement("div");
-  right.innerHTML = `
-    <div class="status" id="bankInfo">
-      <strong>Banco:</strong> consultando estado…
-    </div>
-  `;
+  right.innerHTML = `<div class="status" id="bankInfo"><strong>Banco:</strong> consultando…</div>`;
 
   grid.appendChild(left);
   grid.appendChild(right);
@@ -416,28 +386,21 @@ async function renderFormsAndWeights(body){
 }
 
 async function renderAutoevaluacion(body){
-  setView("Formulario de autoevaluación", "Selecciona el Nivel, completa datos y responde. Guardar tabula en la hoja Autoevaluacion (guardando la descripción del nivel).");
+  setView("Formulario de autoevaluación", "Selecciona Nivel, responde y guarda en la hoja Autoevaluacion.");
 
-  // Header controls
   const head = document.createElement("div");
   head.className = "grid2";
 
   const left = document.createElement("div");
   left.innerHTML = `
     <label>Formulario (Nivel)</label>
-    <select id="levelSelect">
-      <option value="1">Nivel 1</option>
-    </select>
+    <select id="levelSelect"><option value="1">Nivel 1</option></select>
     <div class="hint">Por defecto se muestra Nivel 1.</div>
   `;
 
   const right = document.createElement("div");
   const today = new Date();
-  const yyyy = today.getFullYear();
-  const mm = String(today.getMonth()+1).padStart(2,"0");
-  const dd = String(today.getDate()).padStart(2,"0");
-  const fechaHoy = `${yyyy}-${mm}-${dd}`;
-
+  const fechaHoy = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,"0")}-${String(today.getDate()).padStart(2,"0")}`;
   right.innerHTML = `
     <div class="status">
       <strong>Acciones</strong>
@@ -446,7 +409,7 @@ async function renderAutoevaluacion(body){
         <button class="btn good" id="btnSave">Guardar</button>
         <button class="btn primary" id="btnPrint">Imprimir / PDF</button>
       </div>
-      <div class="hint">“Imprimir/PDF” usa el diálogo del navegador (Guardar como PDF).</div>
+      <div class="hint">“Imprimir/PDF” usa el diálogo del navegador.</div>
     </div>
   `;
 
@@ -454,14 +417,13 @@ async function renderAutoevaluacion(body){
   head.appendChild(right);
   body.appendChild(head);
 
-  // Datos colaborador
   const datos = document.createElement("div");
   datos.className = "card";
   datos.style.marginTop = "12px";
   datos.innerHTML = `
     <div class="cardHead">
       <h2>Datos del colaborador</h2>
-      <p>Completa la información base. La fecha se calcula automáticamente.</p>
+      <p>Completa la información base.</p>
     </div>
     <div class="cardBody">
       <div class="grid4">
@@ -479,27 +441,25 @@ async function renderAutoevaluacion(body){
   `;
   body.appendChild(datos);
 
-  // Contenedor preguntas
   const qWrap = document.createElement("div");
   qWrap.className = "card";
   qWrap.style.marginTop = "12px";
   qWrap.innerHTML = `
     <div class="cardHead">
       <h2>Autoevaluación</h2>
-      <p>Selecciona un valor por ítem. El texto de la escala se guardará en la tabulación.</p>
+      <p>Selecciona un valor por ítem.</p>
     </div>
     <div class="cardBody" id="questions"></div>
   `;
   body.appendChild(qWrap);
 
-  // Comentarios
   const comm = document.createElement("div");
   comm.className = "card";
   comm.style.marginTop = "12px";
   comm.innerHTML = `
     <div class="cardHead">
       <h2>Comentarios del colaborador</h2>
-      <p>Opcional. Se guarda en la hoja Autoevaluacion.</p>
+      <p>Opcional.</p>
     </div>
     <div class="cardBody">
       <label>Comentarios</label>
@@ -508,22 +468,18 @@ async function renderAutoevaluacion(body){
   `;
   body.appendChild(comm);
 
-  // Estado
   const status = document.createElement("div");
   status.className = "status";
   status.id = "saveStatus";
   status.textContent = "Listo.";
   body.appendChild(status);
 
-  // Cargar niveles desde banco
-  let levels = [1];
+  let levels = ["1"];
   try{
     const r = await api("getLevels");
-    levels = r.levels?.length ? r.levels : [1];
+    levels = (r.levels && r.levels.length) ? r.levels : ["1"];
     state.levels = levels;
-  }catch(e){
-    // si el banco no existe aún, dejamos nivel 1
-  }
+  }catch(e){}
 
   const levelSelect = document.getElementById("levelSelect");
   levelSelect.innerHTML = levels.map(l => `<option value="${l}">Nivel ${l}</option>`).join("");
@@ -538,7 +494,7 @@ async function renderAutoevaluacion(body){
       document.getElementById("saveStatus").textContent = `Formulario Nivel ${level} cargado.`;
     }catch(e){
       document.getElementById("questions").innerHTML =
-        `<div class="status">❌ No se pudo cargar el formulario: <strong>${e.message}</strong><div class="hint">Primero ve a “Formularios y pesos” → Cargar.</div></div>`;
+        `<div class="status">❌ No se pudo cargar el formulario: <strong>${e.message}</strong><div class="hint">Ve a “Formularios y pesos” → Cargar.</div></div>`;
     }
   }
 
@@ -546,7 +502,6 @@ async function renderAutoevaluacion(body){
     const host = document.getElementById("questions");
     host.innerHTML = "";
 
-    // Agrupar por factor
     const byFactor = new Map();
     form.questions.forEach(q => {
       if (!byFactor.has(q.factor)) byFactor.set(q.factor, []);
@@ -558,16 +513,16 @@ async function renderAutoevaluacion(body){
     for (const [factor, qs] of byFactor.entries()){
       const f = document.createElement("div");
       f.className = "factor";
-      f.innerHTML = `<h3>${factor}</h3>`;
+      f.innerHTML = `<h3>${escapeHtml(factor)}</h3>`;
       qs.forEach(q => {
         respIndex++;
         const div = document.createElement("div");
         div.className = "q";
         div.innerHTML = `
           <div>
-            <div class="qTitle">${q.item}</div>
+            <div class="qTitle">${escapeHtml(q.item)}</div>
             <div class="qMeta">
-              <span class="badge">Peso: ${q.peso}</span>
+              <span class="badge">Peso: ${escapeHtml(q.peso)}</span>
               <span class="badge">Resp${respIndex}</span>
             </div>
           </div>
@@ -584,35 +539,12 @@ async function renderAutoevaluacion(body){
       host.appendChild(f);
     }
 
-    // si el banco trae menos de MAX_RESP, listo; si trae más, avisamos
     if (form.questions.length > MAX_RESP){
       const warn = document.createElement("div");
       warn.className="status";
-      warn.innerHTML = `⚠️ <strong>Advertencia:</strong> Este nivel tiene ${form.questions.length} ítems, pero la tabulación está configurada para ${MAX_RESP} (Resp1..Resp${MAX_RESP}). Ajusta MAX_RESP en HTML y en Apps Script.`;
+      warn.innerHTML = `⚠️ <strong>Advertencia:</strong> Este nivel tiene ${form.questions.length} ítems, pero MAX_RESP = ${MAX_RESP}. Ajusta ambos (HTML y Apps Script).`;
       host.appendChild(warn);
     }
-  }
-
-  function collectPayload(){
-    const payload = {
-      level: levelSelect.value,
-      noPersonal: document.getElementById("noPersonal").value.trim(),
-      nombre: document.getElementById("nombre").value.trim(),
-      posicion: document.getElementById("posicion").value.trim(),
-      departamento: document.getElementById("depto").value.trim(),
-      periodo: document.getElementById("periodo").value.trim(),
-      version: document.getElementById("version").value.trim(),
-      fecha: document.getElementById("fecha").value.trim(),
-      comentarios: document.getElementById("comentarios").value.trim(),
-      responses: {}
-    };
-
-    const selects = document.querySelectorAll("#questions select[data-resp]");
-    selects.forEach(sel => {
-      payload.responses[sel.dataset.resp] = sel.value; // 1..5
-    });
-
-    return payload;
   }
 
   function clearForm(){
@@ -623,55 +555,53 @@ async function renderAutoevaluacion(body){
     document.getElementById("saveStatus").textContent = "Formulario limpio (Nuevo).";
   }
 
-  // Events
+  function collectParams(){
+    const params = {
+      level: levelSelect.value,
+      noPersonal: document.getElementById("noPersonal").value.trim(),
+      nombre: document.getElementById("nombre").value.trim(),
+      posicion: document.getElementById("posicion").value.trim(),
+      departamento: document.getElementById("depto").value.trim(),
+      periodo: document.getElementById("periodo").value.trim(),
+      version: document.getElementById("version").value.trim(),
+      fecha: document.getElementById("fecha").value.trim(),
+      comentarios: document.getElementById("comentarios").value.trim(),
+    };
+
+    const selects = document.querySelectorAll("#questions select[data-resp]");
+    selects.forEach(sel => { params[sel.dataset.resp] = sel.value || ""; });
+
+    // asegurar r1..rN siempre existan
+    for (let i=1;i<=MAX_RESP;i++){
+      if (!(("r"+i) in params)) params["r"+i] = "";
+    }
+    return params;
+  }
+
   levelSelect.onchange = () => loadForm(levelSelect.value);
-
   document.getElementById("btnNew").onclick = clearForm;
-
   document.getElementById("btnPrint").onclick = () => window.print();
 
   document.getElementById("btnSave").onclick = async () => {
-    const p = collectPayload();
-
-    // Validaciones mínimas (sin ser policías)
+    const p = collectParams();
     if (!p.noPersonal || !p.nombre){
       document.getElementById("saveStatus").innerHTML = `⚠️ <strong>Completa al menos:</strong> No. de personal y Nombre.`;
       return;
     }
-
     document.getElementById("saveStatus").textContent = "Guardando…";
-
-    // Convertimos respuestas a parámetros r1..rN (para URL corta y fácil)
-    const params = {
-      level: p.level,
-      noPersonal: p.noPersonal,
-      nombre: p.nombre,
-      posicion: p.posicion,
-      departamento: p.departamento,
-      periodo: p.periodo,
-      version: p.version,
-      fecha: p.fecha,
-      comentarios: p.comentarios
-    };
-    for (let i=1;i<=MAX_RESP;i++){
-      params["r"+i] = p.responses["r"+i] || "";
-    }
-
     try{
-      const r = await api("saveAutoeval", params);
+      const r = await api("saveAutoeval", p);
       document.getElementById("saveStatus").innerHTML = `✅ <strong>Guardado:</strong> fila #${r.row} en Autoevaluacion.`;
     }catch(e){
       document.getElementById("saveStatus").innerHTML = `❌ <strong>Error al guardar:</strong> ${e.message}`;
     }
   };
 
-  // Carga inicial nivel 1
-  await loadForm(1);
+  await loadForm("1");
 }
 
-// Helpers
 function escapeHtml(str){
-  return String(str || "")
+  return String(str ?? "")
     .replaceAll("&","&amp;").replaceAll("<","&lt;")
     .replaceAll(">","&gt;").replaceAll('"',"&quot;")
     .replaceAll("'","&#039;");
@@ -679,6 +609,5 @@ function escapeHtml(str){
 
 init();
 </script>
-
 </body>
 </html>
