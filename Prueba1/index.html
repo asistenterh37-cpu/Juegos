@@ -142,6 +142,7 @@
       color: var(--muted);
     }
     .status strong{color: var(--text)}
+    .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;}
 
     .factor{
       margin-top: 12px;
@@ -211,13 +212,27 @@
 /** =========================
  * CONFIG
  * ========================= */
-const SCRIPT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbw0zPYMp4dLmK408GRFJbetaeptKWr6gwjv8neI1jHmfuvPA6XUmHA0EDojNZjXrmhr/exec";
 const MAX_RESP = 20;
+
+// 1) URL por defecto (tu deploy). Si da 403, la cambias en la UI.
+const DEFAULT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyuLgOmdKAr33BWxx6KfNU9Z1XReqgpTqrE73uzSaQE8ui5jjssD4afRXDRIJjUOuFu/exec";
+
+// 2) Permite override por querystring: ?webapp=https://script.google.com/macros/s/.../exec
+// 3) O guardado en localStorage con el botón “Configurar WebApp”.
+function getWebAppUrl(){
+  const u = new URL(location.href);
+  const qs = u.searchParams.get("webapp");
+  if (qs && qs.startsWith("https://script.google.com/macros/s/")) return qs;
+  const saved = localStorage.getItem("WEBAPP_URL");
+  if (saved && saved.startsWith("https://script.google.com/macros/s/")) return saved;
+  return DEFAULT_WEBAPP_URL;
+}
+let SCRIPT_WEBAPP_URL = getWebAppUrl();
 
 /** =========================
  * JSONP helper (GitHub Pages friendly)
- * - mejor diagnóstico: timeout vs error de red
- * - cache bust para evitar respuestas cacheadas raras
+ * - timeout vs error de red
+ * - cache bust
  * ========================= */
 function jsonp(url, params = {}) {
   return new Promise((resolve, reject) => {
@@ -229,7 +244,7 @@ function jsonp(url, params = {}) {
 
     const timer = setTimeout(() => {
       cleanup();
-      reject(new Error("Timeout JSONP (¿WebApp privado / sin acceso 'Anyone'?)"));
+      reject(new Error("Timeout JSONP (¿WebApp privado / acceso incorrecto?)"));
     }, 20000);
 
     function cleanup(){
@@ -248,7 +263,7 @@ function jsonp(url, params = {}) {
 /** =========================
  * State
  * ========================= */
-const state = { view: "autoevaluacion", levels: [], form: null };
+const state = { view: "forms", levels: [], form: null };
 
 const menuItems = [
   { id:"forms", label:"Formularios y pesos" },
@@ -290,20 +305,26 @@ function setView(title, desc){
  * API
  * ========================= */
 async function api(action, params={}){
+  // Relee por si el usuario cambió URL
+  SCRIPT_WEBAPP_URL = getWebAppUrl();
   const res = await jsonp(SCRIPT_WEBAPP_URL, { action, ...params });
-  if (!res || !res.ok) throw new Error(res?.error || "Respuesta inválida del servidor");
+  if (!res || res.ok !== true) throw new Error(res?.error || "Respuesta inválida del servidor");
   return res;
 }
 
 async function init(){
   renderMenu();
+  await checkConnection();
+  renderView();
+}
+
+async function checkConnection(){
   try{
     await api("ping");
     setStatus(true, "Apps Script conectado");
   }catch(e){
-    setStatus(false, "Sin conexión a Apps Script (revisa despliegue: acceso 'Anyone')");
+    setStatus(false, "Sin conexión a Apps Script (403 = acceso del deploy).");
   }
-  renderView();
 }
 
 function renderView(){
@@ -331,11 +352,18 @@ async function renderFormsAndWeights(body){
     <div class="status">
       <div><strong>Acciones</strong></div>
       <div class="hint">“Cargar” arma el banco por Nivel. “Limpiar” borra el banco para recargar.</div>
+
       <div class="actions" style="justify-content:flex-start">
         <button class="btn good" id="btnLoad">Cargar</button>
         <button class="btn danger" id="btnClear">Limpiar</button>
+        <button class="btn primary" id="btnCfg">Configurar WebApp</button>
+        <button class="btn" id="btnTest">Probar conexión</button>
       </div>
-      <div class="hint">Tip: revisa que la hoja se llame exactamente <b>Formularios</b> y los headers existan.</div>
+
+      <div class="hint">
+        URL actual: <span class="mono" id="urlNow"></span>
+        <br>Tip: tu hoja debe llamarse exactamente <b>Formularios</b> y tener headers: Nivel, Factor, Item, Pesos, 1..5
+      </div>
     </div>
   `;
 
@@ -346,16 +374,33 @@ async function renderFormsAndWeights(body){
   grid.appendChild(right);
   body.appendChild(grid);
 
+  document.getElementById("urlNow").textContent = getWebAppUrl();
+
   async function refreshInfo(){
     try{
       const info = await api("bankInfo");
       document.getElementById("bankInfo").innerHTML =
-        `<strong>Banco:</strong> ${info.count} ítems en ${info.levels} niveles.<br><span class="hint">Última carga: ${info.lastLoad || "—"}</span>`;
+        `<strong>Banco:</strong> ${info.count} ítems en ${info.levels} niveles.<br><span class="hint">Última carga: ${escapeHtml(info.lastLoad || "—")}</span>`;
     }catch(e){
       document.getElementById("bankInfo").innerHTML =
-        `<strong>Banco:</strong> no disponible.<br><span class="hint">${escapeHtml(e.message)}</span>`;
+        `<strong>Banco:</strong> no disponible.<br><span class="hint">❌ ${escapeHtml(e.message)}</span>`;
     }
   }
+
+  document.getElementById("btnCfg").onclick = async () => {
+    const cur = getWebAppUrl();
+    const next = prompt("Pega aquí la URL /exec del WebApp (Apps Script):", cur);
+    if (!next) return;
+    localStorage.setItem("WEBAPP_URL", next.trim());
+    document.getElementById("urlNow").textContent = getWebAppUrl();
+    await checkConnection();
+    await refreshInfo();
+  };
+
+  document.getElementById("btnTest").onclick = async () => {
+    await checkConnection();
+    await refreshInfo();
+  };
 
   document.getElementById("btnLoad").onclick = async () => {
     const s = document.createElement("div");
@@ -398,7 +443,7 @@ async function renderAutoevaluacion(body){
   left.innerHTML = `
     <label>Formulario (Nivel)</label>
     <select id="levelSelect"><option value="1">Nivel 1</option></select>
-    <div class="hint">Por defecto se muestra Nivel 1.</div>
+    <div class="hint">Si no ves niveles, primero ve a “Formularios y pesos” → <b>Cargar</b>.</div>
   `;
 
   const right = document.createElement("div");
@@ -486,8 +531,7 @@ async function renderAutoevaluacion(body){
 
   const levelSelect = document.getElementById("levelSelect");
   levelSelect.innerHTML = levels.map(l => `<option value="${escapeHtml(l)}">Nivel ${escapeHtml(l)}</option>`).join("");
-  if (!levels.includes("1")) levelSelect.value = levels[0];
-  else levelSelect.value = "1";
+  levelSelect.value = levels.includes("1") ? "1" : levels[0];
 
   async function loadForm(level){
     document.getElementById("questions").innerHTML = `<div class="status">Cargando formulario Nivel ${escapeHtml(level)}…</div>`;
@@ -551,7 +595,7 @@ async function renderAutoevaluacion(body){
     if (form.questions.length > MAX_RESP){
       const warn = document.createElement("div");
       warn.className="status";
-      warn.innerHTML = `⚠️ <strong>Advertencia:</strong> Este nivel tiene ${form.questions.length} ítems, pero MAX_RESP = ${MAX_RESP}. Ajusta ambos (HTML y Apps Script).`;
+      warn.innerHTML = `⚠️ <strong>Advertencia:</strong> Este nivel tiene ${form.questions.length} ítems, pero MAX_RESP = ${MAX_RESP}. Sube MAX_RESP en HTML y Apps Script o reduce ítems.`;
       host.appendChild(warn);
     }
   }
@@ -581,6 +625,7 @@ async function renderAutoevaluacion(body){
     const selects = document.querySelectorAll("#questions select[data-resp]");
     selects.forEach(sel => { params[sel.dataset.resp] = sel.value || ""; });
 
+    // Rellena faltantes hasta MAX_RESP (si el nivel tiene menos ítems)
     for (let i=1;i<=MAX_RESP;i++){
       if (!(("r"+i) in params)) params["r"+i] = "";
     }
