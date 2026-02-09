@@ -215,23 +215,37 @@
 const MAX_RESP = 20;
 
 // URL por defecto (tu deploy)
-const DEFAULT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxWjumEw-NovlJI-Gt0labcLUcSjNfnTMSKOxjn5AYb9RFhOLK_KH6Qh6jJz4eqwzzr/exec";
+const DEFAULT_WEBAPP_URL =
+  "https://script.google.com/macros/s/AKfycbwIzScQY1SRk28ks5V0I97rp2LYDfm0DS7KJYJ2mF_RgVn_DlL12C9KtPmIA00e21Cm/exec";
 
-/** Normaliza URL: fuerza /exec, recorta y valida dominio */
+/** Normaliza URL: acepta /exec o /dev (pero recomienda /exec) */
 function normalizeWebAppUrl(raw){
   const s = String(raw || "").trim();
   if (!s) return "";
-  if (!s.startsWith("https://script.google.com/macros/s/")) return "";
-  // quita query/hash para guardar limpio
-  const u = new URL(s);
+
+  // aceptamos tanto script.google.com como script.googleusercontent.com (a veces la gente pega esa)
+  if (!/^https:\/\/script\.google\.(com|usercontent\.com)\/macros\/s\//.test(s)) return "";
+
+  let u;
+  try { u = new URL(s); } catch { return ""; }
+
+  // limpia query/hash
   u.search = "";
   u.hash = "";
-  // fuerza /exec
-  if (!u.pathname.endsWith("/exec")) {
-    u.pathname = u.pathname.replace(/\/dev$/,"");
-    if (!u.pathname.endsWith("/exec")) u.pathname = u.pathname.replace(/\/+$/,"") + "/exec";
+
+  // fuerza a terminar en /exec o /dev (preferimos exec)
+  const isDev = u.pathname.endsWith("/dev");
+  const isExec = u.pathname.endsWith("/exec");
+
+  if (!isDev && !isExec){
+    // por defecto: /exec
+    u.pathname = u.pathname.replace(/\/+$/,"") + "/exec";
   }
   return u.toString();
+}
+
+function isDevUrl(url){
+  try { return new URL(url).pathname.endsWith("/dev"); } catch { return false; }
 }
 
 // override por querystring: ?webapp=https://script.google.com/macros/s/.../exec
@@ -258,25 +272,28 @@ function jsonp(url, params = {}) {
     const cb = "cb_" + Math.random().toString(36).slice(2);
     const script = document.createElement("script");
     const qs = new URLSearchParams({ ...params, callback: cb, _ts: Date.now() });
+
     script.src = url + (url.includes("?") ? "&" : "?") + qs.toString();
     script.async = true;
     script.referrerPolicy = "no-referrer";
 
     const timer = setTimeout(() => {
       cleanup();
-      reject(new Error("Timeout JSONP. Si tu WebApp es privada o no es 'Anyone', no responderá."));
+      reject(new Error("Timeout JSONP. Revisa si el WebApp está publicado como 'Anyone' y que sea /exec."));
     }, 25000);
 
     function cleanup(){
       clearTimeout(timer);
-      try{ delete window[cb]; }catch(_){}
-      script.remove();
+      try { delete window[cb]; } catch {}
+      try { script.remove(); } catch {}
     }
 
     window[cb] = (data) => { cleanup(); resolve(data); };
     script.onerror = () => {
       cleanup();
-      reject(new Error("Error cargando JSONP. Casi seguro: 403 (WebApp privada) o URL mala."));
+      reject(new Error(
+        "Error cargando JSONP. Casi seguro: 403 (WebApp privada / permisos) o URL inválida."
+      ));
     };
 
     document.body.appendChild(script);
@@ -284,7 +301,7 @@ function jsonp(url, params = {}) {
 }
 
 /** =========================
- * State
+ * UI helpers
  * ========================= */
 const state = { view: "forms", levels: [], form: null };
 
@@ -324,14 +341,33 @@ function setView(title, desc){
   document.getElementById("viewDesc").textContent = desc;
 }
 
+function escapeHtml(str){
+  return String(str ?? "")
+    .replaceAll("&","&amp;").replaceAll("<","&lt;")
+    .replaceAll(">","&gt;").replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
 /** =========================
  * API
  * ========================= */
 async function api(action, params={}){
   SCRIPT_WEBAPP_URL = getWebAppUrl();
   if (!SCRIPT_WEBAPP_URL) throw new Error("No hay WebApp URL válida. Usa “Configurar WebApp”.");
+
+  // Aviso si te pegaron /dev
+  if (isDevUrl(SCRIPT_WEBAPP_URL) && action !== "ping"){
+    // no bloquea, solo avisa; /dev a veces funciona solo para ti, pero para GitHub Pages suele ser dolor
+    setStatus(false, "URL parece /dev. Publica /exec para acceso correcto (deploy).");
+  }
+
   const res = await jsonp(SCRIPT_WEBAPP_URL, { action, ...params });
-  if (!res || res.ok !== true) throw new Error(res?.error || "Respuesta inválida del servidor");
+
+  // validación fuerte: ok debe venir true
+  if (!res || res.ok !== true) {
+    const msg = (res && res.error) ? res.error : "Respuesta inválida del servidor";
+    throw new Error(msg);
+  }
   return res;
 }
 
@@ -342,14 +378,24 @@ async function init(){
 }
 
 async function checkConnection(){
+  const url = getWebAppUrl();
+  if (!url){
+    setStatus(false, "Sin WebApp URL. Usa “Configurar WebApp”.");
+    return;
+  }
   try{
-    await api("ping");
-    setStatus(true, "Apps Script conectado");
+    const r = await api("ping");
+    const note = isDevUrl(url) ? " (pero es /dev… ojo 😅)" : "";
+    setStatus(true, `Apps Script conectado${note} — ${r.ts || ""}`.trim());
   }catch(e){
-    setStatus(false, "Sin conexión a Apps Script (403 = WebApp privada / deploy).");
+    // Mensaje más útil para el 403
+    setStatus(false, "Sin conexión (si ves 403: el WebApp está privado o no está publicado como 'Anyone').");
   }
 }
 
+/** =========================
+ * Views
+ * ========================= */
 function renderView(){
   const body = document.getElementById("viewBody");
   body.innerHTML = "";
@@ -386,6 +432,7 @@ async function renderFormsAndWeights(body){
 
       <div class="hint">
         URL actual: <span class="mono" id="urlNow"></span>
+        <div id="urlHint" class="hint"></div>
         <br>Tip: tu hoja debe llamarse exactamente <b>Formularios</b> y tener headers: Nivel, Factor, Item, Pesos, 1..5
       </div>
     </div>
@@ -398,7 +445,15 @@ async function renderFormsAndWeights(body){
   grid.appendChild(right);
   body.appendChild(grid);
 
-  document.getElementById("urlNow").textContent = getWebAppUrl() || "—";
+  const urlNow = getWebAppUrl() || "—";
+  document.getElementById("urlNow").textContent = urlNow;
+
+  const urlHint = document.getElementById("urlHint");
+  if (urlNow !== "—" && isDevUrl(urlNow)){
+    urlHint.innerHTML = `⚠️ Estás usando <b>/dev</b>. Para GitHub Pages lo correcto es <b>/exec</b> (deploy público).`;
+  } else {
+    urlHint.innerHTML = "";
+  }
 
   async function refreshInfo(){
     try{
@@ -418,7 +473,7 @@ async function renderFormsAndWeights(body){
 
     const norm = normalizeWebAppUrl(next);
     if (!norm){
-      alert("Esa URL no parece un WebApp válido. Debe empezar con https://script.google.com/macros/s/ y terminar en /exec");
+      alert("Esa URL no parece un WebApp válido. Debe empezar con https://script.google.com/macros/s/ y terminar en /exec (o /dev).");
       return;
     }
     localStorage.setItem("WEBAPP_URL", norm);
@@ -579,7 +634,9 @@ async function renderAutoevaluacion(body){
       document.getElementById("saveStatus").textContent = `Formulario Nivel ${level} cargado.`;
     }catch(e){
       document.getElementById("questions").innerHTML =
-        `<div class="status">❌ No se pudo cargar el formulario: <strong>${escapeHtml(e.message)}</strong><div class="hint">Ve a “Formularios y pesos” → Cargar.</div></div>`;
+        `<div class="status">❌ No se pudo cargar el formulario: <strong>${escapeHtml(e.message)}</strong>
+          <div class="hint">Si ves 403, el WebApp está privado. Si ves “Banco no cargado”, ve a “Formularios y pesos” → Cargar.</div>
+        </div>`;
     }
   }
 
@@ -688,13 +745,6 @@ async function renderAutoevaluacion(body){
   };
 
   await loadForm(levelSelect.value);
-}
-
-function escapeHtml(str){
-  return String(str ?? "")
-    .replaceAll("&","&amp;").replaceAll("<","&lt;")
-    .replaceAll(">","&gt;").replaceAll('"',"&quot;")
-    .replaceAll("'","&#039;");
 }
 
 init();
