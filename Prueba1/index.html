@@ -211,22 +211,25 @@
 /** =========================
  * CONFIG
  * ========================= */
-const SCRIPT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzlB8GoMNRFJupXr1nnh9So2nGqnCg-bGzp8GJXMxcxPh-4xRLjsoXtnWw-vjELKoj4/exec";
+const SCRIPT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbw0zPYMp4dLmK408GRFJbetaeptKWr6gwjv8neI1jHmfuvPA6XUmHA0EDojNZjXrmhr/exec";
 const MAX_RESP = 20;
 
 /** =========================
  * JSONP helper (GitHub Pages friendly)
+ * - mejor diagnóstico: timeout vs error de red
+ * - cache bust para evitar respuestas cacheadas raras
  * ========================= */
 function jsonp(url, params = {}) {
   return new Promise((resolve, reject) => {
     const cb = "cb_" + Math.random().toString(36).slice(2);
     const script = document.createElement("script");
-    const qs = new URLSearchParams({ ...params, callback: cb });
+    const qs = new URLSearchParams({ ...params, callback: cb, _ts: Date.now() });
     script.src = url + (url.includes("?") ? "&" : "?") + qs.toString();
+    script.async = true;
 
     const timer = setTimeout(() => {
       cleanup();
-      reject(new Error("Timeout JSONP"));
+      reject(new Error("Timeout JSONP (¿WebApp privado / sin acceso 'Anyone'?)"));
     }, 20000);
 
     function cleanup(){
@@ -236,7 +239,7 @@ function jsonp(url, params = {}) {
     }
 
     window[cb] = (data) => { cleanup(); resolve(data); };
-    script.onerror = () => { cleanup(); reject(new Error("Error cargando JSONP")); };
+    script.onerror = () => { cleanup(); reject(new Error("Error cargando JSONP (URL inválida / 403 / deploy roto)")); };
 
     document.body.appendChild(script);
   });
@@ -298,7 +301,7 @@ async function init(){
     await api("ping");
     setStatus(true, "Apps Script conectado");
   }catch(e){
-    setStatus(false, "Sin conexión a Apps Script (revisa URL / despliegue)");
+    setStatus(false, "Sin conexión a Apps Script (revisa despliegue: acceso 'Anyone')");
   }
   renderView();
 }
@@ -350,7 +353,7 @@ async function renderFormsAndWeights(body){
         `<strong>Banco:</strong> ${info.count} ítems en ${info.levels} niveles.<br><span class="hint">Última carga: ${info.lastLoad || "—"}</span>`;
     }catch(e){
       document.getElementById("bankInfo").innerHTML =
-        `<strong>Banco:</strong> no disponible.<br><span class="hint">${e.message}</span>`;
+        `<strong>Banco:</strong> no disponible.<br><span class="hint">${escapeHtml(e.message)}</span>`;
     }
   }
 
@@ -364,7 +367,7 @@ async function renderFormsAndWeights(body){
       s.innerHTML = `✅ <strong>Carga completada:</strong> ${r.count} ítems en ${r.levels} niveles.`;
       await refreshInfo();
     }catch(e){
-      s.innerHTML = `❌ <strong>Error:</strong> ${e.message}`;
+      s.innerHTML = `❌ <strong>Error:</strong> ${escapeHtml(e.message)}`;
     }
   };
 
@@ -378,7 +381,7 @@ async function renderFormsAndWeights(body){
       s.innerHTML = `✅ <strong>Banco limpiado.</strong>`;
       await refreshInfo();
     }catch(e){
-      s.innerHTML = `❌ <strong>Error:</strong> ${e.message}`;
+      s.innerHTML = `❌ <strong>Error:</strong> ${escapeHtml(e.message)}`;
     }
   };
 
@@ -479,14 +482,15 @@ async function renderAutoevaluacion(body){
     const r = await api("getLevels");
     levels = (r.levels && r.levels.length) ? r.levels : ["1"];
     state.levels = levels;
-  }catch(e){}
+  }catch(_){}
 
   const levelSelect = document.getElementById("levelSelect");
-  levelSelect.innerHTML = levels.map(l => `<option value="${l}">Nivel ${l}</option>`).join("");
-  levelSelect.value = "1";
+  levelSelect.innerHTML = levels.map(l => `<option value="${escapeHtml(l)}">Nivel ${escapeHtml(l)}</option>`).join("");
+  if (!levels.includes("1")) levelSelect.value = levels[0];
+  else levelSelect.value = "1";
 
   async function loadForm(level){
-    document.getElementById("questions").innerHTML = `<div class="status">Cargando formulario Nivel ${level}…</div>`;
+    document.getElementById("questions").innerHTML = `<div class="status">Cargando formulario Nivel ${escapeHtml(level)}…</div>`;
     try{
       const r = await api("getForm", { level });
       state.form = r.form;
@@ -494,18 +498,23 @@ async function renderAutoevaluacion(body){
       document.getElementById("saveStatus").textContent = `Formulario Nivel ${level} cargado.`;
     }catch(e){
       document.getElementById("questions").innerHTML =
-        `<div class="status">❌ No se pudo cargar el formulario: <strong>${e.message}</strong><div class="hint">Ve a “Formularios y pesos” → Cargar.</div></div>`;
+        `<div class="status">❌ No se pudo cargar el formulario: <strong>${escapeHtml(e.message)}</strong><div class="hint">Ve a “Formularios y pesos” → Cargar.</div></div>`;
     }
   }
 
   function renderQuestions(form){
     const host = document.getElementById("questions");
     host.innerHTML = "";
+    if (!form || !Array.isArray(form.questions) || !form.questions.length){
+      host.innerHTML = `<div class="status">No hay preguntas para este nivel.</div>`;
+      return;
+    }
 
     const byFactor = new Map();
     form.questions.forEach(q => {
-      if (!byFactor.has(q.factor)) byFactor.set(q.factor, []);
-      byFactor.get(q.factor).push(q);
+      const f = String(q.factor || "Sin factor");
+      if (!byFactor.has(f)) byFactor.set(f, []);
+      byFactor.get(f).push(q);
     });
 
     let respIndex = 0;
@@ -530,7 +539,7 @@ async function renderAutoevaluacion(body){
             <label>Puntuación (1–5)</label>
             <select data-resp="r${respIndex}">
               <option value="">Seleccionar…</option>
-              ${q.scale.map(s => `<option value="${s.value}">${s.value} — ${escapeHtml(s.label)}</option>`).join("")}
+              ${(q.scale || []).map(s => `<option value="${escapeHtml(s.value)}">${escapeHtml(s.value)} — ${escapeHtml(s.label)}</option>`).join("")}
             </select>
           </div>
         `;
@@ -549,7 +558,8 @@ async function renderAutoevaluacion(body){
 
   function clearForm(){
     ["noPersonal","nombre","posicion","depto","periodo","version","comentarios"].forEach(id => {
-      document.getElementById(id).value = "";
+      const el = document.getElementById(id);
+      if (el) el.value = "";
     });
     document.querySelectorAll("#questions select[data-resp]").forEach(s => s.value = "");
     document.getElementById("saveStatus").textContent = "Formulario limpio (Nuevo).";
@@ -571,7 +581,6 @@ async function renderAutoevaluacion(body){
     const selects = document.querySelectorAll("#questions select[data-resp]");
     selects.forEach(sel => { params[sel.dataset.resp] = sel.value || ""; });
 
-    // asegurar r1..rN siempre existan
     for (let i=1;i<=MAX_RESP;i++){
       if (!(("r"+i) in params)) params["r"+i] = "";
     }
@@ -593,11 +602,11 @@ async function renderAutoevaluacion(body){
       const r = await api("saveAutoeval", p);
       document.getElementById("saveStatus").innerHTML = `✅ <strong>Guardado:</strong> fila #${r.row} en Autoevaluacion.`;
     }catch(e){
-      document.getElementById("saveStatus").innerHTML = `❌ <strong>Error al guardar:</strong> ${e.message}`;
+      document.getElementById("saveStatus").innerHTML = `❌ <strong>Error al guardar:</strong> ${escapeHtml(e.message)}`;
     }
   };
 
-  await loadForm("1");
+  await loadForm(levelSelect.value);
 }
 
 function escapeHtml(str){
