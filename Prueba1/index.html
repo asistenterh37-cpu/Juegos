@@ -6,660 +6,681 @@
   <title>Evaluación del desempeño</title>
   <style>
     :root{
-      --bg:#070b14;
-      --panel: rgba(15,23,42,.72);
-      --panel2: rgba(2,6,23,.55);
-      --stroke: rgba(148,163,184,.22);
-      --text:#e5e7eb;
-      --muted:#9ca3af;
-      --brand:#3b82f6;
-      --brand2:#22c55e;
-      --warn:#f59e0b;
-      --danger:#ef4444;
-      --shadow: 0 20px 60px rgba(0,0,0,.55);
-      --radius: 16px;
-      --radius2: 12px;
-      --maxw: 980px;
+      --bg:#0b1220; --panel:#0f1b33; --panel2:#0b162d;
+      --txt:#e8eefc; --muted:#9fb0d0;
+      --line:rgba(255,255,255,.08);
+      --brand:#3b82f6; --brand2:#60a5fa;
+      --ok:#22c55e; --warn:#f59e0b;
+      --shadow: 0 18px 40px rgba(0,0,0,.45);
+      --radius:14px;
     }
     *{box-sizing:border-box}
     body{
-      margin:0;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      margin:0; font-family: ui-sans-serif, system-ui, Segoe UI, Roboto, Arial;
       background:
-        radial-gradient(1200px 600px at 15% 10%, rgba(59,130,246,.28), transparent 60%),
-        radial-gradient(900px 500px at 80% 30%, rgba(34,197,94,.18), transparent 55%),
-        radial-gradient(1200px 600px at 50% 120%, rgba(245,158,11,.14), transparent 60%),
+        radial-gradient(900px 500px at 20% 10%, rgba(59,130,246,.25), transparent 55%),
+        radial-gradient(900px 500px at 80% 20%, rgba(96,165,250,.20), transparent 55%),
+        radial-gradient(900px 600px at 50% 90%, rgba(34,197,94,.12), transparent 60%),
         var(--bg);
-      color:var(--text);
-      min-height:100vh;
+      color:var(--txt);
     }
-    .wrap{max-width:var(--maxw); margin:24px auto; padding:0 16px;}
+    .wrap{max-width:980px; margin:22px auto; padding:0 16px;}
     .topbar{
-      position:sticky; top:0; z-index:10;
-      backdrop-filter: blur(10px);
-      background: linear-gradient(180deg, rgba(7,11,20,.92), rgba(7,11,20,.55));
-      border: 1px solid var(--stroke);
-      border-radius: var(--radius);
+      position:sticky; top:10px; z-index:10;
+      display:flex; gap:10px; align-items:center; justify-content:space-between;
+      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid var(--line);
+      border-radius:999px;
+      padding:10px 12px;
       box-shadow: var(--shadow);
-      padding: 14px 14px;
+      backdrop-filter: blur(10px);
     }
-    .row{display:flex; gap:12px; flex-wrap:wrap; align-items:center;}
-    .title{
-      display:flex; align-items:center; gap:10px; font-weight:700;
-      letter-spacing:.2px;
-    }
+    .brand{display:flex; align-items:center; gap:10px;}
     .pill{
       display:inline-flex; align-items:center; gap:8px;
-      padding:6px 10px; border:1px solid var(--stroke);
-      background: rgba(2,6,23,.35);
-      border-radius:999px;
-      color:var(--muted);
-      font-size:12px;
+      padding:6px 10px; border-radius:999px;
+      background:rgba(59,130,246,.14);
+      border:1px solid rgba(59,130,246,.25);
+      color:var(--txt); font-size:12px;
     }
-    .dot{width:8px; height:8px; border-radius:50%; background:var(--brand2); box-shadow:0 0 0 3px rgba(34,197,94,.12)}
-    .spacer{flex:1}
-    select,input,textarea,button{
-      font: inherit;
-    }
-    .control{
-      display:flex; flex-direction:column; gap:6px;
-      min-width: 240px;
-    }
-    label{font-size:12px; color:var(--muted)}
-    select,input{
-      width:100%;
-      padding:10px 12px;
-      border-radius: 12px;
-      border:1px solid rgba(148,163,184,.28);
-      background: rgba(2,6,23,.42);
-      color: var(--text);
-      outline:none;
-    }
-    textarea{
-      width:100%;
-      min-height:88px;
-      padding:10px 12px;
-      border-radius: 12px;
-      border:1px solid rgba(148,163,184,.28);
-      background: rgba(2,6,23,.42);
-      color: var(--text);
-      outline:none;
-      resize: vertical;
-    }
-    .btn{
-      border:1px solid rgba(148,163,184,.25);
-      background: rgba(15,23,42,.55);
-      color: var(--text);
-      padding:10px 12px;
-      border-radius: 999px;
+    .dot{width:9px;height:9px;border-radius:999px;background:var(--ok); box-shadow:0 0 0 3px rgba(34,197,94,.15)}
+    .dot.warn{background:var(--warn); box-shadow:0 0 0 3px rgba(245,158,11,.15)}
+    .title{font-weight:700; font-size:13px; letter-spacing:.2px}
+    .sub{font-size:12px; color:var(--muted)}
+    .actions{display:flex; gap:8px; align-items:center;}
+    button{
       cursor:pointer;
-      transition: transform .05s ease, background .2s ease;
-      white-space:nowrap;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.05);
+      color:var(--txt);
+      padding:8px 10px;
+      border-radius:999px;
+      font-weight:600;
     }
-    .btn:hover{background: rgba(15,23,42,.72)}
-    .btn:active{transform: translateY(1px)}
-    .btn.primary{background: rgba(59,130,246,.25); border-color: rgba(59,130,246,.45)}
-    .btn.good{background: rgba(34,197,94,.18); border-color: rgba(34,197,94,.35)}
-    .btn.warn{background: rgba(245,158,11,.16); border-color: rgba(245,158,11,.35)}
-    .btn.danger{background: rgba(239,68,68,.14); border-color: rgba(239,68,68,.35)}
-    .panel{
+    button.primary{
+      border-color: rgba(59,130,246,.35);
+      background: linear-gradient(180deg, rgba(59,130,246,.45), rgba(59,130,246,.25));
+    }
+    button.ghost{background:transparent}
+    button:disabled{opacity:.5; cursor:not-allowed}
+    .card{
       margin-top:14px;
-      border:1px solid var(--stroke);
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid var(--line);
       border-radius: var(--radius);
-      background: linear-gradient(180deg, var(--panel), var(--panel2));
       box-shadow: var(--shadow);
       overflow:hidden;
     }
-    .panel-h{
-      padding:14px 16px;
-      border-bottom:1px solid var(--stroke);
-      display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+    .card .hd{
+      padding:12px 14px;
+      border-bottom:1px solid var(--line);
+      display:flex; justify-content:space-between; gap:12px; align-items:center;
     }
-    .panel-h h2{margin:0; font-size:14px; letter-spacing:.2px}
-    .panel-b{padding:14px 16px;}
-    .grid2{display:grid; grid-template-columns: 1fr 1fr; gap:12px}
-    @media (max-width: 840px){ .grid2{grid-template-columns:1fr} .control{min-width: 200px;} }
-    .muted{color:var(--muted); font-size:12px}
-    .section{
-      border:1px dashed rgba(148,163,184,.22);
-      border-radius: 14px;
-      padding:12px 12px;
-      margin-top:12px;
-      background: rgba(2,6,23,.25);
+    .card .hd h3{margin:0; font-size:13px}
+    .card .bd{padding:12px 14px}
+    label{display:block; font-size:12px; color:var(--muted); margin:0 0 6px}
+    input, select, textarea{
+      width:100%;
+      background: rgba(11,18,32,.55);
+      border:1px solid rgba(96,165,250,.35);
+      color:var(--txt);
+      padding:9px 10px;
+      border-radius:10px;
+      outline:none;
     }
-    .factor-title{
-      display:flex; align-items:center; justify-content:space-between;
-      gap:10px;
-      margin:0 0 10px 0;
-      font-size:13px;
-    }
-    .item{
+    textarea{min-height:90px; resize:vertical}
+    .grid{display:grid; gap:10px}
+    .g2{grid-template-columns: repeat(2, minmax(0,1fr))}
+    .g3{grid-template-columns: repeat(3, minmax(0,1fr))}
+    .g4{grid-template-columns: repeat(4, minmax(0,1fr))}
+    .row{
       display:grid;
-      grid-template-columns: 1fr 260px;
+      grid-template-columns: 1fr 240px;
       gap:12px;
-      padding:10px 10px;
-      border:1px solid rgba(148,163,184,.14);
-      border-radius: 14px;
-      background: rgba(2,6,23,.22);
-      margin-bottom:10px;
+      padding:10px 0;
+      border-top:1px dashed rgba(255,255,255,.08);
     }
-    .item:last-child{margin-bottom:0}
-    .item .ititle{margin:0; font-size:13px; font-weight:650}
-    .item .isub{margin:4px 0 0 0; color:var(--muted); font-size:12px}
-    .right label{display:block; margin-bottom:6px}
-    .statusline{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
-    .badge{font-size:12px; padding:6px 10px; border-radius:999px; border:1px solid var(--stroke); background: rgba(2,6,23,.35); color: var(--muted)}
-    .hr{height:1px; background: var(--stroke); margin:10px 0}
-
-    /* impresión */
+    .row:first-child{border-top:none}
+    .row .it{
+      font-size:13px;
+      color:var(--txt);
+      line-height:1.35;
+    }
+    .row small{display:block; margin-top:5px; color:var(--muted); font-size:11px}
+    .factor{
+      margin-top:12px;
+      padding:10px 12px;
+      background: rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius: 12px;
+    }
+    .factor h4{margin:0 0 6px; font-size:13px}
+    .hidden{display:none}
+    .toast{
+      position:fixed; right:16px; bottom:16px;
+      background: rgba(15,27,51,.92);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius: 12px;
+      padding:10px 12px;
+      box-shadow: var(--shadow);
+      max-width:360px;
+      display:none;
+    }
+    .toast.show{display:block}
+    .muted{color:var(--muted); font-size:12px}
+    .table{
+      width:100%; border-collapse: collapse; font-size:12px;
+    }
+    .table th,.table td{
+      border-bottom:1px solid rgba(255,255,255,.08);
+      padding:8px 6px; vertical-align:top;
+    }
+    .table th{color:var(--muted); text-align:left; font-weight:700}
     @media print{
+      .topbar, .no-print {display:none !important}
       body{background:white; color:black}
-      .topbar, .btn, .badge, .pill{display:none !important}
-      .panel{box-shadow:none; border-color:#ddd; background:white}
-      select, input, textarea{border:1px solid #bbb; background:white; color:black}
-      .item{page-break-inside: avoid}
+      .card{box-shadow:none; border-color:#ddd}
+      input, select, textarea{border-color:#aaa; color:#000; background:#fff}
     }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <div class="topbar">
-      <div class="row">
-        <div class="title">
-          <span class="pill"><span class="dot"></span> Proceso de evaluación del desempeño</span>
-          <span class="pill" id="envPill">Empresa: <b style="color:var(--text); font-weight:650">No implementado</b></span>
-          <span class="pill" id="verPill">Versión: <b style="color:var(--text); font-weight:650">Prueba</b></span>
+    <div class="topbar no-print">
+      <div class="brand">
+        <div class="pill"><span class="dot" id="apiDot"></span><span id="apiLabel">API</span></div>
+        <div>
+          <div class="title">Proceso de evaluación del desempeño</div>
+          <div class="sub" id="subLabel">Empresa: No implementado · Versión: Prueba</div>
         </div>
-        <div class="spacer"></div>
-
-        <div class="control" style="min-width: 360px;">
-          <label for="phaseSel">Fase</label>
-          <select id="phaseSel">
-            <option>Formularios</option>
-            <option>Pesos</option>
-            <option selected>Formulario de autoevaluación</option>
-            <option>Formulario de evaluación de clientes</option>
-            <option>Formulario de evaluación del desempeño</option>
-            <option>Resultados evaluación del desempeño</option>
-            <option>Informe consolidado</option>
-            <option>Informe de necesidades de capacitación</option>
-            <option>Informe de plan de desarrollo</option>
-          </select>
-        </div>
-
-        <button class="btn warn" id="btnNew">Nuevo</button>
-        <button class="btn good" id="btnSave">Guardar</button>
-        <button class="btn" id="btnPrint">Imprimir / Enviar a PDF</button>
       </div>
-
-      <div class="statusline" style="margin-top:10px;">
-        <span class="badge" id="apiStatus">API: sin configurar</span>
-        <span class="badge" id="formsStatus">Formularios: —</span>
-        <span class="badge" id="weightsStatus">Pesos: —</span>
+      <div class="actions">
+        <button class="ghost" id="btnNuevo">Nuevo</button>
+        <button class="primary" id="btnGuardar">Guardar</button>
+        <button class="ghost" id="btnPrint">Imprimir / Enviar PDF</button>
       </div>
     </div>
 
-    <div class="panel" id="panelMain">
-      <div class="panel-h">
-        <h2 id="panelTitle">Formulario de autoevaluación</h2>
-        <span class="muted" id="panelHint">Por defecto: Nivel 1</span>
+    <!-- Selector de fase -->
+    <div class="card">
+      <div class="hd">
+        <h3>Formulario</h3>
+        <div class="muted">Selecciona la fase del proceso de evaluación del desempeño</div>
       </div>
-      <div class="panel-b" id="panelBody">
-        <!-- Aquí se renderiza la vista -->
+      <div class="bd">
+        <div class="grid g2">
+          <div>
+            <label>Fase</label>
+            <select id="faseSel"></select>
+            <div class="muted" style="margin-top:6px">La guardada siempre se tabula en Google Sheets.</div>
+          </div>
+          <div>
+            <label>URL API (Apps Script Web App)</label>
+            <input id="apiUrlView" disabled />
+            <div class="muted" style="margin-top:6px">Tip: desplegá el Web App como “Cualquiera” para pruebas.</div>
+          </div>
+        </div>
       </div>
     </div>
+
+    <!-- Sección: Formularios -->
+    <div class="card hidden" id="secFormularios">
+      <div class="hd">
+        <h3>Formularios</h3>
+        <div class="muted">Ítems por nivel (desde configuración)</div>
+      </div>
+      <div class="bd">
+        <div class="grid g2">
+          <div>
+            <label>Nivel</label>
+            <select id="formNivelSel"></select>
+          </div>
+          <div class="muted" style="align-self:end">Vista informativa (para edición, lo ideal es mover esto luego a un “admin”).</div>
+        </div>
+        <div style="margin-top:10px; overflow:auto">
+          <table class="table" id="formTable"></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección: Pesos -->
+    <div class="card hidden" id="secPesos">
+      <div class="hd">
+        <h3>Pesos</h3>
+        <div class="muted">Mismo orden que los ítems de Formularios · incluye Limpiar</div>
+      </div>
+      <div class="bd">
+        <div class="grid g2">
+          <div>
+            <label>Nivel</label>
+            <select id="pesoNivelSel"></select>
+          </div>
+          <div style="display:flex; gap:8px; justify-content:flex-end; align-items:end" class="no-print">
+            <button id="btnPesosLimpiar" class="ghost">Limpiar</button>
+            <button id="btnPesosGuardar" class="primary">Guardar pesos</button>
+          </div>
+        </div>
+        <div style="margin-top:10px; overflow:auto">
+          <table class="table" id="pesoTable"></table>
+        </div>
+        <div class="muted" style="margin-top:8px">Sugerencia: usa pesos 1–5 o porcentajes (lo estandarizamos después).</div>
+      </div>
+    </div>
+
+    <!-- Sección: Autoevaluación -->
+    <div class="card" id="secAuto">
+      <div class="hd">
+        <h3>Formulario de autoevaluación</h3>
+        <div class="muted">Por defecto: nivel 1</div>
+      </div>
+      <div class="bd">
+        <div class="grid g2">
+          <div>
+            <label>Nivel</label>
+            <select id="autoNivelSel"></select>
+          </div>
+          <div class="muted" style="align-self:end">Escala 1–5 dentro de cada selector.</div>
+        </div>
+
+        <div style="height:10px"></div>
+
+        <div class="card" style="box-shadow:none; margin:0; background:rgba(0,0,0,.12)">
+          <div class="hd">
+            <h3>Datos del colaborador</h3>
+            <div class="muted">Completa esta información y selecciona una opción (1–5) por ítem</div>
+          </div>
+          <div class="bd">
+            <div class="grid g4">
+              <div><label>No. de personal</label><input id="noPersonal" placeholder="Ej. 1800" /></div>
+              <div><label>Nombre</label><input id="nombre" placeholder="Ej. Carlos Paz" /></div>
+              <div><label>Posición</label><input id="posicion" placeholder="Ej. Analista" /></div>
+              <div><label>Departamento</label><input id="depto" placeholder="Ej. Contabilidad" /></div>
+            </div>
+            <div class="grid g4" style="margin-top:10px">
+              <div><label>Periodo</label><input id="periodo" placeholder="Ej. 2026" /></div>
+              <div><label>Versión</label><input id="version" placeholder="Ej. 1" /></div>
+              <div><label>Fecha</label><input id="fecha" /></div>
+              <div><label>&nbsp;</label><div class="muted">Fecha calculada automáticamente (hoy).</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div id="autoFormHost"></div>
+
+        <div class="card" style="box-shadow:none; margin-top:12px; background:rgba(0,0,0,.12)">
+          <div class="hd">
+            <h3>Comentarios del colaborador</h3>
+            <div class="muted">Incluye observaciones, ejemplos, mejoras o apoyo requerido</div>
+          </div>
+          <div class="bd">
+            <textarea id="comentarios" placeholder="Comentarios del colaborador..."></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Placeholders resto del proceso -->
+    <div class="card hidden" id="secClientes"><div class="hd"><h3>Formulario de evaluación de clientes</h3><div class="muted">Sección lista para implementar</div></div><div class="bd muted">Pendiente.</div></div>
+    <div class="card hidden" id="secDesempeno"><div class="hd"><h3>Formulario de evaluación del desempeño</h3><div class="muted">Sección lista para implementar</div></div><div class="bd muted">Pendiente.</div></div>
+    <div class="card hidden" id="secResultados"><div class="hd"><h3>Resultados evaluación del desempeño</h3><div class="muted">Sección lista para implementar</div></div><div class="bd muted">Pendiente.</div></div>
+    <div class="card hidden" id="secConsolidado"><div class="hd"><h3>Informe consolidado</h3><div class="muted">Sección lista para implementar</div></div><div class="bd muted">Pendiente.</div></div>
+    <div class="card hidden" id="secNecesidades"><div class="hd"><h3>Informe de necesidades de capacitación</h3><div class="muted">Sección lista para implementar</div></div><div class="bd muted">Pendiente.</div></div>
+    <div class="card hidden" id="secPlan"><div class="hd"><h3>Informe de plan de desarrollo</h3><div class="muted">Sección lista para implementar</div></div><div class="bd muted">Pendiente.</div></div>
+
   </div>
 
-<script>
-/** =========================
- * CONFIG
- * ========================= */
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyqy8Vi-OHjCl9TkZY5m1WicNkdJPjBxavk-pCNhze2UzytkvdZEZvc9VZJKeJCdm9d/exec";
+  <div class="toast" id="toast"></div>
 
-/** =========================
- * JSONP helper (GitHub-friendly)
- * ========================= */
-function jsonpRequest(params){
-  return new Promise((resolve, reject) => {
-    const cb = "cb_" + Math.random().toString(36).slice(2);
-    const url = new URL(SCRIPT_URL);
-    Object.entries(params || {}).forEach(([k,v]) => url.searchParams.set(k, v));
-    url.searchParams.set("callback", cb);
+  <script>
+    /***********************
+     * CONFIG
+     ***********************/
+    // 1) Cambia esto por tu URL del Web App desplegado (Apps Script).
+    // Ejemplo: https://script.google.com/macros/s/AKfycbxxxxxxxxxxxxxxxx/exec
+    const API_URL = "https://script.google.com/macros/s/AKfycbwDEQmzLUnO5dDIjdhlgLju8Nphgk2xEBpGSFCG76S1PD3EfU25qLQAviRsAViLytKJ/exec";
 
-    const script = document.createElement("script");
-    const timeout = setTimeout(() => {
-      cleanup();
-      reject(new Error("Tiempo de espera agotado en JSONP"));
-    }, 25000);
+    const FASES = [
+      "Formularios",
+      "Pesos",
+      "Formulario de autoevaluación",
+      "Formulario de evaluación de clientes",
+      "Formulario de evaluación del desempeño",
+      "Resultados evaluación del desempeño",
+      "Informe consolidado",
+      "Informe de necesidades de capacitación",
+      "Informe de plan de desarrollo"
+    ];
 
-    function cleanup(){
-      clearTimeout(timeout);
-      delete window[cb];
-      script.remove();
+    // Estado
+    let CFG = null;
+    let currentNivelId = 1;
+    let respuestas = []; // array en orden de items (score 1..5)
+    let descs = [];      // array en orden de items (texto de la escala)
+
+    /***********************
+     * Helpers UI
+     ***********************/
+    const $ = (id)=>document.getElementById(id);
+
+    function toast(msg){
+      const t = $("toast");
+      t.textContent = msg;
+      t.classList.add("show");
+      setTimeout(()=>t.classList.remove("show"), 3200);
     }
 
-    window[cb] = (data) => {
-      cleanup();
-      resolve(data);
-    };
+    function setApiStatus(ok){
+      const dot = $("apiDot");
+      const lbl = $("apiLabel");
+      if(ok){
+        dot.classList.remove("warn");
+        lbl.textContent = "API conectada";
+      }else{
+        dot.classList.add("warn");
+        lbl.textContent = "API sin conexión";
+      }
+    }
 
-    script.onerror = () => {
-      cleanup();
-      reject(new Error("Error cargando JSONP (revisa URL / permisos Web App)"));
-    };
+    function todayISO(){
+      const d = new Date();
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth()+1).padStart(2,"0");
+      const dd = String(d.getDate()).padStart(2,"0");
+      return `${yyyy}-${mm}-${dd}`;
+    }
 
-    script.src = url.toString();
-    document.body.appendChild(script);
-  });
-}
+    function groupBy(arr, keyFn){
+      const m = new Map();
+      for(const it of arr){
+        const k = keyFn(it);
+        if(!m.has(k)) m.set(k, []);
+        m.get(k).push(it);
+      }
+      return m;
+    }
 
-const API = {
-  ping: () => jsonpRequest({action:"ping"}),
-  getMeta: () => jsonpRequest({action:"getMeta"}), // niveles + estados
-  loadForms: () => jsonpRequest({action:"loadForms"}),
-  clearForms: () => jsonpRequest({action:"clearForms"}),
-  loadWeights: () => jsonpRequest({action:"loadWeights"}),
-  clearWeights: () => jsonpRequest({action:"clearWeights"}),
-  getQuestionnaire: (nivel) => jsonpRequest({action:"getQuestionnaire", nivel:String(nivel)}),
-  saveAutoeval: (payloadObj) => jsonpRequest({action:"saveAutoeval", payload: encodeURIComponent(JSON.stringify(payloadObj))}),
-};
+    function optionText(score, text){
+      const clean = (text||"").replace(/\s+/g," ").trim();
+      const short = clean.length > 180 ? clean.slice(0,180) + "…" : clean;
+      return `${score} — ${short}`;
+    }
 
-/** =========================
- * State
- * ========================= */
-const state = {
-  phase: "Formulario de autoevaluación",
-  meta: null,
-  currentLevel: 1,
-  questionnaire: null,
-  answers: new Map(), // key=itemId, value=score
-};
+    /***********************
+     * API
+     ***********************/
+    async function apiGet(action, params={}){
+      const url = new URL(API_URL);
+      url.searchParams.set("action", action);
+      for(const [k,v] of Object.entries(params)) url.searchParams.set(k, v);
+      const r = await fetch(url.toString(), { method:"GET" });
+      if(!r.ok) throw new Error("HTTP " + r.status);
+      return await r.json();
+    }
 
-/** =========================
- * DOM
- * ========================= */
-const phaseSel = document.getElementById("phaseSel");
-const panelTitle = document.getElementById("panelTitle");
-const panelHint = document.getElementById("panelHint");
-const panelBody = document.getElementById("panelBody");
-const apiStatus = document.getElementById("apiStatus");
-const formsStatus = document.getElementById("formsStatus");
-const weightsStatus = document.getElementById("weightsStatus");
-const btnNew = document.getElementById("btnNew");
-const btnSave = document.getElementById("btnSave");
-const btnPrint = document.getElementById("btnPrint");
+    async function apiPost(action, payload){
+      const url = new URL(API_URL);
+      url.searchParams.set("action", action);
+      const r = await fetch(url.toString(), {
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify(payload)
+      });
+      if(!r.ok) throw new Error("HTTP " + r.status);
+      return await r.json();
+    }
 
-/** =========================
- * Init
- * ========================= */
-(async function init(){
-  // Fase por defecto
-  state.phase = phaseSel.value;
+    /***********************
+     * Render: Fases
+     ***********************/
+    function setFase(fase){
+      const map = {
+        "Formularios": "secFormularios",
+        "Pesos": "secPesos",
+        "Formulario de autoevaluación": "secAuto",
+        "Formulario de evaluación de clientes": "secClientes",
+        "Formulario de evaluación del desempeño": "secDesempeno",
+        "Resultados evaluación del desempeño": "secResultados",
+        "Informe consolidado": "secConsolidado",
+        "Informe de necesidades de capacitación": "secNecesidades",
+        "Informe de plan de desarrollo": "secPlan"
+      };
+      for(const id of Object.values(map)) $(id).classList.add("hidden");
+      $(map[fase]).classList.remove("hidden");
+    }
 
-  // Botones
-  btnPrint.addEventListener("click", () => window.print());
-  btnNew.addEventListener("click", onNew);
-  btnSave.addEventListener("click", onSave);
-
-  phaseSel.addEventListener("change", async () => {
-    state.phase = phaseSel.value;
-    await renderPhase();
-  });
-
-  // Ping API
-  try{
-    const pong = await API.ping();
-    apiStatus.textContent = "API: OK";
-    apiStatus.style.borderColor = "rgba(34,197,94,.35)";
-    apiStatus.style.background = "rgba(34,197,94,.16)";
-    await refreshMeta();
-    await renderPhase();
-  }catch(err){
-    apiStatus.textContent = "API: error (revisa SCRIPT_URL)";
-    apiStatus.style.borderColor = "rgba(239,68,68,.35)";
-    apiStatus.style.background = "rgba(239,68,68,.14)";
-    panelBody.innerHTML = `<div class="muted">
-      <b>Falta configurar la API.</b><br/>
-      1) Publica tu Apps Script como Web App (acceso: Cualquiera).<br/>
-      2) Pega la URL /exec en <code>SCRIPT_URL</code>.<br/>
-      <div style="margin-top:8px;color:#fca5a5">${escapeHtml(String(err.message||err))}</div>
-    </div>`;
-  }
-})();
-
-async function refreshMeta(){
-  const meta = await API.getMeta();
-  state.meta = meta;
-
-  formsStatus.textContent = "Formularios: " + (meta?.formsLoaded ? "cargados" : "no cargados");
-  weightsStatus.textContent = "Pesos: " + (meta?.weightsLoaded ? "cargados" : "no cargados");
-
-  if(meta?.levels?.length){
-    state.currentLevel = meta.levels.includes(1) ? 1 : meta.levels[0];
-  }else{
-    state.currentLevel = 1;
-  }
-}
-
-/** =========================
- * Render router
- * ========================= */
-async function renderPhase(){
-  panelTitle.textContent = state.phase;
-
-  // botones visibles solo cuando aplica
-  const phase = state.phase;
-  const showActions = (phase === "Formulario de autoevaluación");
-  btnNew.style.display = showActions ? "" : "none";
-  btnSave.style.display = showActions ? "" : "none";
-  btnPrint.style.display = showActions ? "" : "none";
-
-  if(phase === "Formularios"){
-    panelHint.textContent = "Carga/limpieza de base de cuestionarios";
-    renderLoadPanel("Formularios",
-      "Cargar los datos desde la pestaña 'Formularios' (Nivel, Factor, Item y escala 1–5).",
-      async () => { await API.loadForms(); await refreshMeta(); toast("Formularios cargados ✅"); },
-      async () => { await API.clearForms(); await refreshMeta(); toast("Base de formularios limpiada 🧹"); }
-    );
-    return;
-  }
-
-  if(phase === "Pesos"){
-    panelHint.textContent = "Carga/limpieza de pesos por ítem";
-    renderLoadPanel("Pesos",
-      "Cargar los pesos desde la hoja 'Pesos' en el mismo orden de los ítems.",
-      async () => { await API.loadWeights(); await refreshMeta(); toast("Pesos cargados ✅"); },
-      async () => { await API.clearWeights(); await refreshMeta(); toast("Base de pesos limpiada 🧹"); }
-    );
-    return;
-  }
-
-  if(phase === "Formulario de autoevaluación"){
-    panelHint.textContent = "Por defecto: Nivel 1";
-    await renderAutoeval();
-    return;
-  }
-
-  // placeholders para fases futuras
-  panelHint.textContent = "Módulo en construcción (estructura lista para agregar).";
-  panelBody.innerHTML = `<div class="muted">
-    Este módulo aún no está implementado, pero ya está “enchufado” en el menú.<br/>
-    <div class="hr"></div>
-    Tip: aquí conectarás consultas y reportes sin tocar la autoevaluación.
-  </div>`;
-}
-
-function renderLoadPanel(title, desc, onLoad, onClear){
-  panelBody.innerHTML = `
-    <div class="section">
-      <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;">
-        <div>
-          <div style="font-weight:700">${escapeHtml(title)}</div>
-          <div class="muted" style="margin-top:4px">${escapeHtml(desc)}</div>
-        </div>
-        <div style="display:flex; gap:10px; flex-wrap:wrap;">
-          <button class="btn primary" id="btnLoad">Cargar</button>
-          <button class="btn danger" id="btnClear">Limpiar</button>
-        </div>
-      </div>
-    </div>
-    <div class="muted" style="margin-top:10px">
-      Nota: “Cargar” valida y deja disponible la base para renderizar cuestionarios; “Limpiar” solo limpia la base de cache (no borra tus hojas fuente).
-    </div>
-  `;
-  document.getElementById("btnLoad").onclick = safeRun(onLoad);
-  document.getElementById("btnClear").onclick = safeRun(onClear);
-}
-
-/** =========================
- * Autoevaluación
- * ========================= */
-async function renderAutoeval(){
-  // UI base
-  const levels = (state.meta?.levels?.length ? state.meta.levels : [1]);
-  const today = new Date();
-  const yyyy = today.getFullYear();
-  const mm = String(today.getMonth()+1).padStart(2,"0");
-  const dd = String(today.getDate()).padStart(2,"0");
-  const todayStr = `${yyyy}-${mm}-${dd}`;
-
-  panelBody.innerHTML = `
-    <div class="section">
-      <div class="factor-title">
-        <div><b>Datos del colaborador</b></div>
-        <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
-          <div class="control" style="min-width:220px">
-            <label>Nivel</label>
-            <select id="levelSel">
-              ${levels.map(n => `<option value="${n}" ${n===state.currentLevel?"selected":""}>${n}</option>`).join("")}
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <div class="grid2">
-        <div class="control"><label>No de personal</label><input id="noPersonal" placeholder="Ej: 00123"/></div>
-        <div class="control"><label>Nombre</label><input id="nombre" placeholder="Nombre completo"/></div>
-        <div class="control"><label>Posición</label><input id="posicion" placeholder="Puesto"/></div>
-        <div class="control"><label>Departamento</label><input id="depto" placeholder="Área"/></div>
-        <div class="control"><label>Periodo</label><input id="periodo" placeholder="Ej: 2026-Q1"/></div>
-        <div class="control"><label>Versión</label><input id="version" placeholder="Ej: v1"/></div>
-        <div class="control"><label>Fecha</label><input id="fecha" value="${todayStr}" readonly/></div>
-      </div>
-    </div>
-
-    <div class="section" id="formSection">
-      <div class="muted">Cargando cuestionario del nivel ${state.currentLevel}…</div>
-    </div>
-
-    <div class="section">
-      <div class="factor-title">
-        <div><b>Comentarios del colaborador</b></div>
-        <div class="muted">Incluye observaciones, ejemplos, mejoras o apoyo requerido.</div>
-      </div>
-      <textarea id="comentarios" placeholder="Comentarios del colaborador..."></textarea>
-    </div>
-  `;
-
-  const levelSel = document.getElementById("levelSel");
-  levelSel.addEventListener("change", async () => {
-    state.currentLevel = Number(levelSel.value);
-    state.answers.clear();
-    await loadAndRenderQuestionnaire();
-  });
-
-  await loadAndRenderQuestionnaire();
-}
-
-async function loadAndRenderQuestionnaire(){
-  const formSection = document.getElementById("formSection");
-  try{
-    const q = await API.getQuestionnaire(state.currentLevel);
-    state.questionnaire = q;
-    renderQuestionnaire(formSection, q);
-  }catch(err){
-    formSection.innerHTML = `<div class="muted" style="color:#fca5a5">
-      Error cargando el cuestionario: ${escapeHtml(String(err.message||err))}<br/>
-      Tip: ve a Fase “Formularios” y presiona “Cargar”.
-    </div>`;
-  }
-}
-
-function renderQuestionnaire(container, q){
-  if(!q?.items?.length){
-    container.innerHTML = `<div class="muted">No hay ítems para este nivel.</div>`;
-    return;
-  }
-
-  // Agrupar por Factor
-  const byFactor = new Map();
-  for(const it of q.items){
-    const factor = it.factor || "Sin factor";
-    if(!byFactor.has(factor)) byFactor.set(factor, []);
-    byFactor.get(factor).push(it);
-  }
-
-  let html = `
-    <div class="factor-title">
-      <div><b>Evaluación (1–5)</b></div>
-      <div class="muted">Selecciona una opción por ítem.</div>
-    </div>
-  `;
-
-  for(const [factor, items] of byFactor.entries()){
-    html += `<div class="section">
-      <div class="factor-title">
-        <div>${escapeHtml(factor)}</div>
-        <div class="muted">Nivel ${q.nivel}</div>
-      </div>
-    `;
-
-    items.forEach((it, idx) => {
-      const itemId = it.itemId;
-      const title = it.itemText;
-      const opts = it.scale; // [{score, desc}]
-      html += `
-        <div class="item">
-          <div>
-            <p class="ititle">${escapeHtml(title)}</p>
-            <p class="isub">Selecciona 1–5 según la rúbrica.</p>
-          </div>
-          <div class="right">
-            <label>Puntaje (1–5)</label>
-            <select data-itemid="${escapeHtml(itemId)}">
-              <option value="">Seleccionar…</option>
-              ${opts.map(o => `<option value="${o.score}">${o.score} — ${escapeHtml(o.desc || "")}</option>`).join("")}
-            </select>
-          </div>
-        </div>
+    /***********************
+     * Render: Formularios
+     ***********************/
+    function renderFormularios(nivelId){
+      const items = CFG.items.filter(x=>x.nivelId===nivelId);
+      const table = $("formTable");
+      table.innerHTML = `
+        <thead><tr>
+          <th style="min-width:240px">Factor</th>
+          <th>Ítem</th>
+          <th style="min-width:120px">No</th>
+        </tr></thead>
+        <tbody>
+          ${items.map(it=>`
+            <tr>
+              <td>${escapeHtml(it.factor)}</td>
+              <td>${escapeHtml(it.item)}</td>
+              <td>${it.itemNo ?? ""}</td>
+            </tr>
+          `).join("")}
+        </tbody>
       `;
-    });
-
-    html += `</div>`;
-  }
-
-  container.innerHTML = html;
-
-  // bind selects
-  container.querySelectorAll("select[data-itemid]").forEach(sel => {
-    sel.addEventListener("change", () => {
-      const id = sel.getAttribute("data-itemid");
-      const v = sel.value ? Number(sel.value) : null;
-      if(v==null) state.answers.delete(id);
-      else state.answers.set(id, v);
-    });
-  });
-}
-
-/** =========================
- * Actions
- * ========================= */
-function onNew(){
-  if(state.phase !== "Formulario de autoevaluación") return;
-  // reset inputs + answers
-  ["noPersonal","nombre","posicion","depto","periodo","version","comentarios"].forEach(id=>{
-    const el = document.getElementById(id);
-    if(el) el.value = "";
-  });
-  state.answers.clear();
-  // reset all selects in questionnaire
-  const formSection = document.getElementById("formSection");
-  if(formSection){
-    formSection.querySelectorAll("select[data-itemid]").forEach(s=> s.value="");
-  }
-  toast("Formulario reiniciado 🧼");
-}
-
-async function onSave(){
-  if(state.phase !== "Formulario de autoevaluación") return;
-  if(!state.questionnaire?.items?.length){
-    toast("No hay cuestionario cargado para guardar.", true);
-    return;
-  }
-
-  // Validar básicos
-  const noPersonal = val("noPersonal");
-  const nombre = val("nombre");
-  const posicion = val("posicion");
-  const depto = val("depto");
-  const periodo = val("periodo");
-  const version = val("version");
-  const fecha = val("fecha");
-  const comentarios = val("comentarios");
-
-  // Validar que todos los ítems tengan respuesta
-  const missing = state.questionnaire.items.filter(it => !state.answers.has(it.itemId));
-  if(missing.length){
-    toast(`Faltan ${missing.length} respuestas. Completa el formulario antes de guardar.`, true);
-    return;
-  }
-
-  const payload = {
-    fase: "Autoevaluacion",
-    nivel: state.currentLevel,
-    colaborador: { noPersonal, nombre, posicion, departamento:depto, periodo, version, fecha },
-    comentarios,
-    respuestas: state.questionnaire.items.map((it, i) => ({
-      idx: i+1,
-      itemId: it.itemId,
-      factor: it.factor,
-      itemText: it.itemText,
-      score: state.answers.get(it.itemId)
-    }))
-  };
-
-  try{
-    btnSave.disabled = true;
-    btnSave.textContent = "Guardando...";
-    const res = await API.saveAutoeval(payload);
-    if(res?.ok){
-      toast(`Guardado ✅ (fila ${res.row || "?"})`);
-    }else{
-      toast("No se pudo guardar: " + (res?.error || "desconocido"), true);
     }
-  }catch(err){
-    toast("Error guardando: " + (err.message||err), true);
-  }finally{
-    btnSave.disabled = false;
-    btnSave.textContent = "Guardar";
-  }
-}
 
-/** =========================
- * Utils
- * ========================= */
-function val(id){ return (document.getElementById(id)?.value || "").trim(); }
+    /***********************
+     * Render: Pesos
+     ***********************/
+    async function renderPesos(nivelId){
+      const data = await apiGet("getPesos", { nivelId: String(nivelId) });
+      const rows = data.rows || [];
+      const table = $("pesoTable");
+      table.innerHTML = `
+        <thead><tr>
+          <th style="min-width:240px">Factor</th>
+          <th>Ítem</th>
+          <th style="min-width:110px">Peso</th>
+        </tr></thead>
+        <tbody>
+          ${rows.map((r, idx)=>`
+            <tr>
+              <td>${escapeHtml(r.factor)}</td>
+              <td>${escapeHtml(r.item)}</td>
+              <td><input data-idx="${idx}" class="pesoInp" value="${r.peso ?? ""}" placeholder="Ej. 1" /></td>
+            </tr>
+          `).join("")}
+        </tbody>
+      `;
+      // guardar en memoria para editar
+      table.dataset.rows = JSON.stringify(rows);
+    }
 
-function safeRun(fn){
-  return async () => {
-    try{ await fn(); }
-    catch(err){ toast(String(err.message||err), true); }
-  }
-}
+    async function savePesosFromUI(){
+      const table = $("pesoTable");
+      const rows = JSON.parse(table.dataset.rows || "[]");
+      const inputs = table.querySelectorAll(".pesoInp");
+      inputs.forEach(inp=>{
+        const idx = Number(inp.dataset.idx);
+        rows[idx].peso = inp.value;
+      });
+      await apiPost("savePesos", { nivelId: currentNivelId, rows });
+      toast("Pesos guardados.");
+    }
 
-function toast(msg, isBad=false){
-  const el = document.createElement("div");
-  el.textContent = msg;
-  el.style.position = "fixed";
-  el.style.right = "16px";
-  el.style.bottom = "16px";
-  el.style.padding = "10px 12px";
-  el.style.borderRadius = "12px";
-  el.style.border = "1px solid rgba(148,163,184,.25)";
-  el.style.background = isBad ? "rgba(239,68,68,.18)" : "rgba(34,197,94,.16)";
-  el.style.color = "white";
-  el.style.zIndex = 9999;
-  el.style.maxWidth = "520px";
-  el.style.boxShadow = "0 20px 60px rgba(0,0,0,.55)";
-  document.body.appendChild(el);
-  setTimeout(()=> el.remove(), 3600);
-}
+    async function limpiarPesosUI(){
+      const table = $("pesoTable");
+      const rows = JSON.parse(table.dataset.rows || "[]");
+      rows.forEach(r=>r.peso="");
+      table.dataset.rows = JSON.stringify(rows);
+      await renderPesos(currentNivelId);
+      toast("Pesos limpiados (aún no guardados).");
+    }
 
-function escapeHtml(s){
-  return String(s).replace(/[&<>"']/g, m => ({
-    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
-  }[m]));
-}
-</script>
+    /***********************
+     * Render: Autoevaluación
+     ***********************/
+    function renderAutoForm(nivelId){
+      const items = CFG.items.filter(x=>x.nivelId===nivelId);
+      respuestas = new Array(items.length).fill("");
+      descs = new Array(items.length).fill("");
+
+      const byFactor = groupBy(items, it=>it.factor);
+      const host = $("autoFormHost");
+      host.innerHTML = "";
+
+      let globalIdx = 0;
+      for(const [factor, list] of byFactor.entries()){
+        const box = document.createElement("div");
+        box.className = "factor";
+        box.innerHTML = `<h4>${escapeHtml(factor)}</h4><div class="muted">Selecciona una opción por ítem</div>`;
+
+        for(const it of list){
+          const row = document.createElement("div");
+          row.className = "row";
+
+          const left = document.createElement("div");
+          left.className = "it";
+          left.innerHTML = `<strong>${escapeHtml(it.item)}</strong><small>Escala 1–5</small>`;
+
+          const right = document.createElement("div");
+          right.innerHTML = `
+            <label>Puntaje (1–5)</label>
+            <select data-idx="${globalIdx}">
+              <option value="">Seleccionar…</option>
+              ${[1,2,3,4,5].map(s=>{
+                return `<option value="${s}" data-desc="${escapeAttr(it.scale[String(s)]||"")}">${escapeHtml(optionText(s, it.scale[String(s)]||""))}</option>`;
+              }).join("")}
+            </select>
+          `;
+
+          row.appendChild(left);
+          row.appendChild(right);
+          box.appendChild(row);
+          globalIdx++;
+        }
+        host.appendChild(box);
+      }
+
+      // events
+      host.querySelectorAll("select").forEach(sel=>{
+        sel.addEventListener("change", (e)=>{
+          const idx = Number(e.target.dataset.idx);
+          const val = e.target.value;
+          respuestas[idx] = val;
+          const opt = e.target.selectedOptions[0];
+          descs[idx] = opt ? (opt.getAttribute("data-desc") || "") : "";
+        });
+      });
+    }
+
+    function validateAuto(itemsLen){
+      // Validación mínima: datos básicos + que no falte ningún ítem
+      const req = ["noPersonal","nombre","posicion","depto","periodo","version","fecha"];
+      for(const id of req){
+        if(!$(id).value.trim()){
+          toast("Falta completar: " + id);
+          return false;
+        }
+      }
+      for(let i=0;i<itemsLen;i++){
+        if(!respuestas[i]){
+          toast("Te falta responder el ítem #" + (i+1));
+          return false;
+        }
+      }
+      return true;
+    }
+
+    async function guardarAuto(){
+      const items = CFG.items.filter(x=>x.nivelId===currentNivelId);
+      if(!validateAuto(items.length)) return;
+
+      const payload = {
+        nivelId: currentNivelId,
+        nivelLabel: (CFG.levels.find(l=>l.id===currentNivelId)?.label || ""),
+        colaborador: {
+          noPersonal: $("noPersonal").value.trim(),
+          nombre: $("nombre").value.trim(),
+          posicion: $("posicion").value.trim(),
+          departamento: $("depto").value.trim(),
+          periodo: $("periodo").value.trim(),
+          version: $("version").value.trim(),
+          fecha: $("fecha").value.trim()
+        },
+        respuestas,
+        descripciones: descs,
+        comentarios: $("comentarios").value.trim()
+      };
+
+      $("btnGuardar").disabled = true;
+      try{
+        await apiPost("saveAutoevaluacion", payload);
+        toast("Guardado en Google Sheets ✅");
+      }catch(err){
+        console.error(err);
+        toast("No se pudo guardar (revisa API_URL / despliegue).");
+      }finally{
+        $("btnGuardar").disabled = false;
+      }
+    }
+
+    function nuevo(){
+      // reset campos
+      ["noPersonal","nombre","posicion","depto","periodo","version","comentarios"].forEach(id=>$(id).value="");
+      $("fecha").value = todayISO();
+      // reset selects en form
+      const host = $("autoFormHost");
+      host.querySelectorAll("select").forEach(s=>s.value="");
+      // reset arrays
+      const items = CFG.items.filter(x=>x.nivelId===currentNivelId);
+      respuestas = new Array(items.length).fill("");
+      descs = new Array(items.length).fill("");
+      toast("Formulario limpio.");
+    }
+
+    function imprimir(){
+      window.print();
+    }
+
+    /***********************
+     * Safe HTML
+     ***********************/
+    function escapeHtml(s){
+      return String(s??"")
+        .replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;").replaceAll("'","&#039;");
+    }
+    function escapeAttr(s){ return escapeHtml(s).replaceAll("\n"," ").replaceAll("\r"," "); }
+
+    /***********************
+     * Init
+     ***********************/
+    async function init(){
+      $("apiUrlView").value = API_URL;
+      $("fecha").value = todayISO();
+
+      // fases
+      const faseSel = $("faseSel");
+      faseSel.innerHTML = FASES.map(f=>`<option value="${escapeAttr(f)}">${escapeHtml(f)}</option>`).join("");
+      faseSel.value = "Formulario de autoevaluación"; // default
+      setFase(faseSel.value);
+      faseSel.addEventListener("change", async ()=>{
+        setFase(faseSel.value);
+        if(faseSel.value==="Formularios") renderFormularios(currentNivelId);
+        if(faseSel.value==="Pesos") await renderPesos(currentNivelId);
+      });
+
+      // botones
+      $("btnNuevo").addEventListener("click", nuevo);
+      $("btnGuardar").addEventListener("click", guardarAuto);
+      $("btnPrint").addEventListener("click", imprimir);
+      $("btnPesosGuardar").addEventListener("click", savePesosFromUI);
+      $("btnPesosLimpiar").addEventListener("click", limpiarPesosUI);
+
+      // config
+      try{
+        CFG = await apiGet("getConfig");
+        setApiStatus(true);
+      }catch(e){
+        console.error(e);
+        setApiStatus(false);
+        toast("No se pudo cargar configuración desde API. Revisa API_URL y despliegue.");
+        return;
+      }
+
+      // niveles
+      const levels = CFG.levels || [];
+      const fillLevelSel = (selId)=>{
+        const sel = $(selId);
+        sel.innerHTML = levels.map(l=>`<option value="${l.id}">${escapeHtml(l.label)}</option>`).join("");
+        sel.value = "1";
+        sel.addEventListener("change", async ()=>{
+          currentNivelId = Number(sel.value);
+          // sincronizar selects
+          ["autoNivelSel","formNivelSel","pesoNivelSel"].forEach(x=>{
+            if($(x) && $(x)!==sel) $(x).value = String(currentNivelId);
+          });
+
+          renderAutoForm(currentNivelId);
+          if(!$("secFormularios").classList.contains("hidden")) renderFormularios(currentNivelId);
+          if(!$("secPesos").classList.contains("hidden")) await renderPesos(currentNivelId);
+        });
+      };
+
+      fillLevelSel("autoNivelSel");
+      fillLevelSel("formNivelSel");
+      fillLevelSel("pesoNivelSel");
+
+      currentNivelId = 1;
+      renderAutoForm(1);
+      renderFormularios(1);
+    }
+
+    init();
+  </script>
 </body>
 </html>
