@@ -1,4 +1,4 @@
-<!doctype html>
+<! html>
 <html lang="es">
 <head>
   <meta charset="utf-8" />
@@ -54,21 +54,37 @@
     }
     .title{font-weight:700; letter-spacing:.2px; font-size: 13px; line-height:1;}
     .subtitle{font-size: 11px; color: var(--muted); margin-top:2px;}
-    .nav{display:flex; flex-wrap:wrap; gap:8px; justify-content:flex-end;}
-    .chip{
+
+    /* ====== NUEVO: selector de Fase ====== */
+    .faseWrap{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      justify-content:flex-end;
+      flex: 0 0 auto;
+    }
+    .faseWrap label{
+      margin:0;
+      font-size:12px;
+      color:var(--muted);
+      white-space:nowrap;
+    }
+    .faseSelect{
+      width: 330px;
+      max-width: 48vw;
+      padding: 8px 10px;
+      border-radius: 999px;
       border:1px solid var(--stroke);
       background: rgba(15,23,42,.55);
       color: var(--text);
-      padding: 8px 10px;
-      border-radius: 999px;
+      outline:none;
       font-size: 12px;
       cursor:pointer;
-      user-select:none;
-      transition:.15s;
-      white-space:nowrap;
     }
-    .chip:hover{transform: translateY(-1px); border-color: rgba(59,130,246,.35)}
-    .chip.active{background: rgba(59,130,246,.18); border-color: rgba(59,130,246,.45);}
+    .faseSelect:focus{
+      border-color: rgba(59,130,246,.55);
+      box-shadow: 0 0 0 4px rgba(59,130,246,.12);
+    }
 
     .card{
       margin-top: 14px;
@@ -92,7 +108,9 @@
     .grid4{display:grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap:10px}
     @media (max-width: 780px){
       .grid2,.grid3,.grid4{grid-template-columns:1fr}
-      .nav{justify-content:flex-start}
+      .topbarInner{flex-wrap:wrap; border-radius: 18px}
+      .faseWrap{justify-content:flex-start; width:100%}
+      .faseSelect{width:100%; max-width:100%}
     }
 
     label{display:block; font-size:11px; color: var(--muted); margin: 0 0 6px}
@@ -175,7 +193,7 @@
     }
 
     @media print{
-      .topbar, .actions, .chip{display:none !important}
+      .topbar, .actions{display:none !important}
       body{background:#fff; color:#000}
       .card{box-shadow:none}
       input, select, textarea{border:1px solid #ccc; background:#fff; color:#000}
@@ -195,7 +213,12 @@
             <div class="subtitle" id="apiSubtitle">Conectando con Apps Script…</div>
           </div>
         </div>
-        <div class="nav" id="menu"></div>
+
+        <!-- NUEVO: selector Fase (reemplaza chips) -->
+        <div class="faseWrap">
+          <label for="faseSelect">Fase</label>
+          <select id="faseSelect" class="faseSelect" aria-label="Selector de fase"></select>
+        </div>
       </div>
     </div>
 
@@ -303,8 +326,6 @@ function jsonp(url, params = {}) {
 /** =========================
  * UI helpers
  * ========================= */
-const state = { view: "forms", levels: [], form: null };
-
 const menuItems = [
   { id:"forms", label:"Formularios y pesos" },
   { id:"autoevaluacion", label:"Formulario de autoevaluación" },
@@ -316,29 +337,15 @@ const menuItems = [
   { id:"desarrollo", label:"Informe plan de desarrollo" },
 ];
 
+// ✅ Por default: Formulario de autoevaluación
+const state = { view: "autoevaluacion", levels: [], form: null };
+
 function setStatus(ok, msg){
   const dot = document.getElementById("apiDot");
   const sub = document.getElementById("apiSubtitle");
   dot.style.background = ok ? "var(--brand2)" : "var(--danger)";
   dot.style.boxShadow = ok ? "0 0 0 6px rgba(34,197,94,.12)" : "0 0 0 6px rgba(239,68,68,.12)";
   sub.textContent = msg;
-}
-
-function renderMenu(){
-  const el = document.getElementById("menu");
-  el.innerHTML = "";
-  menuItems.forEach(item => {
-    const b = document.createElement("button");
-    b.className = "chip" + (state.view === item.id ? " active" : "");
-    b.textContent = item.label;
-    b.onclick = () => { state.view = item.id; renderView(); renderMenu(); };
-    el.appendChild(b);
-  });
-}
-
-function setView(title, desc){
-  document.getElementById("viewTitle").textContent = title;
-  document.getElementById("viewDesc").textContent = desc;
 }
 
 function escapeHtml(str){
@@ -348,6 +355,37 @@ function escapeHtml(str){
     .replaceAll("'","&#039;");
 }
 
+function setView(title, desc){
+  document.getElementById("viewTitle").textContent = title;
+  document.getElementById("viewDesc").textContent = desc;
+}
+
+/** NUEVO: Render del selector "Fase" */
+function renderFaseSelector(){
+  const sel = document.getElementById("faseSelect");
+  if (!sel) return;
+
+  sel.innerHTML = menuItems
+    .map(m => `<option value="${escapeHtml(m.id)}">${escapeHtml(m.label)}</option>`)
+    .join("");
+
+  // asegúrate de que el valor exista
+  const exists = menuItems.some(m => m.id === state.view);
+  sel.value = exists ? state.view : "autoevaluacion";
+
+  sel.onchange = () => {
+    state.view = sel.value;
+    renderView();
+  };
+}
+
+/** Mantiene el selector sincronizado si state.view cambia por código */
+function syncFaseSelector(){
+  const sel = document.getElementById("faseSelect");
+  if (!sel) return;
+  if (sel.value !== state.view) sel.value = state.view;
+}
+
 /** =========================
  * API
  * ========================= */
@@ -355,15 +393,12 @@ async function api(action, params={}){
   SCRIPT_WEBAPP_URL = getWebAppUrl();
   if (!SCRIPT_WEBAPP_URL) throw new Error("No hay WebApp URL válida. Usa “Configurar WebApp”.");
 
-  // Aviso si te pegaron /dev
   if (isDevUrl(SCRIPT_WEBAPP_URL) && action !== "ping"){
-    // no bloquea, solo avisa; /dev a veces funciona solo para ti, pero para GitHub Pages suele ser dolor
     setStatus(false, "URL parece /dev. Publica /exec para acceso correcto (deploy).");
   }
 
   const res = await jsonp(SCRIPT_WEBAPP_URL, { action, ...params });
 
-  // validación fuerte: ok debe venir true
   if (!res || res.ok !== true) {
     const msg = (res && res.error) ? res.error : "Respuesta inválida del servidor";
     throw new Error(msg);
@@ -372,7 +407,7 @@ async function api(action, params={}){
 }
 
 async function init(){
-  renderMenu();
+  renderFaseSelector();
   await checkConnection();
   renderView();
 }
@@ -388,7 +423,6 @@ async function checkConnection(){
     const note = isDevUrl(url) ? " (pero es /dev… ojo 😅)" : "";
     setStatus(true, `Apps Script conectado${note} — ${r.ts || ""}`.trim());
   }catch(e){
-    // Mensaje más útil para el 403
     setStatus(false, "Sin conexión (si ves 403: el WebApp está privado o no está publicado como 'Anyone').");
   }
 }
@@ -400,13 +434,16 @@ function renderView(){
   const body = document.getElementById("viewBody");
   body.innerHTML = "";
 
+  // asegura selector sincronizado
+  syncFaseSelector();
+
   if (state.view === "forms") return renderFormsAndWeights(body);
   if (state.view === "autoevaluacion") return renderAutoevaluacion(body);
 
   setView(menuItems.find(m=>m.id===state.view)?.label || "Módulo", "Módulo en preparación.");
   const box = document.createElement("div");
   box.className = "status";
-  box.innerHTML = `<strong>Listo para expandir:</strong> el menú ya está cableado.`;
+  box.innerHTML = `<strong>Listo para expandir:</strong> la fase ya está seleccionable desde arriba.`;
   body.appendChild(box);
 }
 
