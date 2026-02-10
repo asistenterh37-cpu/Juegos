@@ -352,7 +352,7 @@
         </div>
       </section>
 
-      <!-- DESEMPENO: campos extra (se mantienen igual) -->
+      <!-- DESEMPENO -->
       <section class="card" data-phase-block="DESEMPENO" id="blockDesempenoExtra">
         <div class="card-h">
           <div>
@@ -363,7 +363,7 @@
         </div>
         <div class="card-b">
           <div class="hint" style="margin-bottom:12px">
-            Aquí va lo que normalmente RRHH usa para “entender el cuento” (pero sin spoilers innecesarios 😄)
+            Aquí va lo que normalmente RRHH usa para “entender el cuento” (sin inventar capítulos 😄)
           </div>
 
           <div class="form-grid">
@@ -392,7 +392,7 @@
   <script>
     /* ================= CONFIG ================= */
     const LS_KEY_URL = "ED_WEBAPP_URL";
-    const DEFAULT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbysA8cPOvXZdHabpbEdVQLsTJll-qqnjybBhNJ2e0jTk-LosDYF1fbAr9IcwwK-hIUP/exec";
+    const DEFAULT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxDufv90mXavBCg9HHq1S_vGryWDrvn9UonpRO3Ix_lII4qSXGqefxqLqG68qYuKkzg/exec";
     const $ = id => document.getElementById(id);
 
     function normalizeWebAppUrl(raw){
@@ -523,7 +523,7 @@
         const v = String(l);
         const o = document.createElement("option");
         o.value = v;
-        o.textContent = v; // aquí viene "1 — Operativo" si tu sheet lo trae así
+        o.textContent = v; // ej: "1 — Operativo básico"
         sel.appendChild(o);
       });
     }
@@ -533,33 +533,16 @@
       return has1 ? "1" : String(levels[0] ?? "1");
     }
 
-    // ✅ NIVEL: sacar (nivelNumerico) + (descripcionNivel) + (labelCompleta)
-    function getNivelMeta(){
+    // ✅ SOLO NIVEL: devolvemos un "nivelRef" (idealmente "N — Descripción")
+    function getNivelRef(){
       const sel = $("nivelSelect");
       const opt = sel?.selectedOptions?.[0];
-      const label = (opt?.textContent || String(sel.value || "")).trim(); // ej: "3 — Supervisor"
+      const label = (opt?.textContent || String(sel.value || "")).trim(); // ej "1 — Operativo básico"
       const value = String(sel.value || "").trim();
 
-      // intenta extraer número y descripción de "N — Desc" o "N - Desc" o "N) Desc"
-      let nivelNum = "";
-      let nivelDesc = "";
-      const m = label.match(/^\s*(\d+)\s*(?:[.)-]|—)\s*(.+)\s*$/);
-      if(m){
-        nivelNum = m[1];
-        nivelDesc = m[2].trim();
-      } else {
-        // si solo viene "3" o "Nivel 3"
-        const m2 = label.match(/(\d+)/);
-        if(m2) nivelNum = String(Number(m2[1]));
-        // desc queda vacío
-      }
-
-      return {
-        nivelValue: value,
-        nivelLabel: label,
-        nivelNumero: nivelNum,
-        nivelDescripcion: nivelDesc
-      };
+      // si label tiene "N — Desc", lo usamos tal cual.
+      if(label) return label;
+      return value;
     }
 
     /* ================= PHASE HELPERS ================= */
@@ -883,7 +866,9 @@
         return;
       }
 
-      const nm = getNivelMeta();
+      // ✅ SOLO NIVEL: lo guardamos en la columna "Nivel" tal cual (ej "1 — Operativo básico")
+      const nivelRef = getNivelRef();
+
       const respuestasOrdenadas = state.itemKeys.map(k => (state.answers.get(k)?.label || ""));
       const comentariosAuto = isAutoPhase() ? ($("comentariosColaboradorAuto")?.value || "").trim() : "";
 
@@ -902,10 +887,8 @@
       const extrasAuto = isAutoPhase() ? { comentariosColaborador: comentariosAuto } : null;
 
       const payload = {
-        fase: state.fase,
-        nivel: String(nm.nivelNumero || nm.nivelValue || ""),
-        nivelLabel: String(nm.nivelLabel || ""),
-        nivelDescripcion: String(nm.nivelDescripcion || ""),
+        fase: state.fase,          // se usa para decidir ruta, PERO ya no se guarda como columna
+        nivel: nivelRef,           // ✅ única columna de nivel
 
         no: $("noPersonalEval").value.trim(),
         nombre: $("nombreEval").value.trim(),
