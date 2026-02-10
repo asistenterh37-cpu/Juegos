@@ -4,6 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Sistema de Evaluación del Desempeño</title>
+
   <style>
     :root{
       --bg:#0b1220;
@@ -20,8 +21,8 @@
       --shadow: 0 10px 30px rgba(0,0,0,.35);
       --radius: 16px;
       --radius2: 22px;
-      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      --sans: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
     }
     *{box-sizing:border-box}
     body{
@@ -46,11 +47,11 @@
     }
     .brand{
       display:flex;align-items:center;gap:10px;
-      font-weight:700; letter-spacing:.2px;
+      font-weight:700;
     }
     .dot{
       width:12px;height:12px;border-radius:999px;background:var(--accent);
-      box-shadow: 0 0 0 4px rgba(79,124,255,.18);
+      box-shadow:0 0 0 4px rgba(79,124,255,.18);
     }
     .controls{
       display:flex; gap:10px; align-items:center; flex-wrap:wrap;
@@ -61,30 +62,19 @@
       color:var(--text);
       padding:10px 12px;
       border-radius: 12px;
-      outline:none;
-      box-shadow: none;
     }
     select{min-width:280px}
-    button{
-      cursor:pointer;
-      transition: transform .05s ease, border-color .2s ease;
+    button{cursor:pointer}
+    .btn-ok{
+      background: linear-gradient(180deg, rgba(34,197,94,.25), rgba(34,197,94,.10));
+      border-color: rgba(34,197,94,.35)
     }
-    button:hover{border-color:rgba(255,255,255,.22)}
-    button:active{transform: translateY(1px)}
-    .btn-primary{background: linear-gradient(180deg, rgba(79,124,255,.35), rgba(79,124,255,.15)); border-color: rgba(79,124,255,.35)}
-    .btn-ghost{background: transparent}
-    .btn-ok{background: linear-gradient(180deg, rgba(34,197,94,.25), rgba(34,197,94,.10)); border-color: rgba(34,197,94,.35)}
-    .btn-warn{background: linear-gradient(180deg, rgba(245,158,11,.22), rgba(245,158,11,.08)); border-color: rgba(245,158,11,.35)}
-    main{padding: 18px}
-    .grid{
-      max-width:1180px;margin:0 auto;
-      display:grid;
-      grid-template-columns: 1fr;
-      gap:14px;
-    }
+    .btn-ghost{background:transparent}
+    main{padding:18px}
+    .grid{max-width:1180px;margin:0 auto;display:grid;gap:14px}
     .card{
       background: linear-gradient(180deg, rgba(18,31,61,.9), rgba(15,27,51,.92));
-      border: 1px solid var(--line);
+      border:1px solid var(--line);
       border-radius: var(--radius2);
       box-shadow: var(--shadow);
       overflow:hidden;
@@ -92,80 +82,42 @@
     .card-h{
       padding:14px 16px;
       border-bottom:1px solid var(--line);
-      display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
+      display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;
     }
     .card-h h2{margin:0;font-size:16px}
-    .sub{color:var(--muted); font-size:13px}
+    .sub{color:var(--muted);font-size:13px}
     .card-b{padding:14px 16px}
-    .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
     .chip{
       background: rgba(26,42,82,.75);
       border:1px solid rgba(255,255,255,.10);
       padding:6px 10px;
-      border-radius: 999px;
-      color: var(--muted);
+      border-radius:999px;
       font-size:12px;
+      color:var(--muted)
     }
-    .status{
-      display:flex; align-items:center; gap:8px;
-      font-family:var(--mono); font-size:12px; color:var(--muted);
-    }
-    .status .s-dot{
-      width:10px;height:10px;border-radius:999px;background: var(--warn);
-      box-shadow: 0 0 0 4px rgba(245,158,11,.15);
-    }
-    .status.ok .s-dot{background: var(--accent2); box-shadow: 0 0 0 4px rgba(34,197,94,.15)}
-    .status.err .s-dot{background: var(--danger); box-shadow: 0 0 0 4px rgba(239,68,68,.15)}
-    .table-wrap{overflow:auto; border-radius: 14px; border:1px solid var(--line)}
-    table{
-      width:100%;
-      border-collapse: collapse;
-      min-width: 900px;
-      background: rgba(11,18,32,.35);
-    }
-    th, td{
-      padding:10px 10px;
-      border-bottom: 1px solid var(--line);
-      vertical-align: top;
-      font-size:13px;
-    }
-    th{
-      text-align:left;
-      color: var(--muted);
-      font-weight:600;
-      background: rgba(15,27,51,.85);
-      position: sticky; top: 0;
-      z-index: 5;
-    }
-    td small{color:var(--muted)}
-    .muted{color:var(--muted)}
-    .hidden{display:none !important}
-    .mono{font-family:var(--mono)}
+    .status{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:12px}
+    .status .s-dot{width:10px;height:10px;border-radius:999px;background:var(--warn)}
+    .status.ok .s-dot{background:var(--accent2)}
+    .status.err .s-dot{background:var(--danger)}
+    .hidden{display:none}
+    .table-wrap{overflow:auto;border-radius:14px;border:1px solid var(--line)}
+    table{width:100%;border-collapse:collapse;min-width:900px}
+    th,td{padding:10px;border-bottom:1px solid var(--line);font-size:13px}
+    th{background:rgba(15,27,51,.85);color:var(--muted);position:sticky;top:0}
+    small{color:var(--muted)}
     .hint{
       background: rgba(79,124,255,.10);
       border:1px dashed rgba(79,124,255,.35);
       padding:10px 12px;
-      border-radius: 14px;
-      color: var(--muted);
+      border-radius:14px;
+      color:var(--muted);
       font-size:13px;
     }
-    .kpi{
-      display:flex;gap:10px;flex-wrap:wrap
-    }
-    .kpi .box{
-      flex:1;
-      min-width: 220px;
-      background: rgba(0,0,0,.12);
-      border:1px solid var(--line);
-      border-radius: 16px;
-      padding:10px 12px;
-    }
-    .box b{display:block;font-size:14px}
-    .box span{color:var(--muted);font-size:12px}
   </style>
 </head>
 
 <body>
+
 <header>
   <div class="wrap">
     <div class="topbar">
@@ -173,14 +125,16 @@
         <span class="dot"></span>
         <div>
           Sistema de Evaluación del Desempeño
-          <div class="sub">Front (GitHub) + API (Google Apps Script)</div>
+          <div class="sub">GitHub Pages + Google Apps Script</div>
         </div>
       </div>
-
       <div class="controls">
-        <label class="sub" for="fase">Fase</label>
+        <label class="sub">Fase</label>
         <select id="fase"></select>
-        <span id="apiStatus" class="status"><span class="s-dot"></span><span id="apiStatusText">API: sin probar</span></span>
+        <span id="apiStatus" class="status">
+          <span class="s-dot"></span>
+          <span id="apiStatusText">API: sin probar</span>
+        </span>
       </div>
     </div>
   </div>
@@ -189,37 +143,28 @@
 <main>
   <div class="grid">
 
-    <!-- ============ SECCIÓN: FORMULARIOS ============ -->
+    <!-- FORMULARIOS -->
     <section id="secFormularios" class="card hidden">
       <div class="card-h">
         <div>
           <h2>Formularios</h2>
-          <div class="sub">Carga desde hoja <span class="mono">Formularios</span> (Nivel, Factor, Item, 1..5)</div>
+          <div class="sub">Hoja Formularios (Nivel, Factor, Item, 1..5)</div>
         </div>
-        <div class="row">
+        <div>
           <span class="chip" id="fCountChip">Items: 0</span>
-          <select id="fNivelSelect" title="Nivel"></select>
-          <button class="btn-ok" id="btnFormCargar">Cargar</button>
-          <button class="btn-ghost" id="btnFormLimpiar">Limpiar</button>
+          <select id="fNivelSelect"></select>
+          <button id="btnFormCargar" class="btn-ok">Cargar</button>
+          <button id="btnFormLimpiar" class="btn-ghost">Limpiar</button>
         </div>
       </div>
       <div class="card-b">
-        <div class="hint">
-          Tip: “Limpiar” aquí no borra tu Sheet 😅 — solo limpia la vista y el cache local del navegador.
-        </div>
-        <div style="height:10px"></div>
+        <div class="hint">“Limpiar” solo limpia la vista 😅</div><br>
         <div class="table-wrap">
           <table id="tblFormularios">
             <thead>
               <tr>
-                <th style="min-width:210px">Nivel</th>
-                <th style="min-width:260px">Factor</th>
-                <th style="min-width:360px">Item</th>
-                <th style="min-width:260px">1</th>
-                <th style="min-width:260px">2</th>
-                <th style="min-width:260px">3</th>
-                <th style="min-width:260px">4</th>
-                <th style="min-width:260px">5</th>
+                <th>Nivel</th><th>Factor</th><th>Item</th>
+                <th>1</th><th>2</th><th>3</th><th>4</th><th>5</th>
               </tr>
             </thead>
             <tbody></tbody>
@@ -228,42 +173,26 @@
       </div>
     </section>
 
-    <!-- ============ SECCIÓN: PESOS ============ -->
+    <!-- PESOS -->
     <section id="secPesos" class="card hidden">
       <div class="card-h">
         <div>
           <h2>Pesos</h2>
-          <div class="sub">Carga desde hoja <span class="mono">Pesos</span> (Nivel, Factor, Item, Peso)</div>
+          <div class="sub">Hoja Pesos (Nivel, Factor, Item, Peso)</div>
         </div>
-        <div class="row">
+        <div>
           <span class="chip" id="pCountChip">Items: 0</span>
-          <select id="pNivelSelect" title="Nivel"></select>
-          <button class="btn-ok" id="btnPesosCargar">Cargar</button>
-          <button class="btn-ghost" id="btnPesosLimpiar">Limpiar</button>
+          <select id="pNivelSelect"></select>
+          <button id="btnPesosCargar" class="btn-ok">Cargar</button>
+          <button id="btnPesosLimpiar" class="btn-ghost">Limpiar</button>
         </div>
       </div>
-
       <div class="card-b">
-        <div class="kpi">
-          <div class="box">
-            <b>Total peso (nivel seleccionado)</b>
-            <span id="pesoTotalTxt">0</span>
-          </div>
-          <div class="box">
-            <b>Validación rápida</b>
-            <span id="pesoValidTxt">—</span>
-          </div>
-        </div>
-
-        <div style="height:10px"></div>
         <div class="table-wrap">
           <table id="tblPesos">
             <thead>
               <tr>
-                <th style="min-width:210px">Nivel</th>
-                <th style="min-width:260px">Factor</th>
-                <th style="min-width:460px">Item</th>
-                <th style="min-width:140px">Peso</th>
+                <th>Nivel</th><th>Factor</th><th>Item</th><th>Peso</th>
               </tr>
             </thead>
             <tbody></tbody>
@@ -272,19 +201,13 @@
       </div>
     </section>
 
-    <!-- ============ PLACEHOLDERS PARA EL RESTO DEL MENÚ ============ -->
+    <!-- PLACEHOLDER -->
     <section id="secPlaceholder" class="card hidden">
       <div class="card-h">
-        <div>
-          <h2 id="phTitle">Fase</h2>
-          <div class="sub">Sección lista para implementar</div>
-        </div>
-        <span class="chip">Próximo: aquí van formularios y resultados</span>
+        <h2 id="phTitle"></h2>
       </div>
       <div class="card-b">
-        <div class="hint" id="phBody">
-          Estructura lista. Solo falta que me digas qué campos tendrá esta fase y lo conectamos.
-        </div>
+        <div class="hint" id="phBody"></div>
       </div>
     </section>
 
@@ -292,321 +215,123 @@
 </main>
 
 <script>
-  // =========================
-  // CONFIG
-  // =========================
-  const SCRIPT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzHhg2hZo1rY4KX_IwRs6cPF2tY1L5H8OBHUgE1aXS_Kc2n5lRCUMVCwRHYaSfhGnpf/exec";
+/* ================= CONFIG ================= */
+const SCRIPT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzHhg2hZo1rY4KX_IwRs6cPF2tY1L5H8OBHUgE1aXS_Kc2n5lRCUMVCwRHYaSfhGnpf/exec";
 
-  const FASES = [
-    "Formularios",
-    "Pesos",
-    "Formulario de autoevaluación",
-    "Formulario de evaluación de clientes",
-    "Formulario de evaluación del desempeño",
-    "Resultados evaluación del desempeño",
-    "Informe consolidado",
-    "Informe de necesidades de capacitación",
-    "Informe de plan de desarrollo"
-  ];
+const FASES = [
+  "Formularios","Pesos",
+  "Formulario de autoevaluación",
+  "Formulario de evaluación de clientes",
+  "Formulario de evaluación del desempeño",
+  "Resultados evaluación del desempeño",
+  "Informe consolidado",
+  "Informe de necesidades de capacitación",
+  "Informe de plan de desarrollo"
+];
+const DEFAULT_FASE = "Formulario de autoevaluación";
+const LS_KEYS = { forms:"ed_forms", pesos:"ed_pesos", apiOk:"ed_api_ok" };
+const $ = id => document.getElementById(id);
 
-  // Por default: "Formulario de autoevaluación" (como pediste)
-  const DEFAULT_FASE = "Formulario de autoevaluación";
+/* ================= STATUS ================= */
+function setApiStatus(mode,text){
+  const el=$("apiStatus");
+  el.classList.remove("ok","err");
+  if(mode) el.classList.add(mode);
+  $("apiStatusText").textContent=text;
+}
 
-  const LS_KEYS = {
-    forms: "ed_forms_cache_v1",
-    pesos: "ed_pesos_cache_v1",
-    apiOk: "ed_api_ok_v1"
+/* ================= JSONP API ================= */
+function apiGet(params){
+  return new Promise((resolve,reject)=>{
+    const cb="cb_"+Math.random().toString(36).slice(2);
+    const url=new URL(SCRIPT_WEBAPP_URL);
+    Object.entries(params).forEach(([k,v])=>url.searchParams.set(k,v));
+    url.searchParams.set("callback",cb);
+
+    const s=document.createElement("script");
+    window[cb]=data=>{
+      delete window[cb]; s.remove();
+      if(!data || data.ok!==true) reject(new Error(data?.error||"API inválida"));
+      else{ setApiStatus("ok","API: conectada"); resolve(data); }
+    };
+    s.onerror=()=>reject(new Error("No se pudo conectar"));
+    s.src=url.toString();
+    document.body.appendChild(s);
+  });
+}
+
+/* ================= UI ================= */
+function showOnly(id){
+  ["secFormularios","secPesos","secPlaceholder"].forEach(s=>$(s).classList.add("hidden"));
+  $(id).classList.remove("hidden");
+}
+
+function initFases(){
+  const sel=$("fase");
+  FASES.forEach(f=>{
+    const o=document.createElement("option");
+    o.value=o.textContent=f; sel.appendChild(o);
+  });
+  sel.value=DEFAULT_FASE;
+  sel.onchange=()=>{
+    if(sel.value==="Formularios") showOnly("secFormularios");
+    else if(sel.value==="Pesos") showOnly("secPesos");
+    else{
+      $("phTitle").textContent=sel.value;
+      $("phBody").textContent="Fase lista para implementar.";
+      showOnly("secPlaceholder");
+    }
   };
+  $("phTitle").textContent=DEFAULT_FASE;
+  $("phBody").textContent="Aquí irá el formulario de autoevaluación.";
+  showOnly("secPlaceholder");
+}
 
-  // =========================
-  // HELPERS
-  // =========================
-  const $ = (id) => document.getElementById(id);
-
-  function setApiStatus(mode, text){
-    const el = $("apiStatus");
-    el.classList.remove("ok","err");
-    if(mode) el.classList.add(mode);
-    $("apiStatusText").textContent = text;
-  }
-
-  function showOnlySection(sectionId){
-    ["secFormularios","secPesos","secPlaceholder"].forEach(id => $(id).classList.add("hidden"));
-    $(sectionId).classList.remove("hidden");
-  }
-
-  function setPlaceholder(title, body){
-    $("phTitle").textContent = title;
-    $("phBody").textContent = body;
-    showOnlySection("secPlaceholder");
-  }
-
-  function safeNumber(x){
-    const n = Number(String(x).replace(",", "."));
-    return Number.isFinite(n) ? n : 0;
-  }
-
-  // =========================
-  // API (Apps Script Web App)
-  // =========================
-  async function apiGet(params){
-    if(!SCRIPT_WEBAPP_URL || SCRIPT_WEBAPP_URL.includes("PEGAR_AQUI")){
-      setApiStatus("err","API: falta URL del Web App");
-      throw new Error("Falta SCRIPT_WEBAPP_URL");
-    }
-
-    const url = new URL(SCRIPT_WEBAPP_URL);
-    Object.entries(params).forEach(([k,v]) => url.searchParams.set(k, v));
-
-    const r = await fetch(url.toString(), { method:"GET" });
-    const data = await r.json();
-
-    if(!data || data.ok !== true){
-      throw new Error(data?.error || "Respuesta inválida del API");
-    }
-
-    localStorage.setItem(LS_KEYS.apiOk, "1");
-    setApiStatus("ok","API: conectada");
-    return data;
-  }
-
-  async function testApi(){
-    try{
-      await apiGet({ action:"ping" });
-    }catch(e){
-      const hadOk = localStorage.getItem(LS_KEYS.apiOk) === "1";
-      setApiStatus("err", hadOk ? "API: error (antes funcionó)" : "API: no conectada");
-    }
-  }
-
-  // =========================
-  // FORMULARIOS (UI)
-  // =========================
-  function setFormNivelOptions(niveles){
-    const sel = $("fNivelSelect");
-    sel.innerHTML = "";
-    niveles.forEach(n => {
-      const opt = document.createElement("option");
-      opt.value = n;
-      opt.textContent = n;
-      sel.appendChild(opt);
-    });
-    // default mostrar nivel 1 (si existe)
-    if(niveles.includes("1") || niveles.includes(1)){
-      sel.value = "1";
-    } else if(niveles.length){
-      sel.value = String(niveles[0]);
-    }
-  }
-
-  function renderFormTable(items){
-    const tb = $("tblFormularios").querySelector("tbody");
-    tb.innerHTML = "";
-
-    items.forEach(row => {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td>${row.Nivel ?? ""}</td>
-        <td>${row.Factor ?? ""}</td>
-        <td>${row.Item ?? ""}</td>
-        <td><small>${row["1"] ?? ""}</small></td>
-        <td><small>${row["2"] ?? ""}</small></td>
-        <td><small>${row["3"] ?? ""}</small></td>
-        <td><small>${row["4"] ?? ""}</small></td>
-        <td><small>${row["5"] ?? ""}</small></td>
-      `;
-      tb.appendChild(tr);
-    });
-
-    $("fCountChip").textContent = `Items: ${items.length}`;
-  }
-
-  function clearFormView(){
-    $("tblFormularios").querySelector("tbody").innerHTML = "";
-    $("fCountChip").textContent = "Items: 0";
-    $("fNivelSelect").innerHTML = "";
-  }
-
-  function cacheSet(key, value){
-    localStorage.setItem(key, JSON.stringify(value));
-  }
-  function cacheGet(key){
-    const raw = localStorage.getItem(key);
-    if(!raw) return null;
-    try{ return JSON.parse(raw); }catch(_){ return null; }
-  }
-  function cacheDel(key){ localStorage.removeItem(key); }
-
-  async function loadFormularios(){
-    // 1) Traer niveles
-    const levels = await apiGet({ action:"levels", sheet:"Formularios" });
-    setFormNivelOptions(levels.levels.map(String));
-
-    // 2) Traer items del nivel seleccionado
-    const nivel = $("fNivelSelect").value;
-    const res = await apiGet({ action:"items", sheet:"Formularios", nivel });
-    cacheSet(LS_KEYS.forms, { levels: levels.levels, byNivel: { [nivel]: res.items } });
-    renderFormTable(res.items);
-  }
-
-  async function reloadFormulariosForNivel(){
-    const nivel = $("fNivelSelect").value;
-    const cached = cacheGet(LS_KEYS.forms);
-    if(cached?.byNivel?.[nivel]){
-      renderFormTable(cached.byNivel[nivel]);
-      return;
-    }
-    const res = await apiGet({ action:"items", sheet:"Formularios", nivel });
-    const next = cached || { levels: [], byNivel: {} };
-    next.byNivel[nivel] = res.items;
-    cacheSet(LS_KEYS.forms, next);
-    renderFormTable(res.items);
-  }
-
-  // =========================
-  // PESOS (UI)
-  // =========================
-  function setPesoNivelOptions(niveles){
-    const sel = $("pNivelSelect");
-    sel.innerHTML = "";
-    niveles.forEach(n => {
-      const opt = document.createElement("option");
-      opt.value = n;
-      opt.textContent = n;
-      sel.appendChild(opt);
-    });
-    if(niveles.includes("1") || niveles.includes(1)){
-      sel.value = "1";
-    } else if(niveles.length){
-      sel.value = String(niveles[0]);
-    }
-  }
-
-  function renderPesosTable(items){
-    const tb = $("tblPesos").querySelector("tbody");
-    tb.innerHTML = "";
-
-    let total = 0;
-    items.forEach(row => {
-      const peso = safeNumber(row.Peso);
-      total += peso;
-
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td>${row.Nivel ?? ""}</td>
-        <td>${row.Factor ?? ""}</td>
-        <td>${row.Item ?? ""}</td>
-        <td class="mono">${row.Peso ?? ""}</td>
-      `;
-      tb.appendChild(tr);
-    });
-
-    $("pCountChip").textContent = `Items: ${items.length}`;
-    $("pesoTotalTxt").textContent = String(total);
-
-    // Validación ligera: si “total ~= 100” lo marco bonito (ajústalo si tu regla es otra)
-    const delta = Math.abs(total - 100);
-    $("pesoValidTxt").textContent =
-      delta < 0.0001 ? "✅ Total = 100" :
-      total === 0 ? "—" :
-      `⚠️ Total ≠ 100 (delta ${delta.toFixed(2)})`;
-  }
-
-  function clearPesosView(){
-    $("tblPesos").querySelector("tbody").innerHTML = "";
-    $("pCountChip").textContent = "Items: 0";
-    $("pNivelSelect").innerHTML = "";
-    $("pesoTotalTxt").textContent = "0";
-    $("pesoValidTxt").textContent = "—";
-  }
-
-  async function loadPesos(){
-    const levels = await apiGet({ action:"levels", sheet:"Pesos" });
-    setPesoNivelOptions(levels.levels.map(String));
-
-    const nivel = $("pNivelSelect").value;
-    const res = await apiGet({ action:"items", sheet:"Pesos", nivel });
-    cacheSet(LS_KEYS.pesos, { levels: levels.levels, byNivel: { [nivel]: res.items } });
-    renderPesosTable(res.items);
-  }
-
-  async function reloadPesosForNivel(){
-    const nivel = $("pNivelSelect").value;
-    const cached = cacheGet(LS_KEYS.pesos);
-    if(cached?.byNivel?.[nivel]){
-      renderPesosTable(cached.byNivel[nivel]);
-      return;
-    }
-    const res = await apiGet({ action:"items", sheet:"Pesos", nivel });
-    const next = cached || { levels: [], byNivel: {} };
-    next.byNivel[nivel] = res.items;
-    cacheSet(LS_KEYS.pesos, next);
-    renderPesosTable(res.items);
-  }
-
-  // =========================
-  // INIT: FASE SELECTOR
-  // =========================
-  function initFases(){
-    const sel = $("fase");
-    sel.innerHTML = "";
-    FASES.forEach(f => {
-      const opt = document.createElement("option");
-      opt.value = f;
-      opt.textContent = f;
-      sel.appendChild(opt);
-    });
-    sel.value = DEFAULT_FASE;
-
-    sel.addEventListener("change", () => {
-      const fase = sel.value;
-
-      if(fase === "Formularios"){
-        showOnlySection("secFormularios");
-      } else if(fase === "Pesos"){
-        showOnlySection("secPesos");
-      } else {
-        setPlaceholder(
-          fase,
-          "Sección lista. Conecto esta fase cuando definamos su estructura (campos, cálculos, reportes, etc.)."
-        );
-      }
-    });
-
-    // Mostrar default (Autoevaluación) como placeholder
-    setPlaceholder(DEFAULT_FASE, "Default: aquí irá el Formulario de autoevaluación.");
-  }
-
-  // =========================
-  // EVENTS
-  // =========================
-  $("btnFormCargar").addEventListener("click", async () => {
-    try{ await loadFormularios(); }catch(e){ setApiStatus("err","API: " + e.message); }
+/* ================= FORMULARIOS ================= */
+async function loadFormularios(){
+  const lv=await apiGet({action:"levels",sheet:"Formularios"});
+  $("fNivelSelect").innerHTML=lv.levels.map(n=>`<option>${n}</option>`).join("");
+  const nivel=$("fNivelSelect").value;
+  const it=await apiGet({action:"items",sheet:"Formularios",nivel});
+  const tb=$("tblFormularios").querySelector("tbody");
+  tb.innerHTML="";
+  it.items.forEach(r=>{
+    tb.insertAdjacentHTML("beforeend",`
+      <tr>
+        <td>${r.Nivel}</td><td>${r.Factor}</td><td>${r.Item}</td>
+        <td><small>${r["1"]}</small></td><td><small>${r["2"]}</small></td>
+        <td><small>${r["3"]}</small></td><td><small>${r["4"]}</small></td>
+        <td><small>${r["5"]}</small></td>
+      </tr>`);
   });
-  $("btnFormLimpiar").addEventListener("click", () => {
-    cacheDel(LS_KEYS.forms);
-    clearFormView();
-  });
-  $("fNivelSelect").addEventListener("change", async () => {
-    try{ await reloadFormulariosForNivel(); }catch(e){ setApiStatus("err","API: " + e.message); }
-  });
+  $("fCountChip").textContent=`Items: ${it.items.length}`;
+}
 
-  $("btnPesosCargar").addEventListener("click", async () => {
-    try{ await loadPesos(); }catch(e){ setApiStatus("err","API: " + e.message); }
+/* ================= PESOS ================= */
+async function loadPesos(){
+  const lv=await apiGet({action:"levels",sheet:"Pesos"});
+  $("pNivelSelect").innerHTML=lv.levels.map(n=>`<option>${n}</option>`).join("");
+  const nivel=$("pNivelSelect").value;
+  const it=await apiGet({action:"items",sheet:"Pesos",nivel});
+  const tb=$("tblPesos").querySelector("tbody");
+  tb.innerHTML="";
+  it.items.forEach(r=>{
+    tb.insertAdjacentHTML("beforeend",`
+      <tr><td>${r.Nivel}</td><td>${r.Factor}</td><td>${r.Item}</td><td>${r.Peso}</td></tr>`);
   });
-  $("btnPesosLimpiar").addEventListener("click", () => {
-    cacheDel(LS_KEYS.pesos);
-    clearPesosView();
-  });
-  $("pNivelSelect").addEventListener("change", async () => {
-    try{ await reloadPesosForNivel(); }catch(e){ setApiStatus("err","API: " + e.message); }
-  });
+  $("pCountChip").textContent=`Items: ${it.items.length}`;
+}
 
-  // =========================
-  // BOOT
-  // =========================
-  initFases();
-  testApi();
+/* ================= EVENTS ================= */
+$("btnFormCargar").onclick=()=>loadFormularios().catch(e=>setApiStatus("err",e.message));
+$("btnFormLimpiar").onclick=()=>{$("tblFormularios").querySelector("tbody").innerHTML="";};
+$("btnPesosCargar").onclick=()=>loadPesos().catch(e=>setApiStatus("err",e.message));
+$("btnPesosLimpiar").onclick=()=>{$("tblPesos").querySelector("tbody").innerHTML="";};
+
+/* ================= BOOT ================= */
+initFases();
+apiGet({action:"ping"}).catch(()=>setApiStatus("err","API no conectada"));
 </script>
+
 </body>
 </html>
