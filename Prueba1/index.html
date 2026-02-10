@@ -31,11 +31,8 @@
     .topbar{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
     .brand{display:flex;align-items:center;gap:10px;font-weight:700}
     .logo{
-      width:34px;height:34px;border-radius:12px;
-      display:grid;place-items:center;
-      background:rgba(79,124,255,.18);
-      border:1px solid rgba(79,124,255,.25);
-      font-weight:800;
+      width:34px;height:34px;border-radius:12px;display:grid;place-items:center;
+      background:rgba(79,124,255,.18);border:1px solid rgba(79,124,255,.25);font-weight:800;
     }
     .sub{color:var(--muted);font-size:13px}
     .chips{display:flex;gap:8px;flex-wrap:wrap}
@@ -63,17 +60,7 @@
       background:linear-gradient(180deg, rgba(245,158,11,.20), rgba(245,158,11,.08));
       border-color:rgba(245,158,11,.35)
     }
-    .btn-danger{
-      background:linear-gradient(180deg, rgba(239,68,68,.20), rgba(239,68,68,.08));
-      border-color:rgba(239,68,68,.35)
-    }
-
-    /* 👇 Estado “apagado” para Guardar */
-    button[disabled]{
-      opacity:.45;
-      filter:saturate(.6);
-      cursor:not-allowed;
-    }
+    button[disabled]{ opacity:.45; filter:saturate(.6); cursor:not-allowed; }
 
     main{padding:18px}
     .grid{max-width:1180px;margin:0 auto;display:grid;gap:14px}
@@ -88,7 +75,6 @@
     }
     .card-h h2{margin:0;font-size:16px}
     .card-b{padding:14px 16px}
-
     .status{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:12px;color:var(--muted)}
     .status .s-dot{width:10px;height:10px;border-radius:999px;background:var(--warn)}
     .status.ok .s-dot{background:var(--accent2)}
@@ -100,7 +86,6 @@
     .hint.warn{
       background:rgba(245,158,11,.10);border:1px dashed rgba(245,158,11,.35);
     }
-
     .form-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:10px}
     .col-3{grid-column:span 3}
     .col-4{grid-column:span 4}
@@ -112,20 +97,13 @@
     textarea{width:100%;min-height:92px;resize:vertical}
 
     .factor{
-      border:1px solid var(--line);
-      border-radius:18px;
-      padding:12px;
-      background:rgba(11,18,32,.35);
-      margin-bottom:12px;
+      border:1px solid var(--line); border-radius:18px; padding:12px;
+      background:rgba(11,18,32,.35); margin-bottom:12px;
     }
     .factor-title{font-weight:800;margin:0 0 8px 0;font-size:14px}
     .item-row{
-      display:grid;
-      grid-template-columns: 1fr 240px;
-      gap:12px;
-      padding:10px 0;
-      border-top:1px solid rgba(255,255,255,.07);
-      align-items:center;
+      display:grid; grid-template-columns: 1fr 240px; gap:12px;
+      padding:10px 0; border-top:1px solid rgba(255,255,255,.07); align-items:center;
     }
     .item-row:first-of-type{border-top:none}
     .item-name{font-weight:600;font-size:13px}
@@ -138,10 +116,7 @@
     .table-wrap{overflow:auto;border:1px solid rgba(255,255,255,.08);border-radius:16px}
     table{width:100%;border-collapse:collapse;min-width:860px}
     th,td{padding:10px 10px;border-bottom:1px solid rgba(255,255,255,.07);vertical-align:top}
-    th{
-      position:sticky;top:0;background:rgba(15,27,51,.98);
-      font-size:12px;color:var(--muted);text-align:left
-    }
+    th{position:sticky;top:0;background:rgba(15,27,51,.98);font-size:12px;color:var(--muted);text-align:left}
     td{font-size:13px}
     .muted{color:var(--muted);font-size:12px}
     .mono{font-family:var(--mono);font-size:12px;color:var(--muted)}
@@ -175,14 +150,13 @@
           <span class="s-dot"></span>
           <span id="apiStatusText">API: sin probar</span>
         </span>
-
         <button id="btnProbarApi" class="btn-ghost">Probar API</button>
 
-        <!-- ✅ En AUTO: se usan Guardar/Limpiar (y Guardar se habilita solo si todo está lleno) -->
-        <button id="btnLimpiarAuto" class="btn-warn" style="display:none">Limpiar</button>
+        <!-- ✅ Guardar/Limpiar se activan en fases evaluables (AUTO/DESEMPENO) -->
+        <button id="btnLimpiarEval" class="btn-warn" style="display:none">Limpiar</button>
         <button id="btnGuardar" class="btn-ok" disabled>Guardar</button>
 
-        <!-- (Opcionales: los dejamos, pero se esconden fuera de AUTO si quieres) -->
+        <!-- otros -->
         <button id="btnNuevo" class="btn-blue">Nuevo</button>
         <button id="btnPrint" class="btn-ghost">Imprimir / Enviar a PDF</button>
       </div>
@@ -210,7 +184,7 @@
         </div>
         <div class="hint warn" style="margin-top:10px">
           Si ves “No se pudo cargar el script”, casi siempre es porque el deploy NO está público.
-          En Apps Script: <b>Deploy → Manage deployments</b> → Access: <b>Anyone</b> (o Anyone with the link) y Execute as: <b>Me</b>.
+          En Apps Script: <b>Deploy → Manage deployments</b> → Access: <b>Anyone</b> y Execute as: <b>Me</b>.
         </div>
       </div>
     </section>
@@ -224,7 +198,6 @@
         </div>
         <div class="controls">
           <label class="sub">Fase</label>
-
           <select id="faseSelect">
             <option value="">Seleccione</option>
             <option value="FORMULARIOS">Formularios</option>
@@ -265,6 +238,7 @@
           <span class="chip mono">Columnas: Nivel | Factor | Item | 1..5</span>
         </div>
         <div id="formHint" class="hint">Aún no has cargado datos.</div>
+
         <div class="table-wrap" style="margin-top:12px">
           <table>
             <thead>
@@ -301,6 +275,7 @@
           <span class="chip mono">Columnas: Nivel | Factor | Item | Peso</span>
         </div>
         <div id="pesosHint" class="hint">Aún no has cargado datos.</div>
+
         <div class="table-wrap" style="margin-top:12px">
           <table>
             <thead>
@@ -327,12 +302,81 @@
       <div class="card-b"><div class="hint">Aquí irá el formulario para clientes.</div></div>
     </section>
 
-    <section class="card" data-phase-block="DESEMPENO">
+    <!-- ✅ DESEMPENO ahora usa el mismo formulario evaluable que AUTO -->
+    <!-- DATOS COLABORADOR (AUTO/DESEMPENO) -->
+    <section class="card" data-phase-block="EVAL" id="blockDatos">
       <div class="card-h">
-        <h2>Formulario de evaluación del desempeño</h2>
-        <div class="sub">Vista en construcción.</div>
+        <div>
+          <h2>Datos del colaborador</h2>
+          <div class="sub">Completa la información y selecciona una opción (1–5) para cada ítem.</div>
+        </div>
       </div>
-      <div class="card-b"><div class="hint">Aquí irá la evaluación del jefe/supervisor.</div></div>
+      <div class="card-b">
+        <div class="form-grid">
+          <div class="field col-3">
+            <div class="lbl">No. de personal</div>
+            <input id="noPersonal" placeholder="Ej: 1600" />
+          </div>
+          <div class="field col-6">
+            <div class="lbl">Nombre</div>
+            <input id="nombre" placeholder="Ej: Carlos Paz" />
+          </div>
+          <div class="field col-3">
+            <div class="lbl">Posición</div>
+            <input id="posicion" placeholder="Ej: Analista" />
+          </div>
+          <div class="field col-4">
+            <div class="lbl">Departamento</div>
+            <input id="depto" placeholder="Ej: Contabilidad" />
+          </div>
+          <div class="field col-4">
+            <div class="lbl">Periodo</div>
+            <input id="periodo" placeholder="Ej: 2025" />
+          </div>
+          <div class="field col-2">
+            <div class="lbl">Versión</div>
+            <input id="version" placeholder="Ej: 1" />
+          </div>
+          <div class="field col-2">
+            <div class="lbl">Fecha</div>
+            <input id="fecha" />
+          </div>
+        </div>
+
+        <div class="sub" style="margin-top:10px">
+          Estado API: <b id="apiMini">—</b>
+        </div>
+      </div>
+    </section>
+
+    <!-- CUESTIONARIO (AUTO/DESEMPENO) -->
+    <section class="card" data-phase-block="EVAL" id="blockEval">
+      <div class="card-h">
+        <div>
+          <h2>Evaluación (1–5)</h2>
+          <div class="sub">Cada nivel muestra “número — descripción” según la rúbrica.</div>
+        </div>
+        <div class="chips">
+          <span class="chip" id="itemsCount">Items: 0</span>
+          <span class="chip" id="completeHint">Completado: 0/0</span>
+        </div>
+      </div>
+      <div class="card-b">
+        <div id="cuestionario"></div>
+      </div>
+    </section>
+
+    <!-- COMENTARIOS (AUTO/DESEMPENO) -->
+    <section class="card" data-phase-block="EVAL" id="blockComentarios">
+      <div class="card-h">
+        <div>
+          <h2>Comentarios</h2>
+          <div class="sub">Incluye observaciones, ejemplos, mejoras o apoyo requerido.</div>
+        </div>
+      </div>
+      <div class="card-b">
+        <textarea id="comentarios" placeholder="Comentarios..."></textarea>
+      </div>
     </section>
 
     <section class="card" data-phase-block="RESULTADO">
@@ -367,107 +411,29 @@
       <div class="card-b"><div class="hint">Aquí irá el plan de desarrollo individual.</div></div>
     </section>
 
-    <!-- DATOS DEL COLABORADOR (AUTO) -->
-    <section class="card" data-phase-block="AUTO" id="blockDatos">
-      <div class="card-h">
-        <div>
-          <h2>Datos del colaborador</h2>
-          <div class="sub">Completa la información y selecciona una opción (1–5) para cada ítem.</div>
-        </div>
-      </div>
-      <div class="card-b">
-        <div class="form-grid">
-          <div class="field col-3">
-            <div class="lbl">No. de personal</div>
-            <input id="noPersonal" placeholder="Ej: 1600" />
-          </div>
-          <div class="field col-6">
-            <div class="lbl">Nombre</div>
-            <input id="nombre" placeholder="Ej: Carlos Paz" />
-          </div>
-          <div class="field col-3">
-            <div class="lbl">Posición</div>
-            <input id="posicion" placeholder="Ej: Analista" />
-          </div>
-
-          <div class="field col-4">
-            <div class="lbl">Departamento</div>
-            <input id="depto" placeholder="Ej: Contabilidad" />
-          </div>
-          <div class="field col-4">
-            <div class="lbl">Periodo</div>
-            <input id="periodo" placeholder="Ej: 2025" />
-          </div>
-          <div class="field col-2">
-            <div class="lbl">Versión</div>
-            <input id="version" placeholder="Ej: 1" />
-          </div>
-          <div class="field col-2">
-            <div class="lbl">Fecha</div>
-            <input id="fecha" />
-          </div>
-        </div>
-        <div class="sub" style="margin-top:10px">
-          Estado API: <b id="apiMini">—</b>
-        </div>
-      </div>
-    </section>
-
-    <!-- CUESTIONARIO (AUTO) -->
-    <section class="card" data-phase-block="AUTO" id="blockEval">
-      <div class="card-h">
-        <div>
-          <h2>Evaluación (1–5)</h2>
-          <div class="sub">Cada nivel muestra “número — descripción” según la rúbrica.</div>
-        </div>
-        <div class="chips">
-          <span class="chip" id="itemsCount">Items: 0</span>
-          <span class="chip" id="completeHint">Completado: 0/0</span>
-        </div>
-      </div>
-      <div class="card-b">
-        <div id="cuestionario"></div>
-      </div>
-    </section>
-
-    <!-- COMENTARIOS (AUTO) -->
-    <section class="card" data-phase-block="AUTO" id="blockComentarios">
-      <div class="card-h">
-        <div>
-          <h2>Comentarios del colaborador</h2>
-          <div class="sub">Incluye observaciones, ejemplos, mejoras o apoyo requerido.</div>
-        </div>
-      </div>
-      <div class="card-b">
-        <textarea id="comentarios" placeholder="Comentarios del colaborador..."></textarea>
-      </div>
-    </section>
-
   </div>
 </main>
 
 <script>
 /* ================= CONFIG ================= */
 const LS_KEY_URL = "ED_WEBAPP_URL";
-const DEFAULT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzr5G0cFP-_faz6RX6asQI10M-ja4O4raK0f4WxnNWKkoeMQ6XkR4IpF-VKz8ICX0rK/exec";
-
+const DEFAULT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyPC5yq-Bw0oT47Pv6cj_kQvbx4BU-sqDm1Vl0fG2lxuMMP7hxAyXmcLxJjnJB0xQim/exec";
 const $ = id => document.getElementById(id);
 
 function getWebAppUrl(){
   const v = ($("webappUrl").value || "").trim();
   return v || DEFAULT_WEBAPP_URL;
 }
-function setWebAppUrl(v){
-  $("webappUrl").value = v || "";
-}
+function setWebAppUrl(v){ $("webappUrl").value = v || ""; }
 
 /* ================= STATE ================= */
 const state = {
   fase: "",
   nivel: null,
   form: null,
-  answers: new Map(),   // key -> value
-  itemKeys: [],         // keys en el orden de pantalla (Resp1..RespN)
+  // answers: key -> { value:"3", label:"3 — texto..." }
+  answers: new Map(),
+  itemKeys: [],
 };
 
 /* ================= STATUS ================= */
@@ -488,21 +454,20 @@ function buildUrl(params, cbName){
   url.searchParams.set("_", String(Date.now()));
   return url.toString();
 }
-
 function apiGet(params, timeoutMs=15000){
   return new Promise((resolve,reject)=>{
     const cb="cb_"+Math.random().toString(36).slice(2);
     const src = buildUrl(params, cb);
-
     setApiStatus("", "API: consultando…");
 
     const s=document.createElement("script");
     s.async = true;
-
     let done=false;
+
     const t=setTimeout(()=>{
       if(done) return;
-      done=true; cleanup();
+      done=true;
+      cleanup();
       reject(new Error("Timeout: la WebApp no respondió. Revisa Deploy/Access/URL."));
     }, timeoutMs);
 
@@ -514,8 +479,8 @@ function apiGet(params, timeoutMs=15000){
 
     window[cb]=data=>{
       if(done) return;
-      done=true; cleanup();
-
+      done=true;
+      cleanup();
       if(!data || typeof data !== "object"){
         reject(new Error("Respuesta no-JSON (posible login/permiso). Deploy debe ser público."));
         return;
@@ -530,7 +495,8 @@ function apiGet(params, timeoutMs=15000){
 
     s.onerror=()=>{
       if(done) return;
-      done=true; cleanup();
+      done=true;
+      cleanup();
       reject(new Error("No se pudo cargar el script. Causa típica: deploy privado, URL incorrecta o bloqueador/extensión."));
     };
 
@@ -547,7 +513,6 @@ function todayLocal(){
   const dd = String(d.getDate()).padStart(2,"0");
   return `${dd}/${mm}/${yyyy}`;
 }
-
 function escapeHtml(s){
   return String(s ?? "").replace(/[&<>"']/g, m => ({
     "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
@@ -572,15 +537,19 @@ function fillNivelSelect(levels, includeAll=false){
     sel.appendChild(o);
   });
 }
-
 function pickDefault(levels, includeAll){
   if(includeAll) return "ALL";
   const has1 = levels.some(x => String(x).trim() === "1" || String(x).trim().startsWith("1"));
   return has1 ? "1" : String(levels[0] ?? "1");
 }
 
-/* ================= VALIDATION (AUTO) ================= */
-function getAutoRequiredFields(){
+/* ================= FASES EVALUABLES ================= */
+function isEvalPhase(){
+  return state.fase === "AUTO" || state.fase === "DESEMPENO";
+}
+
+/* ================= VALIDATION (EVAL) ================= */
+function getEvalRequiredFields(){
   return [
     $("noPersonal").value.trim(),
     $("nombre").value.trim(),
@@ -592,63 +561,69 @@ function getAutoRequiredFields(){
     $("comentarios").value.trim(),
   ];
 }
+function isEvalComplete(){
+  if(!isEvalPhase()) return false;
 
-function isAutoComplete(){
-  if(state.fase !== "AUTO") return false;
-
-  // 1) datos colaborador + comentarios
-  const req = getAutoRequiredFields();
+  // datos + comentarios
+  const req = getEvalRequiredFields();
   if(req.some(v => !v)) return false;
 
-  // 2) respuestas completas
+  // respuestas
   const total = state.itemKeys.length;
   if(total === 0) return false;
 
   for(const k of state.itemKeys){
-    const v = state.answers.get(k);
-    if(!v) return false;
+    const obj = state.answers.get(k);
+    if(!obj || !obj.value || !obj.label) return false;
   }
   return true;
 }
-
-function updateAutoUIState(){
+function updateEvalUIState(){
   const btnG = $("btnGuardar");
   const total = state.itemKeys.length;
+
   let done = 0;
   for(const k of state.itemKeys){
-    if(state.answers.get(k)) done++;
+    const obj = state.answers.get(k);
+    if(obj && obj.value) done++;
   }
   $("completeHint").textContent = `Completado: ${done}/${total}`;
 
-  if(state.fase !== "AUTO"){
+  if(!isEvalPhase()){
     btnG.disabled = true;
-    $("btnLimpiarAuto").style.display = "none";
+    $("btnLimpiarEval").style.display = "none";
     return;
   }
 
-  $("btnLimpiarAuto").style.display = "inline-block";
-
-  btnG.disabled = !isAutoComplete();
+  $("btnLimpiarEval").style.display = "inline-block";
+  btnG.disabled = !isEvalComplete();
 }
 
 /* ================= PHASE UI ================= */
 function setPhase(phase){
   state.fase = phase || "";
 
+  // Bloques normales por fase
   document.querySelectorAll("[data-phase-block]").forEach(el=>{
     const p = el.getAttribute("data-phase-block");
-    el.classList.toggle("show", p === state.fase);
+    el.classList.remove("show");
+    if(p === state.fase) el.classList.add("show");
   });
 
-  const enableNivel = (state.fase === "AUTO" || state.fase === "FORMULARIOS" || state.fase === "PESOS");
+  // Bloques EVAL (AUTO/DESEMPENO)
+  document.querySelectorAll('[data-phase-block="EVAL"]').forEach(el=>{
+    el.classList.toggle("show", isEvalPhase());
+  });
+
+  const enableNivel = (isEvalPhase() || state.fase === "FORMULARIOS" || state.fase === "PESOS");
   $("nivelSelect").disabled = !enableNivel;
 
   const labelByPhase = {
     "FORMULARIOS": "Formularios: Selecciona nivel (Todos / 1..10) y carga para ver la tabla.",
     "PESOS": "Pesos: Selecciona nivel (Todos / 1..10) y carga para ver la tabla.",
     "AUTO": "Autoevaluación activa. Selecciona nivel para cargar ítems.",
+    "DESEMPENO": "Evaluación del desempeño activa. Selecciona nivel para cargar ítems.",
     "CLIENTES": "Evaluación de clientes.",
-    "DESEMPENO": "Evaluación del desempeño (jefe/supervisor).",
     "RESULTADO": "Resultados del desempeño.",
     "CONSOLIDADO": "Informe consolidado.",
     "CAPACITACION": "Necesidades de capacitación.",
@@ -656,31 +631,30 @@ function setPhase(phase){
   };
   $("faseHelp").textContent = labelByPhase[state.fase] || "Selecciona una fase para desplegar el formulario.";
 
-  if(state.fase !== "AUTO"){
-    $("cuestionario").innerHTML = `<div class="hint">Selecciona “Formulario de autoevaluación” para ver el cuestionario.</div>`;
+  if(!isEvalPhase()){
+    $("cuestionario").innerHTML = `<div class="hint">Selecciona una fase evaluable (Autoevaluación / Desempeño) para ver el cuestionario.</div>`;
     $("itemsCount").textContent = "Items: 0";
     $("completeHint").textContent = "Completado: 0/0";
   }
 
-  // UX: ocultar/mostrar botones opcionales
-  const inAuto = state.fase === "AUTO";
-  $("btnNuevo").style.display = inAuto ? "none" : "inline-block";
-  $("btnPrint").style.display = inAuto ? "none" : "inline-block";
+  // UX: ocultar botones opcionales en fases evaluables
+  $("btnNuevo").style.display = isEvalPhase() ? "none" : "inline-block";
+  $("btnPrint").style.display = isEvalPhase() ? "none" : "inline-block";
 
-  updateAutoUIState();
+  updateEvalUIState();
 }
 
-/* ================= AUTO: RENDER FORM ================= */
+/* ================= EVAL: RENDER FORM ================= */
 function renderCuestionario(form){
   const root = $("cuestionario");
   root.innerHTML = "";
   state.itemKeys = [];
 
-  if(state.fase !== "AUTO"){
-    root.innerHTML = `<div class="hint">Selecciona “Formulario de autoevaluación” para ver el cuestionario.</div>`;
+  if(!isEvalPhase()){
+    root.innerHTML = `<div class="hint">Selecciona una fase evaluable para ver el cuestionario.</div>`;
     $("itemsCount").textContent = "Items: 0";
     $("completeHint").textContent = "Completado: 0/0";
-    updateAutoUIState();
+    updateEvalUIState();
     return;
   }
 
@@ -688,7 +662,7 @@ function renderCuestionario(form){
     root.innerHTML = `<div class="hint">No hay ítems para este nivel.</div>`;
     $("itemsCount").textContent = "Items: 0";
     $("completeHint").textContent = "Completado: 0/0";
-    updateAutoUIState();
+    updateEvalUIState();
     return;
   }
 
@@ -704,13 +678,14 @@ function renderCuestionario(form){
       const key = it.key;
       state.itemKeys.push(key);
 
-      const current = state.answers.get(key) || "";
+      const current = state.answers.get(key)?.value || "";
 
-      const r1 = (it.rubrica && it.rubrica["1"]) ? String(it.rubrica["1"]) : "";
-      const r2 = (it.rubrica && it.rubrica["2"]) ? String(it.rubrica["2"]) : "";
-      const r3 = (it.rubrica && it.rubrica["3"]) ? String(it.rubrica["3"]) : "";
-      const r4 = (it.rubrica && it.rubrica["4"]) ? String(it.rubrica["4"]) : "";
-      const r5 = (it.rubrica && it.rubrica["5"]) ? String(it.rubrica["5"]) : "";
+      const r = it.rubrica || {};
+      const r1 = String(r["1"] ?? "");
+      const r2 = String(r["2"] ?? "");
+      const r3 = String(r["3"] ?? "");
+      const r4 = String(r["4"] ?? "");
+      const r5 = String(r["5"] ?? "");
 
       const row = document.createElement("div");
       row.className = "item-row";
@@ -719,6 +694,7 @@ function renderCuestionario(form){
           <div class="item-name">${escapeHtml(it.item || "Ítem")}</div>
           <div class="item-sub">Selecciona 1–5 según la rúbrica.</div>
         </div>
+
         <div class="item-select">
           <div class="lbl">Puntaje (1–5)</div>
           <select data-key="${escapeAttr(key)}">
@@ -736,9 +712,15 @@ function renderCuestionario(form){
       sel.addEventListener("change", (e)=>{
         const k = e.target.getAttribute("data-key");
         const v = e.target.value;
-        if(!v) state.answers.delete(k);
-        else state.answers.set(k, v);
-        updateAutoUIState();
+
+        if(!v){
+          state.answers.delete(k);
+        }else{
+          // ✅ Guardamos: numero + texto visible (ej: "3 — Asigna...")
+          const label = e.target.selectedOptions?.[0]?.textContent?.trim() || v;
+          state.answers.set(k, { value: v, label });
+        }
+        updateEvalUIState();
       });
 
       box.appendChild(row);
@@ -748,7 +730,7 @@ function renderCuestionario(form){
   });
 
   $("itemsCount").textContent = `Items: ${totalItems}`;
-  updateAutoUIState();
+  updateEvalUIState();
 }
 
 /* ================= FORMULARIOS: TABLE ================= */
@@ -766,7 +748,6 @@ function renderFormulariosItems(items){
   }
   $("formHint").textContent = "Datos cargados desde Google Sheets.";
   $("rowsCount").textContent = `Filas: ${items.length}`;
-
   tb.innerHTML = items.map(r => `
     <tr>
       <td><b>${escapeHtml(r.Nivel ?? "")}</b></td>
@@ -802,7 +783,6 @@ function renderPesosItems(items){
   }
   $("pesosHint").textContent = "Datos cargados desde Google Sheets.";
   $("rowsCountPesos").textContent = `Filas: ${items.length}`;
-
   tb.innerHTML = items.map(r => `
     <tr>
       <td><b>${escapeHtml(r.Nivel ?? "")}</b></td>
@@ -821,7 +801,7 @@ async function cargarPesos(){
 
 /* ================= LOADERS (levels + form) ================= */
 async function loadLevelsForPhase(){
-  if(state.fase === "AUTO"){
+  if(isEvalPhase()){
     const lv = await apiGet({action:"levels", sheet:"Formularios"});
     const levels = lv.levels || [];
     if(!levels.length) throw new Error("No se encontraron niveles en 'Formularios'.");
@@ -831,7 +811,6 @@ async function loadLevelsForPhase(){
     state.nivel = def;
     return;
   }
-
   if(state.fase === "FORMULARIOS"){
     const lv = await apiGet({action:"levels", sheet:"Formularios"});
     const levels = lv.levels || [];
@@ -842,7 +821,6 @@ async function loadLevelsForPhase(){
     state.nivel = def;
     return;
   }
-
   if(state.fase === "PESOS"){
     const lv = await apiGet({action:"levels", sheet:"Pesos"});
     const levels = lv.levels || [];
@@ -854,7 +832,6 @@ async function loadLevelsForPhase(){
     return;
   }
 }
-
 async function loadFormByNivel(nivel){
   const res = await apiGet({action:"form", nivel: String(nivel)});
   state.form = res.form || null;
@@ -863,31 +840,29 @@ async function loadFormByNivel(nivel){
 }
 
 /* ================= ACTIONS ================= */
-function clearAuto(){
+function clearEval(){
   ["noPersonal","nombre","posicion","depto","periodo","version"].forEach(id=>$(id).value="");
   $("comentarios").value = "";
   state.answers.clear();
   renderCuestionario(state.form);
-  updateAutoUIState();
+  updateEvalUIState();
 }
 
-async function saveAuto(){
-  if(state.fase !== "AUTO"){
-    alert("Para guardar, usa la fase “Formulario de autoevaluación”.");
+async function saveEval(){
+  if(!isEvalPhase()){
+    alert("Para guardar, usa Autoevaluación o Evaluación del desempeño.");
     return;
   }
-
-  // extra seguridad: no dejar guardar si no está completo
-  if(!isAutoComplete()){
+  if(!isEvalComplete()){
     alert("Aún faltan datos / respuestas / comentarios. Completa todo para habilitar Guardar.");
     return;
   }
 
-  // Respuestas en el orden de pantalla: Resp1..RespN
-  const respuestasOrdenadas = state.itemKeys.map(k => String(state.answers.get(k) || ""));
+  // ✅ Guardamos en la hoja: "No — texto"
+  const respuestasOrdenadas = state.itemKeys.map(k => (state.answers.get(k)?.label || ""));
 
   const payload = {
-    fase: "AUTO",
+    fase: state.fase,             // "AUTO" o "DESEMPENO"
     nivel: String(state.nivel || ""),
     no: $("noPersonal").value.trim(),
     nombre: $("nombre").value.trim(),
@@ -903,9 +878,10 @@ async function saveAuto(){
   const json = JSON.stringify(payload);
   const b64 = btoa(unescape(encodeURIComponent(json)));
 
-  const out = await apiGet({action:"save", payload:b64}); // Apps Script ya lo guarda en Autoevaluacion
+  const out = await apiGet({action:"save", payload:b64});
+
   alert("Guardado ✅\nID: " + (out.id || "—"));
-  clearAuto();
+  clearEval();
 }
 
 function printToPdf(){ window.print(); }
@@ -929,18 +905,15 @@ $("faseSelect").addEventListener("change", async (e)=>{
   setPhase(fase);
 
   try{
-    if(fase === "AUTO" || fase === "FORMULARIOS" || fase === "PESOS"){
+    if(isEvalPhase() || fase === "FORMULARIOS" || fase === "PESOS"){
       await loadLevelsForPhase();
     }
-
-    if(fase === "AUTO"){
+    if(isEvalPhase()){
       await loadFormByNivel(state.nivel);
-      updateAutoUIState();
+      updateEvalUIState();
     }
-
     if(fase === "FORMULARIOS") clearFormulariosTable();
     if(fase === "PESOS") clearPesosTable();
-
   }catch(err){
     setApiStatus("err","API: " + err.message);
   }
@@ -949,19 +922,19 @@ $("faseSelect").addEventListener("change", async (e)=>{
 $("nivelSelect").addEventListener("change", async (e)=>{
   try{
     state.nivel = e.target.value;
-    if(state.fase === "AUTO"){
+    if(isEvalPhase()){
       await loadFormByNivel(state.nivel);
-      updateAutoUIState();
+      updateEvalUIState();
     }
   }catch(err){
     setApiStatus("err","API: " + err.message);
   }
 });
 
-$("btnGuardar").addEventListener("click", ()=>saveAuto().catch(err=>setApiStatus("err","API: " + err.message)));
-$("btnLimpiarAuto").addEventListener("click", clearAuto);
+$("btnGuardar").addEventListener("click", ()=>saveEval().catch(err=>setApiStatus("err","API: " + err.message)));
+$("btnLimpiarEval").addEventListener("click", clearEval);
 
-$("btnNuevo").addEventListener("click", clearAuto); // fuera de AUTO es irrelevante, pero no molesta
+$("btnNuevo").addEventListener("click", clearEval);
 $("btnPrint").addEventListener("click", printToPdf);
 
 $("btnCargarFormularios").addEventListener("click", ()=>cargarFormularios().catch(err=>setApiStatus("err","API: " + err.message)));
@@ -982,12 +955,12 @@ $("btnLimpiarPesos").addEventListener("click", ()=>{
   }
 });
 
-/* 👇 Validación “en vivo” para habilitar Guardar */
+/* ✅ Validación “en vivo” */
 ["noPersonal","nombre","posicion","depto","periodo","version","fecha","comentarios"].forEach(id=>{
   const el = $(id);
   if(el){
-    el.addEventListener("input", updateAutoUIState);
-    el.addEventListener("change", updateAutoUIState);
+    el.addEventListener("input", updateEvalUIState);
+    el.addEventListener("change", updateEvalUIState);
   }
 });
 
@@ -1008,7 +981,7 @@ $("btnLimpiarPesos").addEventListener("click", ()=>{
     })
     .catch(e=>setApiStatus("err","API: "+e.message));
 
-  updateAutoUIState();
+  updateEvalUIState();
 })();
 </script>
 </body>
