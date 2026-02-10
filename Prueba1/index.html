@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Sistema de Evaluación del Desempeño</title>
 
+  <!-- evita 404 favicon.ico -->
+  <link rel="icon" href="data:,">
+
   <style>
     :root{
       --bg:#0b1220; --panel:#0f1b33; --panel2:#121f3d;
@@ -153,7 +156,7 @@
 
 <script>
 /* ================= CONFIG ================= */
-const SCRIPT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbza7oayPvd9cmRrjjEUkE2fFhAJrEs4RmktBQ4GfUDBVx9Uv8fEOpj2ugEGOTBdz6SX/exec";
+const SCRIPT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxGKbL_Bg2dUYgUg5-wfGoqfOUGFiD9GWwMnlAae4UZ0D9llMPj174yH8RFng1D0gGg/exec";
 
 const FASES = [
   "Formularios","Pesos",
@@ -165,7 +168,7 @@ const FASES = [
   "Informe de necesidades de capacitación",
   "Informe de plan de desarrollo"
 ];
-const DEFAULT_FASE = "Formulario de autoevaluación";
+
 const $ = id => document.getElementById(id);
 
 /* ================= STATUS ================= */
@@ -176,38 +179,54 @@ function setApiStatus(mode,text){
   $("apiStatusText").textContent=text;
 }
 
-/* ================= JSONP API (con timeout) ================= */
+/* ================= JSONP API (robusto + debug) ================= */
+function buildUrl(params, cbName){
+  const url = new URL(SCRIPT_WEBAPP_URL);
+  Object.entries(params).forEach(([k,v])=>url.searchParams.set(k, v));
+  url.searchParams.set("callback", cbName);
+  url.searchParams.set("_", String(Date.now())); // cache-buster
+  return url.toString();
+}
+
 function apiGet(params, timeoutMs=12000){
   return new Promise((resolve,reject)=>{
     const cb="cb_"+Math.random().toString(36).slice(2);
-    const url=new URL(SCRIPT_WEBAPP_URL);
-    Object.entries(params).forEach(([k,v])=>url.searchParams.set(k,v));
-    url.searchParams.set("callback",cb);
+    const src = buildUrl(params, cb);
+
+    setApiStatus("", "API: consultando…");
+    console.log("[API] JSONP ->", src);
 
     const s=document.createElement("script");
-    let done=false;
+    s.async = true;
 
+    let done=false;
     const t=setTimeout(()=>{
       if(done) return;
       done=true;
       cleanup();
-      reject(new Error("Timeout: la WebApp no respondió (¿deploy cerrado?)"));
+      reject(new Error("Timeout: la WebApp no respondió. Revisa deploy/permisos."));
     }, timeoutMs);
 
     function cleanup(){
       clearTimeout(t);
-      try{ delete window[cb]; }catch(_){ window[cb]=undefined; }
-      if(s && s.parentNode) s.parentNode.removeChild(s);
+      try { delete window[cb]; } catch(_) { window[cb]=undefined; }
+      if (s && s.parentNode) s.parentNode.removeChild(s);
     }
 
     window[cb]=data=>{
       if(done) return;
       done=true;
       cleanup();
-      if(!data || data.ok!==true){
-        reject(new Error(data?.error || "Respuesta inválida"));
+
+      if(!data || typeof data !== "object"){
+        reject(new Error("Respuesta no-JSON (posible login/permiso). Deploy: Anyone."));
         return;
       }
+      if(data.ok!==true){
+        reject(new Error(data.error || "Respuesta inválida"));
+        return;
+      }
+
       setApiStatus("ok","API: conectada");
       resolve(data);
     };
@@ -216,10 +235,10 @@ function apiGet(params, timeoutMs=12000){
       if(done) return;
       done=true;
       cleanup();
-      reject(new Error("No se pudo cargar el script. Revisa: URL / permisos / deploy"));
+      reject(new Error("No se pudo cargar el script (URL mala / deploy privado / bloqueo extensión)."));
     };
 
-    s.src=url.toString();
+    s.src = src;
     document.body.appendChild(s);
   });
 }
@@ -229,14 +248,17 @@ function showOnly(id){
   ["secFormularios","secPesos","secPlaceholder"].forEach(s=>$(s).classList.add("hidden"));
   $(id).classList.remove("hidden");
 }
+
 function initFases(){
   const sel=$("fase");
   sel.innerHTML="";
   FASES.forEach(f=>{
     const o=document.createElement("option");
-    o.value=o.textContent=f; sel.appendChild(o);
+    o.value=o.textContent=f;
+    sel.appendChild(o);
   });
-  sel.value="Formularios"; // para que veas rápido si carga
+
+  sel.value="Formularios"; // default visible
   sel.onchange=()=>{
     if(sel.value==="Formularios") showOnly("secFormularios");
     else if(sel.value==="Pesos") showOnly("secPesos");
@@ -246,6 +268,7 @@ function initFases(){
       showOnly("secPlaceholder");
     }
   };
+
   showOnly("secFormularios");
 }
 
@@ -253,7 +276,7 @@ function initFases(){
 async function loadFormularios(){
   const lv=await apiGet({action:"levels",sheet:"Formularios"});
   $("fNivelSelect").innerHTML = lv.levels.map(n=>`<option value="${String(n)}">${String(n)}</option>`).join("");
-  if(!$("fNivelSelect").value && lv.levels.length) $("fNivelSelect").value = String(lv.levels[0]);
+  if(lv.levels.length) $("fNivelSelect").value = String(lv.levels[0]);
 
   const nivel=$("fNivelSelect").value;
   const it=await apiGet({action:"items",sheet:"Formularios",nivel});
@@ -280,7 +303,7 @@ async function loadFormularios(){
 async function loadPesos(){
   const lv=await apiGet({action:"levels",sheet:"Pesos"});
   $("pNivelSelect").innerHTML = lv.levels.map(n=>`<option value="${String(n)}">${String(n)}</option>`).join("");
-  if(!$("pNivelSelect").value && lv.levels.length) $("pNivelSelect").value = String(lv.levels[0]);
+  if(lv.levels.length) $("pNivelSelect").value = String(lv.levels[0]);
 
   const nivel=$("pNivelSelect").value;
   const it=await apiGet({action:"items",sheet:"Pesos",nivel});
@@ -305,6 +328,7 @@ $("btnFormLimpiar").onclick=()=>{
   $("tblFormularios").querySelector("tbody").innerHTML="";
   $("fCountChip").textContent="Items: 0";
 };
+
 $("btnPesosCargar").onclick=()=>loadPesos().catch(e=>setApiStatus("err","API: "+e.message));
 $("btnPesosLimpiar").onclick=()=>{
   $("tblPesos").querySelector("tbody").innerHTML="";
@@ -313,6 +337,7 @@ $("btnPesosLimpiar").onclick=()=>{
 
 /* ================= BOOT ================= */
 initFases();
+
 apiGet({action:"ping"})
   .then(()=>setApiStatus("ok","API: conectada"))
   .catch(e=>setApiStatus("err","API: "+e.message));
