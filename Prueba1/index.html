@@ -12,8 +12,7 @@
       --text:#e8eefc; --muted:#a9b7d9; --line:rgba(255,255,255,.10);
       --accent:#4f7cff; --accent2:#22c55e; --warn:#f59e0b; --danger:#ef4444;
       --chip:#1a2a52; --shadow: 0 10px 30px rgba(0,0,0,.35);
-      --radius2: 22px;
-      --mono: ui-monospace, Menlo, Monaco, Consolas, monospace;
+      --radius2: 22px; --mono: ui-monospace, Menlo, Monaco, Consolas, monospace;
       --sans: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
     }
     *{box-sizing:border-box}
@@ -112,8 +111,8 @@
       background:linear-gradient(180deg, rgba(11,18,32,.25), rgba(15,27,51,.10));
     }
     .factor-title{
-      padding:14px 16px; font-weight:800; font-size:18px;
-      letter-spacing:.2px; border-bottom:1px solid rgba(255,255,255,.08);
+      padding:14px 16px; font-weight:800; font-size:18px; letter-spacing:.2px;
+      border-bottom:1px solid rgba(255,255,255,.08);
       background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
     }
     .item-row{
@@ -135,6 +134,14 @@
       padding:0;margin:-1px;
       overflow:hidden;clip:rect(0,0,0,0);
       white-space:nowrap;border:0;
+    }
+
+    /* extra: separador mini */
+    .miniSep{
+      height:1px;
+      background:rgba(255,255,255,.08);
+      margin:12px 0;
+      border-radius:999px;
     }
 
     @media (max-width:860px){
@@ -170,13 +177,10 @@
             <span class="s-dot"></span>
             <span id="apiStatusText">API: sin probar</span>
           </span>
-
           <button id="btnProbarApi" class="btn-ghost">Probar API</button>
           <button id="btnAbrirPing" class="btn-ghost">Abrir Ping</button>
-
           <button id="btnLimpiarEval" class="btn-warn" style="display:none">Limpiar</button>
           <button id="btnGuardar" class="btn-ok" disabled>Guardar</button>
-
           <button id="btnNuevo" class="btn-blue">Nuevo</button>
           <button id="btnPrint" class="btn-ghost">Imprimir / Enviar a PDF</button>
         </div>
@@ -186,8 +190,6 @@
 
   <main>
     <div class="grid">
-
-      <!-- ✅ BLOQUE CONEXIÓN ELIMINADO (no se muestra) -->
 
       <!-- FASE + NIVEL -->
       <section class="card" id="blockFaseNivel">
@@ -238,9 +240,7 @@
             <span class="chip" id="rowsCount">Filas: 0</span>
             <span class="chip mono">Columnas: Nivel | Factor | Item | 1..5</span>
           </div>
-
           <div id="formHint" class="hint">Aún no has cargado datos.</div>
-
           <div class="table-wrap" style="margin-top:12px">
             <table>
               <thead>
@@ -276,9 +276,7 @@
             <span class="chip" id="rowsCountPesos">Filas: 0</span>
             <span class="chip mono">Columnas: Nivel | Factor | Item | Peso</span>
           </div>
-
           <div id="pesosHint" class="hint">Aún no has cargado datos.</div>
-
           <div class="table-wrap" style="margin-top:12px">
             <table>
               <thead>
@@ -308,7 +306,6 @@
             <span class="chip mono">Hoja destino: <b>Clientes</b></span>
           </div>
         </div>
-
         <div class="card-b">
           <div class="hint" style="margin-bottom:12px">
             Nota: En esta fase no existe “Nivel”. Solo se tabulan los campos del formulario en la hoja <b>Clientes</b>.
@@ -343,7 +340,6 @@
               <div class="lbl">Fecha</div>
               <input id="fecha" />
             </div>
-
             <div class="field col-12">
               <div class="lbl">Comenzar a hacer</div>
               <textarea id="comenzarHacer" placeholder="¿Qué debería comenzar a hacer?"></textarea>
@@ -356,7 +352,6 @@
               <div class="lbl">Continuar haciendo</div>
               <textarea id="continuarHacer" placeholder="¿Qué debería continuar haciendo?"></textarea>
             </div>
-
             <div class="field col-6">
               <div class="lbl">Nombre del evaluador</div>
               <input id="nombreEvaluador" placeholder="Ej: Ana López" />
@@ -375,7 +370,6 @@
             <div class="sub">Completa la información y selecciona una opción (1–5) para cada ítem.</div>
           </div>
         </div>
-
         <div class="card-b">
           <div class="form-grid">
             <div class="field col-3">
@@ -407,6 +401,7 @@
               <input id="fechaEval" />
             </div>
           </div>
+
           <div class="sub" style="margin-top:10px">Estado API: <b id="apiMiniEval">—</b></div>
         </div>
       </section>
@@ -427,15 +422,88 @@
         </div>
       </section>
 
-      <section class="card" data-phase-block="EVAL" id="blockComentarios">
+      <!-- ✅ NUEVO: Campos adicionales SOLO para "Formulario de evaluación del desempeño" -->
+      <section class="card" data-phase-block="DESEMPENO" id="blockDesempenoExtra">
         <div class="card-h">
           <div>
-            <h2>Comentarios</h2>
-            <div class="sub">Incluye observaciones, ejemplos, mejoras o apoyo requerido.</div>
+            <h2>Justificación y comentarios</h2>
+            <div class="sub">Completa la justificación por nivel de puntaje y los campos cualitativos (1–5).</div>
+          </div>
+          <div class="chips">
+            <span class="chip mono">Aplica solo en: <b>Evaluación del desempeño</b></span>
           </div>
         </div>
+
         <div class="card-b">
-          <textarea id="comentariosEval" placeholder="Comentarios..."></textarea>
+          <div class="hint" style="margin-bottom:12px">
+            Tip rápido: si alguien pregunta “¿por qué 3?”, aquí queda el “por qué” sin necesidad de un juicio final digno de telenovela 😄
+          </div>
+
+          <div class="form-grid">
+            <!-- Justificación por puntaje -->
+            <div class="field col-12">
+              <div class="lbl">Justificación y comentarios — Puntaje 1</div>
+              <textarea id="just1" placeholder="Describe evidencias / ejemplos para puntaje 1..."></textarea>
+            </div>
+            <div class="field col-12">
+              <div class="lbl">Justificación y comentarios — Puntaje 2</div>
+              <textarea id="just2" placeholder="Describe evidencias / ejemplos para puntaje 2..."></textarea>
+            </div>
+            <div class="field col-12">
+              <div class="lbl">Justificación y comentarios — Puntaje 3</div>
+              <textarea id="just3" placeholder="Describe evidencias / ejemplos para puntaje 3..."></textarea>
+            </div>
+            <div class="field col-12">
+              <div class="lbl">Justificación y comentarios — Puntaje 4</div>
+              <textarea id="just4" placeholder="Describe evidencias / ejemplos para puntaje 4..."></textarea>
+            </div>
+            <div class="field col-12">
+              <div class="lbl">Justificación y comentarios — Puntaje 5</div>
+              <textarea id="just5" placeholder="Describe evidencias / ejemplos para puntaje 5..."></textarea>
+            </div>
+
+            <div class="col-12"><div class="miniSep"></div></div>
+
+            <div class="field col-12">
+              <div class="lbl">Comentarios del colaborador</div>
+              <textarea id="comentColab" placeholder="Comentarios del colaborador..."></textarea>
+            </div>
+
+            <div class="field col-12">
+              <div class="lbl">Evaluación de clientes</div>
+              <textarea id="evalClientes" placeholder="Resumen de retroalimentación de clientes..."></textarea>
+            </div>
+
+            <div class="field col-6">
+              <div class="lbl">Fortalezas</div>
+              <textarea id="fortalezas" placeholder="Fortalezas principales..."></textarea>
+            </div>
+
+            <div class="field col-6">
+              <div class="lbl">Oportunidades de mejora</div>
+              <textarea id="oportunidades" placeholder="Oportunidades de mejora..."></textarea>
+            </div>
+
+            <div class="field col-12">
+              <div class="lbl">Proyección y potencial de desarrollo</div>
+              <textarea id="proyeccion" placeholder="Proyección, potencial y plan de crecimiento..."></textarea>
+            </div>
+
+            <div class="field col-12">
+              <div class="lbl">Necesidades de capacitación</div>
+              <textarea id="capacitacionNecesidades" placeholder="Brechas, temas y necesidades de capacitación..."></textarea>
+            </div>
+
+            <div class="field col-12">
+              <div class="lbl">Comentarios del evaluador</div>
+              <textarea id="comentEvaluador" placeholder="Comentarios del evaluador..."></textarea>
+            </div>
+
+            <div class="field col-6">
+              <div class="lbl">Nombre del evaluador</div>
+              <input id="nombreEvaluadorDes" placeholder="Ej: Ana López" />
+            </div>
+          </div>
         </div>
       </section>
 
@@ -489,10 +557,7 @@
       v = v.replace(/\/+$/, "");
       v = v.replace(/\/dev$/i, "/exec");
       if(/\/exec$/i.test(v)) return v;
-
-      if(/script\.google\.com\/macros\/s\/[^/]+$/i.test(v)){
-        return v + "/exec";
-      }
+      if(/script\.google\.com\/macros\/s\/[^/]+$/i.test(v)) return v + "/exec";
       const qm = v.indexOf("?");
       if(qm > -1){
         const base = v.slice(0, qm).replace(/\/+$/, "");
@@ -502,9 +567,7 @@
       }
       return v;
     }
-
     function getWebAppUrl(){
-      // input existe pero está oculto
       const v = normalizeWebAppUrl($("webappUrl").value);
       return v || DEFAULT_WEBAPP_URL;
     }
@@ -513,13 +576,7 @@
     }
 
     /* ================= STATE ================= */
-    const state = {
-      fase:"",
-      nivel:null,
-      form:null,
-      answers:new Map(),
-      itemKeys:[]
-    };
+    const state = { fase:"", nivel:null, form:null, answers:new Map(), itemKeys:[] };
 
     /* ================= STATUS ================= */
     function setApiStatus(mode,text){
@@ -554,8 +611,8 @@
         const s=document.createElement("script");
         s.async = true;
         s.referrerPolicy = "no-referrer";
-        let done=false;
 
+        let done=false;
         const t=setTimeout(()=>{
           if(done) return;
           done=true;
@@ -573,6 +630,7 @@
           if(done) return;
           done=true;
           cleanup();
+
           if(!data || typeof data !== "object"){
             reject(new Error("Respuesta inválida. Si al abrir Ping te pide login, el deploy no es público."));
             return;
@@ -605,14 +663,12 @@
       const dd = String(d.getDate()).padStart(2,"0");
       return `${dd}/${mm}/${yyyy}`;
     }
-
     function escapeHtml(s){
-      return String(s ?? "").replace(/[&<>"']/g, m => ({
-        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
-      }[m]));
+      return String(s ?? "").replace(/[&<>"']/g, m => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;" }[m]));
     }
-    function escapeAttr(s){ return escapeHtml(s).replace(/"/g,"&quot;"); }
-
+    function escapeAttr(s){
+      return escapeHtml(s).replace(/"/g,"&quot;");
+    }
     function fillNivelSelect(levels, includeAll=false){
       const sel = $("nivelSelect");
       sel.innerHTML = "";
@@ -630,7 +686,6 @@
         sel.appendChild(o);
       });
     }
-
     function pickDefault(levels, includeAll){
       if(includeAll) return "ALL";
       const has1 = levels.some(x => String(x).trim() === "1" || String(x).trim().startsWith("1"));
@@ -640,6 +695,7 @@
     /* ================= PHASE HELPERS ================= */
     function isEvalPhase(){ return state.fase === "AUTO" || state.fase === "DESEMPENO"; }
     function isClientesPhase(){ return state.fase === "CLIENTES"; }
+    function isDesempenoPhase(){ return state.fase === "DESEMPENO"; }
 
     /* ================= VALIDATION ================= */
     function getClientesRequiredFields(){
@@ -658,7 +714,7 @@
       ];
     }
 
-    function getEvalRequiredFields(){
+    function getEvalHeaderRequiredFields(){
       return [
         $("noPersonalEval").value.trim(),
         $("nombreEval").value.trim(),
@@ -667,15 +723,42 @@
         $("periodoEval").value.trim(),
         $("versionEval").value.trim(),
         $("fechaEval").value.trim(),
-        $("comentariosEval").value.trim(),
+      ];
+    }
+
+    function getDesempenoExtraRequiredFields(){
+      // SOLO se exige cuando fase == DESEMPENO
+      return [
+        $("just1").value.trim(),
+        $("just2").value.trim(),
+        $("just3").value.trim(),
+        $("just4").value.trim(),
+        $("just5").value.trim(),
+        $("comentColab").value.trim(),
+        $("evalClientes").value.trim(),
+        $("fortalezas").value.trim(),
+        $("oportunidades").value.trim(),
+        $("proyeccion").value.trim(),
+        $("capacitacionNecesidades").value.trim(),
+        $("comentEvaluador").value.trim(),
+        $("nombreEvaluadorDes").value.trim(),
       ];
     }
 
     function isEvalComplete(){
       if(!isEvalPhase()) return false;
-      if(getEvalRequiredFields().some(v => !v)) return false;
+
+      // encabezado siempre requerido
+      if(getEvalHeaderRequiredFields().some(v => !v)) return false;
+
+      // si es desempeño: también exige los nuevos campos
+      if(isDesempenoPhase()){
+        if(getDesempenoExtraRequiredFields().some(v => !v)) return false;
+      }
+
       const total = state.itemKeys.length;
       if(total === 0) return false;
+
       for(const k of state.itemKeys){
         const obj = state.answers.get(k);
         if(!obj || !obj.value || !obj.label) return false;
@@ -718,16 +801,19 @@
     function setPhase(phase){
       state.fase = phase || "";
 
+      // toggles
       document.querySelectorAll("[data-phase-block]").forEach(el=>{
         const p = el.getAttribute("data-phase-block");
         el.classList.remove("show");
         if(p === state.fase) el.classList.add("show");
       });
 
+      // grupo EVAL
       document.querySelectorAll('[data-phase-block="EVAL"]').forEach(el=>{
         el.classList.toggle("show", isEvalPhase());
       });
 
+      // nivel visible o no
       const nivelWrap = $("nivelWrap");
       nivelWrap.classList.toggle("hide", isClientesPhase());
 
@@ -738,7 +824,7 @@
         "FORMULARIOS": "Formularios: Selecciona nivel (Todos / 1..10) y carga para ver la tabla.",
         "PESOS": "Pesos: Selecciona nivel (Todos / 1..10) y carga para ver la tabla.",
         "AUTO": "Autoevaluación activa. Selecciona nivel para cargar ítems.",
-        "DESEMPENO": "Evaluación del desempeño activa. Selecciona nivel para cargar ítems.",
+        "DESEMPENO": "Evaluación del desempeño activa. Selecciona nivel para cargar ítems y completa los campos adicionales.",
         "CLIENTES": "Evaluación de clientes: completa los campos y guarda en la hoja Clientes (sin nivel).",
         "RESULTADO": "Resultados del desempeño.",
         "CONSOLIDADO": "Informe consolidado.",
@@ -841,7 +927,6 @@
       $("rowsCount").textContent = "Filas: 0";
       $("formHint").textContent = "Aún no has cargado datos.";
     }
-
     function renderFormulariosItems(items){
       const tb = $("tbodyFormularios");
       if(!items || !items.length){
@@ -864,15 +949,10 @@
         </tr>
       `).join("");
     }
-
     async function cargarFormularios(){
       if(state.fase !== "FORMULARIOS") return;
       const nivel = $("nivelSelect").value;
-      const res = await apiGet({
-        action:"items",
-        sheet:"Formularios",
-        nivel: (nivel && nivel !== "ALL") ? String(nivel) : "ALL"
-      });
+      const res = await apiGet({ action:"items", sheet:"Formularios", nivel: (nivel && nivel !== "ALL") ? String(nivel) : "ALL" });
       renderFormulariosItems(res.items || []);
     }
 
@@ -882,7 +962,6 @@
       $("rowsCountPesos").textContent = "Filas: 0";
       $("pesosHint").textContent = "Aún no has cargado datos.";
     }
-
     function renderPesosItems(items){
       const tb = $("tbodyPesos");
       if(!items || !items.length){
@@ -901,15 +980,10 @@
         </tr>
       `).join("");
     }
-
     async function cargarPesos(){
       if(state.fase !== "PESOS") return;
       const nivel = $("nivelSelect").value;
-      const res = await apiGet({
-        action:"items",
-        sheet:"Pesos",
-        nivel: (nivel && nivel !== "ALL") ? String(nivel) : "ALL"
-      });
+      const res = await apiGet({ action:"items", sheet:"Pesos", nivel: (nivel && nivel !== "ALL") ? String(nivel) : "ALL" });
       renderPesosItems(res.items || []);
     }
 
@@ -925,7 +999,6 @@
         state.nivel = def;
         return;
       }
-
       if(state.fase === "FORMULARIOS"){
         const lv = await apiGet({action:"levels", sheet:"Formularios"});
         const levels = lv.levels || [];
@@ -936,7 +1009,6 @@
         state.nivel = def;
         return;
       }
-
       if(state.fase === "PESOS"){
         const lv = await apiGet({action:"levels", sheet:"Pesos"});
         const levels = lv.levels || [];
@@ -967,12 +1039,24 @@
       updateGuardarUIState();
     }
 
+    function clearDesempenoExtra(){
+      ["just1","just2","just3","just4","just5","comentColab","evalClientes","fortalezas","oportunidades","proyeccion","capacitacionNecesidades","comentEvaluador","nombreEvaluadorDes"]
+        .forEach(id=>{
+          const el = $(id);
+          if(!el) return;
+          el.value = "";
+        });
+    }
+
     function clearEval(){
       ["noPersonalEval","nombreEval","posicionEval","deptoEval","periodoEval","versionEval"].forEach(id=>$(id).value="");
-      $("comentariosEval").value = "";
       $("fechaEval").value = todayLocal();
       state.answers.clear();
       renderCuestionario(state.form);
+
+      // si venías de DESEMPENO, limpia también extras
+      if($("blockDesempenoExtra")) clearDesempenoExtra();
+
       updateGuardarUIState();
     }
 
@@ -985,7 +1069,6 @@
         alert("Aún faltan campos. Completa todo para habilitar Guardar.");
         return;
       }
-
       const payload = {
         fase: "CLIENTES",
         no: $("noPersonal").value.trim(),
@@ -1000,12 +1083,33 @@
         continuar: $("continuarHacer").value.trim(),
         evaluador: $("nombreEvaluador").value.trim()
       };
-
       const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
       const out = await apiGet({action:"save", payload:b64});
-
       alert("Guardado ✅\nID: " + (out.id || "—"));
       clearClientes();
+    }
+
+    function buildCompatComentarios(){
+      // Para no romper Apps Script si aún espera "comentarios" en payload:
+      // - en DESEMPENO lo construimos juntando los nuevos campos.
+      if(!isDesempenoPhase()) return "";
+
+      const lines = [
+        "JUSTIFICACIÓN 1: " + $("just1").value.trim(),
+        "JUSTIFICACIÓN 2: " + $("just2").value.trim(),
+        "JUSTIFICACIÓN 3: " + $("just3").value.trim(),
+        "JUSTIFICACIÓN 4: " + $("just4").value.trim(),
+        "JUSTIFICACIÓN 5: " + $("just5").value.trim(),
+        "COMENTARIOS COLABORADOR: " + $("comentColab").value.trim(),
+        "EVALUACIÓN CLIENTES: " + $("evalClientes").value.trim(),
+        "FORTALEZAS: " + $("fortalezas").value.trim(),
+        "OPORTUNIDADES DE MEJORA: " + $("oportunidades").value.trim(),
+        "PROYECCIÓN Y POTENCIAL: " + $("proyeccion").value.trim(),
+        "NECESIDADES DE CAPACITACIÓN: " + $("capacitacionNecesidades").value.trim(),
+        "COMENTARIOS EVALUADOR: " + $("comentEvaluador").value.trim(),
+        "NOMBRE EVALUADOR: " + $("nombreEvaluadorDes").value.trim(),
+      ];
+      return lines.join("\n");
     }
 
     async function saveEval(){
@@ -1014,13 +1118,12 @@
         return;
       }
       if(!isEvalComplete()){
-        alert("Aún faltan datos / respuestas / comentarios. Completa todo para habilitar Guardar.");
+        alert("Aún faltan datos / respuestas" + (isDesempenoPhase() ? " / campos adicionales" : "") + ". Completa todo para habilitar Guardar.");
         return;
       }
 
       const respuestasOrdenadas = state.itemKeys.map(k => (state.answers.get(k)?.label || ""));
 
-      // ✅ IMPORTANTE: aquí ya va "nivel" y se usará en GS para escribir en Autoevaluacion
       const payload = {
         fase: state.fase,
         nivel: String(state.nivel || ""),
@@ -1031,13 +1134,32 @@
         periodo: $("periodoEval").value.trim(),
         version: $("versionEval").value.trim(),
         fecha: $("fechaEval").value.trim(),
-        comentarios: $("comentariosEval").value.trim(),
-        respuestas: respuestasOrdenadas
+        respuestas: respuestasOrdenadas,
+
+        // ✅ Campo "comentarios" eliminado de la UI.
+        // Se envía compatibilidad por si el Apps Script aún lo usa:
+        comentarios: buildCompatComentarios(),
+
+        // ✅ Extras SOLO para DESEMPENO (si Apps Script los quiere usar más adelante)
+        extras: isDesempenoPhase() ? {
+          just1: $("just1").value.trim(),
+          just2: $("just2").value.trim(),
+          just3: $("just3").value.trim(),
+          just4: $("just4").value.trim(),
+          just5: $("just5").value.trim(),
+          comentariosColaborador: $("comentColab").value.trim(),
+          evaluacionClientes: $("evalClientes").value.trim(),
+          fortalezas: $("fortalezas").value.trim(),
+          oportunidadesMejora: $("oportunidades").value.trim(),
+          proyeccionPotencial: $("proyeccion").value.trim(),
+          necesidadesCapacitacion: $("capacitacionNecesidades").value.trim(),
+          comentariosEvaluador: $("comentEvaluador").value.trim(),
+          nombreEvaluador: $("nombreEvaluadorDes").value.trim(),
+        } : null
       };
 
       const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
       const out = await apiGet({action:"save", payload:b64});
-
       alert("Guardado ✅\nID: " + (out.id || "—"));
       clearEval();
     }
@@ -1047,14 +1169,12 @@
       if(isEvalPhase()) return saveEval();
       alert("No hay nada que guardar en esta fase.");
     }
-
     function doLimpiar(){
       if(isClientesPhase()) return clearClientes();
       if(isEvalPhase()) return clearEval();
     }
 
     /* ================= EVENTS ================= */
-    // (input oculto) se mantiene listener por compatibilidad, aunque no se vea
     $("webappUrl").addEventListener("change", ()=>{
       const v = normalizeWebAppUrl($("webappUrl").value);
       $("webappUrl").value = v;
@@ -1114,7 +1234,6 @@
     });
 
     $("btnPrint").addEventListener("click", ()=>window.print());
-
     $("btnCargarFormularios").addEventListener("click", ()=>cargarFormularios().catch(err=>setApiStatus("err","API: " + err.message)));
     $("btnLimpiarFormularios").addEventListener("click", ()=>{
       clearFormulariosTable();
@@ -1133,6 +1252,7 @@
       }
     });
 
+    // clientes inputs
     [
       "noPersonal","nombre","posicion","depto","periodo","version","fecha",
       "comenzarHacer","pararHacer","continuarHacer","nombreEvaluador"
@@ -1144,9 +1264,23 @@
       }
     });
 
+    // eval header inputs
     [
       "noPersonalEval","nombreEval","posicionEval","deptoEval","periodoEval",
-      "versionEval","fechaEval","comentariosEval"
+      "versionEval","fechaEval"
+    ].forEach(id=>{
+      const el = $(id);
+      if(el){
+        el.addEventListener("input", updateGuardarUIState);
+        el.addEventListener("change", updateGuardarUIState);
+      }
+    });
+
+    // desempeño extra inputs (solo existen en DOM siempre, pero solo se muestran en DESEMPENO)
+    [
+      "just1","just2","just3","just4","just5",
+      "comentColab","evalClientes","fortalezas","oportunidades",
+      "proyeccion","capacitacionNecesidades","comentEvaluador","nombreEvaluadorDes"
     ].forEach(id=>{
       const el = $(id);
       if(el){
