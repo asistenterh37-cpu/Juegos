@@ -41,7 +41,6 @@
       padding:6px 10px;border-radius:999px;font-size:12px;color:var(--muted)
     }
     .controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-
     select,button,input,textarea{
       background:var(--panel);
       border:1.5px solid rgba(255,255,255,.14);
@@ -74,7 +73,6 @@
       border-color:rgba(245,158,11,.35)
     }
     button[disabled]{opacity:.45; filter:saturate(.6); cursor:not-allowed;}
-
     main{padding:18px}
     .grid{max-width:1180px;margin:0 auto;display:grid;gap:14px}
     .card{
@@ -102,20 +100,15 @@
     .col-4{grid-column:span 4}
     .col-6{grid-column:span 6}
     .col-12{grid-column:span 12}
-
     .lbl{
-      font-size:12px;
-      color:rgba(232,238,252,.92);
-      margin-bottom:6px;
-      font-weight:800;
-      letter-spacing:.02em;
+      font-size:12px; color:rgba(232,238,252,.92);
+      margin-bottom:6px; font-weight:800; letter-spacing:.02em;
     }
     .field{display:flex;flex-direction:column;gap:6px}
     .field.boxed{
       border:1.5px solid rgba(255,255,255,.16);
       background:linear-gradient(180deg, rgba(11,18,32,.28), rgba(15,27,51,.18));
-      border-radius:18px;
-      padding:12px;
+      border-radius:18px; padding:12px;
       box-shadow: 0 6px 20px rgba(0,0,0,.18);
     }
     .field.boxed .lbl{
@@ -123,45 +116,37 @@
       padding:8px 10px;border-radius:14px;
       background:rgba(79,124,255,.10);
       border:1px solid rgba(79,124,255,.22);
-      text-transform:uppercase; letter-spacing:.08em;
-      font-size:11px; color:rgba(232,238,252,.95);
+      text-transform:uppercase; letter-spacing:.08em; font-size:11px;
+      color:rgba(232,238,252,.95);
     }
     .field.boxed textarea, .field.boxed input, .field.boxed select{
       background:rgba(15,27,51,.88);
       border-color:rgba(255,255,255,.16);
-      border-width:1.5px;
-      border-style:solid;
+      border-width:1.5px; border-style:solid;
       border-radius:14px;
     }
 
     [data-phase-block]{display:none}
     [data-phase-block].show{display:block}
+
     .nivelWrap{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
     .nivelWrap.hide{display:none}
 
     /* CUESTIONARIO */
     .factor{
       border:1px solid rgba(255,255,255,.10);
-      border-radius:18px;
-      overflow:hidden;
+      border-radius:18px; overflow:hidden;
       margin-bottom:14px;
       background:linear-gradient(180deg, rgba(11,18,32,.25), rgba(15,27,51,.10));
     }
     .factor-title{
-      padding:14px 16px;
-      font-weight:800;
-      font-size:18px;
-      letter-spacing:.2px;
+      padding:14px 16px; font-weight:800; font-size:18px; letter-spacing:.2px;
       border-bottom:1px solid rgba(255,255,255,.08);
       background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
     }
     .item-row{
-      display:flex;
-      justify-content:space-between;
-      gap:16px;
-      align-items:center;
-      padding:16px;
-      border-top:1px solid rgba(255,255,255,.07);
+      display:flex; justify-content:space-between; gap:16px; align-items:center;
+      padding:16px; border-top:1px solid rgba(255,255,255,.07);
     }
     .item-row:first-of-type{border-top:none}
     .item-left{flex:1; min-width:280px}
@@ -171,6 +156,42 @@
     .item-right .lbl{margin-bottom:8px}
     .item-right select{width:100%}
 
+    /* TABLE (FORMULARIOS) */
+    .tableWrap{
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:18px;
+      overflow:auto;
+      background:rgba(11,18,32,.20);
+    }
+    table{
+      width:100%;
+      border-collapse:separate;
+      border-spacing:0;
+      min-width:980px;
+    }
+    thead th{
+      position:sticky; top:0;
+      background:rgba(15,27,51,.95);
+      border-bottom:1px solid rgba(255,255,255,.10);
+      padding:12px 10px;
+      text-align:left;
+      font-size:12px;
+      color:rgba(232,238,252,.92);
+      letter-spacing:.06em;
+      text-transform:uppercase;
+      z-index:2;
+      white-space:nowrap;
+    }
+    tbody td{
+      padding:12px 10px;
+      border-bottom:1px solid rgba(255,255,255,.06);
+      vertical-align:top;
+      font-size:13px;
+      color:rgba(232,238,252,.92);
+    }
+    tbody tr:hover td{ background:rgba(79,124,255,.06); }
+    .tdMuted{color:var(--muted); font-size:12px; margin-top:4px}
+    .mono{font-family:var(--mono)}
     .sr-hidden{
       position:absolute !important;
       width:1px;height:1px;
@@ -178,11 +199,13 @@
       overflow:hidden;clip:rect(0,0,0,0);
       white-space:nowrap;border:0;
     }
+
     @media (max-width:860px){
       .col-3,.col-4,.col-6{grid-column:span 12}
       select{min-width:180px}
       .item-row{flex-direction:column; align-items:stretch}
       .item-right{min-width:100%; width:100%}
+      table{min-width:840px}
     }
   </style>
 </head>
@@ -255,6 +278,45 @@
         </div>
       </section>
 
+      <!-- FORMULARIOS (tabla + cargar/limpiar) -->
+      <section class="card" data-phase-block="FORMULARIOS" id="blockFormularios">
+        <div class="card-h">
+          <div>
+            <h2>Formularios (rúbricas por nivel)</h2>
+            <div class="sub">Usa <b>Cargar</b> para mostrar Nivel, Factor, Item y las descripciones 1–5.</div>
+          </div>
+          <div class="controls">
+            <button id="btnCargarForm" class="btn-blue">Cargar</button>
+            <button id="btnLimpiarForm" class="btn-warn">Limpiar</button>
+          </div>
+        </div>
+        <div class="card-b">
+          <div class="hint" style="margin-bottom:12px">
+            Consejo rápido: si eliges <b>Todos</b> puede salir una tabla grandota (tu Excel interior va a sonreír 😄).
+          </div>
+          <div id="formTableInfo" class="sub" style="margin-bottom:10px">—</div>
+          <div class="tableWrap">
+            <table id="formTable">
+              <thead>
+                <tr>
+                  <th>Nivel</th>
+                  <th>Factor</th>
+                  <th>Item</th>
+                  <th>1</th>
+                  <th>2</th>
+                  <th>3</th>
+                  <th>4</th>
+                  <th>5</th>
+                </tr>
+              </thead>
+              <tbody id="formTableBody">
+                <tr><td colspan="8" class="sub">Presiona <b>Cargar</b> para ver la información.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
       <!-- CLIENTES -->
       <section class="card" data-phase-block="CLIENTES" id="blockClientes">
         <div class="card-h">
@@ -301,6 +363,7 @@
             <div class="sub">Completa la información y selecciona una opción (1–5) para cada ítem.</div>
           </div>
         </div>
+
         <div class="card-b">
           <div class="form-grid">
             <div class="field col-3 boxed"><div class="lbl">No. de personal</div><input id="noPersonalEval" placeholder="Ej: 1600" /></div>
@@ -312,7 +375,6 @@
             <div class="field col-2 boxed"><div class="lbl">Versión</div><input id="versionEval" placeholder="Ej: 1" /></div>
             <div class="field col-2 boxed"><div class="lbl">Fecha</div><input id="fechaEval" /></div>
           </div>
-
           <div class="sub" style="margin-top:10px">Estado API: <b id="apiMiniEval">—</b></div>
         </div>
       </section>
@@ -365,7 +427,6 @@
           <div class="hint" style="margin-bottom:12px">
             Aquí va lo que normalmente RRHH usa para “entender el cuento” (sin inventar capítulos 😄)
           </div>
-
           <div class="form-grid">
             <div class="field col-12 boxed"><div class="lbl">Justificación y comentarios</div><textarea id="justificacion" placeholder="Describe evidencias / ejemplos / contexto..."></textarea></div>
             <div class="field col-12 boxed"><div class="lbl">Comentarios del colaborador</div><textarea id="comentariosColaborador" placeholder="Comentarios del colaborador..."></textarea></div>
@@ -392,7 +453,7 @@
   <script>
     /* ================= CONFIG ================= */
     const LS_KEY_URL = "ED_WEBAPP_URL";
-    const DEFAULT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxDufv90mXavBCg9HHq1S_vGryWDrvn9UonpRO3Ix_lII4qSXGqefxqLqG68qYuKkzg/exec";
+    const DEFAULT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbw64_0Dw81UNIQ5Zi9uL2Zr6RtFqcYDeQgEBl7b1j73PNnWLHZCFMrX96Yd2PD9mOis/exec";
     const $ = id => document.getElementById(id);
 
     function normalizeWebAppUrl(raw){
@@ -422,7 +483,14 @@
     }
 
     /* ================= STATE ================= */
-    const state = { fase:"", nivel:null, form:null, answers:new Map(), itemKeys:[] };
+    const state = {
+      fase:"",
+      nivel:null,
+      form:null,
+      answers:new Map(),
+      itemKeys:[],
+      lastFormItemsCount: 0
+    };
 
     /* ================= STATUS ================= */
     function setApiStatus(mode,text){
@@ -453,8 +521,8 @@
         const s=document.createElement("script");
         s.async = true;
         s.referrerPolicy = "no-referrer";
-        let done=false;
 
+        let done=false;
         const t=setTimeout(()=>{
           if(done) return;
           done=true;
@@ -490,6 +558,7 @@
           cleanup();
           reject(new Error("No se pudo cargar el script. Revisa: URL correcta (/exec), Deploy público (Anyone), y desactiva bloqueadores para script.google.com."));
         };
+
         s.src = src;
         document.body.appendChild(s);
       });
@@ -530,17 +599,13 @@
     function pickDefault(levels, includeAll){
       if(includeAll) return "ALL";
       const has1 = levels.some(x => String(x).trim() === "1" || String(x).trim().startsWith("1"));
-      return has1 ? "1" : String(levels[0] ?? "1");
+      return has1 ? String(levels.find(x => String(x).trim()==="1" || String(x).trim().startsWith("1"))) : String(levels[0] ?? "1");
     }
-
-    // ✅ SOLO NIVEL: devolvemos un "nivelRef" (idealmente "N — Descripción")
     function getNivelRef(){
       const sel = $("nivelSelect");
       const opt = sel?.selectedOptions?.[0];
-      const label = (opt?.textContent || String(sel.value || "")).trim(); // ej "1 — Operativo básico"
+      const label = (opt?.textContent || String(sel.value || "")).trim();
       const value = String(sel.value || "").trim();
-
-      // si label tiene "N — Desc", lo usamos tal cual.
       if(label) return label;
       return value;
     }
@@ -550,6 +615,7 @@
     function isClientesPhase(){ return state.fase === "CLIENTES"; }
     function isDesempenoPhase(){ return state.fase === "DESEMPENO"; }
     function isAutoPhase(){ return state.fase === "AUTO"; }
+    function isFormulariosPhase(){ return state.fase === "FORMULARIOS"; }
 
     /* ================= VALIDATION ================= */
     function getClientesRequiredFields(){
@@ -585,7 +651,6 @@
       ];
       return ids.map(id => String($(id)?.value || "").trim());
     }
-
     function isEvalComplete(){
       if(!isEvalPhase()) return false;
       if(getEvalHeaderRequiredFields().some(v => !v)) return false;
@@ -608,6 +673,7 @@
     function updateGuardarUIState(){
       const btnG = $("btnGuardar");
       const btnL = $("btnLimpiarEval");
+
       const showLimpiar = isEvalPhase() || isClientesPhase();
       btnL.style.display = showLimpiar ? "inline-block" : "none";
 
@@ -650,7 +716,7 @@
       $("nivelSelect").disabled = !enableNivel;
 
       const labelByPhase = {
-        "FORMULARIOS": "Formularios: Selecciona nivel (Todos / 1..10) y carga para ver la tabla.",
+        "FORMULARIOS": "Formularios: Selecciona nivel (Todos / 1..10) y presiona Cargar para ver la tabla.",
         "PESOS": "Pesos: Selecciona nivel (Todos / 1..10) y carga para ver la tabla.",
         "AUTO": "Autoevaluación activa. Selecciona nivel para cargar ítems.",
         "DESEMPENO": "Evaluación del desempeño activa. Selecciona nivel para cargar ítems y completa los comentarios de desarrollo.",
@@ -682,6 +748,7 @@
         updateGuardarUIState();
         return;
       }
+
       if(!form || !form.factors || !form.factors.length){
         root.innerHTML = `<div class="hint">No hay ítems para este nivel.</div>`;
         $("itemsCount").textContent = "Items: 0";
@@ -749,6 +816,60 @@
       updateGuardarUIState();
     }
 
+    /* ================= FORMULARIOS: TABLE RENDER ================= */
+    function clearFormTable(){
+      state.lastFormItemsCount = 0;
+      $("formTableInfo").textContent = "—";
+      $("formTableBody").innerHTML = `<tr><td colspan="8" class="sub">Presiona <b>Cargar</b> para ver la información.</td></tr>`;
+    }
+
+    function renderFormTable(items){
+      const tbody = $("formTableBody");
+      const count = Array.isArray(items) ? items.length : 0;
+      state.lastFormItemsCount = count;
+
+      const nivelLabel = getNivelRef();
+      $("formTableInfo").textContent = `Mostrando: ${count} filas | Nivel seleccionado: ${nivelLabel}`;
+
+      if(!count){
+        tbody.innerHTML = `<tr><td colspan="8" class="sub">No hay datos para ese nivel.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = items.map(r => {
+        const n = escapeHtml(r.Nivel ?? "");
+        const f = escapeHtml(r.Factor ?? "");
+        const it = escapeHtml(r.Item ?? "");
+        const d1 = escapeHtml(r["1"] ?? "");
+        const d2 = escapeHtml(r["2"] ?? "");
+        const d3 = escapeHtml(r["3"] ?? "");
+        const d4 = escapeHtml(r["4"] ?? "");
+        const d5 = escapeHtml(r["5"] ?? "");
+        return `
+          <tr>
+            <td class="mono">${n}</td>
+            <td>${f}</td>
+            <td>${it}</td>
+            <td>${d1}</td>
+            <td>${d2}</td>
+            <td>${d3}</td>
+            <td>${d4}</td>
+            <td>${d5}</td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    async function loadFormulariosItems(){
+      if(!isFormulariosPhase()){
+        alert("Selecciona la fase Formularios.");
+        return;
+      }
+      const nivel = String(state.nivel || $("nivelSelect").value || "ALL");
+      const res = await apiGet({ action:"items", sheet:"Formularios", nivel });
+      renderFormTable(res.items || []);
+    }
+
     /* ================= LOADERS (levels + form) ================= */
     async function loadLevelsForPhase(){
       if(isEvalPhase()){
@@ -782,6 +903,7 @@
         return;
       }
     }
+
     async function loadFormByNivel(nivel){
       const res = await apiGet({action:"form", nivel: String(nivel)});
       state.form = res.form || null;
@@ -803,7 +925,10 @@
       [
         "comentariosColaborador","evaluacionClientesDes","fortalezas","oportunidadesMejora",
         "proyeccionPotencial","necesidadesCapacitacion","justificacion","comentariosEvaluadorDes","nombreEvaluadorDes"
-      ].forEach(id=>{ const el = $(id); if(el) el.value = ""; });
+      ].forEach(id=>{
+        const el = $(id);
+        if(el) el.value = "";
+      });
     }
     function clearAutoExtra(){
       const el = $("comentariosColaboradorAuto");
@@ -829,7 +954,6 @@
         alert("Aún faltan campos. Completa todo para habilitar Guardar.");
         return;
       }
-
       const payload = {
         fase: "CLIENTES",
         no: $("noPersonal").value.trim(),
@@ -844,7 +968,6 @@
         continuar: $("continuarHacer").value.trim(),
         evaluador: $("nombreEvaluador").value.trim()
       };
-
       const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
       const out = await apiGet({action:"save", payload:b64});
       alert("Guardado ✅\nID: " + (out.id || "—"));
@@ -866,9 +989,7 @@
         return;
       }
 
-      // ✅ SOLO NIVEL: lo guardamos en la columna "Nivel" tal cual (ej "1 — Operativo básico")
       const nivelRef = getNivelRef();
-
       const respuestasOrdenadas = state.itemKeys.map(k => (state.answers.get(k)?.label || ""));
       const comentariosAuto = isAutoPhase() ? ($("comentariosColaboradorAuto")?.value || "").trim() : "";
 
@@ -887,9 +1008,8 @@
       const extrasAuto = isAutoPhase() ? { comentariosColaborador: comentariosAuto } : null;
 
       const payload = {
-        fase: state.fase,          // se usa para decidir ruta, PERO ya no se guarda como columna
-        nivel: nivelRef,           // ✅ única columna de nivel
-
+        fase: state.fase,
+        nivel: nivelRef,
         no: $("noPersonalEval").value.trim(),
         nombre: $("nombreEval").value.trim(),
         posicion: $("posicionEval").value.trim(),
@@ -897,7 +1017,6 @@
         periodo: $("periodoEval").value.trim(),
         version: $("versionEval").value.trim(),
         fecha: $("fechaEval").value.trim(),
-
         respuestas: respuestasOrdenadas,
         comentarios: isAutoPhase() ? comentariosAuto : buildCompatComentarios(),
         extras: isDesempenoPhase() ? extrasDesempeno : (isAutoPhase() ? extrasAuto : null)
@@ -914,6 +1033,7 @@
       if(isEvalPhase()) return saveEval();
       alert("No hay nada que guardar en esta fase.");
     }
+
     function doLimpiar(){
       if(isClientesPhase()) return clearClientes();
       if(isEvalPhase()) return clearEval();
@@ -944,10 +1064,17 @@
     $("faseSelect").addEventListener("change", async (e)=>{
       const fase = e.target.value;
       setPhase(fase);
+
       try{
         if(isEvalPhase() || fase === "FORMULARIOS" || fase === "PESOS"){
           await loadLevelsForPhase();
         }
+
+        // FORMULARIOS: no auto-cargar (solo con botón)
+        if(fase === "FORMULARIOS"){
+          clearFormTable();
+        }
+
         if(isEvalPhase()){
           await loadFormByNivel(state.nivel);
           updateGuardarUIState();
@@ -960,9 +1087,16 @@
     $("nivelSelect").addEventListener("change", async (e)=>{
       try{
         state.nivel = e.target.value;
+
+        // EVAL: auto recarga el cuestionario
         if(isEvalPhase()){
           await loadFormByNivel(state.nivel);
           updateGuardarUIState();
+        }
+
+        // FORMULARIOS: NO auto recarga (se queda esperando Cargar)
+        if(isFormulariosPhase()){
+          $("formTableInfo").textContent = `Nivel cambiado a: ${getNivelRef()} (presiona Cargar)`;
         }
       }catch(err){
         setApiStatus("err","API: " + err.message);
@@ -971,40 +1105,57 @@
 
     $("btnGuardar").addEventListener("click", ()=>doGuardar().catch(err=>setApiStatus("err","API: " + err.message)));
     $("btnLimpiarEval").addEventListener("click", doLimpiar);
-    $("btnNuevo").addEventListener("click", ()=>{ clearClientes(); clearEval(); });
+    $("btnNuevo").addEventListener("click", ()=>{ clearClientes(); clearEval(); clearFormTable(); });
     $("btnPrint").addEventListener("click", ()=>window.print());
 
-    [
-      "noPersonal","nombre","posicion","depto","periodo","version","fecha",
+    // FORMULARIOS buttons
+    $("btnCargarForm").addEventListener("click", ()=>loadFormulariosItems().catch(err=>setApiStatus("err","API: " + err.message)));
+    $("btnLimpiarForm").addEventListener("click", clearFormTable);
+
+    // Inputs watchers
+    [ "noPersonal","nombre","posicion","depto","periodo","version","fecha",
       "comenzarHacer","pararHacer","continuarHacer","nombreEvaluador"
     ].forEach(id=>{
       const el = $(id);
-      if(el){ el.addEventListener("input", updateGuardarUIState); el.addEventListener("change", updateGuardarUIState); }
+      if(el){
+        el.addEventListener("input", updateGuardarUIState);
+        el.addEventListener("change", updateGuardarUIState);
+      }
     });
 
     ["noPersonalEval","nombreEval","posicionEval","deptoEval","periodoEval","versionEval","fechaEval"].forEach(id=>{
       const el = $(id);
-      if(el){ el.addEventListener("input", updateGuardarUIState); el.addEventListener("change", updateGuardarUIState); }
+      if(el){
+        el.addEventListener("input", updateGuardarUIState);
+        el.addEventListener("change", updateGuardarUIState);
+      }
     });
 
-    [
-      "comentariosColaborador","evaluacionClientesDes","fortalezas","oportunidadesMejora",
+    [ "comentariosColaborador","evaluacionClientesDes","fortalezas","oportunidadesMejora",
       "proyeccionPotencial","necesidadesCapacitacion","justificacion","comentariosEvaluadorDes","nombreEvaluadorDes"
     ].forEach(id=>{
       const el = $(id);
-      if(el){ el.addEventListener("input", updateGuardarUIState); el.addEventListener("change", updateGuardarUIState); }
+      if(el){
+        el.addEventListener("input", updateGuardarUIState);
+        el.addEventListener("change", updateGuardarUIState);
+      }
     });
 
     ["comentariosColaboradorAuto"].forEach(id=>{
       const el = $(id);
-      if(el){ el.addEventListener("input", updateGuardarUIState); el.addEventListener("change", updateGuardarUIState); }
+      if(el){
+        el.addEventListener("input", updateGuardarUIState);
+        el.addEventListener("change", updateGuardarUIState);
+      }
     });
 
     /* ================= BOOT ================= */
     (function boot(){
       $("fecha").value = todayLocal();
       $("fechaEval").value = todayLocal();
+
       setPhase("");
+      clearFormTable();
 
       const saved = localStorage.getItem(LS_KEY_URL);
       setWebAppUrl(saved || DEFAULT_WEBAPP_URL);
