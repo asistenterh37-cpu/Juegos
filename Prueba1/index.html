@@ -392,7 +392,7 @@
   <script>
     /* ================= CONFIG ================= */
     const LS_KEY_URL = "ED_WEBAPP_URL";
-    const DEFAULT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxFvP9jMVWttz_ZC5NMoR03OE1cbVcG97XbZ1X5UK6trftSOOJY3m26hDS9QrSMg5CK/exec";
+    const DEFAULT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbysA8cPOvXZdHabpbEdVQLsTJll-qqnjybBhNJ2e0jTk-LosDYF1fbAr9IcwwK-hIUP/exec";
     const $ = id => document.getElementById(id);
 
     function normalizeWebAppUrl(raw){
@@ -555,10 +555,10 @@
       }
 
       return {
-        nivelValue: value,       // lo que seleccionaste (puede traer label completo)
-        nivelLabel: label,       // lo que se ve
-        nivelNumero: nivelNum,   // "3"
-        nivelDescripcion: nivelDesc // "Supervisor"
+        nivelValue: value,
+        nivelLabel: label,
+        nivelNumero: nivelNum,
+        nivelDescripcion: nivelDesc
       };
     }
 
@@ -615,7 +615,6 @@
         const obj = state.answers.get(k);
         if(!obj || !obj.value || !obj.label) return false;
       }
-      // ✅ AUTO: comentario no es obligatorio (pero sí se guarda si lo llenan)
       return true;
     }
     function isClientesComplete(){
@@ -657,12 +656,10 @@
         if(p === state.fase) el.classList.add("show");
       });
 
-      // grupo EVAL
       document.querySelectorAll('[data-phase-block="EVAL"]').forEach(el=>{
         el.classList.toggle("show", isEvalPhase());
       });
 
-      // nivel visible o no
       const nivelWrap = $("nivelWrap");
       nivelWrap.classList.toggle("hide", isClientesPhase());
 
@@ -872,7 +869,6 @@
     }
 
     function buildCompatComentarios(){
-      // compat: para desempeño se sigue llenando "comentarios" desde justificación
       if(!isDesempenoPhase()) return "";
       return ($("justificacion")?.value || "").trim();
     }
@@ -887,16 +883,10 @@
         return;
       }
 
-      // ✅ NIVEL meta
       const nm = getNivelMeta();
-
-      // ✅ respuestas
       const respuestasOrdenadas = state.itemKeys.map(k => (state.answers.get(k)?.label || ""));
-
-      // ✅ AUTO: comentarios del colaborador se guarda en comentarios + extras
       const comentariosAuto = isAutoPhase() ? ($("comentariosColaboradorAuto")?.value || "").trim() : "";
 
-      // ✅ DESEMPENO extras (como ya lo tenías)
       const extrasDesempeno = isDesempenoPhase() ? {
         comentariosColaborador: ($("comentariosColaborador")?.value || "").trim(),
         evaluacionClientes: ($("evaluacionClientesDes")?.value || "").trim(),
@@ -909,13 +899,10 @@
         nombreEvaluador: ($("nombreEvaluadorDes")?.value || "").trim()
       } : null;
 
-      const extrasAuto = isAutoPhase() ? {
-        comentariosColaborador: comentariosAuto
-      } : null;
+      const extrasAuto = isAutoPhase() ? { comentariosColaborador: comentariosAuto } : null;
 
       const payload = {
         fase: state.fase,
-        // ✅ nivel en 3 sabores: value/label/desc
         nivel: String(nm.nivelNumero || nm.nivelValue || ""),
         nivelLabel: String(nm.nivelLabel || ""),
         nivelDescripcion: String(nm.nivelDescripcion || ""),
@@ -929,11 +916,7 @@
         fecha: $("fechaEval").value.trim(),
 
         respuestas: respuestasOrdenadas,
-
-        // ✅ IMPORTANTE: ahora AUTO también llena "comentarios" (antes iba vacío)
         comentarios: isAutoPhase() ? comentariosAuto : buildCompatComentarios(),
-
-        // ✅ extras con campos nuevos
         extras: isDesempenoPhase() ? extrasDesempeno : (isAutoPhase() ? extrasAuto : null)
       };
 
@@ -1008,7 +991,6 @@
     $("btnNuevo").addEventListener("click", ()=>{ clearClientes(); clearEval(); });
     $("btnPrint").addEventListener("click", ()=>window.print());
 
-    // inputs clientes
     [
       "noPersonal","nombre","posicion","depto","periodo","version","fecha",
       "comenzarHacer","pararHacer","continuarHacer","nombreEvaluador"
@@ -1017,13 +999,11 @@
       if(el){ el.addEventListener("input", updateGuardarUIState); el.addEventListener("change", updateGuardarUIState); }
     });
 
-    // inputs encabezado eval
     ["noPersonalEval","nombreEval","posicionEval","deptoEval","periodoEval","versionEval","fechaEval"].forEach(id=>{
       const el = $(id);
       if(el){ el.addEventListener("input", updateGuardarUIState); el.addEventListener("change", updateGuardarUIState); }
     });
 
-    // extras desempeño
     [
       "comentariosColaborador","evaluacionClientesDes","fortalezas","oportunidadesMejora",
       "proyeccionPotencial","necesidadesCapacitacion","justificacion","comentariosEvaluadorDes","nombreEvaluadorDes"
@@ -1032,7 +1012,6 @@
       if(el){ el.addEventListener("input", updateGuardarUIState); el.addEventListener("change", updateGuardarUIState); }
     });
 
-    // extra AUTO
     ["comentariosColaboradorAuto"].forEach(id=>{
       const el = $(id);
       if(el){ el.addEventListener("input", updateGuardarUIState); el.addEventListener("change", updateGuardarUIState); }
