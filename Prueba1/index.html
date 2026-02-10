@@ -129,7 +129,7 @@
     [data-phase-block].show{display:block}
 
     .table-wrap{overflow:auto;border:1px solid rgba(255,255,255,.08);border-radius:16px}
-    table{width:100%;border-collapse:collapse;min-width:980px}
+    table{width:100%;border-collapse:collapse;min-width:860px}
     th,td{padding:10px 10px;border-bottom:1px solid rgba(255,255,255,.07);vertical-align:top}
     th{
       position:sticky;top:0;background:rgba(15,27,51,.98);
@@ -143,6 +143,7 @@
       .col-3,.col-4,.col-6{grid-column:span 12}
       .item-row{grid-template-columns:1fr}
       select{min-width:180px}
+      table{min-width:760px}
     }
   </style>
 </head>
@@ -259,11 +260,7 @@
                 <th style="width:90px">Nivel</th>
                 <th style="width:220px">Factor</th>
                 <th style="width:260px">Item</th>
-                <th>1</th>
-                <th>2</th>
-                <th>3</th>
-                <th>4</th>
-                <th>5</th>
+                <th>1</th><th>2</th><th>3</th><th>4</th><th>5</th>
               </tr>
             </thead>
             <tbody id="tbodyFormularios">
@@ -274,14 +271,39 @@
       </div>
     </section>
 
-    <!-- PESOS placeholder -->
-    <section class="card" data-phase-block="PESOS">
+    <!-- PESOS (NUEVO: Cargar/Limpiar + Tabla) -->
+    <section class="card" data-phase-block="PESOS" id="blockPesos">
       <div class="card-h">
-        <h2>Pesos</h2>
-        <div class="sub">Vista en construcción.</div>
+        <div>
+          <h2>Pesos</h2>
+          <div class="sub">Selecciona Nivel (Todos/1/2/…/10) y presiona <b>Cargar</b>.</div>
+        </div>
+        <div class="controls">
+          <button id="btnCargarPesos" class="btn-blue">Cargar</button>
+          <button id="btnLimpiarPesos" class="btn-warn">Limpiar</button>
+        </div>
       </div>
       <div class="card-b">
-        <div class="hint">Aquí irá la gestión de pesos por factor/ítem.</div>
+        <div class="chips" style="margin-bottom:10px">
+          <span class="chip" id="rowsCountPesos">Filas: 0</span>
+          <span class="chip mono">Columnas: Nivel | Factor | Item | Peso</span>
+        </div>
+        <div id="pesosHint" class="hint">Aún no has cargado datos.</div>
+        <div class="table-wrap" style="margin-top:12px">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:90px">Nivel</th>
+                <th style="width:260px">Factor</th>
+                <th>Item</th>
+                <th style="width:140px">Peso</th>
+              </tr>
+            </thead>
+            <tbody id="tbodyPesos">
+              <tr><td colspan="4" class="muted">Sin datos.</td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </section>
 
@@ -426,7 +448,7 @@
 <script>
 /* ================= CONFIG ================= */
 const LS_KEY_URL = "ED_WEBAPP_URL";
-const DEFAULT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxpNZE4YGXt1gTgqdej6VE-w-bCYu5ip6A8bUw9hovH6jit7NtkWeMg3MWF5goIy1ti/exec";
+const DEFAULT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycby2ZKP2RNjvRjc3JKBqfqGy6FEGuSi7bq6o2LrbJmQNhSYIYb8SkIfLrX3sykm1HRON/exec";
 
 const $ = id => document.getElementById(id);
 
@@ -452,7 +474,8 @@ function setApiStatus(mode,text){
   el.classList.remove("ok","err");
   if(mode) el.classList.add(mode);
   $("apiStatusText").textContent=text;
-  $("apiMini").textContent = text.replace("API: ","");
+  const mini = $("apiMini");
+  if (mini) mini.textContent = text.replace("API: ","");
 }
 
 /* ================= JSONP API ================= */
@@ -563,12 +586,13 @@ function setPhase(phase){
     el.classList.toggle("show", p === state.fase);
   });
 
-  const enableNivel = (state.fase === "AUTO" || state.fase === "FORMULARIOS");
+  // ✅ Ahora nivel se habilita también en PESOS
+  const enableNivel = (state.fase === "AUTO" || state.fase === "FORMULARIOS" || state.fase === "PESOS");
   $("nivelSelect").disabled = !enableNivel;
 
   const labelByPhase = {
     "FORMULARIOS": "Formularios: Selecciona nivel (Todos / 1..10) y carga para ver la tabla.",
-    "PESOS": "Pesos (ponderaciones).",
+    "PESOS": "Pesos: Selecciona nivel (Todos / 1..10) y carga para ver la tabla.",
     "AUTO": "Autoevaluación activa. Selecciona nivel para cargar ítems.",
     "CLIENTES": "Evaluación de clientes.",
     "DESEMPENO": "Evaluación del desempeño (jefe/supervisor).",
@@ -691,11 +715,44 @@ function renderFormulariosItems(items){
 
 async function cargarFormularios(){
   if(state.fase !== "FORMULARIOS") return;
-
   const nivel = $("nivelSelect").value;
-  const params = {action:"items", sheet:"Formularios", nivel: (nivel && nivel !== "ALL") ? String(nivel) : "ALL"};
-  const res = await apiGet(params);
+  const res = await apiGet({action:"items", sheet:"Formularios", nivel: (nivel && nivel !== "ALL") ? String(nivel) : "ALL"});
   renderFormulariosItems(res.items || []);
+}
+
+/* ================= PESOS: TABLE (NUEVO) ================= */
+function clearPesosTable(){
+  $("tbodyPesos").innerHTML = `<tr><td colspan="4" class="muted">Sin datos.</td></tr>`;
+  $("rowsCountPesos").textContent = "Filas: 0";
+  $("pesosHint").textContent = "Aún no has cargado datos.";
+}
+
+function renderPesosItems(items){
+  const tb = $("tbodyPesos");
+  if(!items || !items.length){
+    clearPesosTable();
+    $("pesosHint").textContent = "No se encontraron filas para ese nivel.";
+    return;
+  }
+
+  $("pesosHint").textContent = "Datos cargados desde Google Sheets.";
+  $("rowsCountPesos").textContent = `Filas: ${items.length}`;
+
+  tb.innerHTML = items.map(r => `
+    <tr>
+      <td><b>${escapeHtml(r.Nivel ?? "")}</b></td>
+      <td>${escapeHtml(r.Factor ?? "")}</td>
+      <td>${escapeHtml(r.Item ?? "")}</td>
+      <td>${escapeHtml(r.Peso ?? "")}</td>
+    </tr>
+  `).join("");
+}
+
+async function cargarPesos(){
+  if(state.fase !== "PESOS") return;
+  const nivel = $("nivelSelect").value;
+  const res = await apiGet({action:"items", sheet:"Pesos", nivel: (nivel && nivel !== "ALL") ? String(nivel) : "ALL"});
+  renderPesosItems(res.items || []);
 }
 
 /* ================= LOADERS (levels + form) ================= */
@@ -715,6 +772,18 @@ async function loadLevelsForPhase(){
     const lv = await apiGet({action:"levels", sheet:"Formularios"});
     const levels = lv.levels || [];
     if(!levels.length) throw new Error("No se encontraron niveles en 'Formularios'.");
+    fillNivelSelect(levels, true);
+    const def = pickDefault(levels, true);
+    $("nivelSelect").value = def;
+    state.nivel = def;
+    return;
+  }
+
+  // ✅ NUEVO: Niveles para PESOS (con "Todos")
+  if(state.fase === "PESOS"){
+    const lv = await apiGet({action:"levels", sheet:"Pesos"});
+    const levels = lv.levels || [];
+    if(!levels.length) throw new Error("No se encontraron niveles en 'Pesos'.");
     fillNivelSelect(levels, true);
     const def = pickDefault(levels, true);
     $("nivelSelect").value = def;
@@ -786,7 +855,7 @@ $("faseSelect").addEventListener("change", async (e)=>{
   setPhase(fase);
 
   try{
-    if(fase === "AUTO" || fase === "FORMULARIOS"){
+    if(fase === "AUTO" || fase === "FORMULARIOS" || fase === "PESOS"){
       await loadLevelsForPhase();
     }
 
@@ -796,6 +865,10 @@ $("faseSelect").addEventListener("change", async (e)=>{
 
     if(fase === "FORMULARIOS"){
       clearFormulariosTable();
+    }
+
+    if(fase === "PESOS"){
+      clearPesosTable();
     }
   }catch(err){
     setApiStatus("err","API: " + err.message);
@@ -808,6 +881,7 @@ $("nivelSelect").addEventListener("change", async (e)=>{
     if(state.fase === "AUTO"){
       await loadFormByNivel(state.nivel);
     }
+    // FORMULARIOS y PESOS se cargan con botón (no auto)
   }catch(err){
     setApiStatus("err","API: " + err.message);
   }
@@ -826,13 +900,23 @@ $("btnLimpiarFormularios").addEventListener("click", ()=>{
   }
 });
 
+// ✅ NUEVO: eventos PESOS
+$("btnCargarPesos").addEventListener("click", ()=>cargarPesos().catch(err=>setApiStatus("err","API: " + err.message)));
+$("btnLimpiarPesos").addEventListener("click", ()=>{
+  clearPesosTable();
+  if(state.fase === "PESOS"){
+    $("nivelSelect").value = "ALL";
+    state.nivel = "ALL";
+  }
+});
+
 /* ================= BOOT ================= */
 (function boot(){
   $("fecha").value = todayLocal();
   setPhase("");
   clearFormulariosTable();
+  clearPesosTable();
 
-  // cargar URL guardada
   const saved = localStorage.getItem(LS_KEY_URL);
   setWebAppUrl(saved || DEFAULT_WEBAPP_URL);
 
