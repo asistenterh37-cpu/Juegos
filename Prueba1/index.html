@@ -170,12 +170,19 @@
         </div>
         <div class="controls">
           <label class="sub">Fase</label>
+
+          <!-- ✅ CAMBIO: Fase SIEMPRE muestra las opciones del adjunto -->
           <select id="faseSelect">
             <option value="">Seleccione</option>
+            <option value="FORMULARIOS">Formularios</option>
+            <option value="PESOS">Pesos</option>
             <option value="AUTO">Formulario de autoevaluación</option>
-            <!-- puedes agregar más fases después -->
-            <!-- <option value="JEFE">Evaluación del jefe</option> -->
-            <!-- <option value="CAL">Calibración</option> -->
+            <option value="CLIENTES">Formulario de evaluación de clientes</option>
+            <option value="DESEMPENO">Formulario de evaluación del desempeño</option>
+            <option value="RESULTADO">Resultado evaluación del desempeño</option>
+            <option value="CONSOLIDADO">Informe consolidado</option>
+            <option value="CAPACITACION">Informe necesidades de capacitacion</option>
+            <option value="DESARROLLO">Informe plan de desarrollo</option>
           </select>
 
           <label class="sub" style="margin-left:8px">Nivel</label>
@@ -187,7 +194,88 @@
       </div>
     </section>
 
-    <!-- DATOS DEL COLABORADOR -->
+    <!-- ✅ BLOQUE GENÉRICO PARA FASES AÚN NO IMPLEMENTADAS -->
+    <section class="card" data-phase-block="FORMULARIOS">
+      <div class="card-h">
+        <h2>Formularios</h2>
+        <div class="sub">Vista en construcción (solo Autoevaluación está activa por ahora).</div>
+      </div>
+      <div class="card-b">
+        <div class="hint">Cuando implementes esta fase, aquí irá su UI/tabla correspondiente.</div>
+      </div>
+    </section>
+
+    <section class="card" data-phase-block="PESOS">
+      <div class="card-h">
+        <h2>Pesos</h2>
+        <div class="sub">Vista en construcción (solo Autoevaluación está activa por ahora).</div>
+      </div>
+      <div class="card-b">
+        <div class="hint">Aquí irá la gestión de pesos por factor/ítem.</div>
+      </div>
+    </section>
+
+    <section class="card" data-phase-block="CLIENTES">
+      <div class="card-h">
+        <h2>Formulario de evaluación de clientes</h2>
+        <div class="sub">Vista en construcción (solo Autoevaluación está activa por ahora).</div>
+      </div>
+      <div class="card-b">
+        <div class="hint">Aquí irá el formulario para clientes.</div>
+      </div>
+    </section>
+
+    <section class="card" data-phase-block="DESEMPENO">
+      <div class="card-h">
+        <h2>Formulario de evaluación del desempeño</h2>
+        <div class="sub">Vista en construcción (solo Autoevaluación está activa por ahora).</div>
+      </div>
+      <div class="card-b">
+        <div class="hint">Aquí irá la evaluación del jefe/supervisor (o el flujo que definas).</div>
+      </div>
+    </section>
+
+    <section class="card" data-phase-block="RESULTADO">
+      <div class="card-h">
+        <h2>Resultado evaluación del desempeño</h2>
+        <div class="sub">Vista en construcción.</div>
+      </div>
+      <div class="card-b">
+        <div class="hint">Aquí irá el resultado (promedios, ponderaciones, etc.).</div>
+      </div>
+    </section>
+
+    <section class="card" data-phase-block="CONSOLIDADO">
+      <div class="card-h">
+        <h2>Informe consolidado</h2>
+        <div class="sub">Vista en construcción.</div>
+      </div>
+      <div class="card-b">
+        <div class="hint">Aquí irá el informe consolidado por área/empresa.</div>
+      </div>
+    </section>
+
+    <section class="card" data-phase-block="CAPACITACION">
+      <div class="card-h">
+        <h2>Informe necesidades de capacitacion</h2>
+        <div class="sub">Vista en construcción.</div>
+      </div>
+      <div class="card-b">
+        <div class="hint">Aquí irá el informe de brechas y necesidades.</div>
+      </div>
+    </section>
+
+    <section class="card" data-phase-block="DESARROLLO">
+      <div class="card-h">
+        <h2>Informe plan de desarrollo</h2>
+        <div class="sub">Vista en construcción.</div>
+      </div>
+      <div class="card-b">
+        <div class="hint">Aquí irá el plan de desarrollo individual.</div>
+      </div>
+    </section>
+
+    <!-- DATOS DEL COLABORADOR (AUTO) -->
     <section class="card" data-phase-block="AUTO" id="blockDatos">
       <div class="card-h">
         <div>
@@ -233,7 +321,7 @@
       </div>
     </section>
 
-    <!-- CUESTIONARIO -->
+    <!-- CUESTIONARIO (AUTO) -->
     <section class="card" data-phase-block="AUTO" id="blockEval">
       <div class="card-h">
         <div>
@@ -249,7 +337,7 @@
       </div>
     </section>
 
-    <!-- COMENTARIOS -->
+    <!-- COMENTARIOS (AUTO) -->
     <section class="card" data-phase-block="AUTO" id="blockComentarios">
       <div class="card-h">
         <div>
@@ -274,8 +362,8 @@ const $ = id => document.getElementById(id);
 const state = {
   fase: "",
   nivel: null,
-  form: null,              // {nivel, factors:[{factor, items:[{key,item,rubrica:{1..5}}]}]}
-  answers: new Map(),       // key -> score ("1".."5")
+  form: null,
+  answers: new Map(),
 };
 
 /* ================= STATUS ================= */
@@ -372,6 +460,7 @@ function fillNivelSelect(levels){
 /* ================= PHASE UI ================= */
 function setPhase(phase){
   state.fase = phase || "";
+
   // mostrar/ocultar bloques
   document.querySelectorAll("[data-phase-block]").forEach(el=>{
     const p = el.getAttribute("data-phase-block");
@@ -382,9 +471,21 @@ function setPhase(phase){
   const isAuto = state.fase === "AUTO";
   $("nivelSelect").disabled = !isAuto;
 
+  // ayuda dinámica
+  const labelByPhase = {
+    "FORMULARIOS": "Formularios (menú / configuración).",
+    "PESOS": "Pesos (ponderaciones).",
+    "AUTO": "Autoevaluación activa. Selecciona nivel para cargar ítems.",
+    "CLIENTES": "Evaluación de clientes.",
+    "DESEMPENO": "Evaluación del desempeño (jefe/supervisor).",
+    "RESULTADO": "Resultados del desempeño.",
+    "CONSOLIDADO": "Informe consolidado.",
+    "CAPACITACION": "Necesidades de capacitación.",
+    "DESARROLLO": "Plan de desarrollo."
+  };
   $("faseHelp").textContent = isAuto
-    ? "Autoevaluación activa. Selecciona nivel para cargar ítems."
-    : "Selecciona una fase para desplegar el formulario.";
+    ? labelByPhase["AUTO"]
+    : (labelByPhase[state.fase] || "Selecciona una fase para desplegar el formulario.");
 
   if(!isAuto){
     // limpiar vista del cuestionario si sales de AUTO
@@ -417,7 +518,7 @@ function renderCuestionario(form){
     box.className = "factor";
     box.innerHTML = `<div class="factor-title">${idxF+1}. ${escapeHtml(f.factor || "Factor")}</div>`;
 
-    (f.items || []).forEach((it, idxI)=>{
+    (f.items || []).forEach((it)=>{
       totalItems++;
       const key = it.key;
       const current = state.answers.get(key) || "";
@@ -451,7 +552,7 @@ function renderCuestionario(form){
       const sel = row.querySelector("select");
       sel.addEventListener("change", (e)=>{
         const k = e.target.getAttribute("data-key");
-        const v = e.target.value; // "" o "1..5"
+        const v = e.target.value;
         if(!v) state.answers.delete(k);
         else state.answers.set(k, v);
       });
@@ -502,7 +603,7 @@ function newForm(){
 
 async function saveForm(){
   if(state.fase !== "AUTO"){
-    alert("Selecciona la fase “Formulario de autoevaluación” antes de guardar.");
+    alert("Para guardar, usa la fase “Formulario de autoevaluación”.");
     return;
   }
 
@@ -534,7 +635,7 @@ $("faseSelect").addEventListener("change", async (e)=>{
   const fase = e.target.value;
   setPhase(fase);
 
-  // Si entra a AUTO, cargamos niveles+form si hace falta
+  // Solo AUTO carga niveles + formulario
   if(fase === "AUTO"){
     try{
       if(!$("nivelSelect").options.length || $("nivelSelect").options[0].textContent.includes("Cargando")){
@@ -568,9 +669,8 @@ $("btnPrint").addEventListener("click", printToPdf);
   setPhase(""); // ocultar hasta elegir fase
 
   apiGet({action:"ping"})
-    .then(async ()=>{
+    .then(()=>{
       setApiStatus("ok","API: conectada");
-      // No cargamos form de una vez: se carga cuando elijas fase AUTO
       $("cuestionario").innerHTML = `<div class="hint">Selecciona una fase para iniciar.</div>`;
     })
     .catch(e=>setApiStatus("err","API: "+e.message));
