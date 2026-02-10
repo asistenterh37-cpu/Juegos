@@ -63,6 +63,10 @@
       background:linear-gradient(180deg, rgba(245,158,11,.20), rgba(245,158,11,.08));
       border-color:rgba(245,158,11,.35)
     }
+    .btn-danger{
+      background:linear-gradient(180deg, rgba(239,68,68,.20), rgba(239,68,68,.08));
+      border-color:rgba(239,68,68,.35)
+    }
 
     main{padding:18px}
     .grid{max-width:1180px;margin:0 auto;display:grid;gap:14px}
@@ -85,6 +89,9 @@
     .hint{
       background:rgba(79,124,255,.10);border:1px dashed rgba(79,124,255,.35);
       padding:10px 12px;border-radius:14px;color:var(--muted);font-size:13px
+    }
+    .hint.warn{
+      background:rgba(245,158,11,.10);border:1px dashed rgba(245,158,11,.35);
     }
 
     .form-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:10px}
@@ -118,11 +125,9 @@
     .item-sub{font-size:12px;color:var(--muted);margin-top:2px}
     .item-select select{width:100%;min-width:unset}
 
-    /* Mostrar/ocultar por fase */
     [data-phase-block]{display:none}
     [data-phase-block].show{display:block}
 
-    /* Tabla Formularios */
     .table-wrap{overflow:auto;border:1px solid rgba(255,255,255,.08);border-radius:16px}
     table{width:100%;border-collapse:collapse;min-width:980px}
     th,td{padding:10px 10px;border-bottom:1px solid rgba(255,255,255,.07);vertical-align:top}
@@ -163,6 +168,7 @@
           <span id="apiStatusText">API: sin probar</span>
         </span>
 
+        <button id="btnProbarApi" class="btn-ghost">Probar API</button>
         <button id="btnNuevo" class="btn-blue">Nuevo</button>
         <button id="btnGuardar" class="btn-ok">Guardar</button>
         <button id="btnPrint" class="btn-ghost">Imprimir / Enviar a PDF</button>
@@ -173,6 +179,28 @@
 
 <main>
   <div class="grid">
+
+    <!-- CONFIG API -->
+    <section class="card">
+      <div class="card-h">
+        <div>
+          <h2>Conexión (WebApp Apps Script)</h2>
+          <div class="sub">Pega aquí tu URL del deploy (<span class="mono">/exec</span>). Se guarda en este navegador.</div>
+        </div>
+      </div>
+      <div class="card-b">
+        <div class="form-grid">
+          <div class="field col-12">
+            <div class="lbl">URL WebApp</div>
+            <input id="webappUrl" placeholder="https://script.google.com/macros/s/XXXX/exec" />
+          </div>
+        </div>
+        <div class="hint warn" style="margin-top:10px">
+          Si ves “No se pudo cargar el script”, casi siempre es porque el deploy NO está público.
+          En Apps Script: <b>Deploy → Manage deployments</b> → Access: <b>Anyone</b> (o Anyone with the link) y Execute as: <b>Me</b>.
+        </div>
+      </div>
+    </section>
 
     <!-- FASE + NIVEL -->
     <section class="card">
@@ -198,7 +226,6 @@
           </select>
 
           <label class="sub" style="margin-left:8px">Nivel</label>
-          <!-- ✅ Ahora se habilita en AUTO y en FORMULARIOS -->
           <select id="nivelSelect" disabled><option>Cargando niveles…</option></select>
         </div>
       </div>
@@ -207,7 +234,7 @@
       </div>
     </section>
 
-    <!-- ✅ FORMULARIOS (tabla + cargar/limpiar) -->
+    <!-- FORMULARIOS -->
     <section class="card" data-phase-block="FORMULARIOS" id="blockFormularios">
       <div class="card-h">
         <div>
@@ -398,8 +425,18 @@
 
 <script>
 /* ================= CONFIG ================= */
-const SCRIPT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxrovp4_PLw06bqRbVvZB2M2X9jHvqrc5bmvdp6pxVRHkNN60vU07yXL7CIc88Tfq1T/exec";
+const LS_KEY_URL = "ED_WEBAPP_URL";
+const DEFAULT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycby9imrNhx3ulSWbcr4v4RJiBPTJkBlNt-hLLb5rZQcvEmhrzugcYua_0UvtvdO6IO8E/exec";
+
 const $ = id => document.getElementById(id);
+
+function getWebAppUrl(){
+  const v = ($("webappUrl").value || "").trim();
+  return v || DEFAULT_WEBAPP_URL;
+}
+function setWebAppUrl(v){
+  $("webappUrl").value = v || "";
+}
 
 /* ================= STATE ================= */
 const state = {
@@ -407,7 +444,6 @@ const state = {
   nivel: null,
   form: null,
   answers: new Map(),
-  loadedLevelsFor: null, // "AUTO" | "FORMULARIOS"
 };
 
 /* ================= STATUS ================= */
@@ -421,26 +457,28 @@ function setApiStatus(mode,text){
 
 /* ================= JSONP API ================= */
 function buildUrl(params, cbName){
-  const url = new URL(SCRIPT_WEBAPP_URL);
+  const url = new URL(getWebAppUrl());
   Object.entries(params).forEach(([k,v]) => url.searchParams.set(k, v));
   url.searchParams.set("callback", cbName);
   url.searchParams.set("_", String(Date.now()));
   return url.toString();
 }
 
-function apiGet(params, timeoutMs=14000){
+function apiGet(params, timeoutMs=15000){
   return new Promise((resolve,reject)=>{
     const cb="cb_"+Math.random().toString(36).slice(2);
     const src = buildUrl(params, cb);
+
     setApiStatus("", "API: consultando…");
+
     const s=document.createElement("script");
     s.async = true;
-    let done=false;
 
+    let done=false;
     const t=setTimeout(()=>{
       if(done) return;
       done=true; cleanup();
-      reject(new Error("Timeout: la WebApp no respondió. Revisa deploy/permisos."));
+      reject(new Error("Timeout: la WebApp no respondió. Revisa Deploy/Access/URL."));
     }, timeoutMs);
 
     function cleanup(){
@@ -452,8 +490,9 @@ function apiGet(params, timeoutMs=14000){
     window[cb]=data=>{
       if(done) return;
       done=true; cleanup();
+
       if(!data || typeof data !== "object"){
-        reject(new Error("Respuesta no-JSON (posible login/permiso). Deploy: Anyone."));
+        reject(new Error("Respuesta no-JSON (posible login/permiso). Deploy debe ser público."));
         return;
       }
       if(data.ok!==true){
@@ -467,7 +506,7 @@ function apiGet(params, timeoutMs=14000){
     s.onerror=()=>{
       if(done) return;
       done=true; cleanup();
-      reject(new Error("No se pudo cargar el script (URL mala / deploy privado / bloqueo extensión)."));
+      reject(new Error("No se pudo cargar el script. Causa típica: deploy privado, URL incorrecta o bloqueador/extensión."));
     };
 
     s.src = src;
@@ -524,7 +563,6 @@ function setPhase(phase){
     el.classList.toggle("show", p === state.fase);
   });
 
-  // ✅ Nivel habilitado en AUTO y FORMULARIOS
   const enableNivel = (state.fase === "AUTO" || state.fase === "FORMULARIOS");
   $("nivelSelect").disabled = !enableNivel;
 
@@ -655,10 +693,7 @@ async function cargarFormularios(){
   if(state.fase !== "FORMULARIOS") return;
 
   const nivel = $("nivelSelect").value;
-  const params = {action:"items", sheet:"Formularios"};
-  if(nivel && nivel !== "ALL") params.nivel = String(nivel);
-  else params.nivel = "ALL";
-
+  const params = {action:"items", sheet:"Formularios", nivel: (nivel && nivel !== "ALL") ? String(nivel) : "ALL"};
   const res = await apiGet(params);
   renderFormulariosItems(res.items || []);
 }
@@ -673,7 +708,6 @@ async function loadLevelsForPhase(){
     const def = pickDefault(levels, false);
     $("nivelSelect").value = def;
     state.nivel = def;
-    state.loadedLevelsFor = "AUTO";
     return;
   }
 
@@ -681,11 +715,10 @@ async function loadLevelsForPhase(){
     const lv = await apiGet({action:"levels", sheet:"Formularios"});
     const levels = lv.levels || [];
     if(!levels.length) throw new Error("No se encontraron niveles en 'Formularios'.");
-    fillNivelSelect(levels, true); // ✅ incluye "Todos"
+    fillNivelSelect(levels, true);
     const def = pickDefault(levels, true);
     $("nivelSelect").value = def;
     state.nivel = def;
-    state.loadedLevelsFor = "FORMULARIOS";
     return;
   }
 }
@@ -735,6 +768,19 @@ async function saveForm(){
 function printToPdf(){ window.print(); }
 
 /* ================= EVENTS ================= */
+$("webappUrl").addEventListener("change", ()=>{
+  localStorage.setItem(LS_KEY_URL, $("webappUrl").value.trim());
+});
+
+$("btnProbarApi").addEventListener("click", async ()=>{
+  try{
+    await apiGet({action:"ping"});
+    setApiStatus("ok","API: conectada");
+  }catch(e){
+    setApiStatus("err","API: " + e.message);
+  }
+});
+
 $("faseSelect").addEventListener("change", async (e)=>{
   const fase = e.target.value;
   setPhase(fase);
@@ -750,9 +796,6 @@ $("faseSelect").addEventListener("change", async (e)=>{
 
     if(fase === "FORMULARIOS"){
       clearFormulariosTable();
-      // No auto-cargar para no “pegarle” a la API sin permiso 😄
-      // Si quieres auto-cargar, descomenta:
-      // await cargarFormularios();
     }
   }catch(err){
     setApiStatus("err","API: " + err.message);
@@ -762,11 +805,9 @@ $("faseSelect").addEventListener("change", async (e)=>{
 $("nivelSelect").addEventListener("change", async (e)=>{
   try{
     state.nivel = e.target.value;
-
     if(state.fase === "AUTO"){
       await loadFormByNivel(state.nivel);
     }
-    // En FORMULARIOS, no auto-cargar: se hace con el botón Cargar
   }catch(err){
     setApiStatus("err","API: " + err.message);
   }
@@ -779,7 +820,6 @@ $("btnPrint").addEventListener("click", printToPdf);
 $("btnCargarFormularios").addEventListener("click", ()=>cargarFormularios().catch(err=>setApiStatus("err","API: " + err.message)));
 $("btnLimpiarFormularios").addEventListener("click", ()=>{
   clearFormulariosTable();
-  // reset nivel a Todos si estamos en Formularios
   if(state.fase === "FORMULARIOS"){
     $("nivelSelect").value = "ALL";
     state.nivel = "ALL";
@@ -789,8 +829,12 @@ $("btnLimpiarFormularios").addEventListener("click", ()=>{
 /* ================= BOOT ================= */
 (function boot(){
   $("fecha").value = todayLocal();
-  setPhase(""); // ocultar hasta elegir fase
+  setPhase("");
   clearFormulariosTable();
+
+  // cargar URL guardada
+  const saved = localStorage.getItem(LS_KEY_URL);
+  setWebAppUrl(saved || DEFAULT_WEBAPP_URL);
 
   apiGet({action:"ping"})
     .then(()=>{
