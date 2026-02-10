@@ -107,14 +107,25 @@
     [data-phase-block]{display:none}
     [data-phase-block].show{display:block}
 
-    /* ✅ Ocultar/mostrar controles de nivel */
     .nivelWrap{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
     .nivelWrap.hide{display:none}
+
+    /* para el cuestionario */
+    .factor{border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:12px;margin-bottom:12px}
+    .factor-title{font-weight:700;margin-bottom:10px}
+    .item-row{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;padding:10px 0;border-top:1px solid rgba(255,255,255,.07)}
+    .item-row:first-of-type{border-top:none}
+    .item-name{font-weight:600}
+    .item-sub{color:var(--muted);font-size:12px;margin-top:2px}
+    .item-select{min-width:320px}
+    .item-select select{width:100%}
 
     @media (max-width:860px){
       .col-3,.col-4,.col-6{grid-column:span 12}
       select{min-width:180px}
       table{min-width:760px}
+      .item-row{flex-direction:column}
+      .item-select{min-width:100%}
     }
   </style>
 </head>
@@ -140,12 +151,11 @@
           <span id="apiStatusText">API: sin probar</span>
         </span>
         <button id="btnProbarApi" class="btn-ghost">Probar API</button>
+        <button id="btnAbrirPing" class="btn-ghost">Abrir Ping</button>
 
-        <!-- ✅ Limpiar/Guardar (para AUTO/DESEMPENO/CLIENTES) -->
         <button id="btnLimpiarEval" class="btn-warn" style="display:none">Limpiar</button>
         <button id="btnGuardar" class="btn-ok" disabled>Guardar</button>
 
-        <!-- ✅ Estos se ocultan en CLIENTES y en evaluaciones -->
         <button id="btnNuevo" class="btn-blue">Nuevo</button>
         <button id="btnPrint" class="btn-ghost">Imprimir / Enviar a PDF</button>
       </div>
@@ -161,7 +171,7 @@
       <div class="card-h">
         <div>
           <h2>Conexión (WebApp Apps Script)</h2>
-          <div class="sub">Pega aquí tu URL del deploy (<span class="mono">/exec</span>). Se guarda en este navegador.</div>
+          <div class="sub">Pega tu URL del deploy. Si falta <span class="mono">/exec</span>, se corrige sola.</div>
         </div>
       </div>
       <div class="card-b">
@@ -172,46 +182,43 @@
           </div>
         </div>
         <div class="hint warn" style="margin-top:10px">
-          Si ves “No se pudo cargar el script”, casi siempre es porque el deploy NO está público.
+          Si aparece “No se pudo cargar el script”: casi siempre es deploy no público o bloqueador/extensión.
           En Apps Script: <b>Deploy → Manage deployments</b> → Access: <b>Anyone</b> y Execute as: <b>Me</b>.
         </div>
       </div>
     </section>
 
-    <!-- FASE + NIVEL (selector arriba) -->
-<section class="card" id="blockFaseNivel">
-  <div class="card-h">
-    <div class="controls" style="width:100%; justify-content:space-between">
-      <div class="controls" style="gap:10px">
-        <!-- ✅ sin label “Fase:” -->
-        <select id="faseSelect">
-          <option value="">Seleccione fase</option>
-          <option value="FORMULARIOS">Formularios</option>
-          <option value="PESOS">Pesos</option>
-          <option value="AUTO">Formulario de autoevaluación</option>
-          <option value="CLIENTES">Formulario de evaluación de clientes</option>
-          <option value="DESEMPENO">Formulario de evaluación del desempeño</option>
-          <option value="RESULTADO">Resultado evaluación del desempeño</option>
-          <option value="CONSOLIDADO">Informe consolidado</option>
-          <option value="CAPACITACION">Informe necesidades de capacitacion</option>
-          <option value="DESARROLLO">Informe plan de desarrollo</option>
-        </select>
+    <!-- FASE + NIVEL -->
+    <section class="card" id="blockFaseNivel">
+      <div class="card-h">
+        <div class="controls" style="width:100%; justify-content:space-between">
+          <div class="controls" style="gap:10px">
+            <select id="faseSelect">
+              <option value="">Seleccione fase</option>
+              <option value="FORMULARIOS">Formularios</option>
+              <option value="PESOS">Pesos</option>
+              <option value="AUTO">Formulario de autoevaluación</option>
+              <option value="CLIENTES">Formulario de evaluación de clientes</option>
+              <option value="DESEMPENO">Formulario de evaluación del desempeño</option>
+              <option value="RESULTADO">Resultado evaluación del desempeño</option>
+              <option value="CONSOLIDADO">Informe consolidado</option>
+              <option value="CAPACITACION">Informe necesidades de capacitacion</option>
+              <option value="DESARROLLO">Informe plan de desarrollo</option>
+            </select>
 
-        <!-- ✅ Nivel aparece solo cuando corresponda -->
-        <span class="nivelWrap" id="nivelWrap">
-          <select id="nivelSelect" disabled>
-            <option>Cargando niveles…</option>
-          </select>
-        </span>
-      </div>
+            <span class="nivelWrap" id="nivelWrap">
+              <select id="nivelSelect" disabled>
+                <option>Cargando niveles…</option>
+              </select>
+            </span>
+          </div>
 
-      <!-- Texto ayuda (sin título “Fase” ni bloque marcado) -->
-      <div class="sub" id="faseHelp" style="max-width:520px; text-align:right">
-        Selecciona una fase para desplegar el formulario.
+          <div class="sub" id="faseHelp" style="max-width:520px; text-align:right">
+            Selecciona una fase para desplegar el formulario.
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
-</section>
+    </section>
 
     <!-- FORMULARIOS -->
     <section class="card" data-phase-block="FORMULARIOS" id="blockFormularios">
@@ -287,7 +294,7 @@
       </div>
     </section>
 
-    <!-- ✅ CLIENTES (SIN NIVEL) -->
+    <!-- CLIENTES -->
     <section class="card" data-phase-block="CLIENTES" id="blockClientes">
       <div class="card-h">
         <div>
@@ -362,7 +369,7 @@
       </div>
     </section>
 
-    <!-- ✅ EVAL (AUTO/DESEMPENO) - Se mantienen tal cual -->
+    <!-- EVAL -->
     <section class="card" data-phase-block="EVAL" id="blockDatos">
       <div class="card-h">
         <div>
@@ -474,23 +481,56 @@
 <script>
 /* ================= CONFIG ================= */
 const LS_KEY_URL = "ED_WEBAPP_URL";
-const DEFAULT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbztncIJHkkyHGtVZTX7tScwMglnvgWKtOfUbuStyUqs-KAz3-EFp5I78wO5wtg1r1MR/exec";
+const DEFAULT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbz8qbsua2Jy1jliaL4MG6fg4RB3MH1y0VeJ4f9OsCJAu6_d9E7hQ6AFurK0YAloLGz8/exec";
 const $ = id => document.getElementById(id);
 
+/** ✅ Normaliza URL para evitar 404:
+ * - Si pegás .../exec/ => lo deja .../exec
+ * - Si pegás .../s/ID => agrega /exec
+ * - Si pegás .../dev => cambia a /exec
+ */
+function normalizeWebAppUrl(raw){
+  let v = String(raw || "").trim();
+  if(!v) return DEFAULT_WEBAPP_URL;
+
+  // quitar anchors
+  v = v.replace(/#.*$/, "");
+
+  // quitar espacios y trailing slashes
+  v = v.replace(/\s+/g, "");
+  v = v.replace(/\/+$/, "");
+
+  // si viene /dev, forzar /exec
+  v = v.replace(/\/dev$/i, "/exec");
+
+  // si ya trae /exec al final, ok
+  if(/\/exec$/i.test(v)) return v;
+
+  // si parece url de deploy sin /exec, agregar
+  if(/script\.google\.com\/macros\/s\/[^/]+$/i.test(v)){
+    return v + "/exec";
+  }
+
+  // si viene con query pero sin /exec, intentar insertarlo antes de ?
+  const qm = v.indexOf("?");
+  if(qm > -1){
+    const base = v.slice(0, qm).replace(/\/+$/, "");
+    const qs = v.slice(qm);
+    if(/\/exec$/i.test(base)) return base + qs;
+    if(/script\.google\.com\/macros\/s\/[^/]+$/i.test(base)) return base + "/exec" + qs;
+  }
+
+  return v;
+}
+
 function getWebAppUrl(){
-  const v = ($("webappUrl").value || "").trim();
+  const v = normalizeWebAppUrl($("webappUrl").value);
   return v || DEFAULT_WEBAPP_URL;
 }
-function setWebAppUrl(v){ $("webappUrl").value = v || ""; }
+function setWebAppUrl(v){ $("webappUrl").value = normalizeWebAppUrl(v || ""); }
 
 /* ================= STATE ================= */
-const state = {
-  fase: "",
-  nivel: null,
-  form: null,
-  answers: new Map(),
-  itemKeys: [],
-};
+const state = { fase:"", nivel:null, form:null, answers:new Map(), itemKeys:[] };
 
 /* ================= STATUS ================= */
 function setApiStatus(mode,text){
@@ -508,12 +548,14 @@ function setApiStatus(mode,text){
 
 /* ================= JSONP API ================= */
 function buildUrl(params, cbName){
-  const url = new URL(getWebAppUrl());
+  const base = getWebAppUrl();
+  const url = new URL(base);
   Object.entries(params).forEach(([k,v]) => url.searchParams.set(k, v));
   url.searchParams.set("callback", cbName);
   url.searchParams.set("_", String(Date.now()));
   return url.toString();
 }
+
 function apiGet(params, timeoutMs=15000){
   return new Promise((resolve,reject)=>{
     const cb="cb_"+Math.random().toString(36).slice(2);
@@ -522,13 +564,15 @@ function apiGet(params, timeoutMs=15000){
 
     const s=document.createElement("script");
     s.async = true;
-    let done=false;
+    // a veces extensiones se ponen creativas con el referrer:
+    s.referrerPolicy = "no-referrer";
 
+    let done=false;
     const t=setTimeout(()=>{
       if(done) return;
       done=true;
       cleanup();
-      reject(new Error("Timeout: la WebApp no respondió. Revisa Deploy/Access/URL."));
+      reject(new Error("Timeout. La WebApp no respondió. Abre Ping para verificar el deploy."));
     }, timeoutMs);
 
     function cleanup(){
@@ -541,8 +585,9 @@ function apiGet(params, timeoutMs=15000){
       if(done) return;
       done=true;
       cleanup();
+
       if(!data || typeof data !== "object"){
-        reject(new Error("Respuesta no-JSON (posible login/permiso). Deploy debe ser público."));
+        reject(new Error("Respuesta inválida. Si al abrir Ping te pide login, el deploy no es público."));
         return;
       }
       if(data.ok!==true){
@@ -557,7 +602,11 @@ function apiGet(params, timeoutMs=15000){
       if(done) return;
       done=true;
       cleanup();
-      reject(new Error("No se pudo cargar el script. Causa típica: deploy privado, URL incorrecta o bloqueador/extensión."));
+
+      // error típico: 404, bloqueador, o deploy privado (a veces google corta)
+      reject(new Error(
+        "No se pudo cargar el script. Revisa: URL correcta (/exec), Deploy público (Anyone), y desactiva bloqueadores para script.google.com."
+      ));
     };
 
     s.src = src;
@@ -604,12 +653,8 @@ function pickDefault(levels, includeAll){
 }
 
 /* ================= PHASE HELPERS ================= */
-function isEvalPhase(){
-  return state.fase === "AUTO" || state.fase === "DESEMPENO";
-}
-function isClientesPhase(){
-  return state.fase === "CLIENTES";
-}
+function isEvalPhase(){ return state.fase === "AUTO" || state.fase === "DESEMPENO"; }
+function isClientesPhase(){ return state.fase === "CLIENTES"; }
 
 /* ================= VALIDATION ================= */
 function getClientesRequiredFields(){
@@ -627,7 +672,6 @@ function getClientesRequiredFields(){
     $("nombreEvaluador").value.trim(),
   ];
 }
-
 function getEvalRequiredFields(){
   return [
     $("noPersonalEval").value.trim(),
@@ -640,44 +684,33 @@ function getEvalRequiredFields(){
     $("comentariosEval").value.trim(),
   ];
 }
-
 function isEvalComplete(){
   if(!isEvalPhase()) return false;
-
-  const req = getEvalRequiredFields();
-  if(req.some(v => !v)) return false;
-
+  if(getEvalRequiredFields().some(v => !v)) return false;
   const total = state.itemKeys.length;
   if(total === 0) return false;
-
   for(const k of state.itemKeys){
     const obj = state.answers.get(k);
     if(!obj || !obj.value || !obj.label) return false;
   }
   return true;
 }
-
 function isClientesComplete(){
   if(!isClientesPhase()) return false;
-  const req = getClientesRequiredFields();
-  return !req.some(v => !v);
+  return !getClientesRequiredFields().some(v => !v);
 }
-
 function updateGuardarUIState(){
   const btnG = $("btnGuardar");
   const btnL = $("btnLimpiarEval");
 
-  // mostrar Limpiar solo en fases guardables
   const showLimpiar = isEvalPhase() || isClientesPhase();
   btnL.style.display = showLimpiar ? "inline-block" : "none";
 
-  // habilitar Guardar según fase
   if(isClientesPhase()){
     btnG.disabled = !isClientesComplete();
     return;
   }
   if(isEvalPhase()){
-    // estado de completado visual
     const total = state.itemKeys.length;
     let done = 0;
     for(const k of state.itemKeys){
@@ -688,7 +721,6 @@ function updateGuardarUIState(){
     btnG.disabled = !isEvalComplete();
     return;
   }
-
   btnG.disabled = true;
 }
 
@@ -696,19 +728,16 @@ function updateGuardarUIState(){
 function setPhase(phase){
   state.fase = phase || "";
 
-  // Mostrar/ocultar secciones por fase
   document.querySelectorAll("[data-phase-block]").forEach(el=>{
     const p = el.getAttribute("data-phase-block");
     el.classList.remove("show");
     if(p === state.fase) el.classList.add("show");
   });
 
-  // Mostrar bloques EVAL solo en AUTO/DESEMPENO
   document.querySelectorAll('[data-phase-block="EVAL"]').forEach(el=>{
     el.classList.toggle("show", isEvalPhase());
   });
 
-  // ✅ Nivel: se oculta en CLIENTES
   const nivelWrap = $("nivelWrap");
   nivelWrap.classList.toggle("hide", isClientesPhase());
 
@@ -728,7 +757,6 @@ function setPhase(phase){
   };
   $("faseHelp").textContent = labelByPhase[state.fase] || "Selecciona una fase para desplegar el formulario.";
 
-  // ✅ Ocultar Nuevo/Print en CLIENTES y en evaluaciones
   const hideOpcionales = isEvalPhase() || isClientesPhase();
   $("btnNuevo").style.display = hideOpcionales ? "none" : "inline-block";
   $("btnPrint").style.display = hideOpcionales ? "none" : "inline-block";
@@ -771,13 +799,7 @@ function renderCuestionario(form){
       state.itemKeys.push(key);
 
       const current = state.answers.get(key)?.value || "";
-
       const r = it.rubrica || {};
-      const r1 = String(r["1"] ?? "");
-      const r2 = String(r["2"] ?? "");
-      const r3 = String(r["3"] ?? "");
-      const r4 = String(r["4"] ?? "");
-      const r5 = String(r["5"] ?? "");
 
       const row = document.createElement("div");
       row.className = "item-row";
@@ -791,11 +813,11 @@ function renderCuestionario(form){
           <div class="lbl">Puntaje (1–5)</div>
           <select data-key="${escapeAttr(key)}">
             <option value="" ${current==="" ? "selected":""}>Seleccione</option>
-            <option value="1" ${current==="1" ? "selected":""}>1 — ${escapeHtml(r1)}</option>
-            <option value="2" ${current==="2" ? "selected":""}>2 — ${escapeHtml(r2)}</option>
-            <option value="3" ${current==="3" ? "selected":""}>3 — ${escapeHtml(r3)}</option>
-            <option value="4" ${current==="4" ? "selected":""}>4 — ${escapeHtml(r4)}</option>
-            <option value="5" ${current==="5" ? "selected":""}>5 — ${escapeHtml(r5)}</option>
+            <option value="1" ${current==="1" ? "selected":""}>1 — ${escapeHtml(r["1"] ?? "")}</option>
+            <option value="2" ${current==="2" ? "selected":""}>2 — ${escapeHtml(r["2"] ?? "")}</option>
+            <option value="3" ${current==="3" ? "selected":""}>3 — ${escapeHtml(r["3"] ?? "")}</option>
+            <option value="4" ${current==="4" ? "selected":""}>4 — ${escapeHtml(r["4"] ?? "")}</option>
+            <option value="5" ${current==="5" ? "selected":""}>5 — ${escapeHtml(r["5"] ?? "")}</option>
           </select>
         </div>
       `;
@@ -937,11 +959,9 @@ function clearClientes(){
   $("pararHacer").value = "";
   $("continuarHacer").value = "";
   $("nombreEvaluador").value = "";
-  // fecha la dejamos con hoy (pero la puedes limpiar si querés)
   $("fecha").value = todayLocal();
   updateGuardarUIState();
 }
-
 function clearEval(){
   ["noPersonalEval","nombreEval","posicionEval","deptoEval","periodoEval","versionEval"].forEach(id=>$(id).value="");
   $("comentariosEval").value = "";
@@ -976,9 +996,7 @@ async function saveClientes(){
     evaluador: $("nombreEvaluador").value.trim()
   };
 
-  const json = JSON.stringify(payload);
-  const b64 = btoa(unescape(encodeURIComponent(json)));
-
+  const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
   const out = await apiGet({action:"save", payload:b64});
   alert("Guardado ✅\nID: " + (out.id || "—"));
   clearClientes();
@@ -997,7 +1015,7 @@ async function saveEval(){
   const respuestasOrdenadas = state.itemKeys.map(k => (state.answers.get(k)?.label || ""));
 
   const payload = {
-    fase: state.fase,             // "AUTO" o "DESEMPENO"
+    fase: state.fase,
     nivel: String(state.nivel || ""),
     no: $("noPersonalEval").value.trim(),
     nombre: $("nombreEval").value.trim(),
@@ -1010,9 +1028,7 @@ async function saveEval(){
     respuestas: respuestasOrdenadas
   };
 
-  const json = JSON.stringify(payload);
-  const b64 = btoa(unescape(encodeURIComponent(json)));
-
+  const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
   const out = await apiGet({action:"save", payload:b64});
 
   alert("Guardado ✅\nID: " + (out.id || "—"));
@@ -1024,7 +1040,6 @@ function doGuardar(){
   if(isEvalPhase()) return saveEval();
   alert("No hay nada que guardar en esta fase.");
 }
-
 function doLimpiar(){
   if(isClientesPhase()) return clearClientes();
   if(isEvalPhase()) return clearEval();
@@ -1032,7 +1047,16 @@ function doLimpiar(){
 
 /* ================= EVENTS ================= */
 $("webappUrl").addEventListener("change", ()=>{
-  localStorage.setItem(LS_KEY_URL, $("webappUrl").value.trim());
+  const v = normalizeWebAppUrl($("webappUrl").value);
+  $("webappUrl").value = v;
+  localStorage.setItem(LS_KEY_URL, v);
+});
+
+$("btnAbrirPing").addEventListener("click", ()=>{
+  const url = buildUrl({action:"ping"}, "cb_test");
+  // abrimos sin callback también para ver JSON crudo:
+  const raw = getWebAppUrl() + (getWebAppUrl().includes("?") ? "&" : "?") + "action=ping&_=" + Date.now();
+  window.open(raw, "_blank", "noopener,noreferrer");
 });
 
 $("btnProbarApi").addEventListener("click", async ()=>{
@@ -1079,7 +1103,6 @@ $("btnGuardar").addEventListener("click", ()=>doGuardar().catch(err=>setApiStatu
 $("btnLimpiarEval").addEventListener("click", doLimpiar);
 
 $("btnNuevo").addEventListener("click", ()=>{
-  // por si lo usas en fases futuras
   clearClientes();
   clearEval();
 });
@@ -1103,7 +1126,6 @@ $("btnLimpiarPesos").addEventListener("click", ()=>{
   }
 });
 
-/* ✅ Validación “en vivo” CLIENTES */
 ["noPersonal","nombre","posicion","depto","periodo","version","fecha","comenzarHacer","pararHacer","continuarHacer","nombreEvaluador"].forEach(id=>{
   const el = $(id);
   if(el){
@@ -1112,7 +1134,6 @@ $("btnLimpiarPesos").addEventListener("click", ()=>{
   }
 });
 
-/* ✅ Validación “en vivo” EVAL */
 ["noPersonalEval","nombreEval","posicionEval","deptoEval","periodoEval","versionEval","fechaEval","comentariosEval"].forEach(id=>{
   const el = $(id);
   if(el){
