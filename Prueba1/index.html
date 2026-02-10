@@ -110,22 +110,55 @@
     .nivelWrap{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
     .nivelWrap.hide{display:none}
 
-    /* para el cuestionario */
-    .factor{border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:12px;margin-bottom:12px}
-    .factor-title{font-weight:700;margin-bottom:10px}
-    .item-row{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;padding:10px 0;border-top:1px solid rgba(255,255,255,.07)}
+    /* ========= CUESTIONARIO (factor -> items) =========
+       Ajustado para verse como tu ejemplo: primero el factor,
+       luego cada ítem en fila con puntaje a la derecha.
+    */
+    .factor{
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:18px;
+      overflow:hidden;
+      margin-bottom:14px;
+      background:linear-gradient(180deg, rgba(11,18,32,.25), rgba(15,27,51,.10));
+    }
+    .factor-title{
+      padding:14px 16px;
+      font-weight:800;
+      font-size:18px;
+      letter-spacing:.2px;
+      border-bottom:1px solid rgba(255,255,255,.08);
+      background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
+    }
+    .item-row{
+      display:flex;
+      justify-content:space-between;
+      gap:16px;
+      align-items:center;
+      padding:16px;
+      border-top:1px solid rgba(255,255,255,.07);
+    }
     .item-row:first-of-type{border-top:none}
-    .item-name{font-weight:600}
-    .item-sub{color:var(--muted);font-size:12px;margin-top:2px}
-    .item-select{min-width:320px}
-    .item-select select{width:100%}
+    .item-left{flex:1; min-width:280px}
+    .item-name{
+      font-weight:750;
+      font-size:15px;
+      margin:0;
+    }
+    .item-sub{
+      color:var(--muted);
+      font-size:12px;
+      margin-top:4px;
+    }
+    .item-right{min-width:420px; max-width:520px; width:44%}
+    .item-right .lbl{margin-bottom:8px}
+    .item-right select{width:100%}
 
     @media (max-width:860px){
       .col-3,.col-4,.col-6{grid-column:span 12}
       select{min-width:180px}
       table{min-width:760px}
-      .item-row{flex-direction:column}
-      .item-select{min-width:100%}
+      .item-row{flex-direction:column; align-items:stretch}
+      .item-right{min-width:100%; width:100%}
     }
   </style>
 </head>
@@ -564,7 +597,6 @@ function apiGet(params, timeoutMs=15000){
 
     const s=document.createElement("script");
     s.async = true;
-    // a veces extensiones se ponen creativas con el referrer:
     s.referrerPolicy = "no-referrer";
 
     let done=false;
@@ -602,8 +634,6 @@ function apiGet(params, timeoutMs=15000){
       if(done) return;
       done=true;
       cleanup();
-
-      // error típico: 404, bloqueador, o deploy privado (a veces google corta)
       reject(new Error(
         "No se pudo cargar el script. Revisa: URL correcta (/exec), Deploy público (Anyone), y desactiva bloqueadores para script.google.com."
       ));
@@ -793,7 +823,7 @@ function renderCuestionario(form){
     box.className = "factor";
     box.innerHTML = `<div class="factor-title">${idxF+1}. ${escapeHtml(f.factor || "Factor")}</div>`;
 
-    (f.items || []).forEach((it)=>{
+    (f.items || []).forEach((it, idxI)=>{
       totalItems++;
       const key = it.key;
       state.itemKeys.push(key);
@@ -801,18 +831,21 @@ function renderCuestionario(form){
       const current = state.answers.get(key)?.value || "";
       const r = it.rubrica || {};
 
+      // A, B, C...
+      const letter = String.fromCharCode(65 + (idxI % 26));
+
       const row = document.createElement("div");
       row.className = "item-row";
       row.innerHTML = `
-        <div>
-          <div class="item-name">${escapeHtml(it.item || "Ítem")}</div>
+        <div class="item-left">
+          <div class="item-name">${letter}. ${escapeHtml(it.item || "Ítem")}</div>
           <div class="item-sub">Selecciona 1–5 según la rúbrica.</div>
         </div>
 
-        <div class="item-select">
+        <div class="item-right">
           <div class="lbl">Puntaje (1–5)</div>
           <select data-key="${escapeAttr(key)}">
-            <option value="" ${current==="" ? "selected":""}>Seleccione</option>
+            <option value="" ${current==="" ? "selected":""}>Seleccionar…</option>
             <option value="1" ${current==="1" ? "selected":""}>1 — ${escapeHtml(r["1"] ?? "")}</option>
             <option value="2" ${current==="2" ? "selected":""}>2 — ${escapeHtml(r["2"] ?? "")}</option>
             <option value="3" ${current==="3" ? "selected":""}>3 — ${escapeHtml(r["3"] ?? "")}</option>
@@ -1053,8 +1086,6 @@ $("webappUrl").addEventListener("change", ()=>{
 });
 
 $("btnAbrirPing").addEventListener("click", ()=>{
-  const url = buildUrl({action:"ping"}, "cb_test");
-  // abrimos sin callback también para ver JSON crudo:
   const raw = getWebAppUrl() + (getWebAppUrl().includes("?") ? "&" : "?") + "action=ping&_=" + Date.now();
   window.open(raw, "_blank", "noopener,noreferrer");
 });
