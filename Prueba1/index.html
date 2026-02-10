@@ -96,7 +96,7 @@
         </div>
         <div>
           <span class="chip" id="fCountChip">Items: 0</span>
-          <select id="fNivelSelect"></select>
+          <select id="fNivelSelect"><option>Cargando niveles…</option></select>
           <button id="btnFormCargar" class="btn-ok">Cargar</button>
           <button id="btnFormLimpiar" class="btn-ghost">Limpiar</button>
         </div>
@@ -125,7 +125,7 @@
         </div>
         <div>
           <span class="chip" id="pCountChip">Items: 0</span>
-          <select id="pNivelSelect"></select>
+          <select id="pNivelSelect"><option>Cargando niveles…</option></select>
           <button id="btnPesosCargar" class="btn-ok">Cargar</button>
           <button id="btnPesosLimpiar" class="btn-ghost">Limpiar</button>
         </div>
@@ -151,7 +151,7 @@
 
 <script>
 /* ================= CONFIG ================= */
-const SCRIPT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzya1ivHRn_ZAEXNYeowO59G0tMbckeU3YoAUMcpOQDqDd_3qVP-IPz56q69TnNS9W0/exec";
+const SCRIPT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycby3T5D_GWjhetx-38il6qoGc44rKj5t1e46PT72JiB4Tgt23UKHlAbKJ0ZxPcdAmorw/exec";
 
 const FASES = [
   "Formularios","Pesos",
@@ -245,27 +245,44 @@ function initFases(){
     sel.appendChild(o);
   });
   sel.value="Formularios";
-  sel.onchange=()=>{
-    if(sel.value==="Formularios") showOnly("secFormularios");
-    else if(sel.value==="Pesos") showOnly("secPesos");
-    else{
-      $("phTitle").textContent=sel.value;
-      $("phBody").textContent="Fase lista para implementar.";
-      showOnly("secPlaceholder");
+
+  sel.onchange=async ()=>{
+    try{
+      if(sel.value==="Formularios"){
+        showOnly("secFormularios");
+        await ensureFormLevelsLoaded();
+        resetNivelToAll("fNivelSelect");
+      } else if(sel.value==="Pesos"){
+        showOnly("secPesos");
+        await ensurePesosLevelsLoaded();
+        resetNivelToAll("pNivelSelect"); // SIEMPRE vuelve a “Todos”
+      } else {
+        $("phTitle").textContent=sel.value;
+        $("phBody").textContent="Fase lista para implementar.";
+        showOnly("secPlaceholder");
+      }
+    }catch(e){
+      setApiStatus("err","API: "+e.message);
     }
   };
+
   showOnly("secFormularios");
 }
 
 /* ================= HELPERS ================= */
 function fillLevelSelect(selectEl, levels){
-  // opción “Todos”
   const opts = [
     `<option value="ALL">(Todos los niveles)</option>`,
     ...levels.map(n => `<option value="${String(n)}">${String(n)}</option>`)
   ];
   selectEl.innerHTML = opts.join("");
   selectEl.value = "ALL";
+}
+function resetNivelToAll(selectId){
+  const el = $(selectId);
+  if(!el) return;
+  const hasAll = Array.from(el.options).some(o => o.value === "ALL");
+  if(hasAll) el.value = "ALL";
 }
 
 function renderFormulariosRows(items){
@@ -304,12 +321,23 @@ function renderPesosRows(items){
   $("pCountChip").textContent = `Items: ${items.length}`;
 }
 
+function clearTable(tableId, chipId){
+  $(tableId).querySelector("tbody").innerHTML="";
+  $(chipId).textContent="Items: 0";
+}
+
 /* ================= FORMULARIOS ================= */
+let formLevelsLoaded = false;
+
 async function initFormulariosLevels(){
   const lv = await apiGet({action:"levels", sheet:"Formularios"});
   fillLevelSelect($("fNivelSelect"), lv.levels || []);
+  formLevelsLoaded = true;
 }
-
+async function ensureFormLevelsLoaded(){
+  if(formLevelsLoaded && $("fNivelSelect").options.length > 0) return;
+  await initFormulariosLevels();
+}
 async function loadFormularios(){
   const nivel = $("fNivelSelect").value; // "ALL" o un nivel real
   const params = {action:"items", sheet:"Formularios"};
@@ -320,11 +348,17 @@ async function loadFormularios(){
 }
 
 /* ================= PESOS ================= */
+let pesosLevelsLoaded = false;
+
 async function initPesosLevels(){
   const lv = await apiGet({action:"levels", sheet:"Pesos"});
   fillLevelSelect($("pNivelSelect"), lv.levels || []);
+  pesosLevelsLoaded = true;
 }
-
+async function ensurePesosLevelsLoaded(){
+  if(pesosLevelsLoaded && $("pNivelSelect").options.length > 0) return;
+  await initPesosLevels();
+}
 async function loadPesos(){
   const nivel = $("pNivelSelect").value;
   const params = {action:"items", sheet:"Pesos"};
@@ -336,29 +370,20 @@ async function loadPesos(){
 
 /* ================= EVENTS ================= */
 $("btnFormCargar").onclick = () => loadFormularios().catch(e=>setApiStatus("err","API: "+e.message));
-$("btnFormLimpiar").onclick = () => {
-  $("tblFormularios").querySelector("tbody").innerHTML="";
-  $("fCountChip").textContent="Items: 0";
-};
+$("btnFormLimpiar").onclick = () => clearTable("tblFormularios","fCountChip");
 
 $("btnPesosCargar").onclick = () => loadPesos().catch(e=>setApiStatus("err","API: "+e.message));
-$("btnPesosLimpiar").onclick = () => {
-  $("tblPesos").querySelector("tbody").innerHTML="";
-  $("pCountChip").textContent="Items: 0";
-};
-
-// opcional: si cambias nivel, puedes recargar con un click (no auto, para no spamear API)
-$("fNivelSelect").addEventListener("change", () => {});
-$("pNivelSelect").addEventListener("change", () => {});
+$("btnPesosLimpiar").onclick = () => clearTable("tblPesos","pCountChip");
 
 /* ================= BOOT ================= */
 initFases();
 apiGet({action:"ping"})
   .then(async ()=>{
     setApiStatus("ok","API: conectada");
-    // precarga niveles
-    await initFormulariosLevels();
-    await initPesosLevels();
+    await ensureFormLevelsLoaded();
+    await ensurePesosLevelsLoaded();
+    resetNivelToAll("fNivelSelect");
+    resetNivelToAll("pNivelSelect");
   })
   .catch(e=>setApiStatus("err","API: "+e.message));
 </script>
