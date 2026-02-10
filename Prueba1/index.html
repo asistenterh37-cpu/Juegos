@@ -12,7 +12,8 @@
       --text:#e8eefc; --muted:#a9b7d9; --line:rgba(255,255,255,.10);
       --accent:#4f7cff; --accent2:#22c55e; --warn:#f59e0b; --danger:#ef4444;
       --chip:#1a2a52; --shadow: 0 10px 30px rgba(0,0,0,.35);
-      --radius2: 22px; --mono: ui-monospace, Menlo, Monaco, Consolas, monospace;
+      --radius2: 22px;
+      --mono: ui-monospace, Menlo, Monaco, Consolas, monospace;
       --sans: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
     }
     *{box-sizing:border-box}
@@ -60,8 +61,7 @@
       background:linear-gradient(180deg, rgba(245,158,11,.20), rgba(245,158,11,.08));
       border-color:rgba(245,158,11,.35)
     }
-    button[disabled]{ opacity:.45; filter:saturate(.6); cursor:not-allowed; }
-
+    button[disabled]{opacity:.45; filter:saturate(.6); cursor:not-allowed;}
     main{padding:18px}
     .grid{max-width:1180px;margin:0 auto;display:grid;gap:14px}
     .card{
@@ -83,9 +83,7 @@
       background:rgba(79,124,255,.10);border:1px dashed rgba(79,124,255,.35);
       padding:10px 12px;border-radius:14px;color:var(--muted);font-size:13px
     }
-    .hint.warn{
-      background:rgba(245,158,11,.10);border:1px dashed rgba(245,158,11,.35);
-    }
+    .hint.warn{ background:rgba(245,158,11,.10);border:1px dashed rgba(245,158,11,.35); }
     .form-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:10px}
     .col-3{grid-column:span 3}
     .col-4{grid-column:span 4}
@@ -95,7 +93,6 @@
     .field{display:flex;flex-direction:column;gap:6px}
     input{width:100%}
     textarea{width:100%;min-height:92px;resize:vertical}
-
     .table-wrap{overflow:auto;border:1px solid rgba(255,255,255,.08);border-radius:16px}
     table{width:100%;border-collapse:collapse;min-width:860px}
     th,td{padding:10px 10px;border-bottom:1px solid rgba(255,255,255,.07);vertical-align:top}
@@ -103,52 +100,30 @@
     td{font-size:13px}
     .muted{color:var(--muted);font-size:12px}
     .mono{font-family:var(--mono);font-size:12px;color:var(--muted)}
-
     [data-phase-block]{display:none}
     [data-phase-block].show{display:block}
-
     .nivelWrap{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
     .nivelWrap.hide{display:none}
 
-    /* ========= CUESTIONARIO (factor -> items) =========
-       Ajustado para verse como tu ejemplo: primero el factor,
-       luego cada ítem en fila con puntaje a la derecha.
-    */
+    /* ========= CUESTIONARIO ========= */
     .factor{
       border:1px solid rgba(255,255,255,.10);
-      border-radius:18px;
-      overflow:hidden;
-      margin-bottom:14px;
+      border-radius:18px; overflow:hidden; margin-bottom:14px;
       background:linear-gradient(180deg, rgba(11,18,32,.25), rgba(15,27,51,.10));
     }
     .factor-title{
-      padding:14px 16px;
-      font-weight:800;
-      font-size:18px;
-      letter-spacing:.2px;
-      border-bottom:1px solid rgba(255,255,255,.08);
+      padding:14px 16px; font-weight:800; font-size:18px;
+      letter-spacing:.2px; border-bottom:1px solid rgba(255,255,255,.08);
       background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
     }
     .item-row{
-      display:flex;
-      justify-content:space-between;
-      gap:16px;
-      align-items:center;
-      padding:16px;
-      border-top:1px solid rgba(255,255,255,.07);
+      display:flex; justify-content:space-between; gap:16px; align-items:center;
+      padding:16px; border-top:1px solid rgba(255,255,255,.07);
     }
     .item-row:first-of-type{border-top:none}
     .item-left{flex:1; min-width:280px}
-    .item-name{
-      font-weight:750;
-      font-size:15px;
-      margin:0;
-    }
-    .item-sub{
-      color:var(--muted);
-      font-size:12px;
-      margin-top:4px;
-    }
+    .item-name{font-weight:750; font-size:15px; margin:0;}
+    .item-sub{color:var(--muted); font-size:12px; margin-top:4px;}
     .item-right{min-width:420px; max-width:520px; width:44%}
     .item-right .lbl{margin-bottom:8px}
     .item-right select{width:100%}
@@ -164,1037 +139,1050 @@
 </head>
 
 <body>
-<header>
-  <div class="wrap">
-    <div class="topbar">
-      <div class="brand">
-        <div class="logo">ED</div>
-        <div>
-          Proceso de evaluación del desempeño
-          <div class="chips">
-            <span class="chip">Empresa: <b id="chipEmpresa">No Implementado</b></span>
-            <span class="chip">Versión: <b id="chipVersion">Prueba</b></span>
+  <header>
+    <div class="wrap">
+      <div class="topbar">
+        <div class="brand">
+          <div class="logo">ED</div>
+          <div>
+            Proceso de evaluación del desempeño
+            <div class="chips">
+              <span class="chip">Empresa: <b id="chipEmpresa">No Implementado</b></span>
+              <span class="chip">Versión: <b id="chipVersion">Prueba</b></span>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="controls">
-        <span id="apiStatus" class="status">
-          <span class="s-dot"></span>
-          <span id="apiStatusText">API: sin probar</span>
-        </span>
-        <button id="btnProbarApi" class="btn-ghost">Probar API</button>
-        <button id="btnAbrirPing" class="btn-ghost">Abrir Ping</button>
+        <div class="controls">
+          <span id="apiStatus" class="status">
+            <span class="s-dot"></span>
+            <span id="apiStatusText">API: sin probar</span>
+          </span>
 
-        <button id="btnLimpiarEval" class="btn-warn" style="display:none">Limpiar</button>
-        <button id="btnGuardar" class="btn-ok" disabled>Guardar</button>
+          <button id="btnProbarApi" class="btn-ghost">Probar API</button>
+          <button id="btnAbrirPing" class="btn-ghost">Abrir Ping</button>
 
-        <button id="btnNuevo" class="btn-blue">Nuevo</button>
-        <button id="btnPrint" class="btn-ghost">Imprimir / Enviar a PDF</button>
+          <button id="btnLimpiarEval" class="btn-warn" style="display:none">Limpiar</button>
+          <button id="btnGuardar" class="btn-ok" disabled>Guardar</button>
+
+          <button id="btnNuevo" class="btn-blue">Nuevo</button>
+          <button id="btnPrint" class="btn-ghost">Imprimir / Enviar a PDF</button>
+        </div>
       </div>
     </div>
-  </div>
-</header>
+  </header>
 
-<main>
-  <div class="grid">
+  <main>
+    <div class="grid">
 
-    <!-- CONFIG API -->
-    <section class="card">
-      <div class="card-h">
-        <div>
-          <h2>Conexión (WebApp Apps Script)</h2>
-          <div class="sub">Pega tu URL del deploy. Si falta <span class="mono">/exec</span>, se corrige sola.</div>
-        </div>
-      </div>
-      <div class="card-b">
-        <div class="form-grid">
-          <div class="field col-12">
-            <div class="lbl">URL WebApp</div>
-            <input id="webappUrl" placeholder="https://script.google.com/macros/s/XXXX/exec" />
+      <!-- CONFIG API -->
+      <section class="card">
+        <div class="card-h">
+          <div>
+            <h2>Conexión (WebApp Apps Script)</h2>
+            <div class="sub">Pega tu URL del deploy. Si falta <span class="mono">/exec</span>, se corrige sola.</div>
           </div>
         </div>
-        <div class="hint warn" style="margin-top:10px">
-          Si aparece “No se pudo cargar el script”: casi siempre es deploy no público o bloqueador/extensión.
-          En Apps Script: <b>Deploy → Manage deployments</b> → Access: <b>Anyone</b> y Execute as: <b>Me</b>.
+        <div class="card-b">
+          <div class="form-grid">
+            <div class="field col-12">
+              <div class="lbl">URL WebApp</div>
+              <input id="webappUrl" placeholder="https://script.google.com/macros/s/XXXX/exec" />
+            </div>
+          </div>
+          <div class="hint warn" style="margin-top:10px">
+            Si aparece “No se pudo cargar el script”: casi siempre es deploy no público o bloqueador/extensión.
+            En Apps Script: <b>Deploy → Manage deployments</b> → Access: <b>Anyone</b> y Execute as: <b>Me</b>.
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- FASE + NIVEL -->
-    <section class="card" id="blockFaseNivel">
-      <div class="card-h">
-        <div class="controls" style="width:100%; justify-content:space-between">
-          <div class="controls" style="gap:10px">
-            <select id="faseSelect">
-              <option value="">Seleccione fase</option>
-              <option value="FORMULARIOS">Formularios</option>
-              <option value="PESOS">Pesos</option>
-              <option value="AUTO">Formulario de autoevaluación</option>
-              <option value="CLIENTES">Formulario de evaluación de clientes</option>
-              <option value="DESEMPENO">Formulario de evaluación del desempeño</option>
-              <option value="RESULTADO">Resultado evaluación del desempeño</option>
-              <option value="CONSOLIDADO">Informe consolidado</option>
-              <option value="CAPACITACION">Informe necesidades de capacitacion</option>
-              <option value="DESARROLLO">Informe plan de desarrollo</option>
-            </select>
-
-            <span class="nivelWrap" id="nivelWrap">
-              <select id="nivelSelect" disabled>
-                <option>Cargando niveles…</option>
+      <!-- FASE + NIVEL -->
+      <section class="card" id="blockFaseNivel">
+        <div class="card-h">
+          <div class="controls" style="width:100%; justify-content:space-between">
+            <div class="controls" style="gap:10px">
+              <select id="faseSelect">
+                <option value="">Seleccione fase</option>
+                <option value="FORMULARIOS">Formularios</option>
+                <option value="PESOS">Pesos</option>
+                <option value="AUTO">Formulario de autoevaluación</option>
+                <option value="CLIENTES">Formulario de evaluación de clientes</option>
+                <option value="DESEMPENO">Formulario de evaluación del desempeño</option>
+                <option value="RESULTADO">Resultado evaluación del desempeño</option>
+                <option value="CONSOLIDADO">Informe consolidado</option>
+                <option value="CAPACITACION">Informe necesidades de capacitacion</option>
+                <option value="DESARROLLO">Informe plan de desarrollo</option>
               </select>
-            </span>
-          </div>
 
-          <div class="sub" id="faseHelp" style="max-width:520px; text-align:right">
-            Selecciona una fase para desplegar el formulario.
+              <span class="nivelWrap" id="nivelWrap">
+                <select id="nivelSelect" disabled>
+                  <option>Cargando niveles…</option>
+                </select>
+              </span>
+            </div>
+
+            <div class="sub" id="faseHelp" style="max-width:520px; text-align:right">
+              Selecciona una fase para desplegar el formulario.
+            </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- FORMULARIOS -->
-    <section class="card" data-phase-block="FORMULARIOS" id="blockFormularios">
-      <div class="card-h">
-        <div>
-          <h2>Formularios</h2>
-          <div class="sub">Selecciona Nivel (Todos/1/2/…/10) y presiona <b>Cargar</b>.</div>
-        </div>
-        <div class="controls">
-          <button id="btnCargarFormularios" class="btn-blue">Cargar</button>
-          <button id="btnLimpiarFormularios" class="btn-warn">Limpiar</button>
-        </div>
-      </div>
-      <div class="card-b">
-        <div class="chips" style="margin-bottom:10px">
-          <span class="chip" id="rowsCount">Filas: 0</span>
-          <span class="chip mono">Columnas: Nivel | Factor | Item | 1..5</span>
-        </div>
-        <div id="formHint" class="hint">Aún no has cargado datos.</div>
-
-        <div class="table-wrap" style="margin-top:12px">
-          <table>
-            <thead>
-              <tr>
-                <th style="width:90px">Nivel</th>
-                <th style="width:220px">Factor</th>
-                <th style="width:260px">Item</th>
-                <th>1</th><th>2</th><th>3</th><th>4</th><th>5</th>
-              </tr>
-            </thead>
-            <tbody id="tbodyFormularios">
-              <tr><td colspan="8" class="muted">Sin datos.</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- PESOS -->
-    <section class="card" data-phase-block="PESOS" id="blockPesos">
-      <div class="card-h">
-        <div>
-          <h2>Pesos</h2>
-          <div class="sub">Selecciona Nivel (Todos/1/2/…/10) y presiona <b>Cargar</b>.</div>
-        </div>
-        <div class="controls">
-          <button id="btnCargarPesos" class="btn-blue">Cargar</button>
-          <button id="btnLimpiarPesos" class="btn-warn">Limpiar</button>
-        </div>
-      </div>
-      <div class="card-b">
-        <div class="chips" style="margin-bottom:10px">
-          <span class="chip" id="rowsCountPesos">Filas: 0</span>
-          <span class="chip mono">Columnas: Nivel | Factor | Item | Peso</span>
-        </div>
-        <div id="pesosHint" class="hint">Aún no has cargado datos.</div>
-
-        <div class="table-wrap" style="margin-top:12px">
-          <table>
-            <thead>
-              <tr>
-                <th style="width:90px">Nivel</th>
-                <th style="width:260px">Factor</th>
-                <th>Item</th>
-                <th style="width:140px">Peso</th>
-              </tr>
-            </thead>
-            <tbody id="tbodyPesos">
-              <tr><td colspan="4" class="muted">Sin datos.</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- CLIENTES -->
-    <section class="card" data-phase-block="CLIENTES" id="blockClientes">
-      <div class="card-h">
-        <div>
-          <h2>Formulario de evaluación de clientes</h2>
-          <div class="sub">Completa todos los campos. Guardar se habilita hasta que todo esté lleno.</div>
-        </div>
-        <div class="chips">
-          <span class="chip mono">Hoja destino: <b>Clientes</b></span>
-        </div>
-      </div>
-
-      <div class="card-b">
-        <div class="hint" style="margin-bottom:12px">
-          Nota: En esta fase no existe “Nivel”. Solo se tabulan los campos del formulario en la hoja <b>Clientes</b>.
-        </div>
-
-        <div class="form-grid">
-          <div class="field col-3">
-            <div class="lbl">No. de personal</div>
-            <input id="noPersonal" placeholder="Ej: 1600" />
+      <!-- FORMULARIOS -->
+      <section class="card" data-phase-block="FORMULARIOS" id="blockFormularios">
+        <div class="card-h">
+          <div>
+            <h2>Formularios</h2>
+            <div class="sub">Selecciona Nivel (Todos/1/2/…/10) y presiona <b>Cargar</b>.</div>
           </div>
-          <div class="field col-6">
-            <div class="lbl">Nombre</div>
-            <input id="nombre" placeholder="Ej: Carlos Paz" />
+          <div class="controls">
+            <button id="btnCargarFormularios" class="btn-blue">Cargar</button>
+            <button id="btnLimpiarFormularios" class="btn-warn">Limpiar</button>
           </div>
-          <div class="field col-3">
-            <div class="lbl">Posición</div>
-            <input id="posicion" placeholder="Ej: Analista" />
+        </div>
+        <div class="card-b">
+          <div class="chips" style="margin-bottom:10px">
+            <span class="chip" id="rowsCount">Filas: 0</span>
+            <span class="chip mono">Columnas: Nivel | Factor | Item | 1..5</span>
           </div>
 
-          <div class="field col-4">
-            <div class="lbl">Departamento</div>
-            <input id="depto" placeholder="Ej: Contabilidad" />
+          <div id="formHint" class="hint">Aún no has cargado datos.</div>
+
+          <div class="table-wrap" style="margin-top:12px">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width:90px">Nivel</th>
+                  <th style="width:220px">Factor</th>
+                  <th style="width:260px">Item</th>
+                  <th>1</th><th>2</th><th>3</th><th>4</th><th>5</th>
+                </tr>
+              </thead>
+              <tbody id="tbodyFormularios">
+                <tr><td colspan="8" class="muted">Sin datos.</td></tr>
+              </tbody>
+            </table>
           </div>
-          <div class="field col-4">
-            <div class="lbl">Periodo</div>
-            <input id="periodo" placeholder="Ej: 2025" />
+        </div>
+      </section>
+
+      <!-- PESOS -->
+      <section class="card" data-phase-block="PESOS" id="blockPesos">
+        <div class="card-h">
+          <div>
+            <h2>Pesos</h2>
+            <div class="sub">Selecciona Nivel (Todos/1/2/…/10) y presiona <b>Cargar</b>.</div>
           </div>
-          <div class="field col-2">
-            <div class="lbl">Versión</div>
-            <input id="version" placeholder="Ej: 1" />
+          <div class="controls">
+            <button id="btnCargarPesos" class="btn-blue">Cargar</button>
+            <button id="btnLimpiarPesos" class="btn-warn">Limpiar</button>
           </div>
-          <div class="field col-2">
-            <div class="lbl">Fecha</div>
-            <input id="fecha" />
+        </div>
+        <div class="card-b">
+          <div class="chips" style="margin-bottom:10px">
+            <span class="chip" id="rowsCountPesos">Filas: 0</span>
+            <span class="chip mono">Columnas: Nivel | Factor | Item | Peso</span>
           </div>
 
-          <div class="field col-12">
-            <div class="lbl">Comenzar a hacer</div>
-            <textarea id="comenzarHacer" placeholder="¿Qué debería comenzar a hacer?"></textarea>
-          </div>
+          <div id="pesosHint" class="hint">Aún no has cargado datos.</div>
 
-          <div class="field col-12">
-            <div class="lbl">Parar de hacer</div>
-            <textarea id="pararHacer" placeholder="¿Qué debería parar de hacer?"></textarea>
+          <div class="table-wrap" style="margin-top:12px">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width:90px">Nivel</th>
+                  <th style="width:260px">Factor</th>
+                  <th>Item</th>
+                  <th style="width:140px">Peso</th>
+                </tr>
+              </thead>
+              <tbody id="tbodyPesos">
+                <tr><td colspan="4" class="muted">Sin datos.</td></tr>
+              </tbody>
+            </table>
           </div>
+        </div>
+      </section>
 
-          <div class="field col-12">
-            <div class="lbl">Continuar haciendo</div>
-            <textarea id="continuarHacer" placeholder="¿Qué debería continuar haciendo?"></textarea>
+      <!-- CLIENTES -->
+      <section class="card" data-phase-block="CLIENTES" id="blockClientes">
+        <div class="card-h">
+          <div>
+            <h2>Formulario de evaluación de clientes</h2>
+            <div class="sub">Completa todos los campos. Guardar se habilita hasta que todo esté lleno.</div>
           </div>
-
-          <div class="field col-6">
-            <div class="lbl">Nombre del evaluador</div>
-            <input id="nombreEvaluador" placeholder="Ej: Ana López" />
+          <div class="chips">
+            <span class="chip mono">Hoja destino: <b>Clientes</b></span>
           </div>
         </div>
 
-        <div class="sub" style="margin-top:10px">
-          Estado API: <b id="apiMini">—</b>
-        </div>
-      </div>
-    </section>
-
-    <!-- EVAL -->
-    <section class="card" data-phase-block="EVAL" id="blockDatos">
-      <div class="card-h">
-        <div>
-          <h2>Datos del colaborador</h2>
-          <div class="sub">Completa la información y selecciona una opción (1–5) para cada ítem.</div>
-        </div>
-      </div>
-      <div class="card-b">
-        <div class="form-grid">
-          <div class="field col-3">
-            <div class="lbl">No. de personal</div>
-            <input id="noPersonalEval" placeholder="Ej: 1600" />
+        <div class="card-b">
+          <div class="hint" style="margin-bottom:12px">
+            Nota: En esta fase no existe “Nivel”. Solo se tabulan los campos del formulario en la hoja <b>Clientes</b>.
           </div>
-          <div class="field col-6">
-            <div class="lbl">Nombre</div>
-            <input id="nombreEval" placeholder="Ej: Carlos Paz" />
+
+          <div class="form-grid">
+            <div class="field col-3">
+              <div class="lbl">No. de personal</div>
+              <input id="noPersonal" placeholder="Ej: 1600" />
+            </div>
+            <div class="field col-6">
+              <div class="lbl">Nombre</div>
+              <input id="nombre" placeholder="Ej: Carlos Paz" />
+            </div>
+            <div class="field col-3">
+              <div class="lbl">Posición</div>
+              <input id="posicion" placeholder="Ej: Analista" />
+            </div>
+            <div class="field col-4">
+              <div class="lbl">Departamento</div>
+              <input id="depto" placeholder="Ej: Contabilidad" />
+            </div>
+            <div class="field col-4">
+              <div class="lbl">Periodo</div>
+              <input id="periodo" placeholder="Ej: 2025" />
+            </div>
+            <div class="field col-2">
+              <div class="lbl">Versión</div>
+              <input id="version" placeholder="Ej: 1" />
+            </div>
+            <div class="field col-2">
+              <div class="lbl">Fecha</div>
+              <input id="fecha" />
+            </div>
+
+            <div class="field col-12">
+              <div class="lbl">Comenzar a hacer</div>
+              <textarea id="comenzarHacer" placeholder="¿Qué debería comenzar a hacer?"></textarea>
+            </div>
+            <div class="field col-12">
+              <div class="lbl">Parar de hacer</div>
+              <textarea id="pararHacer" placeholder="¿Qué debería parar de hacer?"></textarea>
+            </div>
+            <div class="field col-12">
+              <div class="lbl">Continuar haciendo</div>
+              <textarea id="continuarHacer" placeholder="¿Qué debería continuar haciendo?"></textarea>
+            </div>
+
+            <div class="field col-6">
+              <div class="lbl">Nombre del evaluador</div>
+              <input id="nombreEvaluador" placeholder="Ej: Ana López" />
+            </div>
           </div>
-          <div class="field col-3">
-            <div class="lbl">Posición</div>
-            <input id="posicionEval" placeholder="Ej: Analista" />
-          </div>
-          <div class="field col-4">
-            <div class="lbl">Departamento</div>
-            <input id="deptoEval" placeholder="Ej: Contabilidad" />
-          </div>
-          <div class="field col-4">
-            <div class="lbl">Periodo</div>
-            <input id="periodoEval" placeholder="Ej: 2025" />
-          </div>
-          <div class="field col-2">
-            <div class="lbl">Versión</div>
-            <input id="versionEval" placeholder="Ej: 1" />
-          </div>
-          <div class="field col-2">
-            <div class="lbl">Fecha</div>
-            <input id="fechaEval" />
+
+          <div class="sub" style="margin-top:10px">Estado API: <b id="apiMini">—</b></div>
+        </div>
+      </section>
+
+      <!-- EVAL (AUTO / DESEMPENO) -->
+      <section class="card" data-phase-block="EVAL" id="blockDatos">
+        <div class="card-h">
+          <div>
+            <h2>Datos del colaborador</h2>
+            <div class="sub">Completa la información y selecciona una opción (1–5) para cada ítem.</div>
           </div>
         </div>
 
-        <div class="sub" style="margin-top:10px">
-          Estado API: <b id="apiMiniEval">—</b>
+        <div class="card-b">
+          <div class="form-grid">
+            <div class="field col-3">
+              <div class="lbl">No. de personal</div>
+              <input id="noPersonalEval" placeholder="Ej: 1600" />
+            </div>
+            <div class="field col-6">
+              <div class="lbl">Nombre</div>
+              <input id="nombreEval" placeholder="Ej: Carlos Paz" />
+            </div>
+            <div class="field col-3">
+              <div class="lbl">Posición</div>
+              <input id="posicionEval" placeholder="Ej: Analista" />
+            </div>
+            <div class="field col-4">
+              <div class="lbl">Departamento</div>
+              <input id="deptoEval" placeholder="Ej: Contabilidad" />
+            </div>
+            <div class="field col-4">
+              <div class="lbl">Periodo</div>
+              <input id="periodoEval" placeholder="Ej: 2025" />
+            </div>
+            <div class="field col-2">
+              <div class="lbl">Versión</div>
+              <input id="versionEval" placeholder="Ej: 1" />
+            </div>
+            <div class="field col-2">
+              <div class="lbl">Fecha</div>
+              <input id="fechaEval" />
+            </div>
+          </div>
+          <div class="sub" style="margin-top:10px">Estado API: <b id="apiMiniEval">—</b></div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <section class="card" data-phase-block="EVAL" id="blockEval">
-      <div class="card-h">
-        <div>
-          <h2>Evaluación (1–5)</h2>
-          <div class="sub">Cada nivel muestra “número — descripción” según la rúbrica.</div>
+      <section class="card" data-phase-block="EVAL" id="blockEval">
+        <div class="card-h">
+          <div>
+            <h2>Evaluación (1–5)</h2>
+            <div class="sub">Cada nivel muestra “número — descripción” según la rúbrica.</div>
+          </div>
+          <div class="chips">
+            <span class="chip" id="itemsCount">Items: 0</span>
+            <span class="chip" id="completeHint">Completado: 0/0</span>
+          </div>
         </div>
-        <div class="chips">
-          <span class="chip" id="itemsCount">Items: 0</span>
-          <span class="chip" id="completeHint">Completado: 0/0</span>
+        <div class="card-b">
+          <div id="cuestionario"></div>
         </div>
-      </div>
-      <div class="card-b">
-        <div id="cuestionario"></div>
-      </div>
-    </section>
+      </section>
 
-    <section class="card" data-phase-block="EVAL" id="blockComentarios">
-      <div class="card-h">
-        <div>
-          <h2>Comentarios</h2>
-          <div class="sub">Incluye observaciones, ejemplos, mejoras o apoyo requerido.</div>
+      <section class="card" data-phase-block="EVAL" id="blockComentarios">
+        <div class="card-h">
+          <div>
+            <h2>Comentarios</h2>
+            <div class="sub">Incluye observaciones, ejemplos, mejoras o apoyo requerido.</div>
+          </div>
         </div>
-      </div>
-      <div class="card-b">
-        <textarea id="comentariosEval" placeholder="Comentarios..."></textarea>
-      </div>
-    </section>
+        <div class="card-b">
+          <textarea id="comentariosEval" placeholder="Comentarios..."></textarea>
+        </div>
+      </section>
 
-    <section class="card" data-phase-block="RESULTADO">
-      <div class="card-h">
-        <h2>Resultado evaluación del desempeño</h2>
-        <div class="sub">Vista en construcción.</div>
-      </div>
-      <div class="card-b"><div class="hint">Aquí irá el resultado (promedios, ponderaciones, etc.).</div></div>
-    </section>
+      <!-- OTRAS VISTAS -->
+      <section class="card" data-phase-block="RESULTADO">
+        <div class="card-h">
+          <h2>Resultado evaluación del desempeño</h2>
+          <div class="sub">Vista en construcción.</div>
+        </div>
+        <div class="card-b"><div class="hint">Aquí irá el resultado (promedios, ponderaciones, etc.).</div></div>
+      </section>
 
-    <section class="card" data-phase-block="CONSOLIDADO">
-      <div class="card-h">
-        <h2>Informe consolidado</h2>
-        <div class="sub">Vista en construcción.</div>
-      </div>
-      <div class="card-b"><div class="hint">Aquí irá el informe consolidado por área/empresa.</div></div>
-    </section>
+      <section class="card" data-phase-block="CONSOLIDADO">
+        <div class="card-h">
+          <h2>Informe consolidado</h2>
+          <div class="sub">Vista en construcción.</div>
+        </div>
+        <div class="card-b"><div class="hint">Aquí irá el informe consolidado por área/empresa.</div></div>
+      </section>
 
-    <section class="card" data-phase-block="CAPACITACION">
-      <div class="card-h">
-        <h2>Informe necesidades de capacitacion</h2>
-        <div class="sub">Vista en construcción.</div>
-      </div>
-      <div class="card-b"><div class="hint">Aquí irá el informe de brechas y necesidades.</div></div>
-    </section>
+      <section class="card" data-phase-block="CAPACITACION">
+        <div class="card-h">
+          <h2>Informe necesidades de capacitacion</h2>
+          <div class="sub">Vista en construcción.</div>
+        </div>
+        <div class="card-b"><div class="hint">Aquí irá el informe de brechas y necesidades.</div></div>
+      </section>
 
-    <section class="card" data-phase-block="DESARROLLO">
-      <div class="card-h">
-        <h2>Informe plan de desarrollo</h2>
-        <div class="sub">Vista en construcción.</div>
-      </div>
-      <div class="card-b"><div class="hint">Aquí irá el plan de desarrollo individual.</div></div>
-    </section>
+      <section class="card" data-phase-block="DESARROLLO">
+        <div class="card-h">
+          <h2>Informe plan de desarrollo</h2>
+          <div class="sub">Vista en construcción.</div>
+        </div>
+        <div class="card-b"><div class="hint">Aquí irá el plan de desarrollo individual.</div></div>
+      </section>
 
-  </div>
-</main>
+    </div>
+  </main>
 
-<script>
-/* ================= CONFIG ================= */
-const LS_KEY_URL = "ED_WEBAPP_URL";
-const DEFAULT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbz8qbsua2Jy1jliaL4MG6fg4RB3MH1y0VeJ4f9OsCJAu6_d9E7hQ6AFurK0YAloLGz8/exec";
-const $ = id => document.getElementById(id);
+  <script>
+    /* ================= CONFIG ================= */
+    const LS_KEY_URL = "ED_WEBAPP_URL";
+    const DEFAULT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwubxncxBMBM7y_fExqG_REJqZTfDhvKGCtSHc_Y2ENEfg168xJ2ffOKgHFXNxJBWVK/exec";
+    const $ = id => document.getElementById(id);
 
-/** ✅ Normaliza URL para evitar 404:
- * - Si pegás .../exec/ => lo deja .../exec
- * - Si pegás .../s/ID => agrega /exec
- * - Si pegás .../dev => cambia a /exec
- */
-function normalizeWebAppUrl(raw){
-  let v = String(raw || "").trim();
-  if(!v) return DEFAULT_WEBAPP_URL;
+    function normalizeWebAppUrl(raw){
+      let v = String(raw || "").trim();
+      if(!v) return DEFAULT_WEBAPP_URL;
+      v = v.replace(/#.*$/, "");
+      v = v.replace(/\s+/g, "");
+      v = v.replace(/\/+$/, "");
+      v = v.replace(/\/dev$/i, "/exec");
+      if(/\/exec$/i.test(v)) return v;
 
-  // quitar anchors
-  v = v.replace(/#.*$/, "");
-
-  // quitar espacios y trailing slashes
-  v = v.replace(/\s+/g, "");
-  v = v.replace(/\/+$/, "");
-
-  // si viene /dev, forzar /exec
-  v = v.replace(/\/dev$/i, "/exec");
-
-  // si ya trae /exec al final, ok
-  if(/\/exec$/i.test(v)) return v;
-
-  // si parece url de deploy sin /exec, agregar
-  if(/script\.google\.com\/macros\/s\/[^/]+$/i.test(v)){
-    return v + "/exec";
-  }
-
-  // si viene con query pero sin /exec, intentar insertarlo antes de ?
-  const qm = v.indexOf("?");
-  if(qm > -1){
-    const base = v.slice(0, qm).replace(/\/+$/, "");
-    const qs = v.slice(qm);
-    if(/\/exec$/i.test(base)) return base + qs;
-    if(/script\.google\.com\/macros\/s\/[^/]+$/i.test(base)) return base + "/exec" + qs;
-  }
-
-  return v;
-}
-
-function getWebAppUrl(){
-  const v = normalizeWebAppUrl($("webappUrl").value);
-  return v || DEFAULT_WEBAPP_URL;
-}
-function setWebAppUrl(v){ $("webappUrl").value = normalizeWebAppUrl(v || ""); }
-
-/* ================= STATE ================= */
-const state = { fase:"", nivel:null, form:null, answers:new Map(), itemKeys:[] };
-
-/* ================= STATUS ================= */
-function setApiStatus(mode,text){
-  const el=$("apiStatus");
-  el.classList.remove("ok","err");
-  if(mode) el.classList.add(mode);
-  $("apiStatusText").textContent=text;
-
-  const miniClientes = $("apiMini");
-  if (miniClientes) miniClientes.textContent = text.replace("API: ","");
-
-  const miniEval = $("apiMiniEval");
-  if (miniEval) miniEval.textContent = text.replace("API: ","");
-}
-
-/* ================= JSONP API ================= */
-function buildUrl(params, cbName){
-  const base = getWebAppUrl();
-  const url = new URL(base);
-  Object.entries(params).forEach(([k,v]) => url.searchParams.set(k, v));
-  url.searchParams.set("callback", cbName);
-  url.searchParams.set("_", String(Date.now()));
-  return url.toString();
-}
-
-function apiGet(params, timeoutMs=15000){
-  return new Promise((resolve,reject)=>{
-    const cb="cb_"+Math.random().toString(36).slice(2);
-    const src = buildUrl(params, cb);
-    setApiStatus("", "API: consultando…");
-
-    const s=document.createElement("script");
-    s.async = true;
-    s.referrerPolicy = "no-referrer";
-
-    let done=false;
-    const t=setTimeout(()=>{
-      if(done) return;
-      done=true;
-      cleanup();
-      reject(new Error("Timeout. La WebApp no respondió. Abre Ping para verificar el deploy."));
-    }, timeoutMs);
-
-    function cleanup(){
-      clearTimeout(t);
-      try { delete window[cb]; } catch(_) { window[cb]=undefined; }
-      if (s && s.parentNode) s.parentNode.removeChild(s);
+      if(/script\.google\.com\/macros\/s\/[^/]+$/i.test(v)){
+        return v + "/exec";
+      }
+      const qm = v.indexOf("?");
+      if(qm > -1){
+        const base = v.slice(0, qm).replace(/\/+$/, "");
+        const qs = v.slice(qm);
+        if(/\/exec$/i.test(base)) return base + qs;
+        if(/script\.google\.com\/macros\/s\/[^/]+$/i.test(base)) return base + "/exec" + qs;
+      }
+      return v;
     }
 
-    window[cb]=data=>{
-      if(done) return;
-      done=true;
-      cleanup();
-
-      if(!data || typeof data !== "object"){
-        reject(new Error("Respuesta inválida. Si al abrir Ping te pide login, el deploy no es público."));
-        return;
-      }
-      if(data.ok!==true){
-        reject(new Error(data.error || "Respuesta inválida"));
-        return;
-      }
-      setApiStatus("ok","API: conectada");
-      resolve(data);
-    };
-
-    s.onerror=()=>{
-      if(done) return;
-      done=true;
-      cleanup();
-      reject(new Error(
-        "No se pudo cargar el script. Revisa: URL correcta (/exec), Deploy público (Anyone), y desactiva bloqueadores para script.google.com."
-      ));
-    };
-
-    s.src = src;
-    document.body.appendChild(s);
-  });
-}
-
-/* ================= UTIL ================= */
-function todayLocal(){
-  const d = new Date();
-  const yyyy = d.getFullYear();
-  const mm = String(d.getMonth()+1).padStart(2,"0");
-  const dd = String(d.getDate()).padStart(2,"0");
-  return `${dd}/${mm}/${yyyy}`;
-}
-function escapeHtml(s){
-  return String(s ?? "").replace(/[&<>"']/g, m => ({
-    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
-  }[m]));
-}
-function escapeAttr(s){ return escapeHtml(s).replace(/"/g,"&quot;"); }
-
-function fillNivelSelect(levels, includeAll=false){
-  const sel = $("nivelSelect");
-  sel.innerHTML = "";
-  if(includeAll){
-    const oAll = document.createElement("option");
-    oAll.value = "ALL";
-    oAll.textContent = "Todos";
-    sel.appendChild(oAll);
-  }
-  levels.forEach(l=>{
-    const v = String(l);
-    const o = document.createElement("option");
-    o.value = v;
-    o.textContent = v;
-    sel.appendChild(o);
-  });
-}
-function pickDefault(levels, includeAll){
-  if(includeAll) return "ALL";
-  const has1 = levels.some(x => String(x).trim() === "1" || String(x).trim().startsWith("1"));
-  return has1 ? "1" : String(levels[0] ?? "1");
-}
-
-/* ================= PHASE HELPERS ================= */
-function isEvalPhase(){ return state.fase === "AUTO" || state.fase === "DESEMPENO"; }
-function isClientesPhase(){ return state.fase === "CLIENTES"; }
-
-/* ================= VALIDATION ================= */
-function getClientesRequiredFields(){
-  return [
-    $("noPersonal").value.trim(),
-    $("nombre").value.trim(),
-    $("posicion").value.trim(),
-    $("depto").value.trim(),
-    $("periodo").value.trim(),
-    $("version").value.trim(),
-    $("fecha").value.trim(),
-    $("comenzarHacer").value.trim(),
-    $("pararHacer").value.trim(),
-    $("continuarHacer").value.trim(),
-    $("nombreEvaluador").value.trim(),
-  ];
-}
-function getEvalRequiredFields(){
-  return [
-    $("noPersonalEval").value.trim(),
-    $("nombreEval").value.trim(),
-    $("posicionEval").value.trim(),
-    $("deptoEval").value.trim(),
-    $("periodoEval").value.trim(),
-    $("versionEval").value.trim(),
-    $("fechaEval").value.trim(),
-    $("comentariosEval").value.trim(),
-  ];
-}
-function isEvalComplete(){
-  if(!isEvalPhase()) return false;
-  if(getEvalRequiredFields().some(v => !v)) return false;
-  const total = state.itemKeys.length;
-  if(total === 0) return false;
-  for(const k of state.itemKeys){
-    const obj = state.answers.get(k);
-    if(!obj || !obj.value || !obj.label) return false;
-  }
-  return true;
-}
-function isClientesComplete(){
-  if(!isClientesPhase()) return false;
-  return !getClientesRequiredFields().some(v => !v);
-}
-function updateGuardarUIState(){
-  const btnG = $("btnGuardar");
-  const btnL = $("btnLimpiarEval");
-
-  const showLimpiar = isEvalPhase() || isClientesPhase();
-  btnL.style.display = showLimpiar ? "inline-block" : "none";
-
-  if(isClientesPhase()){
-    btnG.disabled = !isClientesComplete();
-    return;
-  }
-  if(isEvalPhase()){
-    const total = state.itemKeys.length;
-    let done = 0;
-    for(const k of state.itemKeys){
-      const obj = state.answers.get(k);
-      if(obj && obj.value) done++;
+    function getWebAppUrl(){
+      const v = normalizeWebAppUrl($("webappUrl").value);
+      return v || DEFAULT_WEBAPP_URL;
     }
-    $("completeHint").textContent = `Completado: ${done}/${total}`;
-    btnG.disabled = !isEvalComplete();
-    return;
-  }
-  btnG.disabled = true;
-}
+    function setWebAppUrl(v){
+      $("webappUrl").value = normalizeWebAppUrl(v || "");
+    }
 
-/* ================= PHASE UI ================= */
-function setPhase(phase){
-  state.fase = phase || "";
+    /* ================= STATE ================= */
+    const state = {
+      fase:"",
+      nivel:null,
+      form:null,
+      answers:new Map(),
+      itemKeys:[]
+    };
 
-  document.querySelectorAll("[data-phase-block]").forEach(el=>{
-    const p = el.getAttribute("data-phase-block");
-    el.classList.remove("show");
-    if(p === state.fase) el.classList.add("show");
-  });
+    /* ================= STATUS ================= */
+    function setApiStatus(mode,text){
+      const el=$("apiStatus");
+      el.classList.remove("ok","err");
+      if(mode) el.classList.add(mode);
+      $("apiStatusText").textContent=text;
 
-  document.querySelectorAll('[data-phase-block="EVAL"]').forEach(el=>{
-    el.classList.toggle("show", isEvalPhase());
-  });
+      const miniClientes = $("apiMini");
+      if (miniClientes) miniClientes.textContent = text.replace("API: ","");
 
-  const nivelWrap = $("nivelWrap");
-  nivelWrap.classList.toggle("hide", isClientesPhase());
+      const miniEval = $("apiMiniEval");
+      if (miniEval) miniEval.textContent = text.replace("API: ","");
+    }
 
-  const enableNivel = (isEvalPhase() || state.fase === "FORMULARIOS" || state.fase === "PESOS");
-  $("nivelSelect").disabled = !enableNivel;
+    /* ================= JSONP API ================= */
+    function buildUrl(params, cbName){
+      const base = getWebAppUrl();
+      const url = new URL(base);
+      Object.entries(params).forEach(([k,v]) => url.searchParams.set(k, v));
+      url.searchParams.set("callback", cbName);
+      url.searchParams.set("_", String(Date.now()));
+      return url.toString();
+    }
 
-  const labelByPhase = {
-    "FORMULARIOS": "Formularios: Selecciona nivel (Todos / 1..10) y carga para ver la tabla.",
-    "PESOS": "Pesos: Selecciona nivel (Todos / 1..10) y carga para ver la tabla.",
-    "AUTO": "Autoevaluación activa. Selecciona nivel para cargar ítems.",
-    "DESEMPENO": "Evaluación del desempeño activa. Selecciona nivel para cargar ítems.",
-    "CLIENTES": "Evaluación de clientes: completa los campos y guarda en la hoja Clientes (sin nivel).",
-    "RESULTADO": "Resultados del desempeño.",
-    "CONSOLIDADO": "Informe consolidado.",
-    "CAPACITACION": "Necesidades de capacitación.",
-    "DESARROLLO": "Plan de desarrollo."
-  };
-  $("faseHelp").textContent = labelByPhase[state.fase] || "Selecciona una fase para desplegar el formulario.";
+    function apiGet(params, timeoutMs=15000){
+      return new Promise((resolve,reject)=>{
+        const cb="cb_"+Math.random().toString(36).slice(2);
+        const src = buildUrl(params, cb);
+        setApiStatus("", "API: consultando…");
 
-  const hideOpcionales = isEvalPhase() || isClientesPhase();
-  $("btnNuevo").style.display = hideOpcionales ? "none" : "inline-block";
-  $("btnPrint").style.display = hideOpcionales ? "none" : "inline-block";
+        const s=document.createElement("script");
+        s.async = true;
+        s.referrerPolicy = "no-referrer";
+        let done=false;
 
-  updateGuardarUIState();
-}
+        const t=setTimeout(()=>{
+          if(done) return;
+          done=true;
+          cleanup();
+          reject(new Error("Timeout. La WebApp no respondió. Abre Ping para verificar el deploy."));
+        }, timeoutMs);
 
-/* ================= EVAL: RENDER FORM ================= */
-function renderCuestionario(form){
-  const root = $("cuestionario");
-  root.innerHTML = "";
-  state.itemKeys = [];
-
-  if(!isEvalPhase()){
-    root.innerHTML = `<div class="hint">Selecciona una fase evaluable para ver el cuestionario.</div>`;
-    $("itemsCount").textContent = "Items: 0";
-    $("completeHint").textContent = "Completado: 0/0";
-    updateGuardarUIState();
-    return;
-  }
-
-  if(!form || !form.factors || !form.factors.length){
-    root.innerHTML = `<div class="hint">No hay ítems para este nivel.</div>`;
-    $("itemsCount").textContent = "Items: 0";
-    $("completeHint").textContent = "Completado: 0/0";
-    updateGuardarUIState();
-    return;
-  }
-
-  let totalItems = 0;
-
-  form.factors.forEach((f, idxF)=>{
-    const box = document.createElement("div");
-    box.className = "factor";
-    box.innerHTML = `<div class="factor-title">${idxF+1}. ${escapeHtml(f.factor || "Factor")}</div>`;
-
-    (f.items || []).forEach((it, idxI)=>{
-      totalItems++;
-      const key = it.key;
-      state.itemKeys.push(key);
-
-      const current = state.answers.get(key)?.value || "";
-      const r = it.rubrica || {};
-
-      // A, B, C...
-      const letter = String.fromCharCode(65 + (idxI % 26));
-
-      const row = document.createElement("div");
-      row.className = "item-row";
-      row.innerHTML = `
-        <div class="item-left">
-          <div class="item-name">${letter}. ${escapeHtml(it.item || "Ítem")}</div>
-          <div class="item-sub">Selecciona 1–5 según la rúbrica.</div>
-        </div>
-
-        <div class="item-right">
-          <div class="lbl">Puntaje (1–5)</div>
-          <select data-key="${escapeAttr(key)}">
-            <option value="" ${current==="" ? "selected":""}>Seleccionar…</option>
-            <option value="1" ${current==="1" ? "selected":""}>1 — ${escapeHtml(r["1"] ?? "")}</option>
-            <option value="2" ${current==="2" ? "selected":""}>2 — ${escapeHtml(r["2"] ?? "")}</option>
-            <option value="3" ${current==="3" ? "selected":""}>3 — ${escapeHtml(r["3"] ?? "")}</option>
-            <option value="4" ${current==="4" ? "selected":""}>4 — ${escapeHtml(r["4"] ?? "")}</option>
-            <option value="5" ${current==="5" ? "selected":""}>5 — ${escapeHtml(r["5"] ?? "")}</option>
-          </select>
-        </div>
-      `;
-
-      const sel = row.querySelector("select");
-      sel.addEventListener("change", (e)=>{
-        const k = e.target.getAttribute("data-key");
-        const v = e.target.value;
-
-        if(!v){
-          state.answers.delete(k);
-        }else{
-          const label = e.target.selectedOptions?.[0]?.textContent?.trim() || v;
-          state.answers.set(k, { value: v, label });
+        function cleanup(){
+          clearTimeout(t);
+          try { delete window[cb]; } catch(_) { window[cb]=undefined; }
+          if (s && s.parentNode) s.parentNode.removeChild(s);
         }
-        updateGuardarUIState();
+
+        window[cb]=data=>{
+          if(done) return;
+          done=true;
+          cleanup();
+          if(!data || typeof data !== "object"){
+            reject(new Error("Respuesta inválida. Si al abrir Ping te pide login, el deploy no es público."));
+            return;
+          }
+          if(data.ok!==true){
+            reject(new Error(data.error || "Respuesta inválida"));
+            return;
+          }
+          setApiStatus("ok","API: conectada");
+          resolve(data);
+        };
+
+        s.onerror=()=>{
+          if(done) return;
+          done=true;
+          cleanup();
+          reject(new Error("No se pudo cargar el script. Revisa: URL correcta (/exec), Deploy público (Anyone), y desactiva bloqueadores para script.google.com."));
+        };
+
+        s.src = src;
+        document.body.appendChild(s);
+      });
+    }
+
+    /* ================= UTIL ================= */
+    function todayLocal(){
+      const d = new Date();
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth()+1).padStart(2,"0");
+      const dd = String(d.getDate()).padStart(2,"0");
+      return `${dd}/${mm}/${yyyy}`;
+    }
+
+    function escapeHtml(s){
+      return String(s ?? "").replace(/[&<>"']/g, m => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+      }[m]));
+    }
+    function escapeAttr(s){ return escapeHtml(s).replace(/"/g,"&quot;"); }
+
+    function fillNivelSelect(levels, includeAll=false){
+      const sel = $("nivelSelect");
+      sel.innerHTML = "";
+      if(includeAll){
+        const oAll = document.createElement("option");
+        oAll.value = "ALL";
+        oAll.textContent = "Todos";
+        sel.appendChild(oAll);
+      }
+      levels.forEach(l=>{
+        const v = String(l);
+        const o = document.createElement("option");
+        o.value = v;
+        o.textContent = v;
+        sel.appendChild(o);
+      });
+    }
+
+    function pickDefault(levels, includeAll){
+      if(includeAll) return "ALL";
+      const has1 = levels.some(x => String(x).trim() === "1" || String(x).trim().startsWith("1"));
+      return has1 ? "1" : String(levels[0] ?? "1");
+    }
+
+    /* ================= PHASE HELPERS ================= */
+    function isEvalPhase(){ return state.fase === "AUTO" || state.fase === "DESEMPENO"; }
+    function isClientesPhase(){ return state.fase === "CLIENTES"; }
+
+    /* ================= VALIDATION ================= */
+    function getClientesRequiredFields(){
+      return [
+        $("noPersonal").value.trim(),
+        $("nombre").value.trim(),
+        $("posicion").value.trim(),
+        $("depto").value.trim(),
+        $("periodo").value.trim(),
+        $("version").value.trim(),
+        $("fecha").value.trim(),
+        $("comenzarHacer").value.trim(),
+        $("pararHacer").value.trim(),
+        $("continuarHacer").value.trim(),
+        $("nombreEvaluador").value.trim(),
+      ];
+    }
+
+    function getEvalRequiredFields(){
+      return [
+        $("noPersonalEval").value.trim(),
+        $("nombreEval").value.trim(),
+        $("posicionEval").value.trim(),
+        $("deptoEval").value.trim(),
+        $("periodoEval").value.trim(),
+        $("versionEval").value.trim(),
+        $("fechaEval").value.trim(),
+        $("comentariosEval").value.trim(),
+      ];
+    }
+
+    function isEvalComplete(){
+      if(!isEvalPhase()) return false;
+      if(getEvalRequiredFields().some(v => !v)) return false;
+      const total = state.itemKeys.length;
+      if(total === 0) return false;
+      for(const k of state.itemKeys){
+        const obj = state.answers.get(k);
+        if(!obj || !obj.value || !obj.label) return false;
+      }
+      return true;
+    }
+
+    function isClientesComplete(){
+      if(!isClientesPhase()) return false;
+      return !getClientesRequiredFields().some(v => !v);
+    }
+
+    function updateGuardarUIState(){
+      const btnG = $("btnGuardar");
+      const btnL = $("btnLimpiarEval");
+      const showLimpiar = isEvalPhase() || isClientesPhase();
+      btnL.style.display = showLimpiar ? "inline-block" : "none";
+
+      if(isClientesPhase()){
+        btnG.disabled = !isClientesComplete();
+        return;
+      }
+
+      if(isEvalPhase()){
+        const total = state.itemKeys.length;
+        let done = 0;
+        for(const k of state.itemKeys){
+          const obj = state.answers.get(k);
+          if(obj && obj.value) done++;
+        }
+        $("completeHint").textContent = `Completado: ${done}/${total}`;
+        btnG.disabled = !isEvalComplete();
+        return;
+      }
+
+      btnG.disabled = true;
+    }
+
+    /* ================= PHASE UI ================= */
+    function setPhase(phase){
+      state.fase = phase || "";
+
+      document.querySelectorAll("[data-phase-block]").forEach(el=>{
+        const p = el.getAttribute("data-phase-block");
+        el.classList.remove("show");
+        if(p === state.fase) el.classList.add("show");
       });
 
-      box.appendChild(row);
+      document.querySelectorAll('[data-phase-block="EVAL"]').forEach(el=>{
+        el.classList.toggle("show", isEvalPhase());
+      });
+
+      const nivelWrap = $("nivelWrap");
+      nivelWrap.classList.toggle("hide", isClientesPhase());
+
+      const enableNivel = (isEvalPhase() || state.fase === "FORMULARIOS" || state.fase === "PESOS");
+      $("nivelSelect").disabled = !enableNivel;
+
+      const labelByPhase = {
+        "FORMULARIOS": "Formularios: Selecciona nivel (Todos / 1..10) y carga para ver la tabla.",
+        "PESOS": "Pesos: Selecciona nivel (Todos / 1..10) y carga para ver la tabla.",
+        "AUTO": "Autoevaluación activa. Selecciona nivel para cargar ítems.",
+        "DESEMPENO": "Evaluación del desempeño activa. Selecciona nivel para cargar ítems.",
+        "CLIENTES": "Evaluación de clientes: completa los campos y guarda en la hoja Clientes (sin nivel).",
+        "RESULTADO": "Resultados del desempeño.",
+        "CONSOLIDADO": "Informe consolidado.",
+        "CAPACITACION": "Necesidades de capacitación.",
+        "DESARROLLO": "Plan de desarrollo."
+      };
+      $("faseHelp").textContent = labelByPhase[state.fase] || "Selecciona una fase para desplegar el formulario.";
+
+      const hideOpcionales = isEvalPhase() || isClientesPhase();
+      $("btnNuevo").style.display = hideOpcionales ? "none" : "inline-block";
+      $("btnPrint").style.display = hideOpcionales ? "none" : "inline-block";
+
+      updateGuardarUIState();
+    }
+
+    /* ================= EVAL: RENDER FORM ================= */
+    function renderCuestionario(form){
+      const root = $("cuestionario");
+      root.innerHTML = "";
+      state.itemKeys = [];
+
+      if(!isEvalPhase()){
+        root.innerHTML = `<div class="hint">Selecciona una fase evaluable para ver el cuestionario.</div>`;
+        $("itemsCount").textContent = "Items: 0";
+        $("completeHint").textContent = "Completado: 0/0";
+        updateGuardarUIState();
+        return;
+      }
+
+      if(!form || !form.factors || !form.factors.length){
+        root.innerHTML = `<div class="hint">No hay ítems para este nivel.</div>`;
+        $("itemsCount").textContent = "Items: 0";
+        $("completeHint").textContent = "Completado: 0/0";
+        updateGuardarUIState();
+        return;
+      }
+
+      let totalItems = 0;
+
+      form.factors.forEach((f, idxF)=>{
+        const box = document.createElement("div");
+        box.className = "factor";
+        box.innerHTML = `<div class="factor-title">${idxF+1}. ${escapeHtml(f.factor || "Factor")}</div>`;
+
+        (f.items || []).forEach((it, idxI)=>{
+          totalItems++;
+          const key = it.key;
+          state.itemKeys.push(key);
+
+          const current = state.answers.get(key)?.value || "";
+          const r = it.rubrica || {};
+          const letter = String.fromCharCode(65 + (idxI % 26));
+
+          const row = document.createElement("div");
+          row.className = "item-row";
+          row.innerHTML = `
+            <div class="item-left">
+              <div class="item-name">${letter}. ${escapeHtml(it.item || "Ítem")}</div>
+              <div class="item-sub">Selecciona 1–5 según la rúbrica.</div>
+            </div>
+            <div class="item-right">
+              <div class="lbl">Puntaje (1–5)</div>
+              <select data-key="${escapeAttr(key)}">
+                <option value="" ${current==="" ? "selected":""}>Seleccionar…</option>
+                <option value="1" ${current==="1" ? "selected":""}>1 — ${escapeHtml(r["1"] ?? "")}</option>
+                <option value="2" ${current==="2" ? "selected":""}>2 — ${escapeHtml(r["2"] ?? "")}</option>
+                <option value="3" ${current==="3" ? "selected":""}>3 — ${escapeHtml(r["3"] ?? "")}</option>
+                <option value="4" ${current==="4" ? "selected":""}>4 — ${escapeHtml(r["4"] ?? "")}</option>
+                <option value="5" ${current==="5" ? "selected":""}>5 — ${escapeHtml(r["5"] ?? "")}</option>
+              </select>
+            </div>
+          `;
+
+          const sel = row.querySelector("select");
+          sel.addEventListener("change", (e)=>{
+            const k = e.target.getAttribute("data-key");
+            const v = e.target.value;
+            if(!v){
+              state.answers.delete(k);
+            } else {
+              const label = e.target.selectedOptions?.[0]?.textContent?.trim() || v;
+              state.answers.set(k, { value: v, label });
+            }
+            updateGuardarUIState();
+          });
+
+          box.appendChild(row);
+        });
+
+        root.appendChild(box);
+      });
+
+      $("itemsCount").textContent = `Items: ${totalItems}`;
+      updateGuardarUIState();
+    }
+
+    /* ================= FORMULARIOS: TABLE ================= */
+    function clearFormulariosTable(){
+      $("tbodyFormularios").innerHTML = `<tr><td colspan="8" class="muted">Sin datos.</td></tr>`;
+      $("rowsCount").textContent = "Filas: 0";
+      $("formHint").textContent = "Aún no has cargado datos.";
+    }
+
+    function renderFormulariosItems(items){
+      const tb = $("tbodyFormularios");
+      if(!items || !items.length){
+        clearFormulariosTable();
+        $("formHint").textContent = "No se encontraron filas para ese nivel.";
+        return;
+      }
+      $("formHint").textContent = "Datos cargados desde Google Sheets.";
+      $("rowsCount").textContent = `Filas: ${items.length}`;
+      tb.innerHTML = items.map(r => `
+        <tr>
+          <td><b>${escapeHtml(r.Nivel ?? "")}</b></td>
+          <td>${escapeHtml(r.Factor ?? "")}</td>
+          <td>${escapeHtml(r.Item ?? "")}</td>
+          <td>${escapeHtml(r["1"] ?? "")}</td>
+          <td>${escapeHtml(r["2"] ?? "")}</td>
+          <td>${escapeHtml(r["3"] ?? "")}</td>
+          <td>${escapeHtml(r["4"] ?? "")}</td>
+          <td>${escapeHtml(r["5"] ?? "")}</td>
+        </tr>
+      `).join("");
+    }
+
+    async function cargarFormularios(){
+      if(state.fase !== "FORMULARIOS") return;
+      const nivel = $("nivelSelect").value;
+      const res = await apiGet({
+        action:"items",
+        sheet:"Formularios",
+        nivel: (nivel && nivel !== "ALL") ? String(nivel) : "ALL"
+      });
+      renderFormulariosItems(res.items || []);
+    }
+
+    /* ================= PESOS: TABLE ================= */
+    function clearPesosTable(){
+      $("tbodyPesos").innerHTML = `<tr><td colspan="4" class="muted">Sin datos.</td></tr>`;
+      $("rowsCountPesos").textContent = "Filas: 0";
+      $("pesosHint").textContent = "Aún no has cargado datos.";
+    }
+
+    function renderPesosItems(items){
+      const tb = $("tbodyPesos");
+      if(!items || !items.length){
+        clearPesosTable();
+        $("pesosHint").textContent = "No se encontraron filas para ese nivel.";
+        return;
+      }
+      $("pesosHint").textContent = "Datos cargados desde Google Sheets.";
+      $("rowsCountPesos").textContent = `Filas: ${items.length}`;
+      tb.innerHTML = items.map(r => `
+        <tr>
+          <td><b>${escapeHtml(r.Nivel ?? "")}</b></td>
+          <td>${escapeHtml(r.Factor ?? "")}</td>
+          <td>${escapeHtml(r.Item ?? "")}</td>
+          <td>${escapeHtml(r.Peso ?? "")}</td>
+        </tr>
+      `).join("");
+    }
+
+    async function cargarPesos(){
+      if(state.fase !== "PESOS") return;
+      const nivel = $("nivelSelect").value;
+      const res = await apiGet({
+        action:"items",
+        sheet:"Pesos",
+        nivel: (nivel && nivel !== "ALL") ? String(nivel) : "ALL"
+      });
+      renderPesosItems(res.items || []);
+    }
+
+    /* ================= LOADERS (levels + form) ================= */
+    async function loadLevelsForPhase(){
+      if(isEvalPhase()){
+        const lv = await apiGet({action:"levels", sheet:"Formularios"});
+        const levels = lv.levels || [];
+        if(!levels.length) throw new Error("No se encontraron niveles en 'Formularios'.");
+        fillNivelSelect(levels, false);
+        const def = pickDefault(levels, false);
+        $("nivelSelect").value = def;
+        state.nivel = def;
+        return;
+      }
+
+      if(state.fase === "FORMULARIOS"){
+        const lv = await apiGet({action:"levels", sheet:"Formularios"});
+        const levels = lv.levels || [];
+        if(!levels.length) throw new Error("No se encontraron niveles en 'Formularios'.");
+        fillNivelSelect(levels, true);
+        const def = pickDefault(levels, true);
+        $("nivelSelect").value = def;
+        state.nivel = def;
+        return;
+      }
+
+      if(state.fase === "PESOS"){
+        const lv = await apiGet({action:"levels", sheet:"Pesos"});
+        const levels = lv.levels || [];
+        if(!levels.length) throw new Error("No se encontraron niveles en 'Pesos'.");
+        fillNivelSelect(levels, true);
+        const def = pickDefault(levels, true);
+        $("nivelSelect").value = def;
+        state.nivel = def;
+        return;
+      }
+    }
+
+    async function loadFormByNivel(nivel){
+      const res = await apiGet({action:"form", nivel: String(nivel)});
+      state.form = res.form || null;
+      state.answers.clear();
+      renderCuestionario(state.form);
+    }
+
+    /* ================= ACTIONS ================= */
+    function clearClientes(){
+      ["noPersonal","nombre","posicion","depto","periodo","version"].forEach(id=>$(id).value="");
+      $("comenzarHacer").value = "";
+      $("pararHacer").value = "";
+      $("continuarHacer").value = "";
+      $("nombreEvaluador").value = "";
+      $("fecha").value = todayLocal();
+      updateGuardarUIState();
+    }
+
+    function clearEval(){
+      ["noPersonalEval","nombreEval","posicionEval","deptoEval","periodoEval","versionEval"].forEach(id=>$(id).value="");
+      $("comentariosEval").value = "";
+      $("fechaEval").value = todayLocal();
+      state.answers.clear();
+      renderCuestionario(state.form);
+      updateGuardarUIState();
+    }
+
+    async function saveClientes(){
+      if(!isClientesPhase()){
+        alert("Para guardar Clientes, selecciona la fase Formulario de evaluación de clientes.");
+        return;
+      }
+      if(!isClientesComplete()){
+        alert("Aún faltan campos. Completa todo para habilitar Guardar.");
+        return;
+      }
+
+      const payload = {
+        fase: "CLIENTES",
+        no: $("noPersonal").value.trim(),
+        nombre: $("nombre").value.trim(),
+        posicion: $("posicion").value.trim(),
+        depto: $("depto").value.trim(),
+        periodo: $("periodo").value.trim(),
+        version: $("version").value.trim(),
+        fecha: $("fecha").value.trim(),
+        comenzar: $("comenzarHacer").value.trim(),
+        parar: $("pararHacer").value.trim(),
+        continuar: $("continuarHacer").value.trim(),
+        evaluador: $("nombreEvaluador").value.trim()
+      };
+
+      const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+      const out = await apiGet({action:"save", payload:b64});
+
+      alert("Guardado ✅\nID: " + (out.id || "—"));
+      clearClientes();
+    }
+
+    async function saveEval(){
+      if(!isEvalPhase()){
+        alert("Para guardar, usa Autoevaluación o Evaluación del desempeño.");
+        return;
+      }
+      if(!isEvalComplete()){
+        alert("Aún faltan datos / respuestas / comentarios. Completa todo para habilitar Guardar.");
+        return;
+      }
+
+      const respuestasOrdenadas = state.itemKeys.map(k => (state.answers.get(k)?.label || ""));
+
+      // ✅ IMPORTANTE: aquí ya va "nivel" y se usará en GS para escribir en Autoevaluacion
+      const payload = {
+        fase: state.fase,
+        nivel: String(state.nivel || ""),   // <-- se consigna en Autoevaluacion
+        no: $("noPersonalEval").value.trim(),
+        nombre: $("nombreEval").value.trim(),
+        posicion: $("posicionEval").value.trim(),
+        depto: $("deptoEval").value.trim(),
+        periodo: $("periodoEval").value.trim(),
+        version: $("versionEval").value.trim(),
+        fecha: $("fechaEval").value.trim(),
+        comentarios: $("comentariosEval").value.trim(),
+        respuestas: respuestasOrdenadas
+      };
+
+      const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+      const out = await apiGet({action:"save", payload:b64});
+
+      alert("Guardado ✅\nID: " + (out.id || "—"));
+      clearEval();
+    }
+
+    function doGuardar(){
+      if(isClientesPhase()) return saveClientes();
+      if(isEvalPhase()) return saveEval();
+      alert("No hay nada que guardar en esta fase.");
+    }
+
+    function doLimpiar(){
+      if(isClientesPhase()) return clearClientes();
+      if(isEvalPhase()) return clearEval();
+    }
+
+    /* ================= EVENTS ================= */
+    $("webappUrl").addEventListener("change", ()=>{
+      const v = normalizeWebAppUrl($("webappUrl").value);
+      $("webappUrl").value = v;
+      localStorage.setItem(LS_KEY_URL, v);
     });
 
-    root.appendChild(box);
-  });
+    $("btnAbrirPing").addEventListener("click", ()=>{
+      const raw = getWebAppUrl() + (getWebAppUrl().includes("?") ? "&" : "?") + "action=ping&_=" + Date.now();
+      window.open(raw, "_blank", "noopener,noreferrer");
+    });
 
-  $("itemsCount").textContent = `Items: ${totalItems}`;
-  updateGuardarUIState();
-}
+    $("btnProbarApi").addEventListener("click", async ()=>{
+      try{
+        await apiGet({action:"ping"});
+        setApiStatus("ok","API: conectada");
+      }catch(e){
+        setApiStatus("err","API: " + e.message);
+      }
+    });
 
-/* ================= FORMULARIOS: TABLE ================= */
-function clearFormulariosTable(){
-  $("tbodyFormularios").innerHTML = `<tr><td colspan="8" class="muted">Sin datos.</td></tr>`;
-  $("rowsCount").textContent = "Filas: 0";
-  $("formHint").textContent = "Aún no has cargado datos.";
-}
-function renderFormulariosItems(items){
-  const tb = $("tbodyFormularios");
-  if(!items || !items.length){
-    clearFormulariosTable();
-    $("formHint").textContent = "No se encontraron filas para ese nivel.";
-    return;
-  }
-  $("formHint").textContent = "Datos cargados desde Google Sheets.";
-  $("rowsCount").textContent = `Filas: ${items.length}`;
-  tb.innerHTML = items.map(r => `
-    <tr>
-      <td><b>${escapeHtml(r.Nivel ?? "")}</b></td>
-      <td>${escapeHtml(r.Factor ?? "")}</td>
-      <td>${escapeHtml(r.Item ?? "")}</td>
-      <td>${escapeHtml(r["1"] ?? "")}</td>
-      <td>${escapeHtml(r["2"] ?? "")}</td>
-      <td>${escapeHtml(r["3"] ?? "")}</td>
-      <td>${escapeHtml(r["4"] ?? "")}</td>
-      <td>${escapeHtml(r["5"] ?? "")}</td>
-    </tr>
-  `).join("");
-}
-async function cargarFormularios(){
-  if(state.fase !== "FORMULARIOS") return;
-  const nivel = $("nivelSelect").value;
-  const res = await apiGet({action:"items", sheet:"Formularios", nivel: (nivel && nivel !== "ALL") ? String(nivel) : "ALL"});
-  renderFormulariosItems(res.items || []);
-}
+    $("faseSelect").addEventListener("change", async (e)=>{
+      const fase = e.target.value;
+      setPhase(fase);
+      try{
+        if(isEvalPhase() || fase === "FORMULARIOS" || fase === "PESOS"){
+          await loadLevelsForPhase();
+        }
+        if(isEvalPhase()){
+          await loadFormByNivel(state.nivel);
+          updateGuardarUIState();
+        }
+        if(fase === "FORMULARIOS") clearFormulariosTable();
+        if(fase === "PESOS") clearPesosTable();
+      }catch(err){
+        setApiStatus("err","API: " + err.message);
+      }
+    });
 
-/* ================= PESOS: TABLE ================= */
-function clearPesosTable(){
-  $("tbodyPesos").innerHTML = `<tr><td colspan="4" class="muted">Sin datos.</td></tr>`;
-  $("rowsCountPesos").textContent = "Filas: 0";
-  $("pesosHint").textContent = "Aún no has cargado datos.";
-}
-function renderPesosItems(items){
-  const tb = $("tbodyPesos");
-  if(!items || !items.length){
-    clearPesosTable();
-    $("pesosHint").textContent = "No se encontraron filas para ese nivel.";
-    return;
-  }
-  $("pesosHint").textContent = "Datos cargados desde Google Sheets.";
-  $("rowsCountPesos").textContent = `Filas: ${items.length}`;
-  tb.innerHTML = items.map(r => `
-    <tr>
-      <td><b>${escapeHtml(r.Nivel ?? "")}</b></td>
-      <td>${escapeHtml(r.Factor ?? "")}</td>
-      <td>${escapeHtml(r.Item ?? "")}</td>
-      <td>${escapeHtml(r.Peso ?? "")}</td>
-    </tr>
-  `).join("");
-}
-async function cargarPesos(){
-  if(state.fase !== "PESOS") return;
-  const nivel = $("nivelSelect").value;
-  const res = await apiGet({action:"items", sheet:"Pesos", nivel: (nivel && nivel !== "ALL") ? String(nivel) : "ALL"});
-  renderPesosItems(res.items || []);
-}
+    $("nivelSelect").addEventListener("change", async (e)=>{
+      try{
+        state.nivel = e.target.value;
+        if(isEvalPhase()){
+          await loadFormByNivel(state.nivel);
+          updateGuardarUIState();
+        }
+      }catch(err){
+        setApiStatus("err","API: " + err.message);
+      }
+    });
 
-/* ================= LOADERS (levels + form) ================= */
-async function loadLevelsForPhase(){
-  if(isEvalPhase()){
-    const lv = await apiGet({action:"levels", sheet:"Formularios"});
-    const levels = lv.levels || [];
-    if(!levels.length) throw new Error("No se encontraron niveles en 'Formularios'.");
-    fillNivelSelect(levels, false);
-    const def = pickDefault(levels, false);
-    $("nivelSelect").value = def;
-    state.nivel = def;
-    return;
-  }
-  if(state.fase === "FORMULARIOS"){
-    const lv = await apiGet({action:"levels", sheet:"Formularios"});
-    const levels = lv.levels || [];
-    if(!levels.length) throw new Error("No se encontraron niveles en 'Formularios'.");
-    fillNivelSelect(levels, true);
-    const def = pickDefault(levels, true);
-    $("nivelSelect").value = def;
-    state.nivel = def;
-    return;
-  }
-  if(state.fase === "PESOS"){
-    const lv = await apiGet({action:"levels", sheet:"Pesos"});
-    const levels = lv.levels || [];
-    if(!levels.length) throw new Error("No se encontraron niveles en 'Pesos'.");
-    fillNivelSelect(levels, true);
-    const def = pickDefault(levels, true);
-    $("nivelSelect").value = def;
-    state.nivel = def;
-    return;
-  }
-}
-async function loadFormByNivel(nivel){
-  const res = await apiGet({action:"form", nivel: String(nivel)});
-  state.form = res.form || null;
-  state.answers.clear();
-  renderCuestionario(state.form);
-}
+    $("btnGuardar").addEventListener("click", ()=>doGuardar().catch(err=>setApiStatus("err","API: " + err.message)));
+    $("btnLimpiarEval").addEventListener("click", doLimpiar);
 
-/* ================= ACTIONS ================= */
-function clearClientes(){
-  ["noPersonal","nombre","posicion","depto","periodo","version"].forEach(id=>$(id).value="");
-  $("comenzarHacer").value = "";
-  $("pararHacer").value = "";
-  $("continuarHacer").value = "";
-  $("nombreEvaluador").value = "";
-  $("fecha").value = todayLocal();
-  updateGuardarUIState();
-}
-function clearEval(){
-  ["noPersonalEval","nombreEval","posicionEval","deptoEval","periodoEval","versionEval"].forEach(id=>$(id).value="");
-  $("comentariosEval").value = "";
-  $("fechaEval").value = todayLocal();
-  state.answers.clear();
-  renderCuestionario(state.form);
-  updateGuardarUIState();
-}
+    $("btnNuevo").addEventListener("click", ()=>{
+      clearClientes();
+      clearEval();
+    });
 
-async function saveClientes(){
-  if(!isClientesPhase()){
-    alert("Para guardar Clientes, selecciona la fase Formulario de evaluación de clientes.");
-    return;
-  }
-  if(!isClientesComplete()){
-    alert("Aún faltan campos. Completa todo para habilitar Guardar.");
-    return;
-  }
+    $("btnPrint").addEventListener("click", ()=>window.print());
 
-  const payload = {
-    fase: "CLIENTES",
-    no: $("noPersonal").value.trim(),
-    nombre: $("nombre").value.trim(),
-    posicion: $("posicion").value.trim(),
-    depto: $("depto").value.trim(),
-    periodo: $("periodo").value.trim(),
-    version: $("version").value.trim(),
-    fecha: $("fecha").value.trim(),
-    comenzar: $("comenzarHacer").value.trim(),
-    parar: $("pararHacer").value.trim(),
-    continuar: $("continuarHacer").value.trim(),
-    evaluador: $("nombreEvaluador").value.trim()
-  };
+    $("btnCargarFormularios").addEventListener("click", ()=>cargarFormularios().catch(err=>setApiStatus("err","API: " + err.message)));
+    $("btnLimpiarFormularios").addEventListener("click", ()=>{
+      clearFormulariosTable();
+      if(state.fase === "FORMULARIOS"){
+        $("nivelSelect").value = "ALL";
+        state.nivel = "ALL";
+      }
+    });
 
-  const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
-  const out = await apiGet({action:"save", payload:b64});
-  alert("Guardado ✅\nID: " + (out.id || "—"));
-  clearClientes();
-}
+    $("btnCargarPesos").addEventListener("click", ()=>cargarPesos().catch(err=>setApiStatus("err","API: " + err.message)));
+    $("btnLimpiarPesos").addEventListener("click", ()=>{
+      clearPesosTable();
+      if(state.fase === "PESOS"){
+        $("nivelSelect").value = "ALL";
+        state.nivel = "ALL";
+      }
+    });
 
-async function saveEval(){
-  if(!isEvalPhase()){
-    alert("Para guardar, usa Autoevaluación o Evaluación del desempeño.");
-    return;
-  }
-  if(!isEvalComplete()){
-    alert("Aún faltan datos / respuestas / comentarios. Completa todo para habilitar Guardar.");
-    return;
-  }
+    [
+      "noPersonal","nombre","posicion","depto","periodo","version","fecha",
+      "comenzarHacer","pararHacer","continuarHacer","nombreEvaluador"
+    ].forEach(id=>{
+      const el = $(id);
+      if(el){
+        el.addEventListener("input", updateGuardarUIState);
+        el.addEventListener("change", updateGuardarUIState);
+      }
+    });
 
-  const respuestasOrdenadas = state.itemKeys.map(k => (state.answers.get(k)?.label || ""));
+    [
+      "noPersonalEval","nombreEval","posicionEval","deptoEval","periodoEval",
+      "versionEval","fechaEval","comentariosEval"
+    ].forEach(id=>{
+      const el = $(id);
+      if(el){
+        el.addEventListener("input", updateGuardarUIState);
+        el.addEventListener("change", updateGuardarUIState);
+      }
+    });
 
-  const payload = {
-    fase: state.fase,
-    nivel: String(state.nivel || ""),
-    no: $("noPersonalEval").value.trim(),
-    nombre: $("nombreEval").value.trim(),
-    posicion: $("posicionEval").value.trim(),
-    depto: $("deptoEval").value.trim(),
-    periodo: $("periodoEval").value.trim(),
-    version: $("versionEval").value.trim(),
-    fecha: $("fechaEval").value.trim(),
-    comentarios: $("comentariosEval").value.trim(),
-    respuestas: respuestasOrdenadas
-  };
+    /* ================= BOOT ================= */
+    (function boot(){
+      $("fecha").value = todayLocal();
+      $("fechaEval").value = todayLocal();
 
-  const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
-  const out = await apiGet({action:"save", payload:b64});
+      setPhase("");
+      clearFormulariosTable();
+      clearPesosTable();
 
-  alert("Guardado ✅\nID: " + (out.id || "—"));
-  clearEval();
-}
+      const saved = localStorage.getItem(LS_KEY_URL);
+      setWebAppUrl(saved || DEFAULT_WEBAPP_URL);
 
-function doGuardar(){
-  if(isClientesPhase()) return saveClientes();
-  if(isEvalPhase()) return saveEval();
-  alert("No hay nada que guardar en esta fase.");
-}
-function doLimpiar(){
-  if(isClientesPhase()) return clearClientes();
-  if(isEvalPhase()) return clearEval();
-}
+      apiGet({action:"ping"})
+        .then(()=>{
+          setApiStatus("ok","API: conectada");
+          const q = $("cuestionario");
+          if(q) q.innerHTML = `<div class="hint">Selecciona una fase para iniciar.</div>`;
+        })
+        .catch(e=>setApiStatus("err","API: "+e.message));
 
-/* ================= EVENTS ================= */
-$("webappUrl").addEventListener("change", ()=>{
-  const v = normalizeWebAppUrl($("webappUrl").value);
-  $("webappUrl").value = v;
-  localStorage.setItem(LS_KEY_URL, v);
-});
-
-$("btnAbrirPing").addEventListener("click", ()=>{
-  const raw = getWebAppUrl() + (getWebAppUrl().includes("?") ? "&" : "?") + "action=ping&_=" + Date.now();
-  window.open(raw, "_blank", "noopener,noreferrer");
-});
-
-$("btnProbarApi").addEventListener("click", async ()=>{
-  try{
-    await apiGet({action:"ping"});
-    setApiStatus("ok","API: conectada");
-  }catch(e){
-    setApiStatus("err","API: " + e.message);
-  }
-});
-
-$("faseSelect").addEventListener("change", async (e)=>{
-  const fase = e.target.value;
-  setPhase(fase);
-
-  try{
-    if(isEvalPhase() || fase === "FORMULARIOS" || fase === "PESOS"){
-      await loadLevelsForPhase();
-    }
-    if(isEvalPhase()){
-      await loadFormByNivel(state.nivel);
       updateGuardarUIState();
-    }
-    if(fase === "FORMULARIOS") clearFormulariosTable();
-    if(fase === "PESOS") clearPesosTable();
-  }catch(err){
-    setApiStatus("err","API: " + err.message);
-  }
-});
-
-$("nivelSelect").addEventListener("change", async (e)=>{
-  try{
-    state.nivel = e.target.value;
-    if(isEvalPhase()){
-      await loadFormByNivel(state.nivel);
-      updateGuardarUIState();
-    }
-  }catch(err){
-    setApiStatus("err","API: " + err.message);
-  }
-});
-
-$("btnGuardar").addEventListener("click", ()=>doGuardar().catch(err=>setApiStatus("err","API: " + err.message)));
-$("btnLimpiarEval").addEventListener("click", doLimpiar);
-
-$("btnNuevo").addEventListener("click", ()=>{
-  clearClientes();
-  clearEval();
-});
-$("btnPrint").addEventListener("click", ()=>window.print());
-
-$("btnCargarFormularios").addEventListener("click", ()=>cargarFormularios().catch(err=>setApiStatus("err","API: " + err.message)));
-$("btnLimpiarFormularios").addEventListener("click", ()=>{
-  clearFormulariosTable();
-  if(state.fase === "FORMULARIOS"){
-    $("nivelSelect").value = "ALL";
-    state.nivel = "ALL";
-  }
-});
-
-$("btnCargarPesos").addEventListener("click", ()=>cargarPesos().catch(err=>setApiStatus("err","API: " + err.message)));
-$("btnLimpiarPesos").addEventListener("click", ()=>{
-  clearPesosTable();
-  if(state.fase === "PESOS"){
-    $("nivelSelect").value = "ALL";
-    state.nivel = "ALL";
-  }
-});
-
-["noPersonal","nombre","posicion","depto","periodo","version","fecha","comenzarHacer","pararHacer","continuarHacer","nombreEvaluador"].forEach(id=>{
-  const el = $(id);
-  if(el){
-    el.addEventListener("input", updateGuardarUIState);
-    el.addEventListener("change", updateGuardarUIState);
-  }
-});
-
-["noPersonalEval","nombreEval","posicionEval","deptoEval","periodoEval","versionEval","fechaEval","comentariosEval"].forEach(id=>{
-  const el = $(id);
-  if(el){
-    el.addEventListener("input", updateGuardarUIState);
-    el.addEventListener("change", updateGuardarUIState);
-  }
-});
-
-/* ================= BOOT ================= */
-(function boot(){
-  $("fecha").value = todayLocal();
-  $("fechaEval").value = todayLocal();
-
-  setPhase("");
-  clearFormulariosTable();
-  clearPesosTable();
-
-  const saved = localStorage.getItem(LS_KEY_URL);
-  setWebAppUrl(saved || DEFAULT_WEBAPP_URL);
-
-  apiGet({action:"ping"})
-    .then(()=>{
-      setApiStatus("ok","API: conectada");
-      const q = $("cuestionario");
-      if(q) q.innerHTML = `<div class="hint">Selecciona una fase para iniciar.</div>`;
-    })
-    .catch(e=>setApiStatus("err","API: "+e.message));
-
-  updateGuardarUIState();
-})();
-</script>
+    })();
+  </script>
 </body>
 </html>
