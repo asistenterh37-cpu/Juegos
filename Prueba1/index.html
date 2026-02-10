@@ -12,7 +12,8 @@
       --text:#e8eefc; --muted:#a9b7d9; --line:rgba(255,255,255,.10);
       --accent:#4f7cff; --accent2:#22c55e; --warn:#f59e0b; --danger:#ef4444;
       --chip:#1a2a52; --shadow: 0 10px 30px rgba(0,0,0,.35);
-      --radius2: 22px; --mono: ui-monospace, Menlo, Monaco, Consolas, monospace;
+      --radius2: 22px;
+      --mono: ui-monospace, Menlo, Monaco, Consolas, monospace;
       --sans: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
     }
     *{box-sizing:border-box}
@@ -101,8 +102,7 @@
     .col-6{grid-column:span 6}
     .col-12{grid-column:span 12}
     .lbl{
-      font-size:12px; color:rgba(232,238,252,.92);
-      margin-bottom:6px; font-weight:800; letter-spacing:.02em;
+      font-size:12px; color:rgba(232,238,252,.92); margin-bottom:6px; font-weight:800; letter-spacing:.02em;
     }
     .field{display:flex;flex-direction:column;gap:6px}
     .field.boxed{
@@ -125,28 +125,31 @@
       border-width:1.5px; border-style:solid;
       border-radius:14px;
     }
-
     [data-phase-block]{display:none}
     [data-phase-block].show{display:block}
-
     .nivelWrap{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
     .nivelWrap.hide{display:none}
 
     /* CUESTIONARIO */
     .factor{
       border:1px solid rgba(255,255,255,.10);
-      border-radius:18px; overflow:hidden;
+      border-radius:18px;
+      overflow:hidden;
       margin-bottom:14px;
       background:linear-gradient(180deg, rgba(11,18,32,.25), rgba(15,27,51,.10));
     }
     .factor-title{
-      padding:14px 16px; font-weight:800; font-size:18px; letter-spacing:.2px;
+      padding:14px 16px;
+      font-weight:800;
+      font-size:18px;
+      letter-spacing:.2px;
       border-bottom:1px solid rgba(255,255,255,.08);
       background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
     }
     .item-row{
-      display:flex; justify-content:space-between; gap:16px; align-items:center;
-      padding:16px; border-top:1px solid rgba(255,255,255,.07);
+      display:flex; justify-content:space-between; gap:16px;
+      align-items:center; padding:16px;
+      border-top:1px solid rgba(255,255,255,.07);
     }
     .item-row:first-of-type{border-top:none}
     .item-left{flex:1; min-width:280px}
@@ -156,7 +159,7 @@
     .item-right .lbl{margin-bottom:8px}
     .item-right select{width:100%}
 
-    /* TABLE (FORMULARIOS) */
+    /* TABLE */
     .tableWrap{
       border:1px solid rgba(255,255,255,.10);
       border-radius:18px;
@@ -170,7 +173,8 @@
       min-width:980px;
     }
     thead th{
-      position:sticky; top:0;
+      position:sticky;
+      top:0;
       background:rgba(15,27,51,.95);
       border-bottom:1px solid rgba(255,255,255,.10);
       padding:12px 10px;
@@ -198,6 +202,11 @@
       padding:0;margin:-1px;
       overflow:hidden;clip:rect(0,0,0,0);
       white-space:nowrap;border:0;
+    }
+    .pesoInput{
+      width:120px;
+      text-align:right;
+      font-family:var(--mono);
     }
 
     @media (max-width:860px){
@@ -234,8 +243,10 @@
           </span>
           <button id="btnProbarApi" class="btn-ghost">Probar API</button>
           <button id="btnAbrirPing" class="btn-ghost">Abrir Ping</button>
+
           <button id="btnLimpiarEval" class="btn-warn" style="display:none">Limpiar</button>
           <button id="btnGuardar" class="btn-ok" disabled>Guardar</button>
+
           <button id="btnNuevo" class="btn-blue">Nuevo</button>
           <button id="btnPrint" class="btn-ghost">Imprimir / Enviar a PDF</button>
         </div>
@@ -278,7 +289,7 @@
         </div>
       </section>
 
-      <!-- FORMULARIOS (tabla + cargar/limpiar) -->
+      <!-- FORMULARIOS -->
       <section class="card" data-phase-block="FORMULARIOS" id="blockFormularios">
         <div class="card-h">
           <div>
@@ -317,6 +328,43 @@
         </div>
       </section>
 
+      <!-- ✅ PESOS (nuevo: Cargar + Limpiar + Guardar) -->
+      <section class="card" data-phase-block="PESOS" id="blockPesos">
+        <div class="card-h">
+          <div>
+            <h2>Pesos (ponderaciones)</h2>
+            <div class="sub">Cambia el <b>Peso</b> y presiona <b>Guardar</b> para actualizar la hoja <b>Pesos</b>.</div>
+          </div>
+          <div class="controls">
+            <button id="btnCargarPesos" class="btn-blue">Cargar</button>
+            <button id="btnLimpiarPesos" class="btn-warn">Limpiar</button>
+            <button id="btnGuardarPesos" class="btn-ok" disabled>Guardar</button>
+          </div>
+        </div>
+        <div class="card-b">
+          <div class="hint" style="margin-bottom:12px">
+            Tip: “Todos” sirve para ajustes masivos… pero úsalo con cariño: el caos ama los cambios sin guardar 😄
+          </div>
+          <div id="pesosTableInfo" class="sub" style="margin-bottom:10px">—</div>
+
+          <div class="tableWrap">
+            <table id="pesosTable">
+              <thead>
+                <tr>
+                  <th>Nivel</th>
+                  <th>Factor</th>
+                  <th>Item</th>
+                  <th>Peso</th>
+                </tr>
+              </thead>
+              <tbody id="pesosTableBody">
+                <tr><td colspan="4" class="sub">Presiona <b>Cargar</b> para ver la información.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
       <!-- CLIENTES -->
       <section class="card" data-phase-block="CLIENTES" id="blockClientes">
         <div class="card-h">
@@ -328,7 +376,6 @@
             <span class="chip mono">Hoja destino: <b>Clientes</b></span>
           </div>
         </div>
-
         <div class="card-b">
           <div class="hint" style="margin-bottom:12px">
             Nota: En esta fase no existe “Nivel”. Solo se tabulan los campos del formulario en la hoja <b>Clientes</b>.
@@ -363,7 +410,6 @@
             <div class="sub">Completa la información y selecciona una opción (1–5) para cada ítem.</div>
           </div>
         </div>
-
         <div class="card-b">
           <div class="form-grid">
             <div class="field col-3 boxed"><div class="lbl">No. de personal</div><input id="noPersonalEval" placeholder="Ej: 1600" /></div>
@@ -414,7 +460,7 @@
         </div>
       </section>
 
-      <!-- DESEMPENO -->
+      <!-- DESEMPENO extras -->
       <section class="card" data-phase-block="DESEMPENO" id="blockDesempenoExtra">
         <div class="card-h">
           <div>
@@ -427,6 +473,7 @@
           <div class="hint" style="margin-bottom:12px">
             Aquí va lo que normalmente RRHH usa para “entender el cuento” (sin inventar capítulos 😄)
           </div>
+
           <div class="form-grid">
             <div class="field col-12 boxed"><div class="lbl">Justificación y comentarios</div><textarea id="justificacion" placeholder="Describe evidencias / ejemplos / contexto..."></textarea></div>
             <div class="field col-12 boxed"><div class="lbl">Comentarios del colaborador</div><textarea id="comentariosColaborador" placeholder="Comentarios del colaborador..."></textarea></div>
@@ -441,7 +488,7 @@
         </div>
       </section>
 
-      <!-- OTRAS VISTAS (placeholder) -->
+      <!-- OTRAS VISTAS -->
       <section class="card" data-phase-block="RESULTADO"><div class="card-h"><h2>Resultado evaluación del desempeño</h2><div class="sub">Vista en construcción.</div></div><div class="card-b"><div class="hint">Aquí irá el resultado.</div></div></section>
       <section class="card" data-phase-block="CONSOLIDADO"><div class="card-h"><h2>Informe consolidado</h2><div class="sub">Vista en construcción.</div></div><div class="card-b"><div class="hint">Aquí irá el informe.</div></div></section>
       <section class="card" data-phase-block="CAPACITACION"><div class="card-h"><h2>Informe necesidades de capacitacion</h2><div class="sub">Vista en construcción.</div></div><div class="card-b"><div class="hint">Aquí irá el informe.</div></div></section>
@@ -453,7 +500,7 @@
   <script>
     /* ================= CONFIG ================= */
     const LS_KEY_URL = "ED_WEBAPP_URL";
-    const DEFAULT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbw64_0Dw81UNIQ5Zi9uL2Zr6RtFqcYDeQgEBl7b1j73PNnWLHZCFMrX96Yd2PD9mOis/exec";
+    const DEFAULT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwoaRGKns7pYi10xSFNbfqmF3kVFV9HAHL2vtOKe5AY24ncACzqAaSQJ0Az5LSrYsQY/exec";
     const $ = id => document.getElementById(id);
 
     function normalizeWebAppUrl(raw){
@@ -489,7 +536,11 @@
       form:null,
       answers:new Map(),
       itemKeys:[],
-      lastFormItemsCount: 0
+      lastFormItemsCount: 0,
+
+      // ✅ PESOS
+      pesosItems: [],
+      pesosDirty: false
     };
 
     /* ================= STATUS ================= */
@@ -498,6 +549,7 @@
       el.classList.remove("ok","err");
       if(mode) el.classList.add(mode);
       $("apiStatusText").textContent=text;
+
       const miniClientes = $("apiMini");
       if (miniClientes) miniClientes.textContent = text.replace("API: ","");
       const miniEval = $("apiMiniEval");
@@ -518,11 +570,12 @@
         const cb="cb_"+Math.random().toString(36).slice(2);
         const src = buildUrl(params, cb);
         setApiStatus("", "API: consultando…");
+
         const s=document.createElement("script");
         s.async = true;
         s.referrerPolicy = "no-referrer";
-
         let done=false;
+
         const t=setTimeout(()=>{
           if(done) return;
           done=true;
@@ -558,7 +611,6 @@
           cleanup();
           reject(new Error("No se pudo cargar el script. Revisa: URL correcta (/exec), Deploy público (Anyone), y desactiva bloqueadores para script.google.com."));
         };
-
         s.src = src;
         document.body.appendChild(s);
       });
@@ -599,15 +651,16 @@
     function pickDefault(levels, includeAll){
       if(includeAll) return "ALL";
       const has1 = levels.some(x => String(x).trim() === "1" || String(x).trim().startsWith("1"));
-      return has1 ? String(levels.find(x => String(x).trim()==="1" || String(x).trim().startsWith("1"))) : String(levels[0] ?? "1");
+      return has1
+        ? String(levels.find(x => String(x).trim()==="1" || String(x).trim().startsWith("1")))
+        : String(levels[0] ?? "1");
     }
     function getNivelRef(){
       const sel = $("nivelSelect");
       const opt = sel?.selectedOptions?.[0];
       const label = (opt?.textContent || String(sel.value || "")).trim();
       const value = String(sel.value || "").trim();
-      if(label) return label;
-      return value;
+      return label || value;
     }
 
     /* ================= PHASE HELPERS ================= */
@@ -616,6 +669,7 @@
     function isDesempenoPhase(){ return state.fase === "DESEMPENO"; }
     function isAutoPhase(){ return state.fase === "AUTO"; }
     function isFormulariosPhase(){ return state.fase === "FORMULARIOS"; }
+    function isPesosPhase(){ return state.fase === "PESOS"; }
 
     /* ================= VALIDATION ================= */
     function getClientesRequiredFields(){
@@ -692,6 +746,7 @@
         btnG.disabled = !isEvalComplete();
         return;
       }
+
       btnG.disabled = true;
     }
 
@@ -704,7 +759,6 @@
         el.classList.remove("show");
         if(p === state.fase) el.classList.add("show");
       });
-
       document.querySelectorAll('[data-phase-block="EVAL"]').forEach(el=>{
         el.classList.toggle("show", isEvalPhase());
       });
@@ -717,7 +771,7 @@
 
       const labelByPhase = {
         "FORMULARIOS": "Formularios: Selecciona nivel (Todos / 1..10) y presiona Cargar para ver la tabla.",
-        "PESOS": "Pesos: Selecciona nivel (Todos / 1..10) y carga para ver la tabla.",
+        "PESOS": "Pesos: Selecciona nivel (Todos / 1..10), edita ponderaciones y presiona Guardar.",
         "AUTO": "Autoevaluación activa. Selecciona nivel para cargar ítems.",
         "DESEMPENO": "Evaluación del desempeño activa. Selecciona nivel para cargar ítems y completa los comentarios de desarrollo.",
         "CLIENTES": "Evaluación de clientes: completa los campos y guarda en la hoja Clientes (sin nivel).",
@@ -732,7 +786,9 @@
       $("btnNuevo").style.display = hideOpcionales ? "none" : "inline-block";
       $("btnPrint").style.display = hideOpcionales ? "none" : "inline-block";
 
+      // ✅ en pesos no usamos el Guardar superior
       updateGuardarUIState();
+      updatePesosSaveState();
     }
 
     /* ================= EVAL: RENDER FORM ================= */
@@ -748,7 +804,6 @@
         updateGuardarUIState();
         return;
       }
-
       if(!form || !form.factors || !form.factors.length){
         root.innerHTML = `<div class="hint">No hay ítems para este nivel.</div>`;
         $("itemsCount").textContent = "Items: 0";
@@ -758,7 +813,6 @@
       }
 
       let totalItems = 0;
-
       form.factors.forEach((f, idxF)=>{
         const box = document.createElement("div");
         box.className = "factor";
@@ -816,13 +870,12 @@
       updateGuardarUIState();
     }
 
-    /* ================= FORMULARIOS: TABLE RENDER ================= */
+    /* ================= FORMULARIOS: TABLE ================= */
     function clearFormTable(){
       state.lastFormItemsCount = 0;
       $("formTableInfo").textContent = "—";
       $("formTableBody").innerHTML = `<tr><td colspan="8" class="sub">Presiona <b>Cargar</b> para ver la información.</td></tr>`;
     }
-
     function renderFormTable(items){
       const tbody = $("formTableBody");
       const count = Array.isArray(items) ? items.length : 0;
@@ -859,7 +912,6 @@
         `;
       }).join("");
     }
-
     async function loadFormulariosItems(){
       if(!isFormulariosPhase()){
         alert("Selecciona la fase Formularios.");
@@ -868,6 +920,122 @@
       const nivel = String(state.nivel || $("nivelSelect").value || "ALL");
       const res = await apiGet({ action:"items", sheet:"Formularios", nivel });
       renderFormTable(res.items || []);
+    }
+
+    /* ================= ✅ PESOS: TABLE (editable) ================= */
+    function pesosKey_(r){
+      // clave estable por fila
+      return `${String(r.Nivel||"").trim()}||${String(r.Factor||"").trim()}||${String(r.Item||"").trim()}`;
+    }
+    function clearPesosTable(){
+      state.pesosItems = [];
+      state.pesosDirty = false;
+      $("pesosTableInfo").textContent = "—";
+      $("pesosTableBody").innerHTML = `<tr><td colspan="4" class="sub">Presiona <b>Cargar</b> para ver la información.</td></tr>`;
+      updatePesosSaveState();
+    }
+    function renderPesosTable(items){
+      const tbody = $("pesosTableBody");
+      const arr = Array.isArray(items) ? items : [];
+      state.pesosItems = arr.map(r => ({
+        Nivel: r.Nivel ?? "",
+        Factor: r.Factor ?? "",
+        Item: r.Item ?? "",
+        Peso: (r.Peso ?? "")
+      }));
+      state.pesosDirty = false;
+
+      const count = state.pesosItems.length;
+      $("pesosTableInfo").textContent = `Mostrando: ${count} filas | Nivel seleccionado: ${getNivelRef()}`;
+
+      if(!count){
+        tbody.innerHTML = `<tr><td colspan="4" class="sub">No hay datos para ese nivel.</td></tr>`;
+        updatePesosSaveState();
+        return;
+      }
+
+      tbody.innerHTML = state.pesosItems.map((r, idx) => {
+        const n = escapeHtml(r.Nivel ?? "");
+        const f = escapeHtml(r.Factor ?? "");
+        const it = escapeHtml(r.Item ?? "");
+        const p = escapeAttr(String(r.Peso ?? ""));
+
+        return `
+          <tr data-idx="${idx}">
+            <td class="mono">${n}</td>
+            <td>${f}</td>
+            <td>${it}</td>
+            <td>
+              <input class="pesoInput" inputmode="decimal" placeholder="Ej: 10" value="${p}" />
+              <div class="tdMuted">Edita y guarda</div>
+            </td>
+          </tr>
+        `;
+      }).join("");
+
+      // listeners inputs
+      tbody.querySelectorAll("tr").forEach(tr=>{
+        const idx = Number(tr.getAttribute("data-idx"));
+        const input = tr.querySelector("input.pesoInput");
+        if(!input) return;
+
+        input.addEventListener("input", ()=>{
+          state.pesosItems[idx].Peso = input.value;
+          state.pesosDirty = true;
+          updatePesosSaveState();
+        });
+        input.addEventListener("change", ()=>{
+          state.pesosItems[idx].Peso = input.value;
+          state.pesosDirty = true;
+          updatePesosSaveState();
+        });
+      });
+
+      updatePesosSaveState();
+    }
+    function updatePesosSaveState(){
+      const btn = $("btnGuardarPesos");
+      if(!btn) return;
+      btn.disabled = !(isPesosPhase() && state.pesosDirty && state.pesosItems.length > 0);
+    }
+    async function loadPesosItems(){
+      if(!isPesosPhase()){
+        alert("Selecciona la fase Pesos.");
+        return;
+      }
+      const nivel = String(state.nivel || $("nivelSelect").value || "ALL");
+      const res = await apiGet({ action:"items", sheet:"Pesos", nivel });
+      renderPesosTable(res.items || []);
+    }
+    async function savePesosItems(){
+      if(!isPesosPhase()){
+        alert("Selecciona la fase Pesos.");
+        return;
+      }
+      if(!state.pesosDirty || !state.pesosItems.length){
+        alert("No hay cambios para guardar.");
+        return;
+      }
+
+      const nivel = String(state.nivel || $("nivelSelect").value || "ALL");
+      const payload = {
+        nivel: nivel,
+        items: state.pesosItems.map(r => ({
+          Nivel: String(r.Nivel ?? ""),
+          Factor: String(r.Factor ?? ""),
+          Item: String(r.Item ?? ""),
+          Peso: String(r.Peso ?? "")
+        }))
+      };
+
+      const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+      const out = await apiGet({ action:"savePesos", payload:b64 });
+
+      alert(`Pesos guardados ✅\nActualizados: ${out.updated ?? 0}\nNo encontrados: ${out.notFound ?? 0}`);
+      state.pesosDirty = false;
+      updatePesosSaveState();
+      // opcional: recargar para ver normalizado
+      await loadPesosItems();
     }
 
     /* ================= LOADERS (levels + form) ================= */
@@ -991,8 +1159,8 @@
 
       const nivelRef = getNivelRef();
       const respuestasOrdenadas = state.itemKeys.map(k => (state.answers.get(k)?.label || ""));
-      const comentariosAuto = isAutoPhase() ? ($("comentariosColaboradorAuto")?.value || "").trim() : "";
 
+      const comentariosAuto = isAutoPhase() ? ($("comentariosColaboradorAuto")?.value || "").trim() : "";
       const extrasDesempeno = isDesempenoPhase() ? {
         comentariosColaborador: ($("comentariosColaborador")?.value || "").trim(),
         evaluacionClientes: ($("evaluacionClientesDes")?.value || "").trim(),
@@ -1031,9 +1199,8 @@
     function doGuardar(){
       if(isClientesPhase()) return saveClientes();
       if(isEvalPhase()) return saveEval();
-      alert("No hay nada que guardar en esta fase.");
+      alert("No hay nada que guardar en esta fase (usa el Guardar interno en Pesos).");
     }
-
     function doLimpiar(){
       if(isClientesPhase()) return clearClientes();
       if(isEvalPhase()) return clearEval();
@@ -1070,9 +1237,12 @@
           await loadLevelsForPhase();
         }
 
-        // FORMULARIOS: no auto-cargar (solo con botón)
         if(fase === "FORMULARIOS"){
           clearFormTable();
+        }
+
+        if(fase === "PESOS"){
+          clearPesosTable();
         }
 
         if(isEvalPhase()){
@@ -1088,15 +1258,19 @@
       try{
         state.nivel = e.target.value;
 
-        // EVAL: auto recarga el cuestionario
         if(isEvalPhase()){
           await loadFormByNivel(state.nivel);
           updateGuardarUIState();
         }
 
-        // FORMULARIOS: NO auto recarga (se queda esperando Cargar)
         if(isFormulariosPhase()){
           $("formTableInfo").textContent = `Nivel cambiado a: ${getNivelRef()} (presiona Cargar)`;
+        }
+
+        if(isPesosPhase()){
+          $("pesosTableInfo").textContent = `Nivel cambiado a: ${getNivelRef()} (presiona Cargar)`;
+          // no auto-cargamos, igual que Formularios
+          updatePesosSaveState();
         }
       }catch(err){
         setApiStatus("err","API: " + err.message);
@@ -1105,15 +1279,28 @@
 
     $("btnGuardar").addEventListener("click", ()=>doGuardar().catch(err=>setApiStatus("err","API: " + err.message)));
     $("btnLimpiarEval").addEventListener("click", doLimpiar);
-    $("btnNuevo").addEventListener("click", ()=>{ clearClientes(); clearEval(); clearFormTable(); });
+
+    $("btnNuevo").addEventListener("click", ()=>{
+      clearClientes();
+      clearEval();
+      clearFormTable();
+      clearPesosTable();
+    });
+
     $("btnPrint").addEventListener("click", ()=>window.print());
 
-    // FORMULARIOS buttons
+    // FORMULARIOS
     $("btnCargarForm").addEventListener("click", ()=>loadFormulariosItems().catch(err=>setApiStatus("err","API: " + err.message)));
     $("btnLimpiarForm").addEventListener("click", clearFormTable);
 
-    // Inputs watchers
-    [ "noPersonal","nombre","posicion","depto","periodo","version","fecha",
+    // ✅ PESOS
+    $("btnCargarPesos").addEventListener("click", ()=>loadPesosItems().catch(err=>setApiStatus("err","API: " + err.message)));
+    $("btnLimpiarPesos").addEventListener("click", clearPesosTable);
+    $("btnGuardarPesos").addEventListener("click", ()=>savePesosItems().catch(err=>setApiStatus("err","API: " + err.message)));
+
+    // watchers CLIENTES
+    [
+      "noPersonal","nombre","posicion","depto","periodo","version","fecha",
       "comenzarHacer","pararHacer","continuarHacer","nombreEvaluador"
     ].forEach(id=>{
       const el = $(id);
@@ -1123,6 +1310,7 @@
       }
     });
 
+    // watchers EVAL
     ["noPersonalEval","nombreEval","posicionEval","deptoEval","periodoEval","versionEval","fechaEval"].forEach(id=>{
       const el = $(id);
       if(el){
@@ -1130,8 +1318,8 @@
         el.addEventListener("change", updateGuardarUIState);
       }
     });
-
-    [ "comentariosColaborador","evaluacionClientesDes","fortalezas","oportunidadesMejora",
+    [
+      "comentariosColaborador","evaluacionClientesDes","fortalezas","oportunidadesMejora",
       "proyeccionPotencial","necesidadesCapacitacion","justificacion","comentariosEvaluadorDes","nombreEvaluadorDes"
     ].forEach(id=>{
       const el = $(id);
@@ -1140,7 +1328,6 @@
         el.addEventListener("change", updateGuardarUIState);
       }
     });
-
     ["comentariosColaboradorAuto"].forEach(id=>{
       const el = $(id);
       if(el){
@@ -1153,9 +1340,9 @@
     (function boot(){
       $("fecha").value = todayLocal();
       $("fechaEval").value = todayLocal();
-
       setPhase("");
       clearFormTable();
+      clearPesosTable();
 
       const saved = localStorage.getItem(LS_KEY_URL);
       setWebAppUrl(saved || DEFAULT_WEBAPP_URL);
@@ -1168,6 +1355,7 @@
         .catch(e=>setApiStatus("err","API: "+e.message));
 
       updateGuardarUIState();
+      updatePesosSaveState();
     })();
   </script>
 </body>
