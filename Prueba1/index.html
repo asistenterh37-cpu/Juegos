@@ -128,6 +128,15 @@
     .item-right .lbl{margin-bottom:8px}
     .item-right select{width:100%}
 
+    /* ✅ input oculto para URL de WebApp (se usa en JS pero no se muestra) */
+    .sr-hidden{
+      position:absolute !important;
+      width:1px;height:1px;
+      padding:0;margin:-1px;
+      overflow:hidden;clip:rect(0,0,0,0);
+      white-space:nowrap;border:0;
+    }
+
     @media (max-width:860px){
       .col-3,.col-4,.col-6{grid-column:span 12}
       select{min-width:180px}
@@ -139,6 +148,9 @@
 </head>
 
 <body>
+  <!-- ✅ URL WebApp oculto (se carga desde localStorage o DEFAULT_WEBAPP_URL) -->
+  <input id="webappUrl" class="sr-hidden" aria-hidden="true" tabindex="-1" />
+
   <header>
     <div class="wrap">
       <div class="topbar">
@@ -175,27 +187,7 @@
   <main>
     <div class="grid">
 
-      <!-- CONFIG API -->
-      <section class="card">
-        <div class="card-h">
-          <div>
-            <h2>Conexión (WebApp Apps Script)</h2>
-            <div class="sub">Pega tu URL del deploy. Si falta <span class="mono">/exec</span>, se corrige sola.</div>
-          </div>
-        </div>
-        <div class="card-b">
-          <div class="form-grid">
-            <div class="field col-12">
-              <div class="lbl">URL WebApp</div>
-              <input id="webappUrl" placeholder="https://script.google.com/macros/s/XXXX/exec" />
-            </div>
-          </div>
-          <div class="hint warn" style="margin-top:10px">
-            Si aparece “No se pudo cargar el script”: casi siempre es deploy no público o bloqueador/extensión.
-            En Apps Script: <b>Deploy → Manage deployments</b> → Access: <b>Anyone</b> y Execute as: <b>Me</b>.
-          </div>
-        </div>
-      </section>
+      <!-- ✅ BLOQUE CONEXIÓN ELIMINADO (no se muestra) -->
 
       <!-- FASE + NIVEL -->
       <section class="card" id="blockFaseNivel">
@@ -512,6 +504,7 @@
     }
 
     function getWebAppUrl(){
+      // input existe pero está oculto
       const v = normalizeWebAppUrl($("webappUrl").value);
       return v || DEFAULT_WEBAPP_URL;
     }
@@ -1030,7 +1023,7 @@
       // ✅ IMPORTANTE: aquí ya va "nivel" y se usará en GS para escribir en Autoevaluacion
       const payload = {
         fase: state.fase,
-        nivel: String(state.nivel || ""),   // <-- se consigna en Autoevaluacion
+        nivel: String(state.nivel || ""),
         no: $("noPersonalEval").value.trim(),
         nombre: $("nombreEval").value.trim(),
         posicion: $("posicionEval").value.trim(),
@@ -1061,6 +1054,7 @@
     }
 
     /* ================= EVENTS ================= */
+    // (input oculto) se mantiene listener por compatibilidad, aunque no se vea
     $("webappUrl").addEventListener("change", ()=>{
       const v = normalizeWebAppUrl($("webappUrl").value);
       $("webappUrl").value = v;
