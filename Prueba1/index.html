@@ -87,9 +87,7 @@
       padding:10px 12px;border-radius:14px;color:var(--muted);font-size:13px
     }
 
-    .form-grid{
-      display:grid;grid-template-columns:repeat(12,1fr);gap:10px
-    }
+    .form-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:10px}
     .col-3{grid-column:span 3}
     .col-4{grid-column:span 4}
     .col-6{grid-column:span 6}
@@ -106,11 +104,7 @@
       background:rgba(11,18,32,.35);
       margin-bottom:12px;
     }
-    .factor-title{
-      font-weight:800;
-      margin:0 0 8px 0;
-      font-size:14px;
-    }
+    .factor-title{font-weight:800;margin:0 0 8px 0;font-size:14px}
     .item-row{
       display:grid;
       grid-template-columns: 1fr 240px;
@@ -123,6 +117,10 @@
     .item-name{font-weight:600;font-size:13px}
     .item-sub{font-size:12px;color:var(--muted);margin-top:2px}
     .item-select select{width:100%;min-width:unset}
+
+    /* Mostrar/ocultar por fase */
+    [data-phase-block]{display:none}
+    [data-phase-block].show{display:block}
 
     @media (max-width:860px){
       .col-3,.col-4,.col-6{grid-column:span 12}
@@ -163,16 +161,25 @@
 <main>
   <div class="grid">
 
-    <!-- SELECTOR NIVEL -->
+    <!-- FASE + NIVEL -->
     <section class="card">
       <div class="card-h">
         <div>
-          <h2>Formulario de autoevaluación</h2>
-          <div class="sub">Por defecto se muestra el Nivel 1.</div>
+          <h2>Fase</h2>
+          <div class="sub" id="faseHelp">Selecciona una fase para desplegar el formulario.</div>
         </div>
         <div class="controls">
-          <label class="sub">Nivel</label>
-          <select id="nivelSelect"><option>Cargando niveles…</option></select>
+          <label class="sub">Fase</label>
+          <select id="faseSelect">
+            <option value="">Seleccione</option>
+            <option value="AUTO">Formulario de autoevaluación</option>
+            <!-- puedes agregar más fases después -->
+            <!-- <option value="JEFE">Evaluación del jefe</option> -->
+            <!-- <option value="CAL">Calibración</option> -->
+          </select>
+
+          <label class="sub" style="margin-left:8px">Nivel</label>
+          <select id="nivelSelect" disabled><option>Cargando niveles…</option></select>
         </div>
       </div>
       <div class="card-b">
@@ -181,7 +188,7 @@
     </section>
 
     <!-- DATOS DEL COLABORADOR -->
-    <section class="card">
+    <section class="card" data-phase-block="AUTO" id="blockDatos">
       <div class="card-h">
         <div>
           <h2>Datos del colaborador</h2>
@@ -227,11 +234,11 @@
     </section>
 
     <!-- CUESTIONARIO -->
-    <section class="card">
+    <section class="card" data-phase-block="AUTO" id="blockEval">
       <div class="card-h">
         <div>
           <h2>Evaluación (1–5)</h2>
-          <div class="sub">Selecciona una opción por ítem. Por defecto: “Seleccione”.</div>
+          <div class="sub">Ahora cada nivel muestra “número — descripción” según la rúbrica.</div>
         </div>
         <div class="chips">
           <span class="chip" id="itemsCount">Items: 0</span>
@@ -243,7 +250,7 @@
     </section>
 
     <!-- COMENTARIOS -->
-    <section class="card">
+    <section class="card" data-phase-block="AUTO" id="blockComentarios">
       <div class="card-h">
         <div>
           <h2>Comentarios del colaborador</h2>
@@ -260,12 +267,12 @@
 
 <script>
 /* ================= CONFIG ================= */
-const SCRIPT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbweos99Gf5oXWLxYIUA0OSDVpxRsN004Sfko2sYKvAZOmUcHrJYIhpzNG3eyYLgbrQl/exec";
-
+const SCRIPT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxoLrqQiCELThzY9VpFKavsMXN4pduSQPXDTyct4PRvFpS5maqv4vAPcv66EAD6Ph7B/exec";
 const $ = id => document.getElementById(id);
 
 /* ================= STATE ================= */
 const state = {
+  fase: "",
   nivel: null,
   form: null,              // {nivel, factors:[{factor, items:[{key,item,rubrica:{1..5}}]}]}
   answers: new Map(),       // key -> score ("1".."5")
@@ -346,7 +353,6 @@ function todayLocal(){
 }
 
 function setDefaultNivel(levels){
-  // Preferir "1" si existe, si no el primero
   const has1 = levels.some(x => String(x).trim() === "1" || String(x).trim().startsWith("1"));
   return has1 ? "1" : String(levels[0] ?? "1");
 }
@@ -363,10 +369,40 @@ function fillNivelSelect(levels){
   });
 }
 
+/* ================= PHASE UI ================= */
+function setPhase(phase){
+  state.fase = phase || "";
+  // mostrar/ocultar bloques
+  document.querySelectorAll("[data-phase-block]").forEach(el=>{
+    const p = el.getAttribute("data-phase-block");
+    el.classList.toggle("show", p === state.fase);
+  });
+
+  // Nivel: solo habilitar en AUTO
+  const isAuto = state.fase === "AUTO";
+  $("nivelSelect").disabled = !isAuto;
+
+  $("faseHelp").textContent = isAuto
+    ? "Autoevaluación activa. Selecciona nivel para cargar ítems."
+    : "Selecciona una fase para desplegar el formulario.";
+
+  if(!isAuto){
+    // limpiar vista del cuestionario si sales de AUTO
+    $("cuestionario").innerHTML = `<div class="hint">Selecciona “Formulario de autoevaluación” para ver el cuestionario.</div>`;
+    $("itemsCount").textContent = "Items: 0";
+  }
+}
+
 /* ================= RENDER FORM ================= */
 function renderCuestionario(form){
   const root = $("cuestionario");
   root.innerHTML = "";
+
+  if(state.fase !== "AUTO"){
+    root.innerHTML = `<div class="hint">Selecciona “Formulario de autoevaluación” para ver el cuestionario.</div>`;
+    $("itemsCount").textContent = "Items: 0";
+    return;
+  }
 
   if(!form || !form.factors || !form.factors.length){
     root.innerHTML = `<div class="hint">No hay ítems para este nivel.</div>`;
@@ -386,6 +422,12 @@ function renderCuestionario(form){
       const key = it.key;
       const current = state.answers.get(key) || "";
 
+      const r1 = (it.rubrica && it.rubrica["1"]) ? String(it.rubrica["1"]) : "";
+      const r2 = (it.rubrica && it.rubrica["2"]) ? String(it.rubrica["2"]) : "";
+      const r3 = (it.rubrica && it.rubrica["3"]) ? String(it.rubrica["3"]) : "";
+      const r4 = (it.rubrica && it.rubrica["4"]) ? String(it.rubrica["4"]) : "";
+      const r5 = (it.rubrica && it.rubrica["5"]) ? String(it.rubrica["5"]) : "";
+
       const row = document.createElement("div");
       row.className = "item-row";
       row.innerHTML = `
@@ -397,11 +439,11 @@ function renderCuestionario(form){
           <div class="lbl">Puntaje (1–5)</div>
           <select data-key="${escapeAttr(key)}">
             <option value="" ${current==="" ? "selected":""}>Seleccione</option>
-            <option value="1" ${current==="1" ? "selected":""}>1</option>
-            <option value="2" ${current==="2" ? "selected":""}>2</option>
-            <option value="3" ${current==="3" ? "selected":""}>3</option>
-            <option value="4" ${current==="4" ? "selected":""}>4</option>
-            <option value="5" ${current==="5" ? "selected":""}>5</option>
+            <option value="1" ${current==="1" ? "selected":""}>1 — ${escapeHtml(r1)}</option>
+            <option value="2" ${current==="2" ? "selected":""}>2 — ${escapeHtml(r2)}</option>
+            <option value="3" ${current==="3" ? "selected":""}>3 — ${escapeHtml(r3)}</option>
+            <option value="4" ${current==="4" ? "selected":""}>4 — ${escapeHtml(r4)}</option>
+            <option value="5" ${current==="5" ? "selected":""}>5 — ${escapeHtml(r5)}</option>
           </select>
         </div>
       `;
@@ -443,18 +485,15 @@ async function loadLevels(){
 }
 
 async function loadFormByNivel(nivel){
-  // Esto arma el cuestionario desde la hoja "Formularios"
   const res = await apiGet({action:"form", nivel: String(nivel)});
   state.form = res.form || null;
 
-  // cuando cambias de nivel, limpiamos respuestas (puedes cambiar esto si quieres mantener)
   state.answers.clear();
   renderCuestionario(state.form);
 }
 
 /* ================= ACTIONS ================= */
 function newForm(){
-  // Limpia inputs + respuestas, conserva fecha
   ["noPersonal","nombre","posicion","depto","periodo","version"].forEach(id=>$(id).value="");
   $("comentarios").value = "";
   state.answers.clear();
@@ -462,8 +501,13 @@ function newForm(){
 }
 
 async function saveForm(){
-  // Construye payload compacto
+  if(state.fase !== "AUTO"){
+    alert("Selecciona la fase “Formulario de autoevaluación” antes de guardar.");
+    return;
+  }
+
   const payload = {
+    fase: state.fase,
     nivel: String(state.nivel || ""),
     no: $("noPersonal").value.trim(),
     nombre: $("nombre").value.trim(),
@@ -473,12 +517,9 @@ async function saveForm(){
     version: $("version").value.trim(),
     fecha: $("fecha").value.trim(),
     comentarios: $("comentarios").value.trim(),
-    // respuestas: [{k:"Nivel|Factor|Item", v:"1"}...]
     r: Array.from(state.answers.entries()).map(([k,v])=>[k,v])
   };
 
-  // OJO: JSONP usa URL (GET). Si tu cuestionario es enorme, puede exceder el límite de URL.
-  // Para la mayoría de evaluaciones típicas funciona bien.
   const json = JSON.stringify(payload);
   const b64 = btoa(unescape(encodeURIComponent(json)));
 
@@ -486,13 +527,29 @@ async function saveForm(){
   alert("Guardado ✅\nID: " + (out.id || "—"));
 }
 
-function printToPdf(){
-  window.print();
-}
+function printToPdf(){ window.print(); }
 
 /* ================= EVENTS ================= */
+$("faseSelect").addEventListener("change", async (e)=>{
+  const fase = e.target.value;
+  setPhase(fase);
+
+  // Si entra a AUTO, cargamos niveles+form si hace falta
+  if(fase === "AUTO"){
+    try{
+      if(!$("nivelSelect").options.length || $("nivelSelect").options[0].textContent.includes("Cargando")){
+        await loadLevels();
+      }
+      await loadFormByNivel(state.nivel);
+    }catch(err){
+      setApiStatus("err","API: " + err.message);
+    }
+  }
+});
+
 $("nivelSelect").addEventListener("change", async (e)=>{
   try{
+    if(state.fase !== "AUTO") return;
     const nivel = e.target.value;
     state.nivel = nivel;
     await loadFormByNivel(nivel);
@@ -508,12 +565,13 @@ $("btnPrint").addEventListener("click", printToPdf);
 /* ================= BOOT ================= */
 (function boot(){
   $("fecha").value = todayLocal();
+  setPhase(""); // ocultar hasta elegir fase
 
   apiGet({action:"ping"})
     .then(async ()=>{
       setApiStatus("ok","API: conectada");
-      await loadLevels();
-      await loadFormByNivel(state.nivel); // por defecto Nivel 1
+      // No cargamos form de una vez: se carga cuando elijas fase AUTO
+      $("cuestionario").innerHTML = `<div class="hint">Selecciona una fase para iniciar.</div>`;
     })
     .catch(e=>setApiStatus("err","API: "+e.message));
 })();
