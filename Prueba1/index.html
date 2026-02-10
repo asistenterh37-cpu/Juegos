@@ -178,40 +178,40 @@
       </div>
     </section>
 
-    <!-- FASE + NIVEL -->
-    <section class="card">
-      <div class="card-h">
-        <div>
-          <h2>Fase</h2>
-          <div class="sub" id="faseHelp">Selecciona una fase para desplegar el formulario.</div>
-        </div>
+    <!-- FASE + NIVEL (selector arriba) -->
+<section class="card" id="blockFaseNivel">
+  <div class="card-h">
+    <div class="controls" style="width:100%; justify-content:space-between">
+      <div class="controls" style="gap:10px">
+        <!-- ✅ sin label “Fase:” -->
+        <select id="faseSelect">
+          <option value="">Seleccione fase</option>
+          <option value="FORMULARIOS">Formularios</option>
+          <option value="PESOS">Pesos</option>
+          <option value="AUTO">Formulario de autoevaluación</option>
+          <option value="CLIENTES">Formulario de evaluación de clientes</option>
+          <option value="DESEMPENO">Formulario de evaluación del desempeño</option>
+          <option value="RESULTADO">Resultado evaluación del desempeño</option>
+          <option value="CONSOLIDADO">Informe consolidado</option>
+          <option value="CAPACITACION">Informe necesidades de capacitacion</option>
+          <option value="DESARROLLO">Informe plan de desarrollo</option>
+        </select>
 
-        <div class="controls">
-          <label class="sub">Fase</label>
-          <select id="faseSelect">
-            <option value="">Seleccione</option>
-            <option value="FORMULARIOS">Formularios</option>
-            <option value="PESOS">Pesos</option>
-            <option value="AUTO">Formulario de autoevaluación</option>
-            <option value="CLIENTES">Formulario de evaluación de clientes</option>
-            <option value="DESEMPENO">Formulario de evaluación del desempeño</option>
-            <option value="RESULTADO">Resultado evaluación del desempeño</option>
-            <option value="CONSOLIDADO">Informe consolidado</option>
-            <option value="CAPACITACION">Informe necesidades de capacitacion</option>
-            <option value="DESARROLLO">Informe plan de desarrollo</option>
+        <!-- ✅ Nivel aparece solo cuando corresponda -->
+        <span class="nivelWrap" id="nivelWrap">
+          <select id="nivelSelect" disabled>
+            <option>Cargando niveles…</option>
           </select>
+        </span>
+      </div>
 
-          <!-- ✅ wrapper para poder ocultarlo en CLIENTES -->
-          <span class="nivelWrap" id="nivelWrap">
-            <label class="sub" style="margin-left:8px">Nivel</label>
-            <select id="nivelSelect" disabled><option>Cargando niveles…</option></select>
-          </span>
-        </div>
+      <!-- Texto ayuda (sin título “Fase” ni bloque marcado) -->
+      <div class="sub" id="faseHelp" style="max-width:520px; text-align:right">
+        Selecciona una fase para desplegar el formulario.
       </div>
-      <div class="card-b">
-        <div class="hint">El guardado se envía a Google Sheets (Web App de Apps Script).</div>
-      </div>
-    </section>
+    </div>
+  </div>
+</section>
 
     <!-- FORMULARIOS -->
     <section class="card" data-phase-block="FORMULARIOS" id="blockFormularios">
