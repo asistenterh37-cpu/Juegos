@@ -122,9 +122,22 @@
     [data-phase-block]{display:none}
     [data-phase-block].show{display:block}
 
+    /* Tabla Formularios */
+    .table-wrap{overflow:auto;border:1px solid rgba(255,255,255,.08);border-radius:16px}
+    table{width:100%;border-collapse:collapse;min-width:980px}
+    th,td{padding:10px 10px;border-bottom:1px solid rgba(255,255,255,.07);vertical-align:top}
+    th{
+      position:sticky;top:0;background:rgba(15,27,51,.98);
+      font-size:12px;color:var(--muted);text-align:left
+    }
+    td{font-size:13px}
+    .muted{color:var(--muted);font-size:12px}
+    .mono{font-family:var(--mono);font-size:12px;color:var(--muted)}
+
     @media (max-width:860px){
       .col-3,.col-4,.col-6{grid-column:span 12}
       .item-row{grid-template-columns:1fr}
+      select{min-width:180px}
     }
   </style>
 </head>
@@ -171,7 +184,6 @@
         <div class="controls">
           <label class="sub">Fase</label>
 
-          <!-- ✅ CAMBIO: Fase SIEMPRE muestra las opciones del adjunto -->
           <select id="faseSelect">
             <option value="">Seleccione</option>
             <option value="FORMULARIOS">Formularios</option>
@@ -186,6 +198,7 @@
           </select>
 
           <label class="sub" style="margin-left:8px">Nivel</label>
+          <!-- ✅ Ahora se habilita en AUTO y en FORMULARIOS -->
           <select id="nivelSelect" disabled><option>Cargando niveles…</option></select>
         </div>
       </div>
@@ -194,21 +207,51 @@
       </div>
     </section>
 
-    <!-- ✅ BLOQUE GENÉRICO PARA FASES AÚN NO IMPLEMENTADAS -->
-    <section class="card" data-phase-block="FORMULARIOS">
+    <!-- ✅ FORMULARIOS (tabla + cargar/limpiar) -->
+    <section class="card" data-phase-block="FORMULARIOS" id="blockFormularios">
       <div class="card-h">
-        <h2>Formularios</h2>
-        <div class="sub">Vista en construcción (solo Autoevaluación está activa por ahora).</div>
+        <div>
+          <h2>Formularios</h2>
+          <div class="sub">Selecciona Nivel (Todos/1/2/…/10) y presiona <b>Cargar</b>.</div>
+        </div>
+        <div class="controls">
+          <button id="btnCargarFormularios" class="btn-blue">Cargar</button>
+          <button id="btnLimpiarFormularios" class="btn-warn">Limpiar</button>
+        </div>
       </div>
       <div class="card-b">
-        <div class="hint">Cuando implementes esta fase, aquí irá su UI/tabla correspondiente.</div>
+        <div class="chips" style="margin-bottom:10px">
+          <span class="chip" id="rowsCount">Filas: 0</span>
+          <span class="chip mono">Columnas: Nivel | Factor | Item | 1..5</span>
+        </div>
+        <div id="formHint" class="hint">Aún no has cargado datos.</div>
+        <div class="table-wrap" style="margin-top:12px">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:90px">Nivel</th>
+                <th style="width:220px">Factor</th>
+                <th style="width:260px">Item</th>
+                <th>1</th>
+                <th>2</th>
+                <th>3</th>
+                <th>4</th>
+                <th>5</th>
+              </tr>
+            </thead>
+            <tbody id="tbodyFormularios">
+              <tr><td colspan="8" class="muted">Sin datos.</td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </section>
 
+    <!-- PESOS placeholder -->
     <section class="card" data-phase-block="PESOS">
       <div class="card-h">
         <h2>Pesos</h2>
-        <div class="sub">Vista en construcción (solo Autoevaluación está activa por ahora).</div>
+        <div class="sub">Vista en construcción.</div>
       </div>
       <div class="card-b">
         <div class="hint">Aquí irá la gestión de pesos por factor/ítem.</div>
@@ -218,7 +261,7 @@
     <section class="card" data-phase-block="CLIENTES">
       <div class="card-h">
         <h2>Formulario de evaluación de clientes</h2>
-        <div class="sub">Vista en construcción (solo Autoevaluación está activa por ahora).</div>
+        <div class="sub">Vista en construcción.</div>
       </div>
       <div class="card-b">
         <div class="hint">Aquí irá el formulario para clientes.</div>
@@ -228,10 +271,10 @@
     <section class="card" data-phase-block="DESEMPENO">
       <div class="card-h">
         <h2>Formulario de evaluación del desempeño</h2>
-        <div class="sub">Vista en construcción (solo Autoevaluación está activa por ahora).</div>
+        <div class="sub">Vista en construcción.</div>
       </div>
       <div class="card-b">
-        <div class="hint">Aquí irá la evaluación del jefe/supervisor (o el flujo que definas).</div>
+        <div class="hint">Aquí irá la evaluación del jefe/supervisor.</div>
       </div>
     </section>
 
@@ -326,7 +369,7 @@
       <div class="card-h">
         <div>
           <h2>Evaluación (1–5)</h2>
-          <div class="sub">Ahora cada nivel muestra “número — descripción” según la rúbrica.</div>
+          <div class="sub">Cada nivel muestra “número — descripción” según la rúbrica.</div>
         </div>
         <div class="chips">
           <span class="chip" id="itemsCount">Items: 0</span>
@@ -355,7 +398,7 @@
 
 <script>
 /* ================= CONFIG ================= */
-const SCRIPT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxoLrqQiCELThzY9VpFKavsMXN4pduSQPXDTyct4PRvFpS5maqv4vAPcv66EAD6Ph7B/exec";
+const SCRIPT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxrovp4_PLw06bqRbVvZB2M2X9jHvqrc5bmvdp6pxVRHkNN60vU07yXL7CIc88Tfq1T/exec";
 const $ = id => document.getElementById(id);
 
 /* ================= STATE ================= */
@@ -364,6 +407,7 @@ const state = {
   nivel: null,
   form: null,
   answers: new Map(),
+  loadedLevelsFor: null, // "AUTO" | "FORMULARIOS"
 };
 
 /* ================= STATUS ================= */
@@ -440,14 +484,22 @@ function todayLocal(){
   return `${dd}/${mm}/${yyyy}`;
 }
 
-function setDefaultNivel(levels){
-  const has1 = levels.some(x => String(x).trim() === "1" || String(x).trim().startsWith("1"));
-  return has1 ? "1" : String(levels[0] ?? "1");
+function escapeHtml(s){
+  return String(s ?? "").replace(/[&<>"']/g, m => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+  }[m]));
 }
+function escapeAttr(s){ return escapeHtml(s).replace(/"/g,"&quot;"); }
 
-function fillNivelSelect(levels){
+function fillNivelSelect(levels, includeAll=false){
   const sel = $("nivelSelect");
   sel.innerHTML = "";
+  if(includeAll){
+    const oAll = document.createElement("option");
+    oAll.value = "ALL";
+    oAll.textContent = "Todos";
+    sel.appendChild(oAll);
+  }
   levels.forEach(l=>{
     const v = String(l);
     const o = document.createElement("option");
@@ -457,23 +509,27 @@ function fillNivelSelect(levels){
   });
 }
 
+function pickDefault(levels, includeAll){
+  if(includeAll) return "ALL";
+  const has1 = levels.some(x => String(x).trim() === "1" || String(x).trim().startsWith("1"));
+  return has1 ? "1" : String(levels[0] ?? "1");
+}
+
 /* ================= PHASE UI ================= */
 function setPhase(phase){
   state.fase = phase || "";
 
-  // mostrar/ocultar bloques
   document.querySelectorAll("[data-phase-block]").forEach(el=>{
     const p = el.getAttribute("data-phase-block");
     el.classList.toggle("show", p === state.fase);
   });
 
-  // Nivel: solo habilitar en AUTO
-  const isAuto = state.fase === "AUTO";
-  $("nivelSelect").disabled = !isAuto;
+  // ✅ Nivel habilitado en AUTO y FORMULARIOS
+  const enableNivel = (state.fase === "AUTO" || state.fase === "FORMULARIOS");
+  $("nivelSelect").disabled = !enableNivel;
 
-  // ayuda dinámica
   const labelByPhase = {
-    "FORMULARIOS": "Formularios (menú / configuración).",
+    "FORMULARIOS": "Formularios: Selecciona nivel (Todos / 1..10) y carga para ver la tabla.",
     "PESOS": "Pesos (ponderaciones).",
     "AUTO": "Autoevaluación activa. Selecciona nivel para cargar ítems.",
     "CLIENTES": "Evaluación de clientes.",
@@ -483,18 +539,15 @@ function setPhase(phase){
     "CAPACITACION": "Necesidades de capacitación.",
     "DESARROLLO": "Plan de desarrollo."
   };
-  $("faseHelp").textContent = isAuto
-    ? labelByPhase["AUTO"]
-    : (labelByPhase[state.fase] || "Selecciona una fase para desplegar el formulario.");
+  $("faseHelp").textContent = labelByPhase[state.fase] || "Selecciona una fase para desplegar el formulario.";
 
-  if(!isAuto){
-    // limpiar vista del cuestionario si sales de AUTO
+  if(state.fase !== "AUTO"){
     $("cuestionario").innerHTML = `<div class="hint">Selecciona “Formulario de autoevaluación” para ver el cuestionario.</div>`;
     $("itemsCount").textContent = "Items: 0";
   }
 }
 
-/* ================= RENDER FORM ================= */
+/* ================= AUTO: RENDER FORM ================= */
 function renderCuestionario(form){
   const root = $("cuestionario");
   root.innerHTML = "";
@@ -566,29 +619,80 @@ function renderCuestionario(form){
   $("itemsCount").textContent = `Items: ${totalItems}`;
 }
 
-function escapeHtml(s){
-  return String(s ?? "").replace(/[&<>"']/g, m => ({
-    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
-  }[m]));
+/* ================= FORMULARIOS: TABLE ================= */
+function clearFormulariosTable(){
+  $("tbodyFormularios").innerHTML = `<tr><td colspan="8" class="muted">Sin datos.</td></tr>`;
+  $("rowsCount").textContent = "Filas: 0";
+  $("formHint").textContent = "Aún no has cargado datos.";
 }
-function escapeAttr(s){ return escapeHtml(s).replace(/"/g,"&quot;"); }
 
-/* ================= LOADERS ================= */
-async function loadLevels(){
-  const lv = await apiGet({action:"levels", sheet:"Formularios"});
-  const levels = lv.levels || [];
-  if(!levels.length) throw new Error("No se encontraron niveles en 'Formularios'.");
-  fillNivelSelect(levels);
+function renderFormulariosItems(items){
+  const tb = $("tbodyFormularios");
+  if(!items || !items.length){
+    clearFormulariosTable();
+    $("formHint").textContent = "No se encontraron filas para ese nivel.";
+    return;
+  }
 
-  const def = setDefaultNivel(levels);
-  $("nivelSelect").value = def;
-  state.nivel = def;
+  $("formHint").textContent = "Datos cargados desde Google Sheets.";
+  $("rowsCount").textContent = `Filas: ${items.length}`;
+
+  tb.innerHTML = items.map(r => `
+    <tr>
+      <td><b>${escapeHtml(r.Nivel ?? "")}</b></td>
+      <td>${escapeHtml(r.Factor ?? "")}</td>
+      <td>${escapeHtml(r.Item ?? "")}</td>
+      <td>${escapeHtml(r["1"] ?? "")}</td>
+      <td>${escapeHtml(r["2"] ?? "")}</td>
+      <td>${escapeHtml(r["3"] ?? "")}</td>
+      <td>${escapeHtml(r["4"] ?? "")}</td>
+      <td>${escapeHtml(r["5"] ?? "")}</td>
+    </tr>
+  `).join("");
+}
+
+async function cargarFormularios(){
+  if(state.fase !== "FORMULARIOS") return;
+
+  const nivel = $("nivelSelect").value;
+  const params = {action:"items", sheet:"Formularios"};
+  if(nivel && nivel !== "ALL") params.nivel = String(nivel);
+  else params.nivel = "ALL";
+
+  const res = await apiGet(params);
+  renderFormulariosItems(res.items || []);
+}
+
+/* ================= LOADERS (levels + form) ================= */
+async function loadLevelsForPhase(){
+  if(state.fase === "AUTO"){
+    const lv = await apiGet({action:"levels", sheet:"Formularios"});
+    const levels = lv.levels || [];
+    if(!levels.length) throw new Error("No se encontraron niveles en 'Formularios'.");
+    fillNivelSelect(levels, false);
+    const def = pickDefault(levels, false);
+    $("nivelSelect").value = def;
+    state.nivel = def;
+    state.loadedLevelsFor = "AUTO";
+    return;
+  }
+
+  if(state.fase === "FORMULARIOS"){
+    const lv = await apiGet({action:"levels", sheet:"Formularios"});
+    const levels = lv.levels || [];
+    if(!levels.length) throw new Error("No se encontraron niveles en 'Formularios'.");
+    fillNivelSelect(levels, true); // ✅ incluye "Todos"
+    const def = pickDefault(levels, true);
+    $("nivelSelect").value = def;
+    state.nivel = def;
+    state.loadedLevelsFor = "FORMULARIOS";
+    return;
+  }
 }
 
 async function loadFormByNivel(nivel){
   const res = await apiGet({action:"form", nivel: String(nivel)});
   state.form = res.form || null;
-
   state.answers.clear();
   renderCuestionario(state.form);
 }
@@ -635,25 +739,34 @@ $("faseSelect").addEventListener("change", async (e)=>{
   const fase = e.target.value;
   setPhase(fase);
 
-  // Solo AUTO carga niveles + formulario
-  if(fase === "AUTO"){
-    try{
-      if(!$("nivelSelect").options.length || $("nivelSelect").options[0].textContent.includes("Cargando")){
-        await loadLevels();
-      }
-      await loadFormByNivel(state.nivel);
-    }catch(err){
-      setApiStatus("err","API: " + err.message);
+  try{
+    if(fase === "AUTO" || fase === "FORMULARIOS"){
+      await loadLevelsForPhase();
     }
+
+    if(fase === "AUTO"){
+      await loadFormByNivel(state.nivel);
+    }
+
+    if(fase === "FORMULARIOS"){
+      clearFormulariosTable();
+      // No auto-cargar para no “pegarle” a la API sin permiso 😄
+      // Si quieres auto-cargar, descomenta:
+      // await cargarFormularios();
+    }
+  }catch(err){
+    setApiStatus("err","API: " + err.message);
   }
 });
 
 $("nivelSelect").addEventListener("change", async (e)=>{
   try{
-    if(state.fase !== "AUTO") return;
-    const nivel = e.target.value;
-    state.nivel = nivel;
-    await loadFormByNivel(nivel);
+    state.nivel = e.target.value;
+
+    if(state.fase === "AUTO"){
+      await loadFormByNivel(state.nivel);
+    }
+    // En FORMULARIOS, no auto-cargar: se hace con el botón Cargar
   }catch(err){
     setApiStatus("err","API: " + err.message);
   }
@@ -663,10 +776,21 @@ $("btnNuevo").addEventListener("click", newForm);
 $("btnGuardar").addEventListener("click", ()=>saveForm().catch(err=>setApiStatus("err","API: " + err.message)));
 $("btnPrint").addEventListener("click", printToPdf);
 
+$("btnCargarFormularios").addEventListener("click", ()=>cargarFormularios().catch(err=>setApiStatus("err","API: " + err.message)));
+$("btnLimpiarFormularios").addEventListener("click", ()=>{
+  clearFormulariosTable();
+  // reset nivel a Todos si estamos en Formularios
+  if(state.fase === "FORMULARIOS"){
+    $("nivelSelect").value = "ALL";
+    state.nivel = "ALL";
+  }
+});
+
 /* ================= BOOT ================= */
 (function boot(){
   $("fecha").value = todayLocal();
   setPhase(""); // ocultar hasta elegir fase
+  clearFormulariosTable();
 
   apiGet({action:"ping"})
     .then(()=>{
