@@ -3,684 +3,610 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Evaluación del desempeño</title>
+  <title>Sistema de Evaluación del Desempeño</title>
   <style>
     :root{
-      --bg:#0b1220; --panel:#0f1b33; --panel2:#0b162d;
-      --txt:#e8eefc; --muted:#9fb0d0;
-      --line:rgba(255,255,255,.08);
-      --brand:#3b82f6; --brand2:#60a5fa;
-      --ok:#22c55e; --warn:#f59e0b;
-      --shadow: 0 18px 40px rgba(0,0,0,.45);
-      --radius:14px;
+      --bg:#0b1220;
+      --panel:#0f1b33;
+      --panel2:#121f3d;
+      --text:#e8eefc;
+      --muted:#a9b7d9;
+      --line:rgba(255,255,255,.10);
+      --accent:#4f7cff;
+      --accent2:#22c55e;
+      --warn:#f59e0b;
+      --danger:#ef4444;
+      --chip:#1a2a52;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --radius: 16px;
+      --radius2: 22px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
     }
     *{box-sizing:border-box}
     body{
-      margin:0; font-family: ui-sans-serif, system-ui, Segoe UI, Roboto, Arial;
+      margin:0;
+      font-family:var(--sans);
       background:
-        radial-gradient(900px 500px at 20% 10%, rgba(59,130,246,.25), transparent 55%),
-        radial-gradient(900px 500px at 80% 20%, rgba(96,165,250,.20), transparent 55%),
-        radial-gradient(900px 600px at 50% 90%, rgba(34,197,94,.12), transparent 60%),
+        radial-gradient(900px 500px at 10% 0%, rgba(79,124,255,.25), transparent 55%),
+        radial-gradient(900px 500px at 90% 10%, rgba(34,197,94,.18), transparent 55%),
         var(--bg);
-      color:var(--txt);
+      color:var(--text);
+      min-height:100vh;
     }
-    .wrap{max-width:980px; margin:22px auto; padding:0 16px;}
-    .topbar{
-      position:sticky; top:10px; z-index:10;
-      display:flex; gap:10px; align-items:center; justify-content:space-between;
-      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
-      border:1px solid var(--line);
-      border-radius:999px;
-      padding:10px 12px;
-      box-shadow: var(--shadow);
+    header{
+      position:sticky; top:0; z-index:50;
       backdrop-filter: blur(10px);
+      background: rgba(11,18,32,.75);
+      border-bottom:1px solid var(--line);
     }
-    .brand{display:flex; align-items:center; gap:10px;}
-    .pill{
-      display:inline-flex; align-items:center; gap:8px;
-      padding:6px 10px; border-radius:999px;
-      background:rgba(59,130,246,.14);
-      border:1px solid rgba(59,130,246,.25);
-      color:var(--txt); font-size:12px;
+    .wrap{max-width:1180px;margin:0 auto;padding:16px 18px}
+    .topbar{
+      display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;
     }
-    .dot{width:9px;height:9px;border-radius:999px;background:var(--ok); box-shadow:0 0 0 3px rgba(34,197,94,.15)}
-    .dot.warn{background:var(--warn); box-shadow:0 0 0 3px rgba(245,158,11,.15)}
-    .title{font-weight:700; font-size:13px; letter-spacing:.2px}
-    .sub{font-size:12px; color:var(--muted)}
-    .actions{display:flex; gap:8px; align-items:center;}
+    .brand{
+      display:flex;align-items:center;gap:10px;
+      font-weight:700; letter-spacing:.2px;
+    }
+    .dot{
+      width:12px;height:12px;border-radius:999px;background:var(--accent);
+      box-shadow: 0 0 0 4px rgba(79,124,255,.18);
+    }
+    .controls{
+      display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+    }
+    select, button{
+      background: var(--panel);
+      border:1px solid var(--line);
+      color:var(--text);
+      padding:10px 12px;
+      border-radius: 12px;
+      outline:none;
+      box-shadow: none;
+    }
+    select{min-width:280px}
     button{
       cursor:pointer;
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.05);
-      color:var(--txt);
-      padding:8px 10px;
-      border-radius:999px;
-      font-weight:600;
+      transition: transform .05s ease, border-color .2s ease;
     }
-    button.primary{
-      border-color: rgba(59,130,246,.35);
-      background: linear-gradient(180deg, rgba(59,130,246,.45), rgba(59,130,246,.25));
+    button:hover{border-color:rgba(255,255,255,.22)}
+    button:active{transform: translateY(1px)}
+    .btn-primary{background: linear-gradient(180deg, rgba(79,124,255,.35), rgba(79,124,255,.15)); border-color: rgba(79,124,255,.35)}
+    .btn-ghost{background: transparent}
+    .btn-ok{background: linear-gradient(180deg, rgba(34,197,94,.25), rgba(34,197,94,.10)); border-color: rgba(34,197,94,.35)}
+    .btn-warn{background: linear-gradient(180deg, rgba(245,158,11,.22), rgba(245,158,11,.08)); border-color: rgba(245,158,11,.35)}
+    main{padding: 18px}
+    .grid{
+      max-width:1180px;margin:0 auto;
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:14px;
     }
-    button.ghost{background:transparent}
-    button:disabled{opacity:.5; cursor:not-allowed}
     .card{
-      margin-top:14px;
-      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
-      border:1px solid var(--line);
-      border-radius: var(--radius);
+      background: linear-gradient(180deg, rgba(18,31,61,.9), rgba(15,27,51,.92));
+      border: 1px solid var(--line);
+      border-radius: var(--radius2);
       box-shadow: var(--shadow);
       overflow:hidden;
     }
-    .card .hd{
-      padding:12px 14px;
+    .card-h{
+      padding:14px 16px;
       border-bottom:1px solid var(--line);
-      display:flex; justify-content:space-between; gap:12px; align-items:center;
+      display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
     }
-    .card .hd h3{margin:0; font-size:13px}
-    .card .bd{padding:12px 14px}
-    label{display:block; font-size:12px; color:var(--muted); margin:0 0 6px}
-    input, select, textarea{
-      width:100%;
-      background: rgba(11,18,32,.55);
-      border:1px solid rgba(96,165,250,.35);
-      color:var(--txt);
-      padding:9px 10px;
-      border-radius:10px;
-      outline:none;
-    }
-    textarea{min-height:90px; resize:vertical}
-    .grid{display:grid; gap:10px}
-    .g2{grid-template-columns: repeat(2, minmax(0,1fr))}
-    .g3{grid-template-columns: repeat(3, minmax(0,1fr))}
-    .g4{grid-template-columns: repeat(4, minmax(0,1fr))}
-    .row{
-      display:grid;
-      grid-template-columns: 1fr 240px;
-      gap:12px;
-      padding:10px 0;
-      border-top:1px dashed rgba(255,255,255,.08);
-    }
-    .row:first-child{border-top:none}
-    .row .it{
-      font-size:13px;
-      color:var(--txt);
-      line-height:1.35;
-    }
-    .row small{display:block; margin-top:5px; color:var(--muted); font-size:11px}
-    .factor{
-      margin-top:12px;
-      padding:10px 12px;
-      background: rgba(255,255,255,.04);
-      border:1px solid rgba(255,255,255,.08);
-      border-radius: 12px;
-    }
-    .factor h4{margin:0 0 6px; font-size:13px}
-    .hidden{display:none}
-    .toast{
-      position:fixed; right:16px; bottom:16px;
-      background: rgba(15,27,51,.92);
+    .card-h h2{margin:0;font-size:16px}
+    .sub{color:var(--muted); font-size:13px}
+    .card-b{padding:14px 16px}
+    .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+    .chip{
+      background: rgba(26,42,82,.75);
       border:1px solid rgba(255,255,255,.10);
-      border-radius: 12px;
+      padding:6px 10px;
+      border-radius: 999px;
+      color: var(--muted);
+      font-size:12px;
+    }
+    .status{
+      display:flex; align-items:center; gap:8px;
+      font-family:var(--mono); font-size:12px; color:var(--muted);
+    }
+    .status .s-dot{
+      width:10px;height:10px;border-radius:999px;background: var(--warn);
+      box-shadow: 0 0 0 4px rgba(245,158,11,.15);
+    }
+    .status.ok .s-dot{background: var(--accent2); box-shadow: 0 0 0 4px rgba(34,197,94,.15)}
+    .status.err .s-dot{background: var(--danger); box-shadow: 0 0 0 4px rgba(239,68,68,.15)}
+    .table-wrap{overflow:auto; border-radius: 14px; border:1px solid var(--line)}
+    table{
+      width:100%;
+      border-collapse: collapse;
+      min-width: 900px;
+      background: rgba(11,18,32,.35);
+    }
+    th, td{
+      padding:10px 10px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+      font-size:13px;
+    }
+    th{
+      text-align:left;
+      color: var(--muted);
+      font-weight:600;
+      background: rgba(15,27,51,.85);
+      position: sticky; top: 0;
+      z-index: 5;
+    }
+    td small{color:var(--muted)}
+    .muted{color:var(--muted)}
+    .hidden{display:none !important}
+    .mono{font-family:var(--mono)}
+    .hint{
+      background: rgba(79,124,255,.10);
+      border:1px dashed rgba(79,124,255,.35);
       padding:10px 12px;
-      box-shadow: var(--shadow);
-      max-width:360px;
-      display:none;
+      border-radius: 14px;
+      color: var(--muted);
+      font-size:13px;
     }
-    .toast.show{display:block}
-    .muted{color:var(--muted); font-size:12px}
-    .table{
-      width:100%; border-collapse: collapse; font-size:12px;
+    .kpi{
+      display:flex;gap:10px;flex-wrap:wrap
     }
-    .table th,.table td{
-      border-bottom:1px solid rgba(255,255,255,.08);
-      padding:8px 6px; vertical-align:top;
+    .kpi .box{
+      flex:1;
+      min-width: 220px;
+      background: rgba(0,0,0,.12);
+      border:1px solid var(--line);
+      border-radius: 16px;
+      padding:10px 12px;
     }
-    .table th{color:var(--muted); text-align:left; font-weight:700}
-    @media print{
-      .topbar, .no-print {display:none !important}
-      body{background:white; color:black}
-      .card{box-shadow:none; border-color:#ddd}
-      input, select, textarea{border-color:#aaa; color:#000; background:#fff}
-    }
+    .box b{display:block;font-size:14px}
+    .box span{color:var(--muted);font-size:12px}
   </style>
 </head>
+
 <body>
+<header>
   <div class="wrap">
-    <div class="topbar no-print">
+    <div class="topbar">
       <div class="brand">
-        <div class="pill"><span class="dot" id="apiDot"></span><span id="apiLabel">API</span></div>
+        <span class="dot"></span>
         <div>
-          <div class="title">Proceso de evaluación del desempeño</div>
-          <div class="sub" id="subLabel">Empresa: No implementado · Versión: Prueba</div>
+          Sistema de Evaluación del Desempeño
+          <div class="sub">Front (GitHub) + API (Google Apps Script)</div>
         </div>
       </div>
-      <div class="actions">
-        <button class="ghost" id="btnNuevo">Nuevo</button>
-        <button class="primary" id="btnGuardar">Guardar</button>
-        <button class="ghost" id="btnPrint">Imprimir / Enviar PDF</button>
+
+      <div class="controls">
+        <label class="sub" for="fase">Fase</label>
+        <select id="fase"></select>
+        <span id="apiStatus" class="status"><span class="s-dot"></span><span id="apiStatusText">API: sin probar</span></span>
       </div>
     </div>
+  </div>
+</header>
 
-    <!-- Selector de fase -->
-    <div class="card">
-      <div class="hd">
-        <h3>Formulario</h3>
-        <div class="muted">Selecciona la fase del proceso de evaluación del desempeño</div>
-      </div>
-      <div class="bd">
-        <div class="grid g2">
-          <div>
-            <label>Fase</label>
-            <select id="faseSel"></select>
-            <div class="muted" style="margin-top:6px">La guardada siempre se tabula en Google Sheets.</div>
-          </div>
-          <div>
-            <label>URL API (Apps Script Web App)</label>
-            <input id="apiUrlView" disabled />
-            <div class="muted" style="margin-top:6px">Tip: desplegá el Web App como “Cualquiera” para pruebas.</div>
-          </div>
-        </div>
-      </div>
-    </div>
+<main>
+  <div class="grid">
 
-    <!-- Sección: Formularios -->
-    <div class="card hidden" id="secFormularios">
-      <div class="hd">
-        <h3>Formularios</h3>
-        <div class="muted">Ítems por nivel (desde configuración)</div>
-      </div>
-      <div class="bd">
-        <div class="grid g2">
-          <div>
-            <label>Nivel</label>
-            <select id="formNivelSel"></select>
-          </div>
-          <div class="muted" style="align-self:end">Vista informativa (para edición, lo ideal es mover esto luego a un “admin”).</div>
+    <!-- ============ SECCIÓN: FORMULARIOS ============ -->
+    <section id="secFormularios" class="card hidden">
+      <div class="card-h">
+        <div>
+          <h2>Formularios</h2>
+          <div class="sub">Carga desde hoja <span class="mono">Formularios</span> (Nivel, Factor, Item, 1..5)</div>
         </div>
-        <div style="margin-top:10px; overflow:auto">
-          <table class="table" id="formTable"></table>
+        <div class="row">
+          <span class="chip" id="fCountChip">Items: 0</span>
+          <select id="fNivelSelect" title="Nivel"></select>
+          <button class="btn-ok" id="btnFormCargar">Cargar</button>
+          <button class="btn-ghost" id="btnFormLimpiar">Limpiar</button>
         </div>
       </div>
-    </div>
+      <div class="card-b">
+        <div class="hint">
+          Tip: “Limpiar” aquí no borra tu Sheet 😅 — solo limpia la vista y el cache local del navegador.
+        </div>
+        <div style="height:10px"></div>
+        <div class="table-wrap">
+          <table id="tblFormularios">
+            <thead>
+              <tr>
+                <th style="min-width:210px">Nivel</th>
+                <th style="min-width:260px">Factor</th>
+                <th style="min-width:360px">Item</th>
+                <th style="min-width:260px">1</th>
+                <th style="min-width:260px">2</th>
+                <th style="min-width:260px">3</th>
+                <th style="min-width:260px">4</th>
+                <th style="min-width:260px">5</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
 
-    <!-- Sección: Pesos -->
-    <div class="card hidden" id="secPesos">
-      <div class="hd">
-        <h3>Pesos</h3>
-        <div class="muted">Mismo orden que los ítems de Formularios · incluye Limpiar</div>
-      </div>
-      <div class="bd">
-        <div class="grid g2">
-          <div>
-            <label>Nivel</label>
-            <select id="pesoNivelSel"></select>
-          </div>
-          <div style="display:flex; gap:8px; justify-content:flex-end; align-items:end" class="no-print">
-            <button id="btnPesosLimpiar" class="ghost">Limpiar</button>
-            <button id="btnPesosGuardar" class="primary">Guardar pesos</button>
-          </div>
+    <!-- ============ SECCIÓN: PESOS ============ -->
+    <section id="secPesos" class="card hidden">
+      <div class="card-h">
+        <div>
+          <h2>Pesos</h2>
+          <div class="sub">Carga desde hoja <span class="mono">Pesos</span> (Nivel, Factor, Item, Peso)</div>
         </div>
-        <div style="margin-top:10px; overflow:auto">
-          <table class="table" id="pesoTable"></table>
+        <div class="row">
+          <span class="chip" id="pCountChip">Items: 0</span>
+          <select id="pNivelSelect" title="Nivel"></select>
+          <button class="btn-ok" id="btnPesosCargar">Cargar</button>
+          <button class="btn-ghost" id="btnPesosLimpiar">Limpiar</button>
         </div>
-        <div class="muted" style="margin-top:8px">Sugerencia: usa pesos 1–5 o porcentajes (lo estandarizamos después).</div>
       </div>
-    </div>
 
-    <!-- Sección: Autoevaluación -->
-    <div class="card" id="secAuto">
-      <div class="hd">
-        <h3>Formulario de autoevaluación</h3>
-        <div class="muted">Por defecto: nivel 1</div>
-      </div>
-      <div class="bd">
-        <div class="grid g2">
-          <div>
-            <label>Nivel</label>
-            <select id="autoNivelSel"></select>
+      <div class="card-b">
+        <div class="kpi">
+          <div class="box">
+            <b>Total peso (nivel seleccionado)</b>
+            <span id="pesoTotalTxt">0</span>
           </div>
-          <div class="muted" style="align-self:end">Escala 1–5 dentro de cada selector.</div>
+          <div class="box">
+            <b>Validación rápida</b>
+            <span id="pesoValidTxt">—</span>
+          </div>
         </div>
 
         <div style="height:10px"></div>
-
-        <div class="card" style="box-shadow:none; margin:0; background:rgba(0,0,0,.12)">
-          <div class="hd">
-            <h3>Datos del colaborador</h3>
-            <div class="muted">Completa esta información y selecciona una opción (1–5) por ítem</div>
-          </div>
-          <div class="bd">
-            <div class="grid g4">
-              <div><label>No. de personal</label><input id="noPersonal" placeholder="Ej. 1800" /></div>
-              <div><label>Nombre</label><input id="nombre" placeholder="Ej. Carlos Paz" /></div>
-              <div><label>Posición</label><input id="posicion" placeholder="Ej. Analista" /></div>
-              <div><label>Departamento</label><input id="depto" placeholder="Ej. Contabilidad" /></div>
-            </div>
-            <div class="grid g4" style="margin-top:10px">
-              <div><label>Periodo</label><input id="periodo" placeholder="Ej. 2026" /></div>
-              <div><label>Versión</label><input id="version" placeholder="Ej. 1" /></div>
-              <div><label>Fecha</label><input id="fecha" /></div>
-              <div><label>&nbsp;</label><div class="muted">Fecha calculada automáticamente (hoy).</div></div>
-            </div>
-          </div>
-        </div>
-
-        <div id="autoFormHost"></div>
-
-        <div class="card" style="box-shadow:none; margin-top:12px; background:rgba(0,0,0,.12)">
-          <div class="hd">
-            <h3>Comentarios del colaborador</h3>
-            <div class="muted">Incluye observaciones, ejemplos, mejoras o apoyo requerido</div>
-          </div>
-          <div class="bd">
-            <textarea id="comentarios" placeholder="Comentarios del colaborador..."></textarea>
-          </div>
+        <div class="table-wrap">
+          <table id="tblPesos">
+            <thead>
+              <tr>
+                <th style="min-width:210px">Nivel</th>
+                <th style="min-width:260px">Factor</th>
+                <th style="min-width:460px">Item</th>
+                <th style="min-width:140px">Peso</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
         </div>
       </div>
-    </div>
+    </section>
 
-    <!-- Placeholders resto del proceso -->
-    <div class="card hidden" id="secClientes"><div class="hd"><h3>Formulario de evaluación de clientes</h3><div class="muted">Sección lista para implementar</div></div><div class="bd muted">Pendiente.</div></div>
-    <div class="card hidden" id="secDesempeno"><div class="hd"><h3>Formulario de evaluación del desempeño</h3><div class="muted">Sección lista para implementar</div></div><div class="bd muted">Pendiente.</div></div>
-    <div class="card hidden" id="secResultados"><div class="hd"><h3>Resultados evaluación del desempeño</h3><div class="muted">Sección lista para implementar</div></div><div class="bd muted">Pendiente.</div></div>
-    <div class="card hidden" id="secConsolidado"><div class="hd"><h3>Informe consolidado</h3><div class="muted">Sección lista para implementar</div></div><div class="bd muted">Pendiente.</div></div>
-    <div class="card hidden" id="secNecesidades"><div class="hd"><h3>Informe de necesidades de capacitación</h3><div class="muted">Sección lista para implementar</div></div><div class="bd muted">Pendiente.</div></div>
-    <div class="card hidden" id="secPlan"><div class="hd"><h3>Informe de plan de desarrollo</h3><div class="muted">Sección lista para implementar</div></div><div class="bd muted">Pendiente.</div></div>
+    <!-- ============ PLACEHOLDERS PARA EL RESTO DEL MENÚ ============ -->
+    <section id="secPlaceholder" class="card hidden">
+      <div class="card-h">
+        <div>
+          <h2 id="phTitle">Fase</h2>
+          <div class="sub">Sección lista para implementar</div>
+        </div>
+        <span class="chip">Próximo: aquí van formularios y resultados</span>
+      </div>
+      <div class="card-b">
+        <div class="hint" id="phBody">
+          Estructura lista. Solo falta que me digas qué campos tendrá esta fase y lo conectamos.
+        </div>
+      </div>
+    </section>
 
   </div>
+</main>
 
-  <div class="toast" id="toast"></div>
+<script>
+  // =========================
+  // CONFIG
+  // =========================
+  const SCRIPT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzHhg2hZo1rY4KX_IwRs6cPF2tY1L5H8OBHUgE1aXS_Kc2n5lRCUMVCwRHYaSfhGnpf/exec";
 
-  <script>
-    /***********************
-     * CONFIG
-     ***********************/
-    // 1) Cambia esto por tu URL del Web App desplegado (Apps Script).
-    // Ejemplo: https://script.google.com/macros/s/AKfycbxxxxxxxxxxxxxxxx/exec
-    const API_URL = "https://script.google.com/macros/s/AKfycbwDEQmzLUnO5dDIjdhlgLju8Nphgk2xEBpGSFCG76S1PD3EfU25qLQAviRsAViLytKJ/exec";
+  const FASES = [
+    "Formularios",
+    "Pesos",
+    "Formulario de autoevaluación",
+    "Formulario de evaluación de clientes",
+    "Formulario de evaluación del desempeño",
+    "Resultados evaluación del desempeño",
+    "Informe consolidado",
+    "Informe de necesidades de capacitación",
+    "Informe de plan de desarrollo"
+  ];
 
-    const FASES = [
-      "Formularios",
-      "Pesos",
-      "Formulario de autoevaluación",
-      "Formulario de evaluación de clientes",
-      "Formulario de evaluación del desempeño",
-      "Resultados evaluación del desempeño",
-      "Informe consolidado",
-      "Informe de necesidades de capacitación",
-      "Informe de plan de desarrollo"
-    ];
+  // Por default: "Formulario de autoevaluación" (como pediste)
+  const DEFAULT_FASE = "Formulario de autoevaluación";
 
-    // Estado
-    let CFG = null;
-    let currentNivelId = 1;
-    let respuestas = []; // array en orden de items (score 1..5)
-    let descs = [];      // array en orden de items (texto de la escala)
+  const LS_KEYS = {
+    forms: "ed_forms_cache_v1",
+    pesos: "ed_pesos_cache_v1",
+    apiOk: "ed_api_ok_v1"
+  };
 
-    /***********************
-     * Helpers UI
-     ***********************/
-    const $ = (id)=>document.getElementById(id);
+  // =========================
+  // HELPERS
+  // =========================
+  const $ = (id) => document.getElementById(id);
 
-    function toast(msg){
-      const t = $("toast");
-      t.textContent = msg;
-      t.classList.add("show");
-      setTimeout(()=>t.classList.remove("show"), 3200);
+  function setApiStatus(mode, text){
+    const el = $("apiStatus");
+    el.classList.remove("ok","err");
+    if(mode) el.classList.add(mode);
+    $("apiStatusText").textContent = text;
+  }
+
+  function showOnlySection(sectionId){
+    ["secFormularios","secPesos","secPlaceholder"].forEach(id => $(id).classList.add("hidden"));
+    $(sectionId).classList.remove("hidden");
+  }
+
+  function setPlaceholder(title, body){
+    $("phTitle").textContent = title;
+    $("phBody").textContent = body;
+    showOnlySection("secPlaceholder");
+  }
+
+  function safeNumber(x){
+    const n = Number(String(x).replace(",", "."));
+    return Number.isFinite(n) ? n : 0;
+  }
+
+  // =========================
+  // API (Apps Script Web App)
+  // =========================
+  async function apiGet(params){
+    if(!SCRIPT_WEBAPP_URL || SCRIPT_WEBAPP_URL.includes("PEGAR_AQUI")){
+      setApiStatus("err","API: falta URL del Web App");
+      throw new Error("Falta SCRIPT_WEBAPP_URL");
     }
 
-    function setApiStatus(ok){
-      const dot = $("apiDot");
-      const lbl = $("apiLabel");
-      if(ok){
-        dot.classList.remove("warn");
-        lbl.textContent = "API conectada";
-      }else{
-        dot.classList.add("warn");
-        lbl.textContent = "API sin conexión";
-      }
+    const url = new URL(SCRIPT_WEBAPP_URL);
+    Object.entries(params).forEach(([k,v]) => url.searchParams.set(k, v));
+
+    const r = await fetch(url.toString(), { method:"GET" });
+    const data = await r.json();
+
+    if(!data || data.ok !== true){
+      throw new Error(data?.error || "Respuesta inválida del API");
     }
 
-    function todayISO(){
-      const d = new Date();
-      const yyyy = d.getFullYear();
-      const mm = String(d.getMonth()+1).padStart(2,"0");
-      const dd = String(d.getDate()).padStart(2,"0");
-      return `${yyyy}-${mm}-${dd}`;
-    }
+    localStorage.setItem(LS_KEYS.apiOk, "1");
+    setApiStatus("ok","API: conectada");
+    return data;
+  }
 
-    function groupBy(arr, keyFn){
-      const m = new Map();
-      for(const it of arr){
-        const k = keyFn(it);
-        if(!m.has(k)) m.set(k, []);
-        m.get(k).push(it);
-      }
-      return m;
+  async function testApi(){
+    try{
+      await apiGet({ action:"ping" });
+    }catch(e){
+      const hadOk = localStorage.getItem(LS_KEYS.apiOk) === "1";
+      setApiStatus("err", hadOk ? "API: error (antes funcionó)" : "API: no conectada");
     }
+  }
 
-    function optionText(score, text){
-      const clean = (text||"").replace(/\s+/g," ").trim();
-      const short = clean.length > 180 ? clean.slice(0,180) + "…" : clean;
-      return `${score} — ${short}`;
+  // =========================
+  // FORMULARIOS (UI)
+  // =========================
+  function setFormNivelOptions(niveles){
+    const sel = $("fNivelSelect");
+    sel.innerHTML = "";
+    niveles.forEach(n => {
+      const opt = document.createElement("option");
+      opt.value = n;
+      opt.textContent = n;
+      sel.appendChild(opt);
+    });
+    // default mostrar nivel 1 (si existe)
+    if(niveles.includes("1") || niveles.includes(1)){
+      sel.value = "1";
+    } else if(niveles.length){
+      sel.value = String(niveles[0]);
     }
+  }
 
-    /***********************
-     * API
-     ***********************/
-    async function apiGet(action, params={}){
-      const url = new URL(API_URL);
-      url.searchParams.set("action", action);
-      for(const [k,v] of Object.entries(params)) url.searchParams.set(k, v);
-      const r = await fetch(url.toString(), { method:"GET" });
-      if(!r.ok) throw new Error("HTTP " + r.status);
-      return await r.json();
-    }
+  function renderFormTable(items){
+    const tb = $("tblFormularios").querySelector("tbody");
+    tb.innerHTML = "";
 
-    async function apiPost(action, payload){
-      const url = new URL(API_URL);
-      url.searchParams.set("action", action);
-      const r = await fetch(url.toString(), {
-        method:"POST",
-        headers:{ "Content-Type":"application/json" },
-        body: JSON.stringify(payload)
-      });
-      if(!r.ok) throw new Error("HTTP " + r.status);
-      return await r.json();
-    }
-
-    /***********************
-     * Render: Fases
-     ***********************/
-    function setFase(fase){
-      const map = {
-        "Formularios": "secFormularios",
-        "Pesos": "secPesos",
-        "Formulario de autoevaluación": "secAuto",
-        "Formulario de evaluación de clientes": "secClientes",
-        "Formulario de evaluación del desempeño": "secDesempeno",
-        "Resultados evaluación del desempeño": "secResultados",
-        "Informe consolidado": "secConsolidado",
-        "Informe de necesidades de capacitación": "secNecesidades",
-        "Informe de plan de desarrollo": "secPlan"
-      };
-      for(const id of Object.values(map)) $(id).classList.add("hidden");
-      $(map[fase]).classList.remove("hidden");
-    }
-
-    /***********************
-     * Render: Formularios
-     ***********************/
-    function renderFormularios(nivelId){
-      const items = CFG.items.filter(x=>x.nivelId===nivelId);
-      const table = $("formTable");
-      table.innerHTML = `
-        <thead><tr>
-          <th style="min-width:240px">Factor</th>
-          <th>Ítem</th>
-          <th style="min-width:120px">No</th>
-        </tr></thead>
-        <tbody>
-          ${items.map(it=>`
-            <tr>
-              <td>${escapeHtml(it.factor)}</td>
-              <td>${escapeHtml(it.item)}</td>
-              <td>${it.itemNo ?? ""}</td>
-            </tr>
-          `).join("")}
-        </tbody>
+    items.forEach(row => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${row.Nivel ?? ""}</td>
+        <td>${row.Factor ?? ""}</td>
+        <td>${row.Item ?? ""}</td>
+        <td><small>${row["1"] ?? ""}</small></td>
+        <td><small>${row["2"] ?? ""}</small></td>
+        <td><small>${row["3"] ?? ""}</small></td>
+        <td><small>${row["4"] ?? ""}</small></td>
+        <td><small>${row["5"] ?? ""}</small></td>
       `;
-    }
+      tb.appendChild(tr);
+    });
 
-    /***********************
-     * Render: Pesos
-     ***********************/
-    async function renderPesos(nivelId){
-      const data = await apiGet("getPesos", { nivelId: String(nivelId) });
-      const rows = data.rows || [];
-      const table = $("pesoTable");
-      table.innerHTML = `
-        <thead><tr>
-          <th style="min-width:240px">Factor</th>
-          <th>Ítem</th>
-          <th style="min-width:110px">Peso</th>
-        </tr></thead>
-        <tbody>
-          ${rows.map((r, idx)=>`
-            <tr>
-              <td>${escapeHtml(r.factor)}</td>
-              <td>${escapeHtml(r.item)}</td>
-              <td><input data-idx="${idx}" class="pesoInp" value="${r.peso ?? ""}" placeholder="Ej. 1" /></td>
-            </tr>
-          `).join("")}
-        </tbody>
+    $("fCountChip").textContent = `Items: ${items.length}`;
+  }
+
+  function clearFormView(){
+    $("tblFormularios").querySelector("tbody").innerHTML = "";
+    $("fCountChip").textContent = "Items: 0";
+    $("fNivelSelect").innerHTML = "";
+  }
+
+  function cacheSet(key, value){
+    localStorage.setItem(key, JSON.stringify(value));
+  }
+  function cacheGet(key){
+    const raw = localStorage.getItem(key);
+    if(!raw) return null;
+    try{ return JSON.parse(raw); }catch(_){ return null; }
+  }
+  function cacheDel(key){ localStorage.removeItem(key); }
+
+  async function loadFormularios(){
+    // 1) Traer niveles
+    const levels = await apiGet({ action:"levels", sheet:"Formularios" });
+    setFormNivelOptions(levels.levels.map(String));
+
+    // 2) Traer items del nivel seleccionado
+    const nivel = $("fNivelSelect").value;
+    const res = await apiGet({ action:"items", sheet:"Formularios", nivel });
+    cacheSet(LS_KEYS.forms, { levels: levels.levels, byNivel: { [nivel]: res.items } });
+    renderFormTable(res.items);
+  }
+
+  async function reloadFormulariosForNivel(){
+    const nivel = $("fNivelSelect").value;
+    const cached = cacheGet(LS_KEYS.forms);
+    if(cached?.byNivel?.[nivel]){
+      renderFormTable(cached.byNivel[nivel]);
+      return;
+    }
+    const res = await apiGet({ action:"items", sheet:"Formularios", nivel });
+    const next = cached || { levels: [], byNivel: {} };
+    next.byNivel[nivel] = res.items;
+    cacheSet(LS_KEYS.forms, next);
+    renderFormTable(res.items);
+  }
+
+  // =========================
+  // PESOS (UI)
+  // =========================
+  function setPesoNivelOptions(niveles){
+    const sel = $("pNivelSelect");
+    sel.innerHTML = "";
+    niveles.forEach(n => {
+      const opt = document.createElement("option");
+      opt.value = n;
+      opt.textContent = n;
+      sel.appendChild(opt);
+    });
+    if(niveles.includes("1") || niveles.includes(1)){
+      sel.value = "1";
+    } else if(niveles.length){
+      sel.value = String(niveles[0]);
+    }
+  }
+
+  function renderPesosTable(items){
+    const tb = $("tblPesos").querySelector("tbody");
+    tb.innerHTML = "";
+
+    let total = 0;
+    items.forEach(row => {
+      const peso = safeNumber(row.Peso);
+      total += peso;
+
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${row.Nivel ?? ""}</td>
+        <td>${row.Factor ?? ""}</td>
+        <td>${row.Item ?? ""}</td>
+        <td class="mono">${row.Peso ?? ""}</td>
       `;
-      // guardar en memoria para editar
-      table.dataset.rows = JSON.stringify(rows);
+      tb.appendChild(tr);
+    });
+
+    $("pCountChip").textContent = `Items: ${items.length}`;
+    $("pesoTotalTxt").textContent = String(total);
+
+    // Validación ligera: si “total ~= 100” lo marco bonito (ajústalo si tu regla es otra)
+    const delta = Math.abs(total - 100);
+    $("pesoValidTxt").textContent =
+      delta < 0.0001 ? "✅ Total = 100" :
+      total === 0 ? "—" :
+      `⚠️ Total ≠ 100 (delta ${delta.toFixed(2)})`;
+  }
+
+  function clearPesosView(){
+    $("tblPesos").querySelector("tbody").innerHTML = "";
+    $("pCountChip").textContent = "Items: 0";
+    $("pNivelSelect").innerHTML = "";
+    $("pesoTotalTxt").textContent = "0";
+    $("pesoValidTxt").textContent = "—";
+  }
+
+  async function loadPesos(){
+    const levels = await apiGet({ action:"levels", sheet:"Pesos" });
+    setPesoNivelOptions(levels.levels.map(String));
+
+    const nivel = $("pNivelSelect").value;
+    const res = await apiGet({ action:"items", sheet:"Pesos", nivel });
+    cacheSet(LS_KEYS.pesos, { levels: levels.levels, byNivel: { [nivel]: res.items } });
+    renderPesosTable(res.items);
+  }
+
+  async function reloadPesosForNivel(){
+    const nivel = $("pNivelSelect").value;
+    const cached = cacheGet(LS_KEYS.pesos);
+    if(cached?.byNivel?.[nivel]){
+      renderPesosTable(cached.byNivel[nivel]);
+      return;
     }
+    const res = await apiGet({ action:"items", sheet:"Pesos", nivel });
+    const next = cached || { levels: [], byNivel: {} };
+    next.byNivel[nivel] = res.items;
+    cacheSet(LS_KEYS.pesos, next);
+    renderPesosTable(res.items);
+  }
 
-    async function savePesosFromUI(){
-      const table = $("pesoTable");
-      const rows = JSON.parse(table.dataset.rows || "[]");
-      const inputs = table.querySelectorAll(".pesoInp");
-      inputs.forEach(inp=>{
-        const idx = Number(inp.dataset.idx);
-        rows[idx].peso = inp.value;
-      });
-      await apiPost("savePesos", { nivelId: currentNivelId, rows });
-      toast("Pesos guardados.");
-    }
+  // =========================
+  // INIT: FASE SELECTOR
+  // =========================
+  function initFases(){
+    const sel = $("fase");
+    sel.innerHTML = "";
+    FASES.forEach(f => {
+      const opt = document.createElement("option");
+      opt.value = f;
+      opt.textContent = f;
+      sel.appendChild(opt);
+    });
+    sel.value = DEFAULT_FASE;
 
-    async function limpiarPesosUI(){
-      const table = $("pesoTable");
-      const rows = JSON.parse(table.dataset.rows || "[]");
-      rows.forEach(r=>r.peso="");
-      table.dataset.rows = JSON.stringify(rows);
-      await renderPesos(currentNivelId);
-      toast("Pesos limpiados (aún no guardados).");
-    }
+    sel.addEventListener("change", () => {
+      const fase = sel.value;
 
-    /***********************
-     * Render: Autoevaluación
-     ***********************/
-    function renderAutoForm(nivelId){
-      const items = CFG.items.filter(x=>x.nivelId===nivelId);
-      respuestas = new Array(items.length).fill("");
-      descs = new Array(items.length).fill("");
-
-      const byFactor = groupBy(items, it=>it.factor);
-      const host = $("autoFormHost");
-      host.innerHTML = "";
-
-      let globalIdx = 0;
-      for(const [factor, list] of byFactor.entries()){
-        const box = document.createElement("div");
-        box.className = "factor";
-        box.innerHTML = `<h4>${escapeHtml(factor)}</h4><div class="muted">Selecciona una opción por ítem</div>`;
-
-        for(const it of list){
-          const row = document.createElement("div");
-          row.className = "row";
-
-          const left = document.createElement("div");
-          left.className = "it";
-          left.innerHTML = `<strong>${escapeHtml(it.item)}</strong><small>Escala 1–5</small>`;
-
-          const right = document.createElement("div");
-          right.innerHTML = `
-            <label>Puntaje (1–5)</label>
-            <select data-idx="${globalIdx}">
-              <option value="">Seleccionar…</option>
-              ${[1,2,3,4,5].map(s=>{
-                return `<option value="${s}" data-desc="${escapeAttr(it.scale[String(s)]||"")}">${escapeHtml(optionText(s, it.scale[String(s)]||""))}</option>`;
-              }).join("")}
-            </select>
-          `;
-
-          row.appendChild(left);
-          row.appendChild(right);
-          box.appendChild(row);
-          globalIdx++;
-        }
-        host.appendChild(box);
+      if(fase === "Formularios"){
+        showOnlySection("secFormularios");
+      } else if(fase === "Pesos"){
+        showOnlySection("secPesos");
+      } else {
+        setPlaceholder(
+          fase,
+          "Sección lista. Conecto esta fase cuando definamos su estructura (campos, cálculos, reportes, etc.)."
+        );
       }
+    });
 
-      // events
-      host.querySelectorAll("select").forEach(sel=>{
-        sel.addEventListener("change", (e)=>{
-          const idx = Number(e.target.dataset.idx);
-          const val = e.target.value;
-          respuestas[idx] = val;
-          const opt = e.target.selectedOptions[0];
-          descs[idx] = opt ? (opt.getAttribute("data-desc") || "") : "";
-        });
-      });
-    }
+    // Mostrar default (Autoevaluación) como placeholder
+    setPlaceholder(DEFAULT_FASE, "Default: aquí irá el Formulario de autoevaluación.");
+  }
 
-    function validateAuto(itemsLen){
-      // Validación mínima: datos básicos + que no falte ningún ítem
-      const req = ["noPersonal","nombre","posicion","depto","periodo","version","fecha"];
-      for(const id of req){
-        if(!$(id).value.trim()){
-          toast("Falta completar: " + id);
-          return false;
-        }
-      }
-      for(let i=0;i<itemsLen;i++){
-        if(!respuestas[i]){
-          toast("Te falta responder el ítem #" + (i+1));
-          return false;
-        }
-      }
-      return true;
-    }
+  // =========================
+  // EVENTS
+  // =========================
+  $("btnFormCargar").addEventListener("click", async () => {
+    try{ await loadFormularios(); }catch(e){ setApiStatus("err","API: " + e.message); }
+  });
+  $("btnFormLimpiar").addEventListener("click", () => {
+    cacheDel(LS_KEYS.forms);
+    clearFormView();
+  });
+  $("fNivelSelect").addEventListener("change", async () => {
+    try{ await reloadFormulariosForNivel(); }catch(e){ setApiStatus("err","API: " + e.message); }
+  });
 
-    async function guardarAuto(){
-      const items = CFG.items.filter(x=>x.nivelId===currentNivelId);
-      if(!validateAuto(items.length)) return;
+  $("btnPesosCargar").addEventListener("click", async () => {
+    try{ await loadPesos(); }catch(e){ setApiStatus("err","API: " + e.message); }
+  });
+  $("btnPesosLimpiar").addEventListener("click", () => {
+    cacheDel(LS_KEYS.pesos);
+    clearPesosView();
+  });
+  $("pNivelSelect").addEventListener("change", async () => {
+    try{ await reloadPesosForNivel(); }catch(e){ setApiStatus("err","API: " + e.message); }
+  });
 
-      const payload = {
-        nivelId: currentNivelId,
-        nivelLabel: (CFG.levels.find(l=>l.id===currentNivelId)?.label || ""),
-        colaborador: {
-          noPersonal: $("noPersonal").value.trim(),
-          nombre: $("nombre").value.trim(),
-          posicion: $("posicion").value.trim(),
-          departamento: $("depto").value.trim(),
-          periodo: $("periodo").value.trim(),
-          version: $("version").value.trim(),
-          fecha: $("fecha").value.trim()
-        },
-        respuestas,
-        descripciones: descs,
-        comentarios: $("comentarios").value.trim()
-      };
-
-      $("btnGuardar").disabled = true;
-      try{
-        await apiPost("saveAutoevaluacion", payload);
-        toast("Guardado en Google Sheets ✅");
-      }catch(err){
-        console.error(err);
-        toast("No se pudo guardar (revisa API_URL / despliegue).");
-      }finally{
-        $("btnGuardar").disabled = false;
-      }
-    }
-
-    function nuevo(){
-      // reset campos
-      ["noPersonal","nombre","posicion","depto","periodo","version","comentarios"].forEach(id=>$(id).value="");
-      $("fecha").value = todayISO();
-      // reset selects en form
-      const host = $("autoFormHost");
-      host.querySelectorAll("select").forEach(s=>s.value="");
-      // reset arrays
-      const items = CFG.items.filter(x=>x.nivelId===currentNivelId);
-      respuestas = new Array(items.length).fill("");
-      descs = new Array(items.length).fill("");
-      toast("Formulario limpio.");
-    }
-
-    function imprimir(){
-      window.print();
-    }
-
-    /***********************
-     * Safe HTML
-     ***********************/
-    function escapeHtml(s){
-      return String(s??"")
-        .replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
-        .replaceAll('"',"&quot;").replaceAll("'","&#039;");
-    }
-    function escapeAttr(s){ return escapeHtml(s).replaceAll("\n"," ").replaceAll("\r"," "); }
-
-    /***********************
-     * Init
-     ***********************/
-    async function init(){
-      $("apiUrlView").value = API_URL;
-      $("fecha").value = todayISO();
-
-      // fases
-      const faseSel = $("faseSel");
-      faseSel.innerHTML = FASES.map(f=>`<option value="${escapeAttr(f)}">${escapeHtml(f)}</option>`).join("");
-      faseSel.value = "Formulario de autoevaluación"; // default
-      setFase(faseSel.value);
-      faseSel.addEventListener("change", async ()=>{
-        setFase(faseSel.value);
-        if(faseSel.value==="Formularios") renderFormularios(currentNivelId);
-        if(faseSel.value==="Pesos") await renderPesos(currentNivelId);
-      });
-
-      // botones
-      $("btnNuevo").addEventListener("click", nuevo);
-      $("btnGuardar").addEventListener("click", guardarAuto);
-      $("btnPrint").addEventListener("click", imprimir);
-      $("btnPesosGuardar").addEventListener("click", savePesosFromUI);
-      $("btnPesosLimpiar").addEventListener("click", limpiarPesosUI);
-
-      // config
-      try{
-        CFG = await apiGet("getConfig");
-        setApiStatus(true);
-      }catch(e){
-        console.error(e);
-        setApiStatus(false);
-        toast("No se pudo cargar configuración desde API. Revisa API_URL y despliegue.");
-        return;
-      }
-
-      // niveles
-      const levels = CFG.levels || [];
-      const fillLevelSel = (selId)=>{
-        const sel = $(selId);
-        sel.innerHTML = levels.map(l=>`<option value="${l.id}">${escapeHtml(l.label)}</option>`).join("");
-        sel.value = "1";
-        sel.addEventListener("change", async ()=>{
-          currentNivelId = Number(sel.value);
-          // sincronizar selects
-          ["autoNivelSel","formNivelSel","pesoNivelSel"].forEach(x=>{
-            if($(x) && $(x)!==sel) $(x).value = String(currentNivelId);
-          });
-
-          renderAutoForm(currentNivelId);
-          if(!$("secFormularios").classList.contains("hidden")) renderFormularios(currentNivelId);
-          if(!$("secPesos").classList.contains("hidden")) await renderPesos(currentNivelId);
-        });
-      };
-
-      fillLevelSel("autoNivelSel");
-      fillLevelSel("formNivelSel");
-      fillLevelSel("pesoNivelSel");
-
-      currentNivelId = 1;
-      renderAutoForm(1);
-      renderFormularios(1);
-    }
-
-    init();
-  </script>
+  // =========================
+  // BOOT
+  // =========================
+  initFases();
+  testApi();
+</script>
 </body>
 </html>
