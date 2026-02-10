@@ -1,680 +1,370 @@
-<!doctype html>
-<html lang="es">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Sistema de Evaluación del Desempeño</title>
-  <link rel="icon" href="data:,">
+/**
+ * =========================
+ * CONFIG
+ * =========================
+ */
+const SPREADSHEET_ID = "19zvT9RQWKKyneeS3WFS5Il7DLDxir3E2PrLNOg1w7lQ";
+const ALLOWED_SHEETS = new Set(["Formularios", "Pesos", "Respuestas"]);
 
-  <style>
-    :root{
-      --bg:#0b1220; --panel:#0f1b33; --panel2:#121f3d;
-      --text:#e8eefc; --muted:#a9b7d9; --line:rgba(255,255,255,.10);
-      --accent:#4f7cff; --accent2:#22c55e; --warn:#f59e0b; --danger:#ef4444;
-      --chip:#1a2a52; --shadow: 0 10px 30px rgba(0,0,0,.35);
-      --radius2: 22px; --mono: ui-monospace, Menlo, Monaco, Consolas, monospace;
-      --sans: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-    }
-    *{box-sizing:border-box}
-    body{
-      margin:0;font-family:var(--sans);color:var(--text);min-height:100vh;
-      background:
-        radial-gradient(900px 500px at 10% 0%, rgba(79,124,255,.25), transparent 55%),
-        radial-gradient(900px 500px at 90% 10%, rgba(34,197,94,.18), transparent 55%),
-        var(--bg);
-    }
-    header{
-      position:sticky;top:0;z-index:50;backdrop-filter:blur(10px);
-      background:rgba(11,18,32,.75);border-bottom:1px solid var(--line);
-    }
-    .wrap{max-width:1180px;margin:0 auto;padding:16px 18px}
-    .topbar{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
-    .brand{display:flex;align-items:center;gap:10px;font-weight:700}
-    .logo{
-      width:34px;height:34px;border-radius:12px;
-      display:grid;place-items:center;
-      background:rgba(79,124,255,.18);
-      border:1px solid rgba(79,124,255,.25);
-      font-weight:800;
-    }
-    .sub{color:var(--muted);font-size:13px}
-    .chips{display:flex;gap:8px;flex-wrap:wrap}
-    .chip{
-      background:rgba(26,42,82,.75);border:1px solid rgba(255,255,255,.10);
-      padding:6px 10px;border-radius:999px;font-size:12px;color:var(--muted)
-    }
-    .controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-    select,button,input,textarea{
-      background:var(--panel);border:1px solid var(--line);color:var(--text);
-      padding:10px 12px;border-radius:12px;font-family:var(--sans)
-    }
-    select{min-width:220px}
-    button{cursor:pointer}
-    .btn-ok{
-      background:linear-gradient(180deg, rgba(34,197,94,.25), rgba(34,197,94,.10));
-      border-color:rgba(34,197,94,.35)
-    }
-    .btn-blue{
-      background:linear-gradient(180deg, rgba(79,124,255,.25), rgba(79,124,255,.10));
-      border-color:rgba(79,124,255,.35)
-    }
-    .btn-ghost{background:transparent}
-    .btn-warn{
-      background:linear-gradient(180deg, rgba(245,158,11,.20), rgba(245,158,11,.08));
-      border-color:rgba(245,158,11,.35)
-    }
-
-    main{padding:18px}
-    .grid{max-width:1180px;margin:0 auto;display:grid;gap:14px}
-    .card{
-      background:linear-gradient(180deg, rgba(18,31,61,.9), rgba(15,27,51,.92));
-      border:1px solid var(--line);border-radius:var(--radius2);
-      box-shadow:var(--shadow);overflow:hidden;
-    }
-    .card-h{
-      padding:14px 16px;border-bottom:1px solid var(--line);
-      display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center
-    }
-    .card-h h2{margin:0;font-size:16px}
-    .card-b{padding:14px 16px}
-
-    .status{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:12px;color:var(--muted)}
-    .status .s-dot{width:10px;height:10px;border-radius:999px;background:var(--warn)}
-    .status.ok .s-dot{background:var(--accent2)}
-    .status.err .s-dot{background:var(--danger)}
-    .hint{
-      background:rgba(79,124,255,.10);border:1px dashed rgba(79,124,255,.35);
-      padding:10px 12px;border-radius:14px;color:var(--muted);font-size:13px
-    }
-
-    .form-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:10px}
-    .col-3{grid-column:span 3}
-    .col-4{grid-column:span 4}
-    .col-6{grid-column:span 6}
-    .col-12{grid-column:span 12}
-    .lbl{font-size:12px;color:var(--muted);margin-bottom:6px}
-    .field{display:flex;flex-direction:column;gap:6px}
-    input{width:100%}
-    textarea{width:100%;min-height:92px;resize:vertical}
-
-    .factor{
-      border:1px solid var(--line);
-      border-radius:18px;
-      padding:12px;
-      background:rgba(11,18,32,.35);
-      margin-bottom:12px;
-    }
-    .factor-title{font-weight:800;margin:0 0 8px 0;font-size:14px}
-    .item-row{
-      display:grid;
-      grid-template-columns: 1fr 240px;
-      gap:12px;
-      padding:10px 0;
-      border-top:1px solid rgba(255,255,255,.07);
-      align-items:center;
-    }
-    .item-row:first-of-type{border-top:none}
-    .item-name{font-weight:600;font-size:13px}
-    .item-sub{font-size:12px;color:var(--muted);margin-top:2px}
-    .item-select select{width:100%;min-width:unset}
-
-    /* Mostrar/ocultar por fase */
-    [data-phase-block]{display:none}
-    [data-phase-block].show{display:block}
-
-    @media (max-width:860px){
-      .col-3,.col-4,.col-6{grid-column:span 12}
-      .item-row{grid-template-columns:1fr}
-    }
-  </style>
-</head>
-
-<body>
-<header>
-  <div class="wrap">
-    <div class="topbar">
-      <div class="brand">
-        <div class="logo">ED</div>
-        <div>
-          Proceso de evaluación del desempeño
-          <div class="chips">
-            <span class="chip">Empresa: <b id="chipEmpresa">No Implementado</b></span>
-            <span class="chip">Versión: <b id="chipVersion">Prueba</b></span>
-          </div>
-        </div>
-      </div>
-
-      <div class="controls">
-        <span id="apiStatus" class="status">
-          <span class="s-dot"></span>
-          <span id="apiStatusText">API: sin probar</span>
-        </span>
-
-        <button id="btnNuevo" class="btn-blue">Nuevo</button>
-        <button id="btnGuardar" class="btn-ok">Guardar</button>
-        <button id="btnPrint" class="btn-ghost">Imprimir / Enviar a PDF</button>
-      </div>
-    </div>
-  </div>
-</header>
-
-<main>
-  <div class="grid">
-
-    <!-- FASE + NIVEL -->
-    <section class="card">
-      <div class="card-h">
-        <div>
-          <h2>Fase</h2>
-          <div class="sub" id="faseHelp">Selecciona una fase para desplegar el formulario.</div>
-        </div>
-        <div class="controls">
-          <label class="sub">Fase</label>
-
-          <!-- ✅ CAMBIO: Fase SIEMPRE muestra las opciones del adjunto -->
-          <select id="faseSelect">
-            <option value="">Seleccione</option>
-            <option value="FORMULARIOS">Formularios</option>
-            <option value="PESOS">Pesos</option>
-            <option value="AUTO">Formulario de autoevaluación</option>
-            <option value="CLIENTES">Formulario de evaluación de clientes</option>
-            <option value="DESEMPENO">Formulario de evaluación del desempeño</option>
-            <option value="RESULTADO">Resultado evaluación del desempeño</option>
-            <option value="CONSOLIDADO">Informe consolidado</option>
-            <option value="CAPACITACION">Informe necesidades de capacitacion</option>
-            <option value="DESARROLLO">Informe plan de desarrollo</option>
-          </select>
-
-          <label class="sub" style="margin-left:8px">Nivel</label>
-          <select id="nivelSelect" disabled><option>Cargando niveles…</option></select>
-        </div>
-      </div>
-      <div class="card-b">
-        <div class="hint">El guardado se envía a Google Sheets (Web App de Apps Script).</div>
-      </div>
-    </section>
-
-    <!-- ✅ BLOQUE GENÉRICO PARA FASES AÚN NO IMPLEMENTADAS -->
-    <section class="card" data-phase-block="FORMULARIOS">
-      <div class="card-h">
-        <h2>Formularios</h2>
-        <div class="sub">Vista en construcción (solo Autoevaluación está activa por ahora).</div>
-      </div>
-      <div class="card-b">
-        <div class="hint">Cuando implementes esta fase, aquí irá su UI/tabla correspondiente.</div>
-      </div>
-    </section>
-
-    <section class="card" data-phase-block="PESOS">
-      <div class="card-h">
-        <h2>Pesos</h2>
-        <div class="sub">Vista en construcción (solo Autoevaluación está activa por ahora).</div>
-      </div>
-      <div class="card-b">
-        <div class="hint">Aquí irá la gestión de pesos por factor/ítem.</div>
-      </div>
-    </section>
-
-    <section class="card" data-phase-block="CLIENTES">
-      <div class="card-h">
-        <h2>Formulario de evaluación de clientes</h2>
-        <div class="sub">Vista en construcción (solo Autoevaluación está activa por ahora).</div>
-      </div>
-      <div class="card-b">
-        <div class="hint">Aquí irá el formulario para clientes.</div>
-      </div>
-    </section>
-
-    <section class="card" data-phase-block="DESEMPENO">
-      <div class="card-h">
-        <h2>Formulario de evaluación del desempeño</h2>
-        <div class="sub">Vista en construcción (solo Autoevaluación está activa por ahora).</div>
-      </div>
-      <div class="card-b">
-        <div class="hint">Aquí irá la evaluación del jefe/supervisor (o el flujo que definas).</div>
-      </div>
-    </section>
-
-    <section class="card" data-phase-block="RESULTADO">
-      <div class="card-h">
-        <h2>Resultado evaluación del desempeño</h2>
-        <div class="sub">Vista en construcción.</div>
-      </div>
-      <div class="card-b">
-        <div class="hint">Aquí irá el resultado (promedios, ponderaciones, etc.).</div>
-      </div>
-    </section>
-
-    <section class="card" data-phase-block="CONSOLIDADO">
-      <div class="card-h">
-        <h2>Informe consolidado</h2>
-        <div class="sub">Vista en construcción.</div>
-      </div>
-      <div class="card-b">
-        <div class="hint">Aquí irá el informe consolidado por área/empresa.</div>
-      </div>
-    </section>
-
-    <section class="card" data-phase-block="CAPACITACION">
-      <div class="card-h">
-        <h2>Informe necesidades de capacitacion</h2>
-        <div class="sub">Vista en construcción.</div>
-      </div>
-      <div class="card-b">
-        <div class="hint">Aquí irá el informe de brechas y necesidades.</div>
-      </div>
-    </section>
-
-    <section class="card" data-phase-block="DESARROLLO">
-      <div class="card-h">
-        <h2>Informe plan de desarrollo</h2>
-        <div class="sub">Vista en construcción.</div>
-      </div>
-      <div class="card-b">
-        <div class="hint">Aquí irá el plan de desarrollo individual.</div>
-      </div>
-    </section>
-
-    <!-- DATOS DEL COLABORADOR (AUTO) -->
-    <section class="card" data-phase-block="AUTO" id="blockDatos">
-      <div class="card-h">
-        <div>
-          <h2>Datos del colaborador</h2>
-          <div class="sub">Completa la información y selecciona una opción (1–5) para cada ítem.</div>
-        </div>
-      </div>
-      <div class="card-b">
-        <div class="form-grid">
-          <div class="field col-3">
-            <div class="lbl">No. de personal</div>
-            <input id="noPersonal" placeholder="Ej: 1600" />
-          </div>
-          <div class="field col-6">
-            <div class="lbl">Nombre</div>
-            <input id="nombre" placeholder="Ej: Carlos Paz" />
-          </div>
-          <div class="field col-3">
-            <div class="lbl">Posición</div>
-            <input id="posicion" placeholder="Ej: Analista" />
-          </div>
-
-          <div class="field col-4">
-            <div class="lbl">Departamento</div>
-            <input id="depto" placeholder="Ej: Contabilidad" />
-          </div>
-          <div class="field col-4">
-            <div class="lbl">Periodo</div>
-            <input id="periodo" placeholder="Ej: 2025" />
-          </div>
-          <div class="field col-2">
-            <div class="lbl">Versión</div>
-            <input id="version" placeholder="Ej: 1" />
-          </div>
-          <div class="field col-2">
-            <div class="lbl">Fecha</div>
-            <input id="fecha" />
-          </div>
-        </div>
-        <div class="sub" style="margin-top:10px">
-          Estado API: <b id="apiMini">—</b>
-        </div>
-      </div>
-    </section>
-
-    <!-- CUESTIONARIO (AUTO) -->
-    <section class="card" data-phase-block="AUTO" id="blockEval">
-      <div class="card-h">
-        <div>
-          <h2>Evaluación (1–5)</h2>
-          <div class="sub">Ahora cada nivel muestra “número — descripción” según la rúbrica.</div>
-        </div>
-        <div class="chips">
-          <span class="chip" id="itemsCount">Items: 0</span>
-        </div>
-      </div>
-      <div class="card-b">
-        <div id="cuestionario"></div>
-      </div>
-    </section>
-
-    <!-- COMENTARIOS (AUTO) -->
-    <section class="card" data-phase-block="AUTO" id="blockComentarios">
-      <div class="card-h">
-        <div>
-          <h2>Comentarios del colaborador</h2>
-          <div class="sub">Incluye observaciones, ejemplos, mejoras o apoyo requerido.</div>
-        </div>
-      </div>
-      <div class="card-b">
-        <textarea id="comentarios" placeholder="Comentarios del colaborador..."></textarea>
-      </div>
-    </section>
-
-  </div>
-</main>
-
-<script>
-/* ================= CONFIG ================= */
-const SCRIPT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxoLrqQiCELThzY9VpFKavsMXN4pduSQPXDTyct4PRvFpS5maqv4vAPcv66EAD6Ph7B/exec";
-const $ = id => document.getElementById(id);
-
-/* ================= STATE ================= */
-const state = {
-  fase: "",
-  nivel: null,
-  form: null,
-  answers: new Map(),
+/**
+ * Aliases tolerantes a variaciones de encabezados
+ */
+const HEADER_ALIASES = {
+  nivel: ["nivel", "level", "niv"],
+  factor: ["factor", "competencia", "dimension", "dimensión"],
+  item: ["item", "ítem", "pregunta", "indicador", "descripcion", "descripción"],
+  peso: ["peso", "ponderacion", "ponderación", "peso %", "peso(%)", "porcentaje", "%", "weight"],
+  one: ["1", "01"],
+  two: ["2", "02"],
+  three: ["3", "03"],
+  four: ["4", "04"],
+  five: ["5", "05"]
 };
 
-/* ================= STATUS ================= */
-function setApiStatus(mode,text){
-  const el=$("apiStatus");
-  el.classList.remove("ok","err");
-  if(mode) el.classList.add(mode);
-  $("apiStatusText").textContent=text;
-  $("apiMini").textContent = text.replace("API: ","");
-}
+/**
+ * =========================
+ * WEB APP ENTRYPOINT (JSONP)
+ * =========================
+ * - action=ping
+ * - action=levels&sheet=Formularios|Pesos
+ * - action=items&sheet=Formularios|Pesos&nivel=... (nivel opcional: si falta o ALL => TODOS)
+ * - action=form&nivel=1
+ * - action=save&payload=BASE64(JSON)
+ */
+function doGet(e) {
+  const params = (e && e.parameter) ? e.parameter : {};
+  const action = (params.action || "").trim();
+  const callback = (params.callback || "").trim();
 
-/* ================= JSONP API ================= */
-function buildUrl(params, cbName){
-  const url = new URL(SCRIPT_WEBAPP_URL);
-  Object.entries(params).forEach(([k,v]) => url.searchParams.set(k, v));
-  url.searchParams.set("callback", cbName);
-  url.searchParams.set("_", String(Date.now()));
-  return url.toString();
-}
-
-function apiGet(params, timeoutMs=14000){
-  return new Promise((resolve,reject)=>{
-    const cb="cb_"+Math.random().toString(36).slice(2);
-    const src = buildUrl(params, cb);
-    setApiStatus("", "API: consultando…");
-    const s=document.createElement("script");
-    s.async = true;
-    let done=false;
-
-    const t=setTimeout(()=>{
-      if(done) return;
-      done=true; cleanup();
-      reject(new Error("Timeout: la WebApp no respondió. Revisa deploy/permisos."));
-    }, timeoutMs);
-
-    function cleanup(){
-      clearTimeout(t);
-      try { delete window[cb]; } catch(_) { window[cb]=undefined; }
-      if (s && s.parentNode) s.parentNode.removeChild(s);
+  try {
+    if (action === "ping") {
+      return jsonOut_({ ok: true, action: "ping" }, callback);
     }
 
-    window[cb]=data=>{
-      if(done) return;
-      done=true; cleanup();
-      if(!data || typeof data !== "object"){
-        reject(new Error("Respuesta no-JSON (posible login/permiso). Deploy: Anyone."));
-        return;
-      }
-      if(data.ok!==true){
-        reject(new Error(data.error || "Respuesta inválida"));
-        return;
-      }
-      setApiStatus("ok","API: conectada");
-      resolve(data);
-    };
+    if (action === "levels") {
+      const sheetName = sanitizeSheet_(params.sheet);
+      const levels = getDistinctLevels_(sheetName);
+      return jsonOut_({ ok: true, sheet: sheetName, levels }, callback);
+    }
 
-    s.onerror=()=>{
-      if(done) return;
-      done=true; cleanup();
-      reject(new Error("No se pudo cargar el script (URL mala / deploy privado / bloqueo extensión)."));
-    };
+    if (action === "items") {
+      const sheetName = sanitizeSheet_(params.sheet);
 
-    s.src = src;
-    document.body.appendChild(s);
-  });
-}
+      let nivel = (params.nivel || "").toString().trim();
+      if (!nivel || nivel.toUpperCase() === "ALL") nivel = "";
 
-/* ================= UTIL ================= */
-function todayLocal(){
-  const d = new Date();
-  const yyyy = d.getFullYear();
-  const mm = String(d.getMonth()+1).padStart(2,"0");
-  const dd = String(d.getDate()).padStart(2,"0");
-  return `${dd}/${mm}/${yyyy}`;
-}
+      const items = getItemsByNivel_(sheetName, nivel);
 
-function setDefaultNivel(levels){
-  const has1 = levels.some(x => String(x).trim() === "1" || String(x).trim().startsWith("1"));
-  return has1 ? "1" : String(levels[0] ?? "1");
-}
-
-function fillNivelSelect(levels){
-  const sel = $("nivelSelect");
-  sel.innerHTML = "";
-  levels.forEach(l=>{
-    const v = String(l);
-    const o = document.createElement("option");
-    o.value = v;
-    o.textContent = v;
-    sel.appendChild(o);
-  });
-}
-
-/* ================= PHASE UI ================= */
-function setPhase(phase){
-  state.fase = phase || "";
-
-  // mostrar/ocultar bloques
-  document.querySelectorAll("[data-phase-block]").forEach(el=>{
-    const p = el.getAttribute("data-phase-block");
-    el.classList.toggle("show", p === state.fase);
-  });
-
-  // Nivel: solo habilitar en AUTO
-  const isAuto = state.fase === "AUTO";
-  $("nivelSelect").disabled = !isAuto;
-
-  // ayuda dinámica
-  const labelByPhase = {
-    "FORMULARIOS": "Formularios (menú / configuración).",
-    "PESOS": "Pesos (ponderaciones).",
-    "AUTO": "Autoevaluación activa. Selecciona nivel para cargar ítems.",
-    "CLIENTES": "Evaluación de clientes.",
-    "DESEMPENO": "Evaluación del desempeño (jefe/supervisor).",
-    "RESULTADO": "Resultados del desempeño.",
-    "CONSOLIDADO": "Informe consolidado.",
-    "CAPACITACION": "Necesidades de capacitación.",
-    "DESARROLLO": "Plan de desarrollo."
-  };
-  $("faseHelp").textContent = isAuto
-    ? labelByPhase["AUTO"]
-    : (labelByPhase[state.fase] || "Selecciona una fase para desplegar el formulario.");
-
-  if(!isAuto){
-    // limpiar vista del cuestionario si sales de AUTO
-    $("cuestionario").innerHTML = `<div class="hint">Selecciona “Formulario de autoevaluación” para ver el cuestionario.</div>`;
-    $("itemsCount").textContent = "Items: 0";
-  }
-}
-
-/* ================= RENDER FORM ================= */
-function renderCuestionario(form){
-  const root = $("cuestionario");
-  root.innerHTML = "";
-
-  if(state.fase !== "AUTO"){
-    root.innerHTML = `<div class="hint">Selecciona “Formulario de autoevaluación” para ver el cuestionario.</div>`;
-    $("itemsCount").textContent = "Items: 0";
-    return;
-  }
-
-  if(!form || !form.factors || !form.factors.length){
-    root.innerHTML = `<div class="hint">No hay ítems para este nivel.</div>`;
-    $("itemsCount").textContent = "Items: 0";
-    return;
-  }
-
-  let totalItems = 0;
-
-  form.factors.forEach((f, idxF)=>{
-    const box = document.createElement("div");
-    box.className = "factor";
-    box.innerHTML = `<div class="factor-title">${idxF+1}. ${escapeHtml(f.factor || "Factor")}</div>`;
-
-    (f.items || []).forEach((it)=>{
-      totalItems++;
-      const key = it.key;
-      const current = state.answers.get(key) || "";
-
-      const r1 = (it.rubrica && it.rubrica["1"]) ? String(it.rubrica["1"]) : "";
-      const r2 = (it.rubrica && it.rubrica["2"]) ? String(it.rubrica["2"]) : "";
-      const r3 = (it.rubrica && it.rubrica["3"]) ? String(it.rubrica["3"]) : "";
-      const r4 = (it.rubrica && it.rubrica["4"]) ? String(it.rubrica["4"]) : "";
-      const r5 = (it.rubrica && it.rubrica["5"]) ? String(it.rubrica["5"]) : "";
-
-      const row = document.createElement("div");
-      row.className = "item-row";
-      row.innerHTML = `
-        <div>
-          <div class="item-name">${escapeHtml(it.item || "Ítem")}</div>
-          <div class="item-sub">Selecciona 1–5 según la rúbrica.</div>
-        </div>
-        <div class="item-select">
-          <div class="lbl">Puntaje (1–5)</div>
-          <select data-key="${escapeAttr(key)}">
-            <option value="" ${current==="" ? "selected":""}>Seleccione</option>
-            <option value="1" ${current==="1" ? "selected":""}>1 — ${escapeHtml(r1)}</option>
-            <option value="2" ${current==="2" ? "selected":""}>2 — ${escapeHtml(r2)}</option>
-            <option value="3" ${current==="3" ? "selected":""}>3 — ${escapeHtml(r3)}</option>
-            <option value="4" ${current==="4" ? "selected":""}>4 — ${escapeHtml(r4)}</option>
-            <option value="5" ${current==="5" ? "selected":""}>5 — ${escapeHtml(r5)}</option>
-          </select>
-        </div>
-      `;
-
-      const sel = row.querySelector("select");
-      sel.addEventListener("change", (e)=>{
-        const k = e.target.getAttribute("data-key");
-        const v = e.target.value;
-        if(!v) state.answers.delete(k);
-        else state.answers.set(k, v);
+      // Orden amigable: nivel (num) -> factor -> item
+      items.sort((a,b)=>{
+        const na = Number(nivelCanon_(a.Nivel));
+        const nb = Number(nivelCanon_(b.Nivel));
+        const aNum = Number.isFinite(na), bNum = Number.isFinite(nb);
+        if (aNum && bNum && na !== nb) return na - nb;
+        if (String(a.Nivel) !== String(b.Nivel)) return String(a.Nivel).localeCompare(String(b.Nivel));
+        const f = String(a.Factor).localeCompare(String(b.Factor));
+        if (f !== 0) return f;
+        return String(a.Item).localeCompare(String(b.Item));
       });
 
-      box.appendChild(row);
-    });
+      return jsonOut_({ ok: true, sheet: sheetName, nivel: (nivel || "ALL"), items }, callback);
+    }
 
-    root.appendChild(box);
+    if (action === "form") {
+      let nivel = (params.nivel || "").toString().trim();
+      if (!nivel) nivel = "1";
+      const form = buildFormByNivel_(nivel);
+      return jsonOut_({ ok: true, form }, callback);
+    }
+
+    if (action === "save") {
+      const b64 = (params.payload || "").toString().trim();
+      if (!b64) throw new Error("Falta payload.");
+
+      const json = Utilities.newBlob(Utilities.base64Decode(b64)).getDataAsString("UTF-8");
+      const payload = JSON.parse(json);
+
+      const id = saveResponse_(payload);
+      return jsonOut_({ ok: true, id }, callback);
+    }
+
+    return jsonOut_(
+      { ok: false, error: "Acción no soportada. Usa: ping | levels | items | form | save" },
+      callback
+    );
+  } catch (err) {
+    return jsonOut_({ ok: false, error: String(err && err.message ? err.message : err) }, callback);
+  }
+}
+
+/**
+ * =========================
+ * CORE SHEET READ
+ * =========================
+ */
+function getSheetValues_(sheetName) {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const sh = ss.getSheetByName(sheetName);
+  if (!sh) throw new Error(`No existe la hoja: ${sheetName}`);
+
+  const values = sh.getDataRange().getValues();
+  if (!values || values.length < 2) return { headers: [], rows: [], headerIndex: {} };
+
+  const rawHeaders = values[0].map(h => String(h ?? ""));
+  const headers = rawHeaders.map(h => normalizeHeader_(h));
+  const rows = values.slice(1);
+
+  const headerIndex = buildHeaderIndex_(headers, sheetName);
+
+  if (headerIndex.nivel == null) throw new Error(`Encabezado faltante en "${sheetName}": Nivel`);
+  if (headerIndex.factor == null) throw new Error(`Encabezado faltante en "${sheetName}": Factor`);
+  if (headerIndex.item == null) throw new Error(`Encabezado faltante en "${sheetName}": Item`);
+
+  if (sheetName === "Formularios") {
+    ["one","two","three","four","five"].forEach(k=>{
+      if (headerIndex[k] == null) {
+        const label = ({one:"1",two:"2",three:"3",four:"4",five:"5"})[k];
+        throw new Error(`Encabezado faltante en "${sheetName}": ${label}`);
+      }
+    });
+  } else if (sheetName === "Pesos") {
+    if (headerIndex.peso == null) throw new Error(`Encabezado faltante en "${sheetName}": Peso/Ponderación`);
+  }
+
+  return { headers, rows, headerIndex };
+}
+
+function buildHeaderIndex_(headersNormalized, sheetName){
+  const idx = {};
+  idx.nivel = findIndexByAliases_(headersNormalized, HEADER_ALIASES.nivel);
+  idx.factor = findIndexByAliases_(headersNormalized, HEADER_ALIASES.factor);
+  idx.item  = findIndexByAliases_(headersNormalized, HEADER_ALIASES.item);
+
+  if (sheetName === "Formularios"){
+    idx.one   = findIndexByAliases_(headersNormalized, HEADER_ALIASES.one);
+    idx.two   = findIndexByAliases_(headersNormalized, HEADER_ALIASES.two);
+    idx.three = findIndexByAliases_(headersNormalized, HEADER_ALIASES.three);
+    idx.four  = findIndexByAliases_(headersNormalized, HEADER_ALIASES.four);
+    idx.five  = findIndexByAliases_(headersNormalized, HEADER_ALIASES.five);
+  } else if (sheetName === "Pesos") {
+    idx.peso  = findIndexByAliases_(headersNormalized, HEADER_ALIASES.peso);
+  }
+  return idx;
+}
+
+function findIndexByAliases_(headersNormalized, aliases){
+  for (let a of aliases){
+    const an = normalizeHeader_(a);
+    const i = headersNormalized.indexOf(an);
+    if (i >= 0) return i;
+  }
+  for (let a of aliases){
+    const an = normalizeHeader_(a);
+    const i = headersNormalized.findIndex(h => h.includes(an));
+    if (i >= 0) return i;
+  }
+  return null;
+}
+
+/**
+ * =========================
+ * LEVELS + ITEMS
+ * =========================
+ */
+function getDistinctLevels_(sheetName) {
+  const { rows, headerIndex } = getSheetValues_(sheetName);
+  const idxNivel = headerIndex.nivel;
+
+  const mapCanonToLabel = new Map();
+  rows.forEach(r => {
+    const raw = (r[idxNivel] ?? "").toString().trim();
+    if (!raw) return;
+    const canon = nivelCanon_(raw);
+    if (!canon) return;
+    if (!mapCanonToLabel.has(canon)) mapCanonToLabel.set(canon, raw);
   });
 
-  $("itemsCount").textContent = `Items: ${totalItems}`;
+  const arr = Array.from(mapCanonToLabel.values());
+  arr.sort((a,b)=>{
+    const na = Number(nivelCanon_(a)), nb = Number(nivelCanon_(b));
+    const aNum = Number.isFinite(na), bNum = Number.isFinite(nb);
+    if (aNum && bNum) return na - nb;
+    return String(a).localeCompare(String(b));
+  });
+
+  return arr;
 }
 
-function escapeHtml(s){
-  return String(s ?? "").replace(/[&<>"']/g, m => ({
-    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
-  }[m]));
-}
-function escapeAttr(s){ return escapeHtml(s).replace(/"/g,"&quot;"); }
+function getItemsByNivel_(sheetName, nivel) {
+  const { rows, headerIndex } = getSheetValues_(sheetName);
 
-/* ================= LOADERS ================= */
-async function loadLevels(){
-  const lv = await apiGet({action:"levels", sheet:"Formularios"});
-  const levels = lv.levels || [];
-  if(!levels.length) throw new Error("No se encontraron niveles en 'Formularios'.");
-  fillNivelSelect(levels);
+  const targetCanon = nivel ? nivelCanon_(nivel) : "";
+  const out = [];
 
-  const def = setDefaultNivel(levels);
-  $("nivelSelect").value = def;
-  state.nivel = def;
-}
+  rows.forEach(r => {
+    const rawNivel = (r[headerIndex.nivel] ?? "").toString().trim();
+    if (!rawNivel) return;
 
-async function loadFormByNivel(nivel){
-  const res = await apiGet({action:"form", nivel: String(nivel)});
-  state.form = res.form || null;
+    const rowCanon = nivelCanon_(rawNivel);
+    if (targetCanon && rowCanon !== targetCanon) return;
 
-  state.answers.clear();
-  renderCuestionario(state.form);
-}
-
-/* ================= ACTIONS ================= */
-function newForm(){
-  ["noPersonal","nombre","posicion","depto","periodo","version"].forEach(id=>$(id).value="");
-  $("comentarios").value = "";
-  state.answers.clear();
-  renderCuestionario(state.form);
-}
-
-async function saveForm(){
-  if(state.fase !== "AUTO"){
-    alert("Para guardar, usa la fase “Formulario de autoevaluación”.");
-    return;
-  }
-
-  const payload = {
-    fase: state.fase,
-    nivel: String(state.nivel || ""),
-    no: $("noPersonal").value.trim(),
-    nombre: $("nombre").value.trim(),
-    posicion: $("posicion").value.trim(),
-    depto: $("depto").value.trim(),
-    periodo: $("periodo").value.trim(),
-    version: $("version").value.trim(),
-    fecha: $("fecha").value.trim(),
-    comentarios: $("comentarios").value.trim(),
-    r: Array.from(state.answers.entries()).map(([k,v])=>[k,v])
-  };
-
-  const json = JSON.stringify(payload);
-  const b64 = btoa(unescape(encodeURIComponent(json)));
-
-  const out = await apiGet({action:"save", payload:b64});
-  alert("Guardado ✅\nID: " + (out.id || "—"));
-}
-
-function printToPdf(){ window.print(); }
-
-/* ================= EVENTS ================= */
-$("faseSelect").addEventListener("change", async (e)=>{
-  const fase = e.target.value;
-  setPhase(fase);
-
-  // Solo AUTO carga niveles + formulario
-  if(fase === "AUTO"){
-    try{
-      if(!$("nivelSelect").options.length || $("nivelSelect").options[0].textContent.includes("Cargando")){
-        await loadLevels();
-      }
-      await loadFormByNivel(state.nivel);
-    }catch(err){
-      setApiStatus("err","API: " + err.message);
+    if (sheetName === "Formularios") {
+      out.push({
+        Nivel: r[headerIndex.nivel] ?? "",
+        Factor: r[headerIndex.factor] ?? "",
+        Item: r[headerIndex.item] ?? "",
+        "1": r[headerIndex.one] ?? "",
+        "2": r[headerIndex.two] ?? "",
+        "3": r[headerIndex.three] ?? "",
+        "4": r[headerIndex.four] ?? "",
+        "5": r[headerIndex.five] ?? ""
+      });
+    } else if (sheetName === "Pesos") {
+      out.push({
+        Nivel: r[headerIndex.nivel] ?? "",
+        Factor: r[headerIndex.factor] ?? "",
+        Item: r[headerIndex.item] ?? "",
+        Peso: r[headerIndex.peso] ?? ""
+      });
     }
+  });
+
+  return out;
+}
+
+/**
+ * =========================
+ * BUILD FORM BY NIVEL (AUTO)
+ * =========================
+ */
+function buildFormByNivel_(nivel){
+  const items = getItemsByNivel_("Formularios", nivel);
+
+  const map = new Map(); // factor -> items[]
+  items.forEach(r=>{
+    const factor = String(r.Factor ?? "").trim() || "Sin factor";
+    const item = String(r.Item ?? "").trim() || "Sin ítem";
+
+    const key = `${nivelCanon_(r.Nivel ?? nivel)}|${factor}|${item}`;
+
+    const it = {
+      key,
+      item,
+      rubrica: {
+        "1": r["1"] ?? "",
+        "2": r["2"] ?? "",
+        "3": r["3"] ?? "",
+        "4": r["4"] ?? "",
+        "5": r["5"] ?? ""
+      }
+    };
+
+    if(!map.has(factor)) map.set(factor, []);
+    map.get(factor).push(it);
+  });
+
+  const factors = Array.from(map.entries()).map(([factor, its])=>({
+    factor,
+    items: its
+  }));
+
+  return {
+    nivel: String(nivel),
+    factors
+  };
+}
+
+/**
+ * =========================
+ * SAVE RESPONSES
+ * =========================
+ */
+function saveResponse_(payload){
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  let sh = ss.getSheetByName("Respuestas");
+  if(!sh){
+    sh = ss.insertSheet("Respuestas");
+    sh.appendRow([
+      "ID","Timestamp",
+      "Fase",
+      "Nivel","NoPersonal","Nombre","Posicion","Departamento","Periodo","Version","Fecha",
+      "Comentarios","RespuestasJSON"
+    ]);
   }
-});
 
-$("nivelSelect").addEventListener("change", async (e)=>{
-  try{
-    if(state.fase !== "AUTO") return;
-    const nivel = e.target.value;
-    state.nivel = nivel;
-    await loadFormByNivel(nivel);
-  }catch(err){
-    setApiStatus("err","API: " + err.message);
+  const id = Utilities.getUuid();
+  const ts = new Date();
+
+  const row = [
+    id,
+    ts,
+    payload.fase || "",
+    payload.nivel || "",
+    payload.no || "",
+    payload.nombre || "",
+    payload.posicion || "",
+    payload.depto || "",
+    payload.periodo || "",
+    payload.version || "",
+    payload.fecha || "",
+    payload.comentarios || "",
+    JSON.stringify(payload.r || [])
+  ];
+
+  sh.appendRow(row);
+  return id;
+}
+
+/**
+ * =========================
+ * VALIDATION + NORMALIZATION
+ * =========================
+ */
+function sanitizeSheet_(sheetName) {
+  const name = (sheetName || "").toString().trim();
+  if (!ALLOWED_SHEETS.has(name)) {
+    throw new Error(`Hoja inválida. Usa: ${Array.from(ALLOWED_SHEETS).join(", ")}`);
   }
-});
+  return name;
+}
 
-$("btnNuevo").addEventListener("click", newForm);
-$("btnGuardar").addEventListener("click", ()=>saveForm().catch(err=>setApiStatus("err","API: " + err.message)));
-$("btnPrint").addEventListener("click", printToPdf);
+function normalizeHeader_(h) {
+  return String(h || "")
+    .trim()
+    .toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, " ");
+}
 
-/* ================= BOOT ================= */
-(function boot(){
-  $("fecha").value = todayLocal();
-  setPhase(""); // ocultar hasta elegir fase
+function nivelCanon_(v) {
+  const s = String(v || "").trim();
 
-  apiGet({action:"ping"})
-    .then(()=>{
-      setApiStatus("ok","API: conectada");
-      $("cuestionario").innerHTML = `<div class="hint">Selecciona una fase para iniciar.</div>`;
-    })
-    .catch(e=>setApiStatus("err","API: "+e.message));
-})();
-</script>
-</body>
-</html>
+  const m1 = s.match(/^(\d+)\s*[\.\-)]?/);
+  if (m1 && m1[1]) return String(Number(m1[1]));
+
+  const m2 = s.match(/(\d+)/);
+  if (m2 && m2[1]) return String(Number(m2[1]));
+
+  return s.toLowerCase();
+}
+
+/**
+ * =========================
+ * OUTPUT JSON / JSONP
+ * =========================
+ */
+function jsonOut_(obj, callback) {
+  obj.ts = new Date().toISOString();
+  const json = JSON.stringify(obj);
+
+  if (callback) {
+    const safeCb = String(callback).replace(/[^\w$.]/g, "");
+    return ContentService
+      .createTextOutput(`${safeCb}(${json});`)
+      .setMimeType(ContentService.MimeType.JAVASCRIPT);
+  }
+
+  return ContentService
+    .createTextOutput(json)
+    .setMimeType(ContentService.MimeType.JSON);
+}
