@@ -68,6 +68,13 @@
       border-color:rgba(239,68,68,.35)
     }
 
+    /* 👇 Estado “apagado” para Guardar */
+    button[disabled]{
+      opacity:.45;
+      filter:saturate(.6);
+      cursor:not-allowed;
+    }
+
     main{padding:18px}
     .grid{max-width:1180px;margin:0 auto;display:grid;gap:14px}
     .card{
@@ -170,8 +177,13 @@
         </span>
 
         <button id="btnProbarApi" class="btn-ghost">Probar API</button>
+
+        <!-- ✅ En AUTO: se usan Guardar/Limpiar (y Guardar se habilita solo si todo está lleno) -->
+        <button id="btnLimpiarAuto" class="btn-warn" style="display:none">Limpiar</button>
+        <button id="btnGuardar" class="btn-ok" disabled>Guardar</button>
+
+        <!-- (Opcionales: los dejamos, pero se esconden fuera de AUTO si quieres) -->
         <button id="btnNuevo" class="btn-blue">Nuevo</button>
-        <button id="btnGuardar" class="btn-ok">Guardar</button>
         <button id="btnPrint" class="btn-ghost">Imprimir / Enviar a PDF</button>
       </div>
     </div>
@@ -271,7 +283,7 @@
       </div>
     </section>
 
-    <!-- PESOS (NUEVO: Cargar/Limpiar + Tabla) -->
+    <!-- PESOS -->
     <section class="card" data-phase-block="PESOS" id="blockPesos">
       <div class="card-h">
         <div>
@@ -312,9 +324,7 @@
         <h2>Formulario de evaluación de clientes</h2>
         <div class="sub">Vista en construcción.</div>
       </div>
-      <div class="card-b">
-        <div class="hint">Aquí irá el formulario para clientes.</div>
-      </div>
+      <div class="card-b"><div class="hint">Aquí irá el formulario para clientes.</div></div>
     </section>
 
     <section class="card" data-phase-block="DESEMPENO">
@@ -322,9 +332,7 @@
         <h2>Formulario de evaluación del desempeño</h2>
         <div class="sub">Vista en construcción.</div>
       </div>
-      <div class="card-b">
-        <div class="hint">Aquí irá la evaluación del jefe/supervisor.</div>
-      </div>
+      <div class="card-b"><div class="hint">Aquí irá la evaluación del jefe/supervisor.</div></div>
     </section>
 
     <section class="card" data-phase-block="RESULTADO">
@@ -332,9 +340,7 @@
         <h2>Resultado evaluación del desempeño</h2>
         <div class="sub">Vista en construcción.</div>
       </div>
-      <div class="card-b">
-        <div class="hint">Aquí irá el resultado (promedios, ponderaciones, etc.).</div>
-      </div>
+      <div class="card-b"><div class="hint">Aquí irá el resultado (promedios, ponderaciones, etc.).</div></div>
     </section>
 
     <section class="card" data-phase-block="CONSOLIDADO">
@@ -342,9 +348,7 @@
         <h2>Informe consolidado</h2>
         <div class="sub">Vista en construcción.</div>
       </div>
-      <div class="card-b">
-        <div class="hint">Aquí irá el informe consolidado por área/empresa.</div>
-      </div>
+      <div class="card-b"><div class="hint">Aquí irá el informe consolidado por área/empresa.</div></div>
     </section>
 
     <section class="card" data-phase-block="CAPACITACION">
@@ -352,9 +356,7 @@
         <h2>Informe necesidades de capacitacion</h2>
         <div class="sub">Vista en construcción.</div>
       </div>
-      <div class="card-b">
-        <div class="hint">Aquí irá el informe de brechas y necesidades.</div>
-      </div>
+      <div class="card-b"><div class="hint">Aquí irá el informe de brechas y necesidades.</div></div>
     </section>
 
     <section class="card" data-phase-block="DESARROLLO">
@@ -362,9 +364,7 @@
         <h2>Informe plan de desarrollo</h2>
         <div class="sub">Vista en construcción.</div>
       </div>
-      <div class="card-b">
-        <div class="hint">Aquí irá el plan de desarrollo individual.</div>
-      </div>
+      <div class="card-b"><div class="hint">Aquí irá el plan de desarrollo individual.</div></div>
     </section>
 
     <!-- DATOS DEL COLABORADOR (AUTO) -->
@@ -422,6 +422,7 @@
         </div>
         <div class="chips">
           <span class="chip" id="itemsCount">Items: 0</span>
+          <span class="chip" id="completeHint">Completado: 0/0</span>
         </div>
       </div>
       <div class="card-b">
@@ -448,7 +449,7 @@
 <script>
 /* ================= CONFIG ================= */
 const LS_KEY_URL = "ED_WEBAPP_URL";
-const DEFAULT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycby2ZKP2RNjvRjc3JKBqfqGy6FEGuSi7bq6o2LrbJmQNhSYIYb8SkIfLrX3sykm1HRON/exec";
+const DEFAULT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzr5G0cFP-_faz6RX6asQI10M-ja4O4raK0f4WxnNWKkoeMQ6XkR4IpF-VKz8ICX0rK/exec";
 
 const $ = id => document.getElementById(id);
 
@@ -465,7 +466,8 @@ const state = {
   fase: "",
   nivel: null,
   form: null,
-  answers: new Map(),
+  answers: new Map(),   // key -> value
+  itemKeys: [],         // keys en el orden de pantalla (Resp1..RespN)
 };
 
 /* ================= STATUS ================= */
@@ -577,6 +579,58 @@ function pickDefault(levels, includeAll){
   return has1 ? "1" : String(levels[0] ?? "1");
 }
 
+/* ================= VALIDATION (AUTO) ================= */
+function getAutoRequiredFields(){
+  return [
+    $("noPersonal").value.trim(),
+    $("nombre").value.trim(),
+    $("posicion").value.trim(),
+    $("depto").value.trim(),
+    $("periodo").value.trim(),
+    $("version").value.trim(),
+    $("fecha").value.trim(),
+    $("comentarios").value.trim(),
+  ];
+}
+
+function isAutoComplete(){
+  if(state.fase !== "AUTO") return false;
+
+  // 1) datos colaborador + comentarios
+  const req = getAutoRequiredFields();
+  if(req.some(v => !v)) return false;
+
+  // 2) respuestas completas
+  const total = state.itemKeys.length;
+  if(total === 0) return false;
+
+  for(const k of state.itemKeys){
+    const v = state.answers.get(k);
+    if(!v) return false;
+  }
+  return true;
+}
+
+function updateAutoUIState(){
+  const btnG = $("btnGuardar");
+  const total = state.itemKeys.length;
+  let done = 0;
+  for(const k of state.itemKeys){
+    if(state.answers.get(k)) done++;
+  }
+  $("completeHint").textContent = `Completado: ${done}/${total}`;
+
+  if(state.fase !== "AUTO"){
+    btnG.disabled = true;
+    $("btnLimpiarAuto").style.display = "none";
+    return;
+  }
+
+  $("btnLimpiarAuto").style.display = "inline-block";
+
+  btnG.disabled = !isAutoComplete();
+}
+
 /* ================= PHASE UI ================= */
 function setPhase(phase){
   state.fase = phase || "";
@@ -586,7 +640,6 @@ function setPhase(phase){
     el.classList.toggle("show", p === state.fase);
   });
 
-  // ✅ Ahora nivel se habilita también en PESOS
   const enableNivel = (state.fase === "AUTO" || state.fase === "FORMULARIOS" || state.fase === "PESOS");
   $("nivelSelect").disabled = !enableNivel;
 
@@ -606,23 +659,36 @@ function setPhase(phase){
   if(state.fase !== "AUTO"){
     $("cuestionario").innerHTML = `<div class="hint">Selecciona “Formulario de autoevaluación” para ver el cuestionario.</div>`;
     $("itemsCount").textContent = "Items: 0";
+    $("completeHint").textContent = "Completado: 0/0";
   }
+
+  // UX: ocultar/mostrar botones opcionales
+  const inAuto = state.fase === "AUTO";
+  $("btnNuevo").style.display = inAuto ? "none" : "inline-block";
+  $("btnPrint").style.display = inAuto ? "none" : "inline-block";
+
+  updateAutoUIState();
 }
 
 /* ================= AUTO: RENDER FORM ================= */
 function renderCuestionario(form){
   const root = $("cuestionario");
   root.innerHTML = "";
+  state.itemKeys = [];
 
   if(state.fase !== "AUTO"){
     root.innerHTML = `<div class="hint">Selecciona “Formulario de autoevaluación” para ver el cuestionario.</div>`;
     $("itemsCount").textContent = "Items: 0";
+    $("completeHint").textContent = "Completado: 0/0";
+    updateAutoUIState();
     return;
   }
 
   if(!form || !form.factors || !form.factors.length){
     root.innerHTML = `<div class="hint">No hay ítems para este nivel.</div>`;
     $("itemsCount").textContent = "Items: 0";
+    $("completeHint").textContent = "Completado: 0/0";
+    updateAutoUIState();
     return;
   }
 
@@ -636,6 +702,8 @@ function renderCuestionario(form){
     (f.items || []).forEach((it)=>{
       totalItems++;
       const key = it.key;
+      state.itemKeys.push(key);
+
       const current = state.answers.get(key) || "";
 
       const r1 = (it.rubrica && it.rubrica["1"]) ? String(it.rubrica["1"]) : "";
@@ -670,6 +738,7 @@ function renderCuestionario(form){
         const v = e.target.value;
         if(!v) state.answers.delete(k);
         else state.answers.set(k, v);
+        updateAutoUIState();
       });
 
       box.appendChild(row);
@@ -679,6 +748,7 @@ function renderCuestionario(form){
   });
 
   $("itemsCount").textContent = `Items: ${totalItems}`;
+  updateAutoUIState();
 }
 
 /* ================= FORMULARIOS: TABLE ================= */
@@ -687,7 +757,6 @@ function clearFormulariosTable(){
   $("rowsCount").textContent = "Filas: 0";
   $("formHint").textContent = "Aún no has cargado datos.";
 }
-
 function renderFormulariosItems(items){
   const tb = $("tbodyFormularios");
   if(!items || !items.length){
@@ -695,7 +764,6 @@ function renderFormulariosItems(items){
     $("formHint").textContent = "No se encontraron filas para ese nivel.";
     return;
   }
-
   $("formHint").textContent = "Datos cargados desde Google Sheets.";
   $("rowsCount").textContent = `Filas: ${items.length}`;
 
@@ -712,7 +780,6 @@ function renderFormulariosItems(items){
     </tr>
   `).join("");
 }
-
 async function cargarFormularios(){
   if(state.fase !== "FORMULARIOS") return;
   const nivel = $("nivelSelect").value;
@@ -720,13 +787,12 @@ async function cargarFormularios(){
   renderFormulariosItems(res.items || []);
 }
 
-/* ================= PESOS: TABLE (NUEVO) ================= */
+/* ================= PESOS: TABLE ================= */
 function clearPesosTable(){
   $("tbodyPesos").innerHTML = `<tr><td colspan="4" class="muted">Sin datos.</td></tr>`;
   $("rowsCountPesos").textContent = "Filas: 0";
   $("pesosHint").textContent = "Aún no has cargado datos.";
 }
-
 function renderPesosItems(items){
   const tb = $("tbodyPesos");
   if(!items || !items.length){
@@ -734,7 +800,6 @@ function renderPesosItems(items){
     $("pesosHint").textContent = "No se encontraron filas para ese nivel.";
     return;
   }
-
   $("pesosHint").textContent = "Datos cargados desde Google Sheets.";
   $("rowsCountPesos").textContent = `Filas: ${items.length}`;
 
@@ -747,7 +812,6 @@ function renderPesosItems(items){
     </tr>
   `).join("");
 }
-
 async function cargarPesos(){
   if(state.fase !== "PESOS") return;
   const nivel = $("nivelSelect").value;
@@ -779,7 +843,6 @@ async function loadLevelsForPhase(){
     return;
   }
 
-  // ✅ NUEVO: Niveles para PESOS (con "Todos")
   if(state.fase === "PESOS"){
     const lv = await apiGet({action:"levels", sheet:"Pesos"});
     const levels = lv.levels || [];
@@ -800,21 +863,31 @@ async function loadFormByNivel(nivel){
 }
 
 /* ================= ACTIONS ================= */
-function newForm(){
+function clearAuto(){
   ["noPersonal","nombre","posicion","depto","periodo","version"].forEach(id=>$(id).value="");
   $("comentarios").value = "";
   state.answers.clear();
   renderCuestionario(state.form);
+  updateAutoUIState();
 }
 
-async function saveForm(){
+async function saveAuto(){
   if(state.fase !== "AUTO"){
     alert("Para guardar, usa la fase “Formulario de autoevaluación”.");
     return;
   }
 
+  // extra seguridad: no dejar guardar si no está completo
+  if(!isAutoComplete()){
+    alert("Aún faltan datos / respuestas / comentarios. Completa todo para habilitar Guardar.");
+    return;
+  }
+
+  // Respuestas en el orden de pantalla: Resp1..RespN
+  const respuestasOrdenadas = state.itemKeys.map(k => String(state.answers.get(k) || ""));
+
   const payload = {
-    fase: state.fase,
+    fase: "AUTO",
     nivel: String(state.nivel || ""),
     no: $("noPersonal").value.trim(),
     nombre: $("nombre").value.trim(),
@@ -824,14 +897,15 @@ async function saveForm(){
     version: $("version").value.trim(),
     fecha: $("fecha").value.trim(),
     comentarios: $("comentarios").value.trim(),
-    r: Array.from(state.answers.entries()).map(([k,v])=>[k,v])
+    respuestas: respuestasOrdenadas
   };
 
   const json = JSON.stringify(payload);
   const b64 = btoa(unescape(encodeURIComponent(json)));
 
-  const out = await apiGet({action:"save", payload:b64});
+  const out = await apiGet({action:"save", payload:b64}); // Apps Script ya lo guarda en Autoevaluacion
   alert("Guardado ✅\nID: " + (out.id || "—"));
+  clearAuto();
 }
 
 function printToPdf(){ window.print(); }
@@ -861,15 +935,12 @@ $("faseSelect").addEventListener("change", async (e)=>{
 
     if(fase === "AUTO"){
       await loadFormByNivel(state.nivel);
+      updateAutoUIState();
     }
 
-    if(fase === "FORMULARIOS"){
-      clearFormulariosTable();
-    }
+    if(fase === "FORMULARIOS") clearFormulariosTable();
+    if(fase === "PESOS") clearPesosTable();
 
-    if(fase === "PESOS"){
-      clearPesosTable();
-    }
   }catch(err){
     setApiStatus("err","API: " + err.message);
   }
@@ -880,15 +951,17 @@ $("nivelSelect").addEventListener("change", async (e)=>{
     state.nivel = e.target.value;
     if(state.fase === "AUTO"){
       await loadFormByNivel(state.nivel);
+      updateAutoUIState();
     }
-    // FORMULARIOS y PESOS se cargan con botón (no auto)
   }catch(err){
     setApiStatus("err","API: " + err.message);
   }
 });
 
-$("btnNuevo").addEventListener("click", newForm);
-$("btnGuardar").addEventListener("click", ()=>saveForm().catch(err=>setApiStatus("err","API: " + err.message)));
+$("btnGuardar").addEventListener("click", ()=>saveAuto().catch(err=>setApiStatus("err","API: " + err.message)));
+$("btnLimpiarAuto").addEventListener("click", clearAuto);
+
+$("btnNuevo").addEventListener("click", clearAuto); // fuera de AUTO es irrelevante, pero no molesta
 $("btnPrint").addEventListener("click", printToPdf);
 
 $("btnCargarFormularios").addEventListener("click", ()=>cargarFormularios().catch(err=>setApiStatus("err","API: " + err.message)));
@@ -900,13 +973,21 @@ $("btnLimpiarFormularios").addEventListener("click", ()=>{
   }
 });
 
-// ✅ NUEVO: eventos PESOS
 $("btnCargarPesos").addEventListener("click", ()=>cargarPesos().catch(err=>setApiStatus("err","API: " + err.message)));
 $("btnLimpiarPesos").addEventListener("click", ()=>{
   clearPesosTable();
   if(state.fase === "PESOS"){
     $("nivelSelect").value = "ALL";
     state.nivel = "ALL";
+  }
+});
+
+/* 👇 Validación “en vivo” para habilitar Guardar */
+["noPersonal","nombre","posicion","depto","periodo","version","fecha","comentarios"].forEach(id=>{
+  const el = $(id);
+  if(el){
+    el.addEventListener("input", updateAutoUIState);
+    el.addEventListener("change", updateAutoUIState);
   }
 });
 
@@ -926,6 +1007,8 @@ $("btnLimpiarPesos").addEventListener("click", ()=>{
       $("cuestionario").innerHTML = `<div class="hint">Selecciona una fase para iniciar.</div>`;
     })
     .catch(e=>setApiStatus("err","API: "+e.message));
+
+  updateAutoUIState();
 })();
 </script>
 </body>
