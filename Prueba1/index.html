@@ -41,11 +41,26 @@
       padding:6px 10px;border-radius:999px;font-size:12px;color:var(--muted)
     }
     .controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+
+    /* ==== Inputs base (mejor contraste) ==== */
     select,button,input,textarea{
-      background:var(--panel);border:1px solid var(--line);color:var(--text);
-      padding:10px 12px;border-radius:12px;font-family:var(--sans)
+      background:var(--panel);
+      border:1.5px solid rgba(255,255,255,.14);
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:12px;
+      font-family:var(--sans);
+      outline:none;
+      transition:border-color .15s ease, box-shadow .15s ease, transform .05s ease;
     }
     select{min-width:220px}
+    textarea{width:100%;min-height:92px;resize:vertical}
+    input{width:100%}
+    input:focus, textarea:focus, select:focus{
+      border-color: rgba(79,124,255,.55);
+      box-shadow: 0 0 0 3px rgba(79,124,255,.18);
+    }
+
     button{cursor:pointer}
     .btn-ok{
       background:linear-gradient(180deg, rgba(34,197,94,.25), rgba(34,197,94,.10));
@@ -88,10 +103,46 @@
     .col-4{grid-column:span 4}
     .col-6{grid-column:span 6}
     .col-12{grid-column:span 12}
-    .lbl{font-size:12px;color:var(--muted);margin-bottom:6px}
+
+    /* ==== Títulos de recuadros remarcados ==== */
+    .lbl{
+      font-size:12px;
+      color:rgba(232,238,252,.92);
+      margin-bottom:6px;
+      font-weight:800;
+      letter-spacing:.02em;
+    }
+
+    /* ==== Recuadros con marco + estética ==== */
     .field{display:flex;flex-direction:column;gap:6px}
-    input{width:100%}
-    textarea{width:100%;min-height:92px;resize:vertical}
+    .field.boxed{
+      border:1.5px solid rgba(255,255,255,.16);
+      background:linear-gradient(180deg, rgba(11,18,32,.28), rgba(15,27,51,.18));
+      border-radius:18px;
+      padding:12px;
+      box-shadow: 0 6px 20px rgba(0,0,0,.18);
+    }
+    .field.boxed .lbl{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:8px 10px;
+      border-radius:14px;
+      background:rgba(79,124,255,.10);
+      border:1px solid rgba(79,124,255,.22);
+      text-transform:uppercase;
+      letter-spacing:.08em;
+      font-size:11px;
+      color:rgba(232,238,252,.95);
+    }
+    .field.boxed textarea,
+    .field.boxed input,
+    .field.boxed select{
+      background:rgba(15,27,51,.88);
+      border-color:rgba(255,255,255,.16);
+      border-width:1.5px;
+      border-style:solid;
+      border-radius:14px;
+    }
+
     .table-wrap{overflow:auto;border:1px solid rgba(255,255,255,.08);border-radius:16px}
     table{width:100%;border-collapse:collapse;min-width:860px}
     th,td{padding:10px 10px;border-bottom:1px solid rgba(255,255,255,.07);vertical-align:top}
@@ -304,47 +355,49 @@
           </div>
 
           <div class="form-grid">
-            <div class="field col-3">
+            <div class="field col-3 boxed">
               <div class="lbl">No. de personal</div>
               <input id="noPersonal" placeholder="Ej: 1600" />
             </div>
-            <div class="field col-6">
+            <div class="field col-6 boxed">
               <div class="lbl">Nombre</div>
               <input id="nombre" placeholder="Ej: Carlos Paz" />
             </div>
-            <div class="field col-3">
+            <div class="field col-3 boxed">
               <div class="lbl">Posición</div>
               <input id="posicion" placeholder="Ej: Analista" />
             </div>
-            <div class="field col-4">
+            <div class="field col-4 boxed">
               <div class="lbl">Departamento</div>
               <input id="depto" placeholder="Ej: Contabilidad" />
             </div>
-            <div class="field col-4">
+            <div class="field col-4 boxed">
               <div class="lbl">Periodo</div>
               <input id="periodo" placeholder="Ej: 2025" />
             </div>
-            <div class="field col-2">
+            <div class="field col-2 boxed">
               <div class="lbl">Versión</div>
               <input id="version" placeholder="Ej: 1" />
             </div>
-            <div class="field col-2">
+            <div class="field col-2 boxed">
               <div class="lbl">Fecha</div>
               <input id="fecha" />
             </div>
-            <div class="field col-12">
+
+            <div class="field col-12 boxed">
               <div class="lbl">Comenzar a hacer</div>
               <textarea id="comenzarHacer" placeholder="¿Qué debería comenzar a hacer?"></textarea>
             </div>
-            <div class="field col-12">
+            <div class="field col-12 boxed">
               <div class="lbl">Parar de hacer</div>
               <textarea id="pararHacer" placeholder="¿Qué debería parar de hacer?"></textarea>
             </div>
-            <div class="field col-12">
+            <div class="field col-12 boxed">
               <div class="lbl">Continuar haciendo</div>
               <textarea id="continuarHacer" placeholder="¿Qué debería continuar haciendo?"></textarea>
             </div>
-            <div class="field col-6">
+
+            <div class="field col-6 boxed">
               <div class="lbl">Nombre del evaluador</div>
               <input id="nombreEvaluador" placeholder="Ej: Ana López" />
             </div>
@@ -364,31 +417,31 @@
         </div>
         <div class="card-b">
           <div class="form-grid">
-            <div class="field col-3">
+            <div class="field col-3 boxed">
               <div class="lbl">No. de personal</div>
               <input id="noPersonalEval" placeholder="Ej: 1600" />
             </div>
-            <div class="field col-6">
+            <div class="field col-6 boxed">
               <div class="lbl">Nombre</div>
               <input id="nombreEval" placeholder="Ej: Carlos Paz" />
             </div>
-            <div class="field col-3">
+            <div class="field col-3 boxed">
               <div class="lbl">Posición</div>
               <input id="posicionEval" placeholder="Ej: Analista" />
             </div>
-            <div class="field col-4">
+            <div class="field col-4 boxed">
               <div class="lbl">Departamento</div>
               <input id="deptoEval" placeholder="Ej: Contabilidad" />
             </div>
-            <div class="field col-4">
+            <div class="field col-4 boxed">
               <div class="lbl">Periodo</div>
               <input id="periodoEval" placeholder="Ej: 2025" />
             </div>
-            <div class="field col-2">
+            <div class="field col-2 boxed">
               <div class="lbl">Versión</div>
               <input id="versionEval" placeholder="Ej: 1" />
             </div>
-            <div class="field col-2">
+            <div class="field col-2 boxed">
               <div class="lbl">Fecha</div>
               <input id="fechaEval" />
             </div>
@@ -414,12 +467,12 @@
         </div>
       </section>
 
-      <!-- ✅ Ajuste pedido: en DESEMPENO mostrar SOLO 1 campo "Justificación y comentarios" -->
+      <!-- ✅ DESEMPENO: campos extra solicitados -->
       <section class="card" data-phase-block="DESEMPENO" id="blockDesempenoExtra">
         <div class="card-h">
           <div>
-            <h2>Justificación y comentarios</h2>
-            <div class="sub">Escribe una justificación general (evidencias, ejemplos, contexto).</div>
+            <h2>Comentarios y desarrollo</h2>
+            <div class="sub">Completa los campos cualitativos de la evaluación del desempeño.</div>
           </div>
           <div class="chips">
             <span class="chip mono">Aplica solo en: <b>Evaluación del desempeño</b></span>
@@ -428,13 +481,53 @@
 
         <div class="card-b">
           <div class="hint" style="margin-bottom:12px">
-            Tip rápido: aquí vive el “por qué” (sin final de telenovela… a menos que RRHH lo pida 😄)
+            Aquí va lo que normalmente RRHH usa para “entender el cuento” (pero sin spoilers innecesarios 😄)
           </div>
 
           <div class="form-grid">
-            <div class="field col-12">
+            <div class="field col-12 boxed">
+              <div class="lbl">Comentarios del colaborador</div>
+              <textarea id="comentariosColaborador" placeholder="Comentarios del colaborador..."></textarea>
+            </div>
+
+            <div class="field col-12 boxed">
+              <div class="lbl">Evaluación de clientes</div>
+              <textarea id="evaluacionClientesDes" placeholder="Resumen / hallazgos de evaluación de clientes..."></textarea>
+            </div>
+
+            <div class="field col-12 boxed">
+              <div class="lbl">Fortalezas</div>
+              <textarea id="fortalezas" placeholder="Fortalezas observadas..."></textarea>
+            </div>
+
+            <div class="field col-12 boxed">
+              <div class="lbl">Oportunidades de mejora</div>
+              <textarea id="oportunidadesMejora" placeholder="Oportunidades de mejora..."></textarea>
+            </div>
+
+            <div class="field col-12 boxed">
+              <div class="lbl">Proyección y potencial de desarrollo</div>
+              <textarea id="proyeccionPotencial" placeholder="Proyección / potencial de desarrollo..."></textarea>
+            </div>
+
+            <div class="field col-12 boxed">
+              <div class="lbl">Necesidades de capacitación</div>
+              <textarea id="necesidadesCapacitacion" placeholder="Necesidades de capacitación..."></textarea>
+            </div>
+
+            <div class="field col-12 boxed">
               <div class="lbl">Justificación y comentarios</div>
               <textarea id="justificacion" placeholder="Describe evidencias / ejemplos / contexto..."></textarea>
+            </div>
+
+            <div class="field col-12 boxed">
+              <div class="lbl">Comentarios del evaluador</div>
+              <textarea id="comentariosEvaluadorDes" placeholder="Comentarios del evaluador..."></textarea>
+            </div>
+
+            <div class="field col-6 boxed">
+              <div class="lbl">Nombre del evaluador</div>
+              <input id="nombreEvaluadorDes" placeholder="Ej: Ana López" />
             </div>
           </div>
         </div>
@@ -661,8 +754,21 @@
 
     function getDesempenoExtraRequiredFields(){
       // SOLO se exige cuando fase == DESEMPENO
-      const j = $("justificacion");
-      return [ (j ? j.value.trim() : "") ];
+      const ids = [
+        "comentariosColaborador",
+        "evaluacionClientesDes",
+        "fortalezas",
+        "oportunidadesMejora",
+        "proyeccionPotencial",
+        "necesidadesCapacitacion",
+        "justificacion",
+        "comentariosEvaluadorDes",
+        "nombreEvaluadorDes"
+      ];
+      return ids.map(id => {
+        const el = $(id);
+        return el ? String(el.value || "").trim() : "";
+      });
     }
 
     function isEvalComplete(){
@@ -671,7 +777,7 @@
       // encabezado siempre requerido
       if(getEvalHeaderRequiredFields().some(v => !v)) return false;
 
-      // si es desempeño: también exige la justificación única
+      // si es desempeño: también exige los campos extra
       if(isDesempenoPhase()){
         if(getDesempenoExtraRequiredFields().some(v => !v)) return false;
       }
@@ -744,7 +850,7 @@
         "FORMULARIOS": "Formularios: Selecciona nivel (Todos / 1..10) y carga para ver la tabla.",
         "PESOS": "Pesos: Selecciona nivel (Todos / 1..10) y carga para ver la tabla.",
         "AUTO": "Autoevaluación activa. Selecciona nivel para cargar ítems.",
-        "DESEMPENO": "Evaluación del desempeño activa. Selecciona nivel para cargar ítems y agrega la justificación general.",
+        "DESEMPENO": "Evaluación del desempeño activa. Selecciona nivel para cargar ítems y completa los comentarios de desarrollo.",
         "CLIENTES": "Evaluación de clientes: completa los campos y guarda en la hoja Clientes (sin nivel).",
         "RESULTADO": "Resultados del desempeño.",
         "CONSOLIDADO": "Informe consolidado.",
@@ -960,8 +1066,20 @@
     }
 
     function clearDesempenoExtra(){
-      const j = $("justificacion");
-      if(j) j.value = "";
+      [
+        "comentariosColaborador",
+        "evaluacionClientesDes",
+        "fortalezas",
+        "oportunidadesMejora",
+        "proyeccionPotencial",
+        "necesidadesCapacitacion",
+        "justificacion",
+        "comentariosEvaluadorDes",
+        "nombreEvaluadorDes"
+      ].forEach(id=>{
+        const el = $(id);
+        if(el) el.value = "";
+      });
     }
 
     function clearEval(){
@@ -970,7 +1088,7 @@
       state.answers.clear();
       renderCuestionario(state.form);
 
-      // si venías de DESEMPENO, limpia también la justificación
+      // si venías de DESEMPENO, limpia también los campos extra
       if($("blockDesempenoExtra")) clearDesempenoExtra();
 
       updateGuardarUIState();
@@ -1007,7 +1125,7 @@
 
     function buildCompatComentarios(){
       // Compat: Apps Script suele esperar "comentarios".
-      // En DESEMPENO usamos el único campo "justificacion".
+      // En DESEMPENO usamos "justificacion" como base (y mandamos extras aparte).
       if(!isDesempenoPhase()) return "";
       const j = $("justificacion");
       return (j ? j.value.trim() : "");
@@ -1019,11 +1137,23 @@
         return;
       }
       if(!isEvalComplete()){
-        alert("Aún faltan datos / respuestas" + (isDesempenoPhase() ? " / justificación" : "") + ". Completa todo para habilitar Guardar.");
+        alert("Aún faltan datos / respuestas" + (isDesempenoPhase() ? " / comentarios" : "") + ". Completa todo para habilitar Guardar.");
         return;
       }
 
       const respuestasOrdenadas = state.itemKeys.map(k => (state.answers.get(k)?.label || ""));
+
+      const extrasDesempeno = isDesempenoPhase() ? {
+        comentariosColaborador: ($("comentariosColaborador")?.value || "").trim(),
+        evaluacionClientes: ($("evaluacionClientesDes")?.value || "").trim(),
+        fortalezas: ($("fortalezas")?.value || "").trim(),
+        oportunidadesMejora: ($("oportunidadesMejora")?.value || "").trim(),
+        proyeccionPotencial: ($("proyeccionPotencial")?.value || "").trim(),
+        necesidadesCapacitacion: ($("necesidadesCapacitacion")?.value || "").trim(),
+        justificacion: buildCompatComentarios(),
+        comentariosEvaluador: ($("comentariosEvaluadorDes")?.value || "").trim(),
+        nombreEvaluador: ($("nombreEvaluadorDes")?.value || "").trim()
+      } : null;
 
       const payload = {
         fase: state.fase,
@@ -1037,13 +1167,11 @@
         fecha: $("fechaEval").value.trim(),
         respuestas: respuestasOrdenadas,
 
-        // ✅ UI: solo un campo de justificación en DESEMPENO.
+        // ✅ compat hacia atrás
         comentarios: buildCompatComentarios(),
 
-        // ✅ Extras opcionales (si Apps Script lo quiere usar más adelante)
-        extras: isDesempenoPhase() ? {
-          justificacion: buildCompatComentarios()
-        } : null
+        // ✅ extras con todos los campos nuevos
+        extras: extrasDesempeno
       };
 
       const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
@@ -1164,8 +1292,18 @@
       }
     });
 
-    // ✅ único campo extra en desempeño
-    ["justificacion"].forEach(id=>{
+    // ✅ campos extra en desempeño
+    [
+      "comentariosColaborador",
+      "evaluacionClientesDes",
+      "fortalezas",
+      "oportunidadesMejora",
+      "proyeccionPotencial",
+      "necesidadesCapacitacion",
+      "justificacion",
+      "comentariosEvaluadorDes",
+      "nombreEvaluadorDes"
+    ].forEach(id=>{
       const el = $(id);
       if(el){
         el.addEventListener("input", updateGuardarUIState);
