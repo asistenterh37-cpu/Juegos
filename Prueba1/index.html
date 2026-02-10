@@ -42,7 +42,6 @@
     }
     .controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 
-    /* ==== Inputs base (mejor contraste) ==== */
     select,button,input,textarea{
       background:var(--panel);
       border:1.5px solid rgba(255,255,255,.14);
@@ -60,7 +59,6 @@
       border-color: rgba(79,124,255,.55);
       box-shadow: 0 0 0 3px rgba(79,124,255,.18);
     }
-
     button{cursor:pointer}
     .btn-ok{
       background:linear-gradient(180deg, rgba(34,197,94,.25), rgba(34,197,94,.10));
@@ -76,6 +74,7 @@
       border-color:rgba(245,158,11,.35)
     }
     button[disabled]{opacity:.45; filter:saturate(.6); cursor:not-allowed;}
+
     main{padding:18px}
     .grid{max-width:1180px;margin:0 auto;display:grid;gap:14px}
     .card{
@@ -94,17 +93,16 @@
     .status.ok .s-dot{background:var(--accent2)}
     .status.err .s-dot{background:var(--danger)}
     .hint{
-      background:rgba(79,124,255,.10);border:1px dashed rgba(79,124,255,.35);
+      background:rgba(79,124,255,.10);
+      border:1px dashed rgba(79,124,255,.35);
       padding:10px 12px;border-radius:14px;color:var(--muted);font-size:13px
     }
-    .hint.warn{ background:rgba(245,158,11,.10);border:1px dashed rgba(245,158,11,.35); }
     .form-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:10px}
     .col-3{grid-column:span 3}
     .col-4{grid-column:span 4}
     .col-6{grid-column:span 6}
     .col-12{grid-column:span 12}
 
-    /* ==== Títulos de recuadros remarcados ==== */
     .lbl{
       font-size:12px;
       color:rgba(232,238,252,.92);
@@ -112,8 +110,6 @@
       font-weight:800;
       letter-spacing:.02em;
     }
-
-    /* ==== Recuadros con marco + estética ==== */
     .field{display:flex;flex-direction:column;gap:6px}
     .field.boxed{
       border:1.5px solid rgba(255,255,255,.16);
@@ -124,18 +120,13 @@
     }
     .field.boxed .lbl{
       display:inline-flex; align-items:center; gap:8px;
-      padding:8px 10px;
-      border-radius:14px;
+      padding:8px 10px;border-radius:14px;
       background:rgba(79,124,255,.10);
       border:1px solid rgba(79,124,255,.22);
-      text-transform:uppercase;
-      letter-spacing:.08em;
-      font-size:11px;
-      color:rgba(232,238,252,.95);
+      text-transform:uppercase; letter-spacing:.08em;
+      font-size:11px; color:rgba(232,238,252,.95);
     }
-    .field.boxed textarea,
-    .field.boxed input,
-    .field.boxed select{
+    .field.boxed textarea, .field.boxed input, .field.boxed select{
       background:rgba(15,27,51,.88);
       border-color:rgba(255,255,255,.16);
       border-width:1.5px;
@@ -143,32 +134,34 @@
       border-radius:14px;
     }
 
-    .table-wrap{overflow:auto;border:1px solid rgba(255,255,255,.08);border-radius:16px}
-    table{width:100%;border-collapse:collapse;min-width:860px}
-    th,td{padding:10px 10px;border-bottom:1px solid rgba(255,255,255,.07);vertical-align:top}
-    th{position:sticky;top:0;background:rgba(15,27,51,.98);font-size:12px;color:var(--muted);text-align:left}
-    td{font-size:13px}
-    .muted{color:var(--muted);font-size:12px}
-    .mono{font-family:var(--mono);font-size:12px;color:var(--muted)}
     [data-phase-block]{display:none}
     [data-phase-block].show{display:block}
     .nivelWrap{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
     .nivelWrap.hide{display:none}
 
-    /* ========= CUESTIONARIO ========= */
+    /* CUESTIONARIO */
     .factor{
       border:1px solid rgba(255,255,255,.10);
-      border-radius:18px; overflow:hidden; margin-bottom:14px;
+      border-radius:18px;
+      overflow:hidden;
+      margin-bottom:14px;
       background:linear-gradient(180deg, rgba(11,18,32,.25), rgba(15,27,51,.10));
     }
     .factor-title{
-      padding:14px 16px; font-weight:800; font-size:18px; letter-spacing:.2px;
+      padding:14px 16px;
+      font-weight:800;
+      font-size:18px;
+      letter-spacing:.2px;
       border-bottom:1px solid rgba(255,255,255,.08);
       background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
     }
     .item-row{
-      display:flex; justify-content:space-between; gap:16px; align-items:center;
-      padding:16px; border-top:1px solid rgba(255,255,255,.07);
+      display:flex;
+      justify-content:space-between;
+      gap:16px;
+      align-items:center;
+      padding:16px;
+      border-top:1px solid rgba(255,255,255,.07);
     }
     .item-row:first-of-type{border-top:none}
     .item-left{flex:1; min-width:280px}
@@ -178,7 +171,6 @@
     .item-right .lbl{margin-bottom:8px}
     .item-right select{width:100%}
 
-    /* ✅ input oculto para URL de WebApp (se usa en JS pero no se muestra) */
     .sr-hidden{
       position:absolute !important;
       width:1px;height:1px;
@@ -186,11 +178,9 @@
       overflow:hidden;clip:rect(0,0,0,0);
       white-space:nowrap;border:0;
     }
-
     @media (max-width:860px){
       .col-3,.col-4,.col-6{grid-column:span 12}
       select{min-width:180px}
-      table{min-width:760px}
       .item-row{flex-direction:column; align-items:stretch}
       .item-right{min-width:100%; width:100%}
     }
@@ -198,7 +188,6 @@
 </head>
 
 <body>
-  <!-- ✅ URL WebApp oculto (se carga desde localStorage o DEFAULT_WEBAPP_URL) -->
   <input id="webappUrl" class="sr-hidden" aria-hidden="true" tabindex="-1" />
 
   <header>
@@ -266,78 +255,6 @@
         </div>
       </section>
 
-      <!-- FORMULARIOS -->
-      <section class="card" data-phase-block="FORMULARIOS" id="blockFormularios">
-        <div class="card-h">
-          <div>
-            <h2>Formularios</h2>
-            <div class="sub">Selecciona Nivel (Todos/1/2/…/10) y presiona <b>Cargar</b>.</div>
-          </div>
-          <div class="controls">
-            <button id="btnCargarFormularios" class="btn-blue">Cargar</button>
-            <button id="btnLimpiarFormularios" class="btn-warn">Limpiar</button>
-          </div>
-        </div>
-        <div class="card-b">
-          <div class="chips" style="margin-bottom:10px">
-            <span class="chip" id="rowsCount">Filas: 0</span>
-            <span class="chip mono">Columnas: Nivel | Factor | Item | 1..5</span>
-          </div>
-          <div id="formHint" class="hint">Aún no has cargado datos.</div>
-          <div class="table-wrap" style="margin-top:12px">
-            <table>
-              <thead>
-                <tr>
-                  <th style="width:90px">Nivel</th>
-                  <th style="width:220px">Factor</th>
-                  <th style="width:260px">Item</th>
-                  <th>1</th><th>2</th><th>3</th><th>4</th><th>5</th>
-                </tr>
-              </thead>
-              <tbody id="tbodyFormularios">
-                <tr><td colspan="8" class="muted">Sin datos.</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-
-      <!-- PESOS -->
-      <section class="card" data-phase-block="PESOS" id="blockPesos">
-        <div class="card-h">
-          <div>
-            <h2>Pesos</h2>
-            <div class="sub">Selecciona Nivel (Todos/1/2/…/10) y presiona <b>Cargar</b>.</div>
-          </div>
-          <div class="controls">
-            <button id="btnCargarPesos" class="btn-blue">Cargar</button>
-            <button id="btnLimpiarPesos" class="btn-warn">Limpiar</button>
-          </div>
-        </div>
-        <div class="card-b">
-          <div class="chips" style="margin-bottom:10px">
-            <span class="chip" id="rowsCountPesos">Filas: 0</span>
-            <span class="chip mono">Columnas: Nivel | Factor | Item | Peso</span>
-          </div>
-          <div id="pesosHint" class="hint">Aún no has cargado datos.</div>
-          <div class="table-wrap" style="margin-top:12px">
-            <table>
-              <thead>
-                <tr>
-                  <th style="width:90px">Nivel</th>
-                  <th style="width:260px">Factor</th>
-                  <th>Item</th>
-                  <th style="width:140px">Peso</th>
-                </tr>
-              </thead>
-              <tbody id="tbodyPesos">
-                <tr><td colspan="4" class="muted">Sin datos.</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-
       <!-- CLIENTES -->
       <section class="card" data-phase-block="CLIENTES" id="blockClientes">
         <div class="card-h">
@@ -349,58 +266,27 @@
             <span class="chip mono">Hoja destino: <b>Clientes</b></span>
           </div>
         </div>
+
         <div class="card-b">
           <div class="hint" style="margin-bottom:12px">
             Nota: En esta fase no existe “Nivel”. Solo se tabulan los campos del formulario en la hoja <b>Clientes</b>.
           </div>
 
           <div class="form-grid">
-            <div class="field col-3 boxed">
-              <div class="lbl">No. de personal</div>
-              <input id="noPersonal" placeholder="Ej: 1600" />
-            </div>
-            <div class="field col-6 boxed">
-              <div class="lbl">Nombre</div>
-              <input id="nombre" placeholder="Ej: Carlos Paz" />
-            </div>
-            <div class="field col-3 boxed">
-              <div class="lbl">Posición</div>
-              <input id="posicion" placeholder="Ej: Analista" />
-            </div>
-            <div class="field col-4 boxed">
-              <div class="lbl">Departamento</div>
-              <input id="depto" placeholder="Ej: Contabilidad" />
-            </div>
-            <div class="field col-4 boxed">
-              <div class="lbl">Periodo</div>
-              <input id="periodo" placeholder="Ej: 2025" />
-            </div>
-            <div class="field col-2 boxed">
-              <div class="lbl">Versión</div>
-              <input id="version" placeholder="Ej: 1" />
-            </div>
-            <div class="field col-2 boxed">
-              <div class="lbl">Fecha</div>
-              <input id="fecha" />
-            </div>
+            <div class="field col-3 boxed"><div class="lbl">No. de personal</div><input id="noPersonal" placeholder="Ej: 1600" /></div>
+            <div class="field col-6 boxed"><div class="lbl">Nombre</div><input id="nombre" placeholder="Ej: Carlos Paz" /></div>
+            <div class="field col-3 boxed"><div class="lbl">Posición</div><input id="posicion" placeholder="Ej: Analista" /></div>
 
-            <div class="field col-12 boxed">
-              <div class="lbl">Comenzar a hacer</div>
-              <textarea id="comenzarHacer" placeholder="¿Qué debería comenzar a hacer?"></textarea>
-            </div>
-            <div class="field col-12 boxed">
-              <div class="lbl">Parar de hacer</div>
-              <textarea id="pararHacer" placeholder="¿Qué debería parar de hacer?"></textarea>
-            </div>
-            <div class="field col-12 boxed">
-              <div class="lbl">Continuar haciendo</div>
-              <textarea id="continuarHacer" placeholder="¿Qué debería continuar haciendo?"></textarea>
-            </div>
+            <div class="field col-4 boxed"><div class="lbl">Departamento</div><input id="depto" placeholder="Ej: Contabilidad" /></div>
+            <div class="field col-4 boxed"><div class="lbl">Periodo</div><input id="periodo" placeholder="Ej: 2025" /></div>
+            <div class="field col-2 boxed"><div class="lbl">Versión</div><input id="version" placeholder="Ej: 1" /></div>
+            <div class="field col-2 boxed"><div class="lbl">Fecha</div><input id="fecha" /></div>
 
-            <div class="field col-6 boxed">
-              <div class="lbl">Nombre del evaluador</div>
-              <input id="nombreEvaluador" placeholder="Ej: Ana López" />
-            </div>
+            <div class="field col-12 boxed"><div class="lbl">Comenzar a hacer</div><textarea id="comenzarHacer" placeholder="¿Qué debería comenzar a hacer?"></textarea></div>
+            <div class="field col-12 boxed"><div class="lbl">Parar de hacer</div><textarea id="pararHacer" placeholder="¿Qué debería parar de hacer?"></textarea></div>
+            <div class="field col-12 boxed"><div class="lbl">Continuar haciendo</div><textarea id="continuarHacer" placeholder="¿Qué debería continuar haciendo?"></textarea></div>
+
+            <div class="field col-6 boxed"><div class="lbl">Nombre del evaluador</div><input id="nombreEvaluador" placeholder="Ej: Ana López" /></div>
           </div>
 
           <div class="sub" style="margin-top:10px">Estado API: <b id="apiMini">—</b></div>
@@ -417,34 +303,14 @@
         </div>
         <div class="card-b">
           <div class="form-grid">
-            <div class="field col-3 boxed">
-              <div class="lbl">No. de personal</div>
-              <input id="noPersonalEval" placeholder="Ej: 1600" />
-            </div>
-            <div class="field col-6 boxed">
-              <div class="lbl">Nombre</div>
-              <input id="nombreEval" placeholder="Ej: Carlos Paz" />
-            </div>
-            <div class="field col-3 boxed">
-              <div class="lbl">Posición</div>
-              <input id="posicionEval" placeholder="Ej: Analista" />
-            </div>
-            <div class="field col-4 boxed">
-              <div class="lbl">Departamento</div>
-              <input id="deptoEval" placeholder="Ej: Contabilidad" />
-            </div>
-            <div class="field col-4 boxed">
-              <div class="lbl">Periodo</div>
-              <input id="periodoEval" placeholder="Ej: 2025" />
-            </div>
-            <div class="field col-2 boxed">
-              <div class="lbl">Versión</div>
-              <input id="versionEval" placeholder="Ej: 1" />
-            </div>
-            <div class="field col-2 boxed">
-              <div class="lbl">Fecha</div>
-              <input id="fechaEval" />
-            </div>
+            <div class="field col-3 boxed"><div class="lbl">No. de personal</div><input id="noPersonalEval" placeholder="Ej: 1600" /></div>
+            <div class="field col-6 boxed"><div class="lbl">Nombre</div><input id="nombreEval" placeholder="Ej: Carlos Paz" /></div>
+            <div class="field col-3 boxed"><div class="lbl">Posición</div><input id="posicionEval" placeholder="Ej: Analista" /></div>
+
+            <div class="field col-4 boxed"><div class="lbl">Departamento</div><input id="deptoEval" placeholder="Ej: Contabilidad" /></div>
+            <div class="field col-4 boxed"><div class="lbl">Periodo</div><input id="periodoEval" placeholder="Ej: 2025" /></div>
+            <div class="field col-2 boxed"><div class="lbl">Versión</div><input id="versionEval" placeholder="Ej: 1" /></div>
+            <div class="field col-2 boxed"><div class="lbl">Fecha</div><input id="fechaEval" /></div>
           </div>
 
           <div class="sub" style="margin-top:10px">Estado API: <b id="apiMiniEval">—</b></div>
@@ -467,16 +333,14 @@
         </div>
       </section>
 
-      <!-- ✅ AUTO: agregar al final "Comentarios del colaborador" SOLO para Autoevaluación -->
+      <!-- AUTO: Comentarios -->
       <section class="card" data-phase-block="AUTO" id="blockAutoComentarios">
         <div class="card-h">
           <div>
             <h2>Comentarios del colaborador</h2>
             <div class="sub">Aplica solo en: <b>Autoevaluación</b>.</div>
           </div>
-          <div class="chips">
-            <span class="chip mono">Campo cualitativo</span>
-          </div>
+          <div class="chips"><span class="chip mono">Campo cualitativo</span></div>
         </div>
         <div class="card-b">
           <div class="form-grid">
@@ -488,105 +352,39 @@
         </div>
       </section>
 
-      <!-- ✅ DESEMPENO: campos extra solicitados -->
+      <!-- DESEMPENO: campos extra (se mantienen igual) -->
       <section class="card" data-phase-block="DESEMPENO" id="blockDesempenoExtra">
         <div class="card-h">
           <div>
             <h2>Comentarios y desarrollo</h2>
             <div class="sub">Completa los campos cualitativos de la evaluación del desempeño.</div>
           </div>
-          <div class="chips">
-            <span class="chip mono">Aplica solo en: <b>Evaluación del desempeño</b></span>
-          </div>
+          <div class="chips"><span class="chip mono">Aplica solo en: <b>Evaluación del desempeño</b></span></div>
         </div>
-
         <div class="card-b">
           <div class="hint" style="margin-bottom:12px">
             Aquí va lo que normalmente RRHH usa para “entender el cuento” (pero sin spoilers innecesarios 😄)
           </div>
 
           <div class="form-grid">
-            <!-- ✅ MOVIDO A PRIMERO -->
-            <div class="field col-12 boxed">
-              <div class="lbl">Justificación y comentarios</div>
-              <textarea id="justificacion" placeholder="Describe evidencias / ejemplos / contexto..."></textarea>
-            </div>
-
-            <div class="field col-12 boxed">
-              <div class="lbl">Comentarios del colaborador</div>
-              <textarea id="comentariosColaborador" placeholder="Comentarios del colaborador..."></textarea>
-            </div>
-
-            <div class="field col-12 boxed">
-              <div class="lbl">Evaluación de clientes</div>
-              <textarea id="evaluacionClientesDes" placeholder="Resumen / hallazgos de evaluación de clientes..."></textarea>
-            </div>
-
-            <div class="field col-12 boxed">
-              <div class="lbl">Fortalezas</div>
-              <textarea id="fortalezas" placeholder="Fortalezas observadas..."></textarea>
-            </div>
-
-            <div class="field col-12 boxed">
-              <div class="lbl">Oportunidades de mejora</div>
-              <textarea id="oportunidadesMejora" placeholder="Oportunidades de mejora..."></textarea>
-            </div>
-
-            <div class="field col-12 boxed">
-              <div class="lbl">Proyección y potencial de desarrollo</div>
-              <textarea id="proyeccionPotencial" placeholder="Proyección / potencial de desarrollo..."></textarea>
-            </div>
-
-            <div class="field col-12 boxed">
-              <div class="lbl">Necesidades de capacitación</div>
-              <textarea id="necesidadesCapacitacion" placeholder="Necesidades de capacitación..."></textarea>
-            </div>
-
-            <div class="field col-12 boxed">
-              <div class="lbl">Comentarios del evaluador</div>
-              <textarea id="comentariosEvaluadorDes" placeholder="Comentarios del evaluador..."></textarea>
-            </div>
-
-            <div class="field col-6 boxed">
-              <div class="lbl">Nombre del evaluador</div>
-              <input id="nombreEvaluadorDes" placeholder="Ej: Ana López" />
-            </div>
+            <div class="field col-12 boxed"><div class="lbl">Justificación y comentarios</div><textarea id="justificacion" placeholder="Describe evidencias / ejemplos / contexto..."></textarea></div>
+            <div class="field col-12 boxed"><div class="lbl">Comentarios del colaborador</div><textarea id="comentariosColaborador" placeholder="Comentarios del colaborador..."></textarea></div>
+            <div class="field col-12 boxed"><div class="lbl">Evaluación de clientes</div><textarea id="evaluacionClientesDes" placeholder="Resumen / hallazgos..."></textarea></div>
+            <div class="field col-12 boxed"><div class="lbl">Fortalezas</div><textarea id="fortalezas" placeholder="Fortalezas observadas..."></textarea></div>
+            <div class="field col-12 boxed"><div class="lbl">Oportunidades de mejora</div><textarea id="oportunidadesMejora" placeholder="Oportunidades de mejora..."></textarea></div>
+            <div class="field col-12 boxed"><div class="lbl">Proyección y potencial de desarrollo</div><textarea id="proyeccionPotencial" placeholder="Proyección / potencial..."></textarea></div>
+            <div class="field col-12 boxed"><div class="lbl">Necesidades de capacitación</div><textarea id="necesidadesCapacitacion" placeholder="Necesidades de capacitación..."></textarea></div>
+            <div class="field col-12 boxed"><div class="lbl">Comentarios del evaluador</div><textarea id="comentariosEvaluadorDes" placeholder="Comentarios del evaluador..."></textarea></div>
+            <div class="field col-6 boxed"><div class="lbl">Nombre del evaluador</div><input id="nombreEvaluadorDes" placeholder="Ej: Ana López" /></div>
           </div>
         </div>
       </section>
 
-      <!-- OTRAS VISTAS -->
-      <section class="card" data-phase-block="RESULTADO">
-        <div class="card-h">
-          <h2>Resultado evaluación del desempeño</h2>
-          <div class="sub">Vista en construcción.</div>
-        </div>
-        <div class="card-b"><div class="hint">Aquí irá el resultado (promedios, ponderaciones, etc.).</div></div>
-      </section>
-
-      <section class="card" data-phase-block="CONSOLIDADO">
-        <div class="card-h">
-          <h2>Informe consolidado</h2>
-          <div class="sub">Vista en construcción.</div>
-        </div>
-        <div class="card-b"><div class="hint">Aquí irá el informe consolidado por área/empresa.</div></div>
-      </section>
-
-      <section class="card" data-phase-block="CAPACITACION">
-        <div class="card-h">
-          <h2>Informe necesidades de capacitacion</h2>
-          <div class="sub">Vista en construcción.</div>
-        </div>
-        <div class="card-b"><div class="hint">Aquí irá el informe de brechas y necesidades.</div></div>
-      </section>
-
-      <section class="card" data-phase-block="DESARROLLO">
-        <div class="card-h">
-          <h2>Informe plan de desarrollo</h2>
-          <div class="sub">Vista en construcción.</div>
-        </div>
-        <div class="card-b"><div class="hint">Aquí irá el plan de desarrollo individual.</div></div>
-      </section>
+      <!-- OTRAS VISTAS (placeholder) -->
+      <section class="card" data-phase-block="RESULTADO"><div class="card-h"><h2>Resultado evaluación del desempeño</h2><div class="sub">Vista en construcción.</div></div><div class="card-b"><div class="hint">Aquí irá el resultado.</div></div></section>
+      <section class="card" data-phase-block="CONSOLIDADO"><div class="card-h"><h2>Informe consolidado</h2><div class="sub">Vista en construcción.</div></div><div class="card-b"><div class="hint">Aquí irá el informe.</div></div></section>
+      <section class="card" data-phase-block="CAPACITACION"><div class="card-h"><h2>Informe necesidades de capacitacion</h2><div class="sub">Vista en construcción.</div></div><div class="card-b"><div class="hint">Aquí irá el informe.</div></div></section>
+      <section class="card" data-phase-block="DESARROLLO"><div class="card-h"><h2>Informe plan de desarrollo</h2><div class="sub">Vista en construcción.</div></div><div class="card-b"><div class="hint">Aquí irá el plan.</div></div></section>
 
     </div>
   </main>
@@ -594,7 +392,7 @@
   <script>
     /* ================= CONFIG ================= */
     const LS_KEY_URL = "ED_WEBAPP_URL";
-    const DEFAULT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwubxncxBMBM7y_fExqG_REJqZTfDhvKGCtSHc_Y2ENEfg168xJ2ffOKgHFXNxJBWVK/exec";
+    const DEFAULT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxFvP9jMVWttz_ZC5NMoR03OE1cbVcG97XbZ1X5UK6trftSOOJY3m26hDS9QrSMg5CK/exec";
     const $ = id => document.getElementById(id);
 
     function normalizeWebAppUrl(raw){
@@ -632,10 +430,8 @@
       el.classList.remove("ok","err");
       if(mode) el.classList.add(mode);
       $("apiStatusText").textContent=text;
-
       const miniClientes = $("apiMini");
       if (miniClientes) miniClientes.textContent = text.replace("API: ","");
-
       const miniEval = $("apiMiniEval");
       if (miniEval) miniEval.textContent = text.replace("API: ","");
     }
@@ -649,18 +445,16 @@
       url.searchParams.set("_", String(Date.now()));
       return url.toString();
     }
-
     function apiGet(params, timeoutMs=15000){
       return new Promise((resolve,reject)=>{
         const cb="cb_"+Math.random().toString(36).slice(2);
         const src = buildUrl(params, cb);
         setApiStatus("", "API: consultando…");
-
         const s=document.createElement("script");
         s.async = true;
         s.referrerPolicy = "no-referrer";
-
         let done=false;
+
         const t=setTimeout(()=>{
           if(done) return;
           done=true;
@@ -678,7 +472,6 @@
           if(done) return;
           done=true;
           cleanup();
-
           if(!data || typeof data !== "object"){
             reject(new Error("Respuesta inválida. Si al abrir Ping te pide login, el deploy no es público."));
             return;
@@ -697,7 +490,6 @@
           cleanup();
           reject(new Error("No se pudo cargar el script. Revisa: URL correcta (/exec), Deploy público (Anyone), y desactiva bloqueadores para script.google.com."));
         };
-
         s.src = src;
         document.body.appendChild(s);
       });
@@ -712,11 +504,12 @@
       return `${dd}/${mm}/${yyyy}`;
     }
     function escapeHtml(s){
-      return String(s ?? "").replace(/[&<>"']/g, m => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;" }[m]));
+      return String(s ?? "").replace(/[&<>"']/g, m => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+      }[m]));
     }
-    function escapeAttr(s){
-      return escapeHtml(s).replace(/"/g,"&quot;");
-    }
+    function escapeAttr(s){ return escapeHtml(s).replace(/"/g,"&quot;"); }
+
     function fillNivelSelect(levels, includeAll=false){
       const sel = $("nivelSelect");
       sel.innerHTML = "";
@@ -730,7 +523,7 @@
         const v = String(l);
         const o = document.createElement("option");
         o.value = v;
-        o.textContent = v;
+        o.textContent = v; // aquí viene "1 — Operativo" si tu sheet lo trae así
         sel.appendChild(o);
       });
     }
@@ -738,6 +531,35 @@
       if(includeAll) return "ALL";
       const has1 = levels.some(x => String(x).trim() === "1" || String(x).trim().startsWith("1"));
       return has1 ? "1" : String(levels[0] ?? "1");
+    }
+
+    // ✅ NIVEL: sacar (nivelNumerico) + (descripcionNivel) + (labelCompleta)
+    function getNivelMeta(){
+      const sel = $("nivelSelect");
+      const opt = sel?.selectedOptions?.[0];
+      const label = (opt?.textContent || String(sel.value || "")).trim(); // ej: "3 — Supervisor"
+      const value = String(sel.value || "").trim();
+
+      // intenta extraer número y descripción de "N — Desc" o "N - Desc" o "N) Desc"
+      let nivelNum = "";
+      let nivelDesc = "";
+      const m = label.match(/^\s*(\d+)\s*(?:[.)-]|—)\s*(.+)\s*$/);
+      if(m){
+        nivelNum = m[1];
+        nivelDesc = m[2].trim();
+      } else {
+        // si solo viene "3" o "Nivel 3"
+        const m2 = label.match(/(\d+)/);
+        if(m2) nivelNum = String(Number(m2[1]));
+        // desc queda vacío
+      }
+
+      return {
+        nivelValue: value,       // lo que seleccionaste (puede traer label completo)
+        nivelLabel: label,       // lo que se ve
+        nivelNumero: nivelNum,   // "3"
+        nivelDescripcion: nivelDesc // "Supervisor"
+      };
     }
 
     /* ================= PHASE HELPERS ================= */
@@ -762,7 +584,6 @@
         $("nombreEvaluador").value.trim(),
       ];
     }
-
     function getEvalHeaderRequiredFields(){
       return [
         $("noPersonalEval").value.trim(),
@@ -774,48 +595,29 @@
         $("fechaEval").value.trim(),
       ];
     }
-
     function getDesempenoExtraRequiredFields(){
-      // SOLO se exige cuando fase == DESEMPENO
       const ids = [
-        "comentariosColaborador",
-        "evaluacionClientesDes",
-        "fortalezas",
-        "oportunidadesMejora",
-        "proyeccionPotencial",
-        "necesidadesCapacitacion",
-        "justificacion",
-        "comentariosEvaluadorDes",
-        "nombreEvaluadorDes"
+        "comentariosColaborador","evaluacionClientesDes","fortalezas","oportunidadesMejora",
+        "proyeccionPotencial","necesidadesCapacitacion","justificacion","comentariosEvaluadorDes","nombreEvaluadorDes"
       ];
-      return ids.map(id => {
-        const el = $(id);
-        return el ? String(el.value || "").trim() : "";
-      });
+      return ids.map(id => String($(id)?.value || "").trim());
     }
 
     function isEvalComplete(){
       if(!isEvalPhase()) return false;
-
-      // encabezado siempre requerido
       if(getEvalHeaderRequiredFields().some(v => !v)) return false;
-
-      // si es desempeño: también exige los campos extra
       if(isDesempenoPhase()){
         if(getDesempenoExtraRequiredFields().some(v => !v)) return false;
       }
-
-      // ✅ AUTO: "Comentarios del colaborador" se muestra, pero NO es obligatorio (solo formato)
       const total = state.itemKeys.length;
       if(total === 0) return false;
-
       for(const k of state.itemKeys){
         const obj = state.answers.get(k);
         if(!obj || !obj.value || !obj.label) return false;
       }
+      // ✅ AUTO: comentario no es obligatorio (pero sí se guarda si lo llenan)
       return true;
     }
-
     function isClientesComplete(){
       if(!isClientesPhase()) return false;
       return !getClientesRequiredFields().some(v => !v);
@@ -831,7 +633,6 @@
         btnG.disabled = !isClientesComplete();
         return;
       }
-
       if(isEvalPhase()){
         const total = state.itemKeys.length;
         let done = 0;
@@ -843,7 +644,6 @@
         btnG.disabled = !isEvalComplete();
         return;
       }
-
       btnG.disabled = true;
     }
 
@@ -851,7 +651,6 @@
     function setPhase(phase){
       state.fase = phase || "";
 
-      // toggles
       document.querySelectorAll("[data-phase-block]").forEach(el=>{
         const p = el.getAttribute("data-phase-block");
         el.classList.remove("show");
@@ -903,7 +702,6 @@
         updateGuardarUIState();
         return;
       }
-
       if(!form || !form.factors || !form.factors.length){
         root.innerHTML = `<div class="hint">No hay ítems para este nivel.</div>`;
         $("itemsCount").textContent = "Items: 0";
@@ -971,72 +769,6 @@
       updateGuardarUIState();
     }
 
-    /* ================= FORMULARIOS: TABLE ================= */
-    function clearFormulariosTable(){
-      $("tbodyFormularios").innerHTML = `<tr><td colspan="8" class="muted">Sin datos.</td></tr>`;
-      $("rowsCount").textContent = "Filas: 0";
-      $("formHint").textContent = "Aún no has cargado datos.";
-    }
-    function renderFormulariosItems(items){
-      const tb = $("tbodyFormularios");
-      if(!items || !items.length){
-        clearFormulariosTable();
-        $("formHint").textContent = "No se encontraron filas para ese nivel.";
-        return;
-      }
-      $("formHint").textContent = "Datos cargados desde Google Sheets.";
-      $("rowsCount").textContent = `Filas: ${items.length}`;
-      tb.innerHTML = items.map(r => `
-        <tr>
-          <td><b>${escapeHtml(r.Nivel ?? "")}</b></td>
-          <td>${escapeHtml(r.Factor ?? "")}</td>
-          <td>${escapeHtml(r.Item ?? "")}</td>
-          <td>${escapeHtml(r["1"] ?? "")}</td>
-          <td>${escapeHtml(r["2"] ?? "")}</td>
-          <td>${escapeHtml(r["3"] ?? "")}</td>
-          <td>${escapeHtml(r["4"] ?? "")}</td>
-          <td>${escapeHtml(r["5"] ?? "")}</td>
-        </tr>
-      `).join("");
-    }
-    async function cargarFormularios(){
-      if(state.fase !== "FORMULARIOS") return;
-      const nivel = $("nivelSelect").value;
-      const res = await apiGet({ action:"items", sheet:"Formularios", nivel: (nivel && nivel !== "ALL") ? String(nivel) : "ALL" });
-      renderFormulariosItems(res.items || []);
-    }
-
-    /* ================= PESOS: TABLE ================= */
-    function clearPesosTable(){
-      $("tbodyPesos").innerHTML = `<tr><td colspan="4" class="muted">Sin datos.</td></tr>`;
-      $("rowsCountPesos").textContent = "Filas: 0";
-      $("pesosHint").textContent = "Aún no has cargado datos.";
-    }
-    function renderPesosItems(items){
-      const tb = $("tbodyPesos");
-      if(!items || !items.length){
-        clearPesosTable();
-        $("pesosHint").textContent = "No se encontraron filas para ese nivel.";
-        return;
-      }
-      $("pesosHint").textContent = "Datos cargados desde Google Sheets.";
-      $("rowsCountPesos").textContent = `Filas: ${items.length}`;
-      tb.innerHTML = items.map(r => `
-        <tr>
-          <td><b>${escapeHtml(r.Nivel ?? "")}</b></td>
-          <td>${escapeHtml(r.Factor ?? "")}</td>
-          <td>${escapeHtml(r.Item ?? "")}</td>
-          <td>${escapeHtml(r.Peso ?? "")}</td>
-        </tr>
-      `).join("");
-    }
-    async function cargarPesos(){
-      if(state.fase !== "PESOS") return;
-      const nivel = $("nivelSelect").value;
-      const res = await apiGet({ action:"items", sheet:"Pesos", nivel: (nivel && nivel !== "ALL") ? String(nivel) : "ALL" });
-      renderPesosItems(res.items || []);
-    }
-
     /* ================= LOADERS (levels + form) ================= */
     async function loadLevelsForPhase(){
       if(isEvalPhase()){
@@ -1070,7 +802,6 @@
         return;
       }
     }
-
     async function loadFormByNivel(nivel){
       const res = await apiGet({action:"form", nivel: String(nivel)});
       state.form = res.form || null;
@@ -1078,7 +809,7 @@
       renderCuestionario(state.form);
     }
 
-    /* ================= ACTIONS ================= */
+    /* ================= CLEAR ================= */
     function clearClientes(){
       ["noPersonal","nombre","posicion","depto","periodo","version"].forEach(id=>$(id).value="");
       $("comenzarHacer").value = "";
@@ -1088,42 +819,27 @@
       $("fecha").value = todayLocal();
       updateGuardarUIState();
     }
-
     function clearDesempenoExtra(){
       [
-        "comentariosColaborador",
-        "evaluacionClientesDes",
-        "fortalezas",
-        "oportunidadesMejora",
-        "proyeccionPotencial",
-        "necesidadesCapacitacion",
-        "justificacion",
-        "comentariosEvaluadorDes",
-        "nombreEvaluadorDes"
-      ].forEach(id=>{
-        const el = $(id);
-        if(el) el.value = "";
-      });
+        "comentariosColaborador","evaluacionClientesDes","fortalezas","oportunidadesMejora",
+        "proyeccionPotencial","necesidadesCapacitacion","justificacion","comentariosEvaluadorDes","nombreEvaluadorDes"
+      ].forEach(id=>{ const el = $(id); if(el) el.value = ""; });
     }
-
     function clearAutoExtra(){
       const el = $("comentariosColaboradorAuto");
       if(el) el.value = "";
     }
-
     function clearEval(){
       ["noPersonalEval","nombreEval","posicionEval","deptoEval","periodoEval","versionEval"].forEach(id=>$(id).value="");
       $("fechaEval").value = todayLocal();
       state.answers.clear();
       renderCuestionario(state.form);
-
-      // limpia extras según fase (por si cambiaste de vista)
       clearDesempenoExtra();
       clearAutoExtra();
-
       updateGuardarUIState();
     }
 
+    /* ================= SAVE ================= */
     async function saveClientes(){
       if(!isClientesPhase()){
         alert("Para guardar Clientes, selecciona la fase Formulario de evaluación de clientes.");
@@ -1133,6 +849,7 @@
         alert("Aún faltan campos. Completa todo para habilitar Guardar.");
         return;
       }
+
       const payload = {
         fase: "CLIENTES",
         no: $("noPersonal").value.trim(),
@@ -1147,6 +864,7 @@
         continuar: $("continuarHacer").value.trim(),
         evaluador: $("nombreEvaluador").value.trim()
       };
+
       const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
       const out = await apiGet({action:"save", payload:b64});
       alert("Guardado ✅\nID: " + (out.id || "—"));
@@ -1154,11 +872,9 @@
     }
 
     function buildCompatComentarios(){
-      // Compat: Apps Script suele esperar "comentarios".
-      // En DESEMPENO usamos "justificacion" como base (y mandamos extras aparte).
+      // compat: para desempeño se sigue llenando "comentarios" desde justificación
       if(!isDesempenoPhase()) return "";
-      const j = $("justificacion");
-      return (j ? j.value.trim() : "");
+      return ($("justificacion")?.value || "").trim();
     }
 
     async function saveEval(){
@@ -1171,8 +887,16 @@
         return;
       }
 
+      // ✅ NIVEL meta
+      const nm = getNivelMeta();
+
+      // ✅ respuestas
       const respuestasOrdenadas = state.itemKeys.map(k => (state.answers.get(k)?.label || ""));
 
+      // ✅ AUTO: comentarios del colaborador se guarda en comentarios + extras
+      const comentariosAuto = isAutoPhase() ? ($("comentariosColaboradorAuto")?.value || "").trim() : "";
+
+      // ✅ DESEMPENO extras (como ya lo tenías)
       const extrasDesempeno = isDesempenoPhase() ? {
         comentariosColaborador: ($("comentariosColaborador")?.value || "").trim(),
         evaluacionClientes: ($("evaluacionClientesDes")?.value || "").trim(),
@@ -1185,14 +909,17 @@
         nombreEvaluador: ($("nombreEvaluadorDes")?.value || "").trim()
       } : null;
 
-      // ✅ AUTO: mandamos el comentario como extra (el backend puede ignorarlo si no lo usa)
       const extrasAuto = isAutoPhase() ? {
-        comentariosColaborador: ($("comentariosColaboradorAuto")?.value || "").trim()
+        comentariosColaborador: comentariosAuto
       } : null;
 
       const payload = {
         fase: state.fase,
-        nivel: String(state.nivel || ""),
+        // ✅ nivel en 3 sabores: value/label/desc
+        nivel: String(nm.nivelNumero || nm.nivelValue || ""),
+        nivelLabel: String(nm.nivelLabel || ""),
+        nivelDescripcion: String(nm.nivelDescripcion || ""),
+
         no: $("noPersonalEval").value.trim(),
         nombre: $("nombreEval").value.trim(),
         posicion: $("posicionEval").value.trim(),
@@ -1200,10 +927,11 @@
         periodo: $("periodoEval").value.trim(),
         version: $("versionEval").value.trim(),
         fecha: $("fechaEval").value.trim(),
+
         respuestas: respuestasOrdenadas,
 
-        // ✅ compat hacia atrás (solo desempeño)
-        comentarios: buildCompatComentarios(),
+        // ✅ IMPORTANTE: ahora AUTO también llena "comentarios" (antes iba vacío)
+        comentarios: isAutoPhase() ? comentariosAuto : buildCompatComentarios(),
 
         // ✅ extras con campos nuevos
         extras: isDesempenoPhase() ? extrasDesempeno : (isAutoPhase() ? extrasAuto : null)
@@ -1233,7 +961,8 @@
     });
 
     $("btnAbrirPing").addEventListener("click", ()=>{
-      const raw = getWebAppUrl() + (getWebAppUrl().includes("?") ? "&" : "?") + "action=ping&_=" + Date.now();
+      const base = getWebAppUrl();
+      const raw = base + (base.includes("?") ? "&" : "?") + "action=ping&_=" + Date.now();
       window.open(raw, "_blank", "noopener,noreferrer");
     });
 
@@ -1257,8 +986,6 @@
           await loadFormByNivel(state.nivel);
           updateGuardarUIState();
         }
-        if(fase === "FORMULARIOS") clearFormulariosTable();
-        if(fase === "PESOS") clearPesosTable();
       }catch(err){
         setApiStatus("err","API: " + err.message);
       }
@@ -1278,91 +1005,44 @@
 
     $("btnGuardar").addEventListener("click", ()=>doGuardar().catch(err=>setApiStatus("err","API: " + err.message)));
     $("btnLimpiarEval").addEventListener("click", doLimpiar);
-
-    $("btnNuevo").addEventListener("click", ()=>{
-      clearClientes();
-      clearEval();
-    });
-
+    $("btnNuevo").addEventListener("click", ()=>{ clearClientes(); clearEval(); });
     $("btnPrint").addEventListener("click", ()=>window.print());
-    $("btnCargarFormularios").addEventListener("click", ()=>cargarFormularios().catch(err=>setApiStatus("err","API: " + err.message)));
-    $("btnLimpiarFormularios").addEventListener("click", ()=>{
-      clearFormulariosTable();
-      if(state.fase === "FORMULARIOS"){
-        $("nivelSelect").value = "ALL";
-        state.nivel = "ALL";
-      }
-    });
 
-    $("btnCargarPesos").addEventListener("click", ()=>cargarPesos().catch(err=>setApiStatus("err","API: " + err.message)));
-    $("btnLimpiarPesos").addEventListener("click", ()=>{
-      clearPesosTable();
-      if(state.fase === "PESOS"){
-        $("nivelSelect").value = "ALL";
-        state.nivel = "ALL";
-      }
-    });
-
-    // clientes inputs
+    // inputs clientes
     [
       "noPersonal","nombre","posicion","depto","periodo","version","fecha",
       "comenzarHacer","pararHacer","continuarHacer","nombreEvaluador"
     ].forEach(id=>{
       const el = $(id);
-      if(el){
-        el.addEventListener("input", updateGuardarUIState);
-        el.addEventListener("change", updateGuardarUIState);
-      }
+      if(el){ el.addEventListener("input", updateGuardarUIState); el.addEventListener("change", updateGuardarUIState); }
     });
 
-    // eval header inputs
+    // inputs encabezado eval
+    ["noPersonalEval","nombreEval","posicionEval","deptoEval","periodoEval","versionEval","fechaEval"].forEach(id=>{
+      const el = $(id);
+      if(el){ el.addEventListener("input", updateGuardarUIState); el.addEventListener("change", updateGuardarUIState); }
+    });
+
+    // extras desempeño
     [
-      "noPersonalEval","nombreEval","posicionEval","deptoEval","periodoEval",
-      "versionEval","fechaEval"
+      "comentariosColaborador","evaluacionClientesDes","fortalezas","oportunidadesMejora",
+      "proyeccionPotencial","necesidadesCapacitacion","justificacion","comentariosEvaluadorDes","nombreEvaluadorDes"
     ].forEach(id=>{
       const el = $(id);
-      if(el){
-        el.addEventListener("input", updateGuardarUIState);
-        el.addEventListener("change", updateGuardarUIState);
-      }
+      if(el){ el.addEventListener("input", updateGuardarUIState); el.addEventListener("change", updateGuardarUIState); }
     });
 
-    // ✅ campos extra en desempeño
-    [
-      "comentariosColaborador",
-      "evaluacionClientesDes",
-      "fortalezas",
-      "oportunidadesMejora",
-      "proyeccionPotencial",
-      "necesidadesCapacitacion",
-      "justificacion",
-      "comentariosEvaluadorDes",
-      "nombreEvaluadorDes"
-    ].forEach(id=>{
-      const el = $(id);
-      if(el){
-        el.addEventListener("input", updateGuardarUIState);
-        el.addEventListener("change", updateGuardarUIState);
-      }
-    });
-
-    // ✅ campo extra en AUTO (solo formato)
+    // extra AUTO
     ["comentariosColaboradorAuto"].forEach(id=>{
       const el = $(id);
-      if(el){
-        el.addEventListener("input", updateGuardarUIState);
-        el.addEventListener("change", updateGuardarUIState);
-      }
+      if(el){ el.addEventListener("input", updateGuardarUIState); el.addEventListener("change", updateGuardarUIState); }
     });
 
     /* ================= BOOT ================= */
     (function boot(){
       $("fecha").value = todayLocal();
       $("fechaEval").value = todayLocal();
-
       setPhase("");
-      clearFormulariosTable();
-      clearPesosTable();
 
       const saved = localStorage.getItem(LS_KEY_URL);
       setWebAppUrl(saved || DEFAULT_WEBAPP_URL);
@@ -1370,8 +1050,7 @@
       apiGet({action:"ping"})
         .then(()=>{
           setApiStatus("ok","API: conectada");
-          const q = $("cuestionario");
-          if(q) q.innerHTML = `<div class="hint">Selecciona una fase para iniciar.</div>`;
+          $("cuestionario").innerHTML = `<div class="hint">Selecciona una fase para iniciar.</div>`;
         })
         .catch(e=>setApiStatus("err","API: "+e.message));
 
