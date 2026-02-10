@@ -136,14 +136,6 @@
       white-space:nowrap;border:0;
     }
 
-    /* extra: separador mini */
-    .miniSep{
-      height:1px;
-      background:rgba(255,255,255,.08);
-      margin:12px 0;
-      border-radius:999px;
-    }
-
     @media (max-width:860px){
       .col-3,.col-4,.col-6{grid-column:span 12}
       select{min-width:180px}
@@ -422,12 +414,12 @@
         </div>
       </section>
 
-      <!-- ✅ NUEVO: Campos adicionales SOLO para "Formulario de evaluación del desempeño" -->
+      <!-- ✅ Ajuste pedido: en DESEMPENO mostrar SOLO 1 campo "Justificación y comentarios" -->
       <section class="card" data-phase-block="DESEMPENO" id="blockDesempenoExtra">
         <div class="card-h">
           <div>
             <h2>Justificación y comentarios</h2>
-            <div class="sub">Completa la justificación por nivel de puntaje y los campos cualitativos (1–5).</div>
+            <div class="sub">Escribe una justificación general (evidencias, ejemplos, contexto).</div>
           </div>
           <div class="chips">
             <span class="chip mono">Aplica solo en: <b>Evaluación del desempeño</b></span>
@@ -436,72 +428,13 @@
 
         <div class="card-b">
           <div class="hint" style="margin-bottom:12px">
-            Tip rápido: si alguien pregunta “¿por qué 3?”, aquí queda el “por qué” sin necesidad de un juicio final digno de telenovela 😄
+            Tip rápido: aquí vive el “por qué” (sin final de telenovela… a menos que RRHH lo pida 😄)
           </div>
 
           <div class="form-grid">
-            <!-- Justificación por puntaje -->
             <div class="field col-12">
-              <div class="lbl">Justificación y comentarios — Puntaje 1</div>
-              <textarea id="just1" placeholder="Describe evidencias / ejemplos para puntaje 1..."></textarea>
-            </div>
-            <div class="field col-12">
-              <div class="lbl">Justificación y comentarios — Puntaje 2</div>
-              <textarea id="just2" placeholder="Describe evidencias / ejemplos para puntaje 2..."></textarea>
-            </div>
-            <div class="field col-12">
-              <div class="lbl">Justificación y comentarios — Puntaje 3</div>
-              <textarea id="just3" placeholder="Describe evidencias / ejemplos para puntaje 3..."></textarea>
-            </div>
-            <div class="field col-12">
-              <div class="lbl">Justificación y comentarios — Puntaje 4</div>
-              <textarea id="just4" placeholder="Describe evidencias / ejemplos para puntaje 4..."></textarea>
-            </div>
-            <div class="field col-12">
-              <div class="lbl">Justificación y comentarios — Puntaje 5</div>
-              <textarea id="just5" placeholder="Describe evidencias / ejemplos para puntaje 5..."></textarea>
-            </div>
-
-            <div class="col-12"><div class="miniSep"></div></div>
-
-            <div class="field col-12">
-              <div class="lbl">Comentarios del colaborador</div>
-              <textarea id="comentColab" placeholder="Comentarios del colaborador..."></textarea>
-            </div>
-
-            <div class="field col-12">
-              <div class="lbl">Evaluación de clientes</div>
-              <textarea id="evalClientes" placeholder="Resumen de retroalimentación de clientes..."></textarea>
-            </div>
-
-            <div class="field col-6">
-              <div class="lbl">Fortalezas</div>
-              <textarea id="fortalezas" placeholder="Fortalezas principales..."></textarea>
-            </div>
-
-            <div class="field col-6">
-              <div class="lbl">Oportunidades de mejora</div>
-              <textarea id="oportunidades" placeholder="Oportunidades de mejora..."></textarea>
-            </div>
-
-            <div class="field col-12">
-              <div class="lbl">Proyección y potencial de desarrollo</div>
-              <textarea id="proyeccion" placeholder="Proyección, potencial y plan de crecimiento..."></textarea>
-            </div>
-
-            <div class="field col-12">
-              <div class="lbl">Necesidades de capacitación</div>
-              <textarea id="capacitacionNecesidades" placeholder="Brechas, temas y necesidades de capacitación..."></textarea>
-            </div>
-
-            <div class="field col-12">
-              <div class="lbl">Comentarios del evaluador</div>
-              <textarea id="comentEvaluador" placeholder="Comentarios del evaluador..."></textarea>
-            </div>
-
-            <div class="field col-6">
-              <div class="lbl">Nombre del evaluador</div>
-              <input id="nombreEvaluadorDes" placeholder="Ej: Ana López" />
+              <div class="lbl">Justificación y comentarios</div>
+              <textarea id="justificacion" placeholder="Describe evidencias / ejemplos / contexto..."></textarea>
             </div>
           </div>
         </div>
@@ -728,21 +661,8 @@
 
     function getDesempenoExtraRequiredFields(){
       // SOLO se exige cuando fase == DESEMPENO
-      return [
-        $("just1").value.trim(),
-        $("just2").value.trim(),
-        $("just3").value.trim(),
-        $("just4").value.trim(),
-        $("just5").value.trim(),
-        $("comentColab").value.trim(),
-        $("evalClientes").value.trim(),
-        $("fortalezas").value.trim(),
-        $("oportunidades").value.trim(),
-        $("proyeccion").value.trim(),
-        $("capacitacionNecesidades").value.trim(),
-        $("comentEvaluador").value.trim(),
-        $("nombreEvaluadorDes").value.trim(),
-      ];
+      const j = $("justificacion");
+      return [ (j ? j.value.trim() : "") ];
     }
 
     function isEvalComplete(){
@@ -751,7 +671,7 @@
       // encabezado siempre requerido
       if(getEvalHeaderRequiredFields().some(v => !v)) return false;
 
-      // si es desempeño: también exige los nuevos campos
+      // si es desempeño: también exige la justificación única
       if(isDesempenoPhase()){
         if(getDesempenoExtraRequiredFields().some(v => !v)) return false;
       }
@@ -824,7 +744,7 @@
         "FORMULARIOS": "Formularios: Selecciona nivel (Todos / 1..10) y carga para ver la tabla.",
         "PESOS": "Pesos: Selecciona nivel (Todos / 1..10) y carga para ver la tabla.",
         "AUTO": "Autoevaluación activa. Selecciona nivel para cargar ítems.",
-        "DESEMPENO": "Evaluación del desempeño activa. Selecciona nivel para cargar ítems y completa los campos adicionales.",
+        "DESEMPENO": "Evaluación del desempeño activa. Selecciona nivel para cargar ítems y agrega la justificación general.",
         "CLIENTES": "Evaluación de clientes: completa los campos y guarda en la hoja Clientes (sin nivel).",
         "RESULTADO": "Resultados del desempeño.",
         "CONSOLIDADO": "Informe consolidado.",
@@ -1040,12 +960,8 @@
     }
 
     function clearDesempenoExtra(){
-      ["just1","just2","just3","just4","just5","comentColab","evalClientes","fortalezas","oportunidades","proyeccion","capacitacionNecesidades","comentEvaluador","nombreEvaluadorDes"]
-        .forEach(id=>{
-          const el = $(id);
-          if(!el) return;
-          el.value = "";
-        });
+      const j = $("justificacion");
+      if(j) j.value = "";
     }
 
     function clearEval(){
@@ -1054,7 +970,7 @@
       state.answers.clear();
       renderCuestionario(state.form);
 
-      // si venías de DESEMPENO, limpia también extras
+      // si venías de DESEMPENO, limpia también la justificación
       if($("blockDesempenoExtra")) clearDesempenoExtra();
 
       updateGuardarUIState();
@@ -1090,26 +1006,11 @@
     }
 
     function buildCompatComentarios(){
-      // Para no romper Apps Script si aún espera "comentarios" en payload:
-      // - en DESEMPENO lo construimos juntando los nuevos campos.
+      // Compat: Apps Script suele esperar "comentarios".
+      // En DESEMPENO usamos el único campo "justificacion".
       if(!isDesempenoPhase()) return "";
-
-      const lines = [
-        "JUSTIFICACIÓN 1: " + $("just1").value.trim(),
-        "JUSTIFICACIÓN 2: " + $("just2").value.trim(),
-        "JUSTIFICACIÓN 3: " + $("just3").value.trim(),
-        "JUSTIFICACIÓN 4: " + $("just4").value.trim(),
-        "JUSTIFICACIÓN 5: " + $("just5").value.trim(),
-        "COMENTARIOS COLABORADOR: " + $("comentColab").value.trim(),
-        "EVALUACIÓN CLIENTES: " + $("evalClientes").value.trim(),
-        "FORTALEZAS: " + $("fortalezas").value.trim(),
-        "OPORTUNIDADES DE MEJORA: " + $("oportunidades").value.trim(),
-        "PROYECCIÓN Y POTENCIAL: " + $("proyeccion").value.trim(),
-        "NECESIDADES DE CAPACITACIÓN: " + $("capacitacionNecesidades").value.trim(),
-        "COMENTARIOS EVALUADOR: " + $("comentEvaluador").value.trim(),
-        "NOMBRE EVALUADOR: " + $("nombreEvaluadorDes").value.trim(),
-      ];
-      return lines.join("\n");
+      const j = $("justificacion");
+      return (j ? j.value.trim() : "");
     }
 
     async function saveEval(){
@@ -1118,7 +1019,7 @@
         return;
       }
       if(!isEvalComplete()){
-        alert("Aún faltan datos / respuestas" + (isDesempenoPhase() ? " / campos adicionales" : "") + ". Completa todo para habilitar Guardar.");
+        alert("Aún faltan datos / respuestas" + (isDesempenoPhase() ? " / justificación" : "") + ". Completa todo para habilitar Guardar.");
         return;
       }
 
@@ -1136,25 +1037,12 @@
         fecha: $("fechaEval").value.trim(),
         respuestas: respuestasOrdenadas,
 
-        // ✅ Campo "comentarios" eliminado de la UI.
-        // Se envía compatibilidad por si el Apps Script aún lo usa:
+        // ✅ UI: solo un campo de justificación en DESEMPENO.
         comentarios: buildCompatComentarios(),
 
-        // ✅ Extras SOLO para DESEMPENO (si Apps Script los quiere usar más adelante)
+        // ✅ Extras opcionales (si Apps Script lo quiere usar más adelante)
         extras: isDesempenoPhase() ? {
-          just1: $("just1").value.trim(),
-          just2: $("just2").value.trim(),
-          just3: $("just3").value.trim(),
-          just4: $("just4").value.trim(),
-          just5: $("just5").value.trim(),
-          comentariosColaborador: $("comentColab").value.trim(),
-          evaluacionClientes: $("evalClientes").value.trim(),
-          fortalezas: $("fortalezas").value.trim(),
-          oportunidadesMejora: $("oportunidades").value.trim(),
-          proyeccionPotencial: $("proyeccion").value.trim(),
-          necesidadesCapacitacion: $("capacitacionNecesidades").value.trim(),
-          comentariosEvaluador: $("comentEvaluador").value.trim(),
-          nombreEvaluador: $("nombreEvaluadorDes").value.trim(),
+          justificacion: buildCompatComentarios()
         } : null
       };
 
@@ -1276,12 +1164,8 @@
       }
     });
 
-    // desempeño extra inputs (solo existen en DOM siempre, pero solo se muestran en DESEMPENO)
-    [
-      "just1","just2","just3","just4","just5",
-      "comentColab","evalClientes","fortalezas","oportunidades",
-      "proyeccion","capacitacionNecesidades","comentEvaluador","nombreEvaluadorDes"
-    ].forEach(id=>{
+    // ✅ único campo extra en desempeño
+    ["justificacion"].forEach(id=>{
       const el = $(id);
       if(el){
         el.addEventListener("input", updateGuardarUIState);
