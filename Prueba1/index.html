@@ -500,7 +500,7 @@
   <script>
     /* ================= CONFIG ================= */
     const LS_KEY_URL = "ED_WEBAPP_URL";
-    const DEFAULT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzqqBlCoIjoFmBi81EW2Hu7FvxTxg_ZCZzNvOiyaS4M5hqn8HCUlZEzt9GsSJmvkpFK/exec";
+    const DEFAULT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbznyeD3r23jcKINPUa6FKowBpIzkwhoD-F9iNCSsz0W1Mqh9euQrH4W12pGTkQiC2YB/exec";
     const $ = id => document.getElementById(id);
 
     function normalizeWebAppUrl(raw){
@@ -1338,25 +1338,41 @@
 
     /* ================= BOOT ================= */
     (function boot(){
-      $("fecha").value = todayLocal();
-      $("fechaEval").value = todayLocal();
-      setPhase("");
-      clearFormTable();
-      clearPesosTable();
+  $("fecha").value = todayLocal();
+  $("fechaEval").value = todayLocal();
+  setPhase("");
+  clearFormTable();
+  clearPesosTable();
 
-      const saved = localStorage.getItem(LS_KEY_URL);
-      setWebAppUrl(saved || DEFAULT_WEBAPP_URL);
+  // 1) intenta con lo guardado
+  const saved = localStorage.getItem(LS_KEY_URL);
+  setWebAppUrl(saved || DEFAULT_WEBAPP_URL);
 
-      apiGet({action:"ping"})
-        .then(()=>{
-          setApiStatus("ok","API: conectada");
-          $("cuestionario").innerHTML = `<div class="hint">Selecciona una fase para iniciar.</div>`;
-        })
-        .catch(e=>setApiStatus("err","API: "+e.message));
+  // 2) prueba ping; si falla, cae al DEFAULT y limpia el storage malo
+  apiGet({action:"ping"})
+    .then(()=>{
+      setApiStatus("ok","API: conectada");
+      $("cuestionario").innerHTML = `<div class="hint">Selecciona una fase para iniciar.</div>`;
+    })
+    .catch(async (e1)=>{
+      setApiStatus("err","API: "+e1.message + " (reintentando con URL por defecto)");
 
-      updateGuardarUIState();
-      updatePesosSaveState();
-    })();
+      // fuerza DEFAULT
+      setWebAppUrl(DEFAULT_WEBAPP_URL);
+      localStorage.setItem(LS_KEY_URL, DEFAULT_WEBAPP_URL);
+
+      try{
+        await apiGet({action:"ping"});
+        setApiStatus("ok","API: conectada");
+        $("cuestionario").innerHTML = `<div class="hint">Selecciona una fase para iniciar.</div>`;
+      }catch(e2){
+        setApiStatus("err","API: "+e2.message);
+      }
+    });
+
+  updateGuardarUIState();
+  updatePesosSaveState();
+})();
   </script>
 </body>
 </html>
