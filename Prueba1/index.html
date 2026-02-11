@@ -484,9 +484,10 @@
             <div class="field col-2 boxed"><div class="lbl">Versión</div><input id="version" placeholder="Ej: 1" /></div>
             <div class="field col-2 boxed"><div class="lbl">Fecha</div><input id="fecha" /></div>
 
-            <div class="field col-12 boxed"><div class="lbl">Comenzar a hacer</div><textarea id="comenzarHacer" placeholder="¿Qué debería comenzar a hacer?"></textarea></div>
-            <div class="field col-12 boxed"><div class="lbl">Parar de hacer</div><textarea id="pararHacer" placeholder="¿Qué debería parar de hacer?"></textarea></div>
-            <div class="field col-12 boxed"><div class="lbl">Continuar haciendo</div><textarea id="continuarHacer" placeholder="¿Qué debería continuar haciendo?"></textarea></div>
+            <div class="field col-12 boxed">
+  <div class="lbl">Comentarios del evaluador</div>
+  <textarea id="comentariosEvaluadorClientes" placeholder="Escribe aquí los comentarios del evaluador..."></textarea>
+</div>
 
             <div class="field col-6 boxed"><div class="lbl">Nombre del evaluador</div><input id="nombreEvaluador" placeholder="Ej: Ana López" /></div>
           </div>
@@ -787,21 +788,19 @@
     function isPesosPhase(){ return state.fase === "PESOS"; }
 
     /* ================= VALIDATION ================= */
-    function getClientesRequiredFields(){
-      return [
-        $("noPersonal").value.trim(),
-        $("nombre").value.trim(),
-        $("posicion").value.trim(),
-        $("depto").value.trim(),
-        $("periodo").value.trim(),
-        $("version").value.trim(),
-        $("fecha").value.trim(),
-        $("comenzarHacer").value.trim(),
-        $("pararHacer").value.trim(),
-        $("continuarHacer").value.trim(),
-        $("nombreEvaluador").value.trim(),
-      ];
-    }
+   function getClientesRequiredFields(){
+  return [
+    $("noPersonal").value.trim(),
+    $("nombre").value.trim(),
+    $("posicion").value.trim(),
+    $("depto").value.trim(),
+    $("periodo").value.trim(),
+    $("version").value.trim(),
+    $("fecha").value.trim(),
+    $("comentariosEvaluadorClientes").value.trim(),
+    $("nombreEvaluador").value.trim(),
+  ];
+}
     function getEvalHeaderRequiredFields(){
       return [
         $("noPersonalEval").value.trim(),
@@ -1374,9 +1373,7 @@
     /* ================= CLEAR ================= */
     function clearClientes(){
       ["noPersonal","nombre","posicion","depto","periodo","version"].forEach(id=>$(id).value="");
-      $("comenzarHacer").value = "";
-      $("pararHacer").value = "";
-      $("continuarHacer").value = "";
+   $("comentariosEvaluadorClientes").value = "";
       $("nombreEvaluador").value = "";
       $("fecha").value = todayLocal();
       updateGuardarUIState();
@@ -1417,19 +1414,17 @@
         return;
       }
       const payload = {
-        fase: "CLIENTES",
-        no: $("noPersonal").value.trim(),
-        nombre: $("nombre").value.trim(),
-        posicion: $("posicion").value.trim(),
-        depto: $("depto").value.trim(),
-        periodo: $("periodo").value.trim(),
-        version: $("version").value.trim(),
-        fecha: $("fecha").value.trim(),
-        comenzar: $("comenzarHacer").value.trim(),
-        parar: $("pararHacer").value.trim(),
-        continuar: $("continuarHacer").value.trim(),
-        evaluador: $("nombreEvaluador").value.trim()
-      };
+  fase: "CLIENTES",
+  no: $("noPersonal").value.trim(),
+  nombre: $("nombre").value.trim(),
+  posicion: $("posicion").value.trim(),
+  depto: $("depto").value.trim(),
+  periodo: $("periodo").value.trim(),
+  version: $("version").value.trim(),
+  fecha: $("fecha").value.trim(),
+  comentariosEvaluador: $("comentariosEvaluadorClientes").value.trim(),
+  evaluador: $("nombreEvaluador").value.trim()
+};
       const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
       const out = await apiGet({action:"save", payload:b64});
       alert("Guardado ✅\nID: " + (out.id || "—"));
@@ -1613,9 +1608,10 @@ const respuestasOrdenadas = Array.from({length: RESP_MAX}, (_, i) => String(resp
 
     // watchers CLIENTES
     [
-      "noPersonal","nombre","posicion","depto","periodo","version","fecha",
-      "comenzarHacer","pararHacer","continuarHacer","nombreEvaluador"
-    ].forEach(id=>{
+     [
+  "noPersonal","nombre","posicion","depto","periodo","version","fecha",
+  "comentariosEvaluadorClientes","nombreEvaluador"
+].forEach(id=>{
       const el = $(id);
       if(el){
         el.addEventListener("input", updateGuardarUIState);
