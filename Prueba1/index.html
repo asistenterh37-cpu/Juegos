@@ -1608,9 +1608,6 @@ const respuestasOrdenadas = Array.from({length: RESP_MAX}, (_, i) => String(resp
 
     // watchers CLIENTES
     [
-     [
-     // watchers CLIENTES
-    [
       "noPersonal","nombre","posicion","depto","periodo","version","fecha",
       "comentariosEvaluadorClientes","nombreEvaluador"
     ].forEach(id=>{
@@ -1620,7 +1617,7 @@ const respuestasOrdenadas = Array.from({length: RESP_MAX}, (_, i) => String(resp
         el.addEventListener("change", updateGuardarUIState);
       }
     });
-
+    
     // watchers EVAL
     ["noPersonalEval","nombreEval","posicionEval","deptoEval","periodoEval","versionEval","fechaEval"].forEach(id=>{
       const el = $(id);
