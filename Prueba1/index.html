@@ -575,14 +575,10 @@
             <!-- ✅ SSC (Clientes) -->
             <div class="field col-12 boxed">
               <div class="lbl">Evaluación de clientes (SSC)</div>
-              <div class="sub" style="margin-top:-2px;margin-bottom:8px">Se llena desde la hoja <b>Clientes</b> al Recuperar (puedes editar).</div>
-              <div class="form-grid" style="margin-top:6px">
-                <div class="field col-12"><div class="lbl">Comenzar a hacer</div><textarea id="cliComenzar" placeholder="Se llena al recuperar..."></textarea></div>
-                <div class="field col-12"><div class="lbl">Parar de hacer</div><textarea id="cliParar" placeholder="Se llena al recuperar..."></textarea></div>
-                <div class="field col-12"><div class="lbl">Continuar haciendo</div><textarea id="cliContinuar" placeholder="Se llena al recuperar..."></textarea></div>
+              <div class="sub" style="margin-top:-2px;margin-bottom:8px">
+                Se llena desde la hoja <b>Clientes</b> al Recuperar (por evaluador). Puedes editar.
               </div>
-              <div class="sub" style="margin-top:10px">Resumen (se guarda en “Evaluación de clientes”):</div>
-              <textarea id="evaluacionClientesDes" placeholder="Resumen / hallazgos..."></textarea>
+              <textarea id="evaluacionClientesDes" placeholder="Se llena al recuperar..."></textarea>
             </div>
 
             <div class="field col-12 boxed"><div class="lbl">Comentarios del colaborador</div><textarea id="comentariosColaborador" placeholder="Comentarios del colaborador..."></textarea></div>
@@ -608,7 +604,7 @@
   <script>
     /* ================= CONFIG ================= */
     const LS_KEY_URL = "ED_WEBAPP_URL";
-    const DEFAULT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwPJ3oY_zQDPhE9uRgTqm13g_mNi5sLhe9Qkhe72aUhtJDJZ5u4Y6hzNo3vLzZRFFm4/exec";
+    const DEFAULT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyeB0BsjdCPMEfcDPF8N88wmvADK8V7zBhrhYuoZYJ2fzoFqbMzv0xNqAaqgjOhp6Ma/exec";
     const $ = id => document.getElementById(id);
 
     function normalizeWebAppUrl(raw){
@@ -652,7 +648,7 @@
 
       // ✅ RECOVER
       recovered: null,           // registro auto seleccionado
-      recoveredClientes: null,   // clientes match
+      recoveredClientes: null,   // array clientes match
       suppressAutoSyncSSC: false
     };
 
@@ -819,7 +815,6 @@
     function getDesempenoExtraRequiredFields(){
       const ids = [
         "comentariosColaborador",
-        "cliComenzar","cliParar","cliContinuar",
         "evaluacionClientesDes",
         "fortalezas","oportunidadesMejora",
         "proyeccionPotencial","necesidadesCapacitacion",
@@ -1206,13 +1201,13 @@
     }
 
     /* ================= ✅ RECUPERAR ================= */
-    function openRecoverModal(records, clientesHit){
+    function openRecoverModal(records, clientesCount){
       const back = $("recoverModalBack");
       const tbody = $("recoverTbody");
 
       const count = Array.isArray(records) ? records.length : 0;
       $("kpiAutoCount").textContent = String(count);
-      $("kpiCliHit").textContent = clientesHit ? "1" : "0";
+      $("kpiCliHit").textContent = String(clientesCount || 0);
 
       $("recoverSubtitle").textContent = `Encontrados: ${count} en Autoevaluacion (mismo No personal + Periodo + Versión).`;
 
@@ -1272,8 +1267,38 @@
 
       const res = await apiGet({ action:"recover", no, periodo: per, version: ver });
       const records = res.records || [];
-      state.recoveredClientes = res.clientes || null;
-      openRecoverModal(records, !!state.recoveredClientes);
+      state.recoveredClientes = Array.isArray(res.clientes) ? res.clientes : [];
+      openRecoverModal(records, state.recoveredClientes.length);
+    }
+
+    function buildClientesResumen_(clientesArr){
+      const arr = Array.isArray(clientesArr) ? clientesArr : [];
+      if(!arr.length) return "";
+
+      // orden: último match al final (como viene del back: asc por fila)
+      const blocks = arr.map((c, idx)=>{
+        const ev = String(c.evaluador || "").trim();
+        const fec = String(c.fecha || "").trim();
+
+        const header = `Evaluador: ${ev || "—"}${fec ? ` (Fecha: ${fec})` : ""}`;
+        const comenzar = String(c.comenzar || "").trim();
+        const parar = String(c.parar || "").trim();
+        const continuar = String(c.continuar || "").trim();
+
+        return [
+          header,
+          `Comenzar a hacer:`,
+          comenzar,
+          ``,
+          `Parar de hacer:`,
+          parar,
+          ``,
+          `Continuar haciendo:`,
+          continuar
+        ].join("\n").trim();
+      });
+
+      return blocks.join("\n\n" + "—".repeat(28) + "\n\n").trim();
     }
 
     async function applyRecoveredRecord(rec){
@@ -1293,7 +1318,6 @@
       // 2) Nivel + formulario usado (según Autoevaluacion)
       const nivelLabel = String(rec.nivel || "").trim();
       if(nivelLabel){
-        // si el select trae labels completos, intentamos match exacto, si no, match por canon (número)
         const sel = $("nivelSelect");
         const canon = (nivelLabel.match(/(\d+)/)?.[1] || "").trim();
 
@@ -1319,7 +1343,6 @@
 
       // 3) Respuestas autoevaluación -> selectores
       const resp = Array.isArray(rec.respuestas) ? rec.respuestas : [];
-      // IMPORTANT: resp viene en el orden Resp1..RespN
       state.answers.clear();
       state.itemKeys.forEach((k, idx)=>{
         const label = String(resp[idx] ?? "").trim();
@@ -1333,24 +1356,11 @@
       // 4) Comentarios del colaborador (auto) -> desempeño
       $("comentariosColaborador").value = String(rec.comentarios || "").trim();
 
-      // 5) Clientes SSC (si existe match)
-      const c = state.recoveredClientes;
-      if(c){
-        $("cliComenzar").value = String(c.comenzar || "").trim();
-        $("cliParar").value = String(c.parar || "").trim();
-        $("cliContinuar").value = String(c.continuar || "").trim();
-
-        // construir resumen por defecto, editable
-        const resumen =
-          `Comenzar a hacer:\n${$("cliComenzar").value}\n\n` +
-          `Parar de hacer:\n${$("cliParar").value}\n\n` +
-          `Continuar haciendo:\n${$("cliContinuar").value}`.trim();
-        $("evaluacionClientesDes").value = resumen;
+      // 5) Clientes SSC (todos los matches)
+      const arr = Array.isArray(state.recoveredClientes) ? state.recoveredClientes : [];
+      if(arr.length){
+        $("evaluacionClientesDes").value = buildClientesResumen_(arr);
       } else {
-        // si no hay clientes, deja en blanco para que lo llenen
-        if(!String($("cliComenzar").value||"").trim()) $("cliComenzar").value = "";
-        if(!String($("cliParar").value||"").trim()) $("cliParar").value = "";
-        if(!String($("cliContinuar").value||"").trim()) $("cliContinuar").value = "";
         if(!String($("evaluacionClientesDes").value||"").trim()) $("evaluacionClientesDes").value = "";
       }
 
@@ -1370,8 +1380,7 @@
     function clearDesempenoExtra(){
       [
         "comentariosColaborador","evaluacionClientesDes","fortalezas","oportunidadesMejora",
-        "proyeccionPotencial","necesidadesCapacitacion","justificacion","comentariosEvaluadorDes","nombreEvaluadorDes",
-        "cliComenzar","cliParar","cliContinuar"
+        "proyeccionPotencial","necesidadesCapacitacion","justificacion","comentariosEvaluadorDes","nombreEvaluadorDes"
       ].forEach(id=>{
         const el = $(id);
         if(el) el.value = "";
@@ -1444,12 +1453,7 @@
       const comentariosAuto = isAutoPhase() ? ($("comentariosColaboradorAuto")?.value || "").trim() : "";
       const extrasDesempeno = isDesempenoPhase() ? {
         comentariosColaborador: ($("comentariosColaborador")?.value || "").trim(),
-        // SSC
-        ssc: {
-          comenzar: ($("cliComenzar")?.value || "").trim(),
-          parar: ($("cliParar")?.value || "").trim(),
-          continuar: ($("cliContinuar")?.value || "").trim()
-        },
+        // ✅ ahora solo texto consolidado (por evaluador) en este campo:
         evaluacionClientes: ($("evaluacionClientesDes")?.value || "").trim(),
         fortalezas: ($("fortalezas")?.value || "").trim(),
         oportunidadesMejora: ($("oportunidadesMejora")?.value || "").trim(),
@@ -1618,8 +1622,7 @@
     });
     [
       "comentariosColaborador","evaluacionClientesDes","fortalezas","oportunidadesMejora",
-      "proyeccionPotencial","necesidadesCapacitacion","justificacion","comentariosEvaluadorDes","nombreEvaluadorDes",
-      "cliComenzar","cliParar","cliContinuar"
+      "proyeccionPotencial","necesidadesCapacitacion","justificacion","comentariosEvaluadorDes","nombreEvaluadorDes"
     ].forEach(id=>{
       const el = $(id);
       if(el){
