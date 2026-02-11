@@ -604,7 +604,7 @@
   <script>
     /* ================= CONFIG ================= */
     const LS_KEY_URL = "ED_WEBAPP_URL";
-    const DEFAULT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbw4sQ74K6vEkV2hFKTB3X0E-IGAkztaxtuFymnmQkdUWWBwKNvLoVoTGR5QnIT9uWN7/exec";
+    const DEFAULT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbz3GL5iO-8P-fGcOB_ymM_ICWK0yNfHgdM18clu2SfCfFA7fYjfOBwFr5BwLB_h_U6G/exec";
     const $ = id => document.getElementById(id);
 
     function normalizeWebAppUrl(raw){
@@ -1275,23 +1275,20 @@
   const arr = Array.isArray(clientesArr) ? clientesArr : [];
   if(!arr.length) return "";
 
-  const blocks = arr.map((c)=>{
-    const evaluador = String(c.evaluador || "").trim();
-    const fecha = String(c.fecha || "").trim();
+  // Si querés “más reciente primero”, descomentá:
+  // arr.sort((a,b)=> (Number(b.rowNumber||0) - Number(a.rowNumber||0)));
 
-    const comenzar = String(c.comenzar || "").trim();
-    const parar = String(c.parar || "").trim();
-    const continuar = String(c.continuar || "").trim();
+  const lines = arr.map((c, i)=>{
+    const evaluador = String(c.evaluador || "").trim() || "—";
+    const comenzar  = String(c.comenzar  || "").trim() || "—";
+    const parar     = String(c.parar     || "").trim() || "—";
+    const continuar = String(c.continuar || "").trim() || "—";
 
-    return [
-      `Nombre del evaluador: ${evaluador || "—"}${fecha ? ` (Fecha: ${fecha})` : ""}`,
-      `Comenzar a hacer: ${comenzar || "—"}`,
-      `Parar de hacer: ${parar || "—"}`,
-      `Continuar haciendo: ${continuar || "—"}`
-    ].join("\n");
+    // ✅ 1 línea = 1 evaluador/registro (tabulado)
+    return `(${i+1}) Nombre del evaluador: ${evaluador} | Comenzar a hacer: ${comenzar} | Parar de hacer: ${parar} | Continuar haciendo: ${continuar}`;
   });
 
-  return blocks.join("\n\n" + "—".repeat(28) + "\n\n").trim();
+  return lines.join("\n").trim();
 }
 
     async function applyRecoveredRecord(rec){
