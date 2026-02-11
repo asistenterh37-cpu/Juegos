@@ -604,7 +604,7 @@
   <script>
     /* ================= CONFIG ================= */
     const LS_KEY_URL = "ED_WEBAPP_URL";
-    const DEFAULT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyeB0BsjdCPMEfcDPF8N88wmvADK8V7zBhrhYuoZYJ2fzoFqbMzv0xNqAaqgjOhp6Ma/exec";
+    const DEFAULT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbw4sQ74K6vEkV2hFKTB3X0E-IGAkztaxtuFymnmQkdUWWBwKNvLoVoTGR5QnIT9uWN7/exec";
     const $ = id => document.getElementById(id);
 
     function normalizeWebAppUrl(raw){
@@ -1272,34 +1272,27 @@
     }
 
     function buildClientesResumen_(clientesArr){
-      const arr = Array.isArray(clientesArr) ? clientesArr : [];
-      if(!arr.length) return "";
+  const arr = Array.isArray(clientesArr) ? clientesArr : [];
+  if(!arr.length) return "";
 
-      // orden: último match al final (como viene del back: asc por fila)
-      const blocks = arr.map((c, idx)=>{
-        const ev = String(c.evaluador || "").trim();
-        const fec = String(c.fecha || "").trim();
+  const blocks = arr.map((c)=>{
+    const evaluador = String(c.evaluador || "").trim();
+    const fecha = String(c.fecha || "").trim();
 
-        const header = `Evaluador: ${ev || "—"}${fec ? ` (Fecha: ${fec})` : ""}`;
-        const comenzar = String(c.comenzar || "").trim();
-        const parar = String(c.parar || "").trim();
-        const continuar = String(c.continuar || "").trim();
+    const comenzar = String(c.comenzar || "").trim();
+    const parar = String(c.parar || "").trim();
+    const continuar = String(c.continuar || "").trim();
 
-        return [
-          header,
-          `Comenzar a hacer:`,
-          comenzar,
-          ``,
-          `Parar de hacer:`,
-          parar,
-          ``,
-          `Continuar haciendo:`,
-          continuar
-        ].join("\n").trim();
-      });
+    return [
+      `Nombre del evaluador: ${evaluador || "—"}${fecha ? ` (Fecha: ${fecha})` : ""}`,
+      `Comenzar a hacer: ${comenzar || "—"}`,
+      `Parar de hacer: ${parar || "—"}`,
+      `Continuar haciendo: ${continuar || "—"}`
+    ].join("\n");
+  });
 
-      return blocks.join("\n\n" + "—".repeat(28) + "\n\n").trim();
-    }
+  return blocks.join("\n\n" + "—".repeat(28) + "\n\n").trim();
+}
 
     async function applyRecoveredRecord(rec){
       if(!rec) return;
