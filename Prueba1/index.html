@@ -605,7 +605,7 @@
   <script>
     /* ================= CONFIG ================= */
     const LS_KEY_URL = "ED_WEBAPP_URL";
-    const DEFAULT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxQ-QPiCSqi-Qg31xxnaiZSXE0_HQxXcStQGX6taa9BDcLDAjYGe9kwhaoOequycu7N/exec";
+    const DEFAULT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxL7GDt27MfZCC-gTQzq6IWGIdP2LV0mSwXi7GfWKX6oC1EDH0ed7KKONCr4VhIyOgY/exec";
     const $ = id => document.getElementById(id);
 
     function normalizeWebAppUrl(raw){
@@ -1289,22 +1289,22 @@
   const arr = Array.isArray(clientesArr) ? clientesArr : [];
   if(!arr.length) return "";
 
-  // Si querés “más reciente primero”, descomentá:
-  // arr.sort((a,b)=> (Number(b.rowNumber||0) - Number(a.rowNumber||0)));
-
   const lines = arr.map((c, i)=>{
+    // ✅ si el GS ya mandó la columna "Evaluación de clientes", úsala directo
+    const pre = String(c.evaluacionClientes || c.evaluacion_de_clientes || "").trim();
+    if(pre) return `(${i+1}) ${pre}`;
+
+    // fallback: reconstruir desde campos
     const evaluador = String(c.evaluador || "").trim() || "—";
     const comenzar  = String(c.comenzar  || "").trim() || "—";
     const parar     = String(c.parar     || "").trim() || "—";
     const continuar = String(c.continuar || "").trim() || "—";
 
-    // ✅ 1 línea = 1 evaluador/registro (tabulado)
     return `(${i+1}) Nombre del evaluador: ${evaluador} | Comenzar a hacer: ${comenzar} | Parar de hacer: ${parar} | Continuar haciendo: ${continuar}`;
   });
 
   return lines.join("\n").trim();
 }
-
     async function applyRecoveredRecord(rec){
       if(!rec) return;
 
