@@ -605,7 +605,7 @@
   <script>
     /* ================= CONFIG ================= */
     const LS_KEY_URL = "ED_WEBAPP_URL";
-    const DEFAULT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxL7GDt27MfZCC-gTQzq6IWGIdP2LV0mSwXi7GfWKX6oC1EDH0ed7KKONCr4VhIyOgY/exec";
+    const DEFAULT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzXbGlMCdTtUvBxktkEyl5_F04wx74Ln7zAVi2An6WSRh5M2F4bcuHhFx_J_OmDitby/exec";
     const $ = id => document.getElementById(id);
 
     function normalizeWebAppUrl(raw){
@@ -1452,7 +1452,14 @@
       }
 
       const nivelRef = getNivelRef();
-      const respuestasOrdenadas = state.itemKeys.map(k => (state.answers.get(k)?.label || ""));
+      // ✅ Respuestas tabuladas SIEMPRE en Resp1..Resp20
+const RESP_MAX = 20;
+
+// 1) construye respuestas en el orden de los items
+const respuestasOrdenadasRaw = state.itemKeys.map(k => (state.answers.get(k)?.label || ""));
+
+// 2) fuerza longitud 20 (recorta si hay más, rellena si hay menos)
+const respuestasOrdenadas = Array.from({length: RESP_MAX}, (_, i) => String(respuestasOrdenadasRaw[i] ?? "").trim());
 
       const comentariosAuto = isAutoPhase() ? ($("comentariosColaboradorAuto")?.value || "").trim() : "";
       const extrasDesempeno = isDesempenoPhase() ? {
