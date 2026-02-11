@@ -484,9 +484,12 @@
             <div class="field col-2 boxed"><div class="lbl">Versión</div><input id="version" placeholder="Ej: 1" /></div>
             <div class="field col-2 boxed"><div class="lbl">Fecha</div><input id="fecha" /></div>
 
-            <div class="field col-12 boxed">
+           <div class="field col-12 boxed">
   <div class="lbl">Comentarios del evaluador</div>
-  <textarea id="comentariosEvaluadorClientes" placeholder="Escribe aquí los comentarios del evaluador..."></textarea>
+  <textarea id="comentariosEvaluadorClientes"></textarea>
+  <div class="sub" style="margin-top:6px;color:rgba(169,183,217,.9)">
+    Tip: usa la guía para escribir de forma clara y accionable.
+  </div>
 </div>
 
             <div class="field col-6 boxed"><div class="lbl">Nombre del evaluador</div><input id="nombreEvaluador" placeholder="Ej: Ana López" /></div>
@@ -606,7 +609,12 @@
   <script>
     /* ================= CONFIG ================= */
     const LS_KEY_URL = "ED_WEBAPP_URL";
-    const DEFAULT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzXbGlMCdTtUvBxktkEyl5_F04wx74Ln7zAVi2An6WSRh5M2F4bcuHhFx_J_OmDitby/exec";
+// ✅ Guía predeterminada (Clientes)
+const DEFAULT_COMENTARIOS_CLIENTES =
+`Empezar a hacer:
+Continuar haciendo:
+Dejar de hacer:`;    
+    const DEFAULT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbw2riKp4fV3Gup0O_6Z0ojT8IFhPta2X-DLG5SJqB8GH4ubUcdop74N1EBOJXp2H6Gt/exec";
     const $ = id => document.getElementById(id);
 
     function normalizeWebAppUrl(raw){
@@ -1372,12 +1380,13 @@
 
     /* ================= CLEAR ================= */
     function clearClientes(){
-      ["noPersonal","nombre","posicion","depto","periodo","version"].forEach(id=>$(id).value="");
-   $("comentariosEvaluadorClientes").value = "";
-      $("nombreEvaluador").value = "";
-      $("fecha").value = todayLocal();
-      updateGuardarUIState();
-    }
+  ["noPersonal","nombre","posicion","depto","periodo","version"].forEach(id=>$(id).value="");
+  $("comentariosEvaluadorClientes").value = DEFAULT_COMENTARIOS_CLIENTES; // ✅ vuelve la guía
+  $("nombreEvaluador").value = "";
+  $("fecha").value = todayLocal();
+  updateGuardarUIState();
+}
+
     function clearDesempenoExtra(){
       [
         "comentariosColaborador","evaluacionClientesDes","fortalezas","oportunidadesMejora",
@@ -1648,6 +1657,9 @@ const respuestasOrdenadas = Array.from({length: RESP_MAX}, (_, i) => String(resp
     (function boot(){
       $("fecha").value = todayLocal();
       $("fechaEval").value = todayLocal();
+        // ✅ set guía por defecto en Clientes
+  const tCli = $("comentariosEvaluadorClientes");
+  if (tCli && !String(tCli.value || "").trim()) tCli.value = DEFAULT_COMENTARIOS_CLIENTES;      
       setPhase("");
       clearFormTable();
       clearPesosTable();
