@@ -484,14 +484,16 @@
             <div class="field col-2 boxed"><div class="lbl">Versión</div><input id="version" placeholder="Ej: 1" /></div>
             <div class="field col-2 boxed"><div class="lbl">Fecha</div><input id="fecha" /></div>
 
-           <div class="field col-12 boxed">
+        <div class="field col-12 boxed">
   <div class="lbl">Comentarios del evaluador</div>
-  <textarea id="comentariosEvaluadorClientes"></textarea>
+  <textarea id="comentariosEvaluadorClientes" placeholder="Empezar a hacer:
+Continuar haciendo:
+Dejar de hacer:"></textarea>
   <div class="sub" style="margin-top:6px;color:rgba(169,183,217,.9)">
     Tip: usa la guía para escribir de forma clara y accionable.
   </div>
 </div>
-
+      
             <div class="field col-6 boxed"><div class="lbl">Nombre del evaluador</div><input id="nombreEvaluador" placeholder="Ej: Ana López" /></div>
           </div>
 
@@ -614,7 +616,7 @@ const DEFAULT_COMENTARIOS_CLIENTES =
 `Empezar a hacer:
 Continuar haciendo:
 Dejar de hacer:`;    
-    const DEFAULT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbw2riKp4fV3Gup0O_6Z0ojT8IFhPta2X-DLG5SJqB8GH4ubUcdop74N1EBOJXp2H6Gt/exec";
+    const DEFAULT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbz5SLDBZiwIsByDkXjI7spRUGgnLl7JOfuOqfN3TZFLgflmvAqdwMtpAx55yEXlWQCz/exec";
     const $ = id => document.getElementById(id);
 
     function normalizeWebAppUrl(raw){
@@ -1692,6 +1694,11 @@ const respuestasOrdenadas = Array.from({length: RESP_MAX}, (_, i) => String(resp
 
       updateGuardarUIState();
       updatePesosSaveState();
+// ✅ si entro a CLIENTES y el textarea está vacío, cargar guía por defecto
+if (isClientesPhase()) {
+  const tCli = $("comentariosEvaluadorClientes");
+  if (tCli && !String(tCli.value || "").trim()) tCli.value = DEFAULT_COMENTARIOS_CLIENTES;
+}     
     })();
   </script>
 </body>
