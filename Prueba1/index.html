@@ -289,23 +289,24 @@
 
         <div class="tableWrap">
           <table id="recoverTable">
-            <thead>
-              <tr>
-                <th>Acción</th>
-                <th>Fila</th>
-                <th>No. personal</th>
-                <th>Nombre</th>
-                <th>Periodo</th>
-                <th>Versión</th>
-                <th>Fecha</th>
-                <th>Nivel</th>
-                <th>Respuestas</th>
-                <th>Comentarios colaborador</th>
-              </tr>
-            </thead>
-            <tbody id="recoverTbody">
-              <tr><td colspan="10" class="sub">—</td></tr>
-            </tbody>
+          <thead>
+  <tr>
+    <th>Acción</th>
+    <th>Fila</th>
+    <th>No. personal</th>
+    <th>Nombre</th>
+    <th>Periodo</th>
+    <th>Versión</th>
+    <th>Fecha</th>
+    <th>Nivel</th>
+    <th>Respuestas</th>
+    <th>Comentarios colaborador</th>
+    <th>Evaluación de clientes</th>
+  </tr>
+</thead>
+          <tbody id="recoverTbody">
+  <tr><td colspan="11" class="sub">—</td></tr>
+</tbody>
           </table>
         </div>
 
@@ -604,7 +605,7 @@
   <script>
     /* ================= CONFIG ================= */
     const LS_KEY_URL = "ED_WEBAPP_URL";
-    const DEFAULT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbz3GL5iO-8P-fGcOB_ymM_ICWK0yNfHgdM18clu2SfCfFA7fYjfOBwFr5BwLB_h_U6G/exec";
+    const DEFAULT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxQ-QPiCSqi-Qg31xxnaiZSXE0_HQxXcStQGX6taa9BDcLDAjYGe9kwhaoOequycu7N/exec";
     const $ = id => document.getElementById(id);
 
     function normalizeWebAppUrl(raw){
@@ -1201,54 +1202,67 @@
     }
 
     /* ================= ✅ RECUPERAR ================= */
-    function openRecoverModal(records, clientesCount){
-      const back = $("recoverModalBack");
-      const tbody = $("recoverTbody");
+     function openRecoverModal(records, clientesCount){
+  const back = $("recoverModalBack");
+  const tbody = $("recoverTbody");
 
-      const count = Array.isArray(records) ? records.length : 0;
-      $("kpiAutoCount").textContent = String(count);
-      $("kpiCliHit").textContent = String(clientesCount || 0);
+  const count = Array.isArray(records) ? records.length : 0;
+  $("kpiAutoCount").textContent = String(count);
+  $("kpiCliHit").textContent = String(clientesCount || 0);
 
-      $("recoverSubtitle").textContent = `Encontrados: ${count} en Autoevaluacion (mismo No personal + Periodo + Versión).`;
+  $("recoverSubtitle").textContent =
+    `Encontrados: ${count} en Autoevaluacion (mismo No personal + Periodo + Versión).`;
 
-      if(!count){
-        tbody.innerHTML = `<tr><td colspan="10" class="sub">No se encontró Autoevaluación con esos criterios.</td></tr>`;
-      } else {
-        tbody.innerHTML = records.map(r=>{
-          const respCount = Array.isArray(r.respuestas) ? r.respuestas.length : 0;
-          const respPreview = (r.respuestas || []).slice(0,4).join(" | ") + (respCount>4 ? ` | +${respCount-4}` : "");
-          const fila = r.rowNumber ?? "—";
-          return `
-            <tr>
-              <td>
-                <button class="btn-ok pickBtn" data-pick="${escapeAttr(String(fila))}">Aplicar</button>
-              </td>
-              <td class="mono">${escapeHtml(fila)}</td>
-              <td class="mono">${escapeHtml(r.no || "")}</td>
-              <td>${escapeHtml(r.nombre || "")}</td>
-              <td class="mono">${escapeHtml(r.periodo || "")}</td>
-              <td class="mono">${escapeHtml(r.version || "")}</td>
-              <td class="mono">${escapeHtml(r.fecha || "")}</td>
-              <td>${escapeHtml(r.nivel || "")}</td>
-              <td><div class="tdMuted">${escapeHtml(respPreview)}</div></td>
-              <td><div class="tdMuted">${escapeHtml(String(r.comentarios||"").slice(0,120))}${String(r.comentarios||"").length>120?"…":""}</div></td>
-            </tr>
-          `;
-        }).join("");
+  // ✅ Texto consolidado (1 línea por evaluador) desde los matches de Clientes
+  const sscFull = buildClientesResumen_(state.recoveredClientes || []);
+  const sscPreview = String(sscFull || "").trim()
+    ? (String(sscFull).slice(0,180) + (String(sscFull).length>180 ? "…" : ""))
+    : "—";
 
-        tbody.querySelectorAll("button[data-pick]").forEach(btn=>{
-          btn.addEventListener("click", async ()=>{
-            const row = String(btn.getAttribute("data-pick"));
-            const rec = records.find(x => String(x.rowNumber) === row) || records[0];
-            await applyRecoveredRecord(rec);
-            closeRecoverModal();
-          });
-        });
-      }
+  if(!count){
+    tbody.innerHTML = `<tr><td colspan="11" class="sub">No se encontró Autoevaluación con esos criterios.</td></tr>`;
+  } else {
+    tbody.innerHTML = records.map(r=>{
+      const respCount = Array.isArray(r.respuestas) ? r.respuestas.length : 0;
+      const respPreview =
+        (r.respuestas || []).slice(0,4).join(" | ") + (respCount>4 ? ` | +${respCount-4}` : "");
 
-      back.classList.add("show");
-    }
-    function closeRecoverModal(){
+      const fila = r.rowNumber ?? "—";
+
+      return `
+        <tr>
+          <td>
+            <button class="btn-ok pickBtn" data-pick="${escapeAttr(String(fila))}">Aplicar</button>
+          </td>
+          <td class="mono">${escapeHtml(fila)}</td>
+          <td class="mono">${escapeHtml(r.no || "")}</td>
+          <td>${escapeHtml(r.nombre || "")}</td>
+          <td class="mono">${escapeHtml(r.periodo || "")}</td>
+          <td class="mono">${escapeHtml(r.version || "")}</td>
+          <td class="mono">${escapeHtml(r.fecha || "")}</td>
+          <td>${escapeHtml(r.nivel || "")}</td>
+          <td><div class="tdMuted">${escapeHtml(respPreview)}</div></td>
+          <td><div class="tdMuted">${escapeHtml(String(r.comentarios||"").slice(0,120))}${String(r.comentarios||"").length>120?"…":""}</div></td>
+
+          <!-- ✅ NUEVA COLUMNA -->
+          <td><div class="tdMuted">${escapeHtml(sscPreview)}</div></td>
+        </tr>
+      `;
+    }).join("");
+
+    tbody.querySelectorAll("button[data-pick]").forEach(btn=>{
+      btn.addEventListener("click", async ()=>{
+        const row = String(btn.getAttribute("data-pick"));
+        const rec = records.find(x => String(x.rowNumber) === row) || records[0];
+        await applyRecoveredRecord(rec);
+        closeRecoverModal();
+      });
+    });
+  }
+
+  back.classList.add("show");
+}
+   function closeRecoverModal(){
       $("recoverModalBack").classList.remove("show");
     }
 
