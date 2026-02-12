@@ -337,11 +337,13 @@
           <button id="btnAbrirPing" class="btn-ghost">Abrir Ping</button>
 
           <button id="btnRecuperar" class="btn-blue" style="display:none">Recuperar</button>
-          <button id="btnLimpiarEval" class="btn-warn" style="display:none">Limpiar</button>
-          <button id="btnGuardar" class="btn-ok" disabled>Guardar</button>
+<button id="btnLimpiarEval" class="btn-warn" style="display:none">Limpiar</button>
+<button id="btnGuardar" class="btn-ok" disabled>Guardar</button>
 
-          <button id="btnNuevo" class="btn-blue">Nuevo</button>
-          <button id="btnPrint" class="btn-ghost">Imprimir / Enviar a PDF</button>
+<button id="btnNuevo" class="btn-blue">Nuevo</button>
+
+<!-- ✅ Imprimir (para RESULTADO): abre menú PDF / Texto -->
+<button id="btnPrint" class="btn-ghost" style="display:none">Imprimir</button>
         </div>
       </div>
     </div>
@@ -502,31 +504,42 @@ Dejar de hacer:"></textarea>
       </section>
 
       <!-- EVAL (AUTO / DESEMPENO) -->
-      <section class="card" data-phase-block="EVAL" id="blockDatos">
-        <div class="card-h">
-          <div>
-            <h2>Datos del colaborador</h2>
-            <div class="sub">Completa la información y selecciona una opción (1–5) para cada ítem.</div>
-          </div>
-          <div class="chips">
-            <span class="chip mono">Recuperar: llena <b>No personal</b> + <b>Periodo</b> + <b>Versión</b></span>
-          </div>
-        </div>
-        <div class="card-b">
-          <div class="form-grid">
-            <div class="field col-3 boxed"><div class="lbl">No. de personal</div><input id="noPersonalEval" placeholder="Ej: 1600" /></div>
-            <div class="field col-6 boxed"><div class="lbl">Nombre</div><input id="nombreEval" placeholder="Ej: Carlos Paz" /></div>
-            <div class="field col-3 boxed"><div class="lbl">Posición</div><input id="posicionEval" placeholder="Ej: Analista" /></div>
+      <section class="card" id="blockDatos">
+  <div class="card-h">
+    <div>
+      <h2>Datos del colaborador</h2>
+      <div class="sub" id="datosHelp">Completa la información y selecciona una opción (1–5) para cada ítem.</div>
+    </div>
+    <div class="chips" id="datosChipWrap">
+      <span class="chip mono" id="datosChip">Recuperar: llena <b>No personal</b> + <b>Periodo</b> + <b>Versión</b></span>
+    </div>
+  </div>
 
-            <div class="field col-4 boxed"><div class="lbl">Departamento</div><input id="deptoEval" placeholder="Ej: Contabilidad" /></div>
-            <div class="field col-4 boxed"><div class="lbl">Periodo</div><input id="periodoEval" placeholder="Ej: 2025" /></div>
-            <div class="field col-2 boxed"><div class="lbl">Versión</div><input id="versionEval" placeholder="Ej: 1" /></div>
-            <div class="field col-2 boxed"><div class="lbl">Fecha</div><input id="fechaEval" /></div>
-          </div>
-          <div class="sub" style="margin-top:10px">Estado API: <b id="apiMiniEval">—</b></div>
-        </div>
-      </section>
+  <div class="card-b">
+    <!-- ✅ Bloque EVAL (AUTO/DESEMPENO) -->
+    <div id="datosEvalWrap" class="form-grid" style="display:none">
+      <div class="field col-3 boxed"><div class="lbl">No. de personal</div><input id="noPersonalEval" placeholder="Ej: 1600" /></div>
+      <div class="field col-6 boxed"><div class="lbl">Nombre</div><input id="nombreEval" placeholder="Ej: Carlos Paz" /></div>
+      <div class="field col-3 boxed"><div class="lbl">Posición</div><input id="posicionEval" placeholder="Ej: Analista" /></div>
 
+      <div class="field col-4 boxed"><div class="lbl">Departamento</div><input id="deptoEval" placeholder="Ej: Contabilidad" /></div>
+      <div class="field col-4 boxed"><div class="lbl">Periodo</div><input id="periodoEval" placeholder="Ej: 2025" /></div>
+      <div class="field col-2 boxed"><div class="lbl">Versión</div><input id="versionEval" placeholder="Ej: 1" /></div>
+      <div class="field col-2 boxed"><div class="lbl">Fecha</div><input id="fechaEval" /></div>
+
+      <div class="sub col-12" style="margin-top:8px">Estado API: <b id="apiMiniEval">—</b></div>
+    </div>
+
+    <!-- ✅ Bloque RESULTADO -->
+    <div id="datosResultadoWrap" class="form-grid" style="display:none">
+      <div class="field col-4 boxed"><div class="lbl">No. de personal</div><input id="noPersonalRes" placeholder="Ej: 1600" /></div>
+      <div class="field col-4 boxed"><div class="lbl">Periodo</div><input id="periodoRes" placeholder="Ej: 2025" /></div>
+      <div class="field col-4 boxed"><div class="lbl">Versión</div><input id="versionRes" placeholder="Ej: 1" /></div>
+
+      <div class="sub col-12" style="margin-top:8px">Estado API: <b id="apiMiniRes">—</b></div>
+    </div>
+  </div>
+</section>
       <section class="card" data-phase-block="EVAL" id="blockEval">
         <div class="card-h">
           <div>
@@ -600,7 +613,60 @@ Dejar de hacer:"></textarea>
       </section>
 
       <!-- OTRAS VISTAS -->
-      <section class="card" data-phase-block="RESULTADO"><div class="card-h"><h2>Resultado evaluación del desempeño</h2><div class="sub">Vista en construcción.</div></div><div class="card-b"><div class="hint">Aquí irá el resultado.</div></div></section>
+      <section class="card" data-phase-block="RESULTADO" id="blockResultado">
+  <div class="card-h">
+    <div>
+      <h2>Resultado evaluación del desempeño</h2>
+      <div class="sub">
+        Recupera con <b>No personal + Periodo + Versión</b> y se genera el <b>Reporte</b> desde <b>EvaluacionFinal</b>.
+      </div>
+    </div>
+    <div class="chips">
+      <span class="chip mono">Origen: <b>EvaluacionFinal</b></span>
+      <span class="chip mono">Incluye: <b>Puntaje Final</b> + detalle por ítem</span>
+    </div>
+  </div>
+
+  <div class="card-b">
+    <div class="hint" style="margin-bottom:12px">
+      Tip: primero <b>Recuperar</b>, luego <b>Imprimir</b> (PDF o Texto). El orden importa… como en la vida 😄
+    </div>
+
+    <div id="resultadoMeta" class="sub" style="margin-bottom:10px">—</div>
+
+    <div class="tableWrap">
+      <table id="resultadoTable">
+        <thead>
+          <tr>
+            <th>Factor</th>
+            <th>Ítem</th>
+            <th>Respuesta</th>
+            <th>Peso</th>
+            <th>Puntaje ítem</th>
+          </tr>
+        </thead>
+        <tbody id="resultadoTbody">
+          <tr><td colspan="5" class="sub">Usa <b>Recuperar</b> para cargar el reporte.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card" style="margin-top:14px">
+      <div class="card-h">
+        <h2>Puntaje Final</h2>
+        <div class="chips">
+          <span class="chip mono">Suma: Σ((selección/5) * peso)</span>
+        </div>
+      </div>
+      <div class="card-b">
+        <div class="field boxed">
+          <div class="lbl">Puntaje Final</div>
+          <input id="puntajeFinal" class="mono" readonly value="—" />
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
       <section class="card" data-phase-block="CONSOLIDADO"><div class="card-h"><h2>Informe consolidado</h2><div class="sub">Vista en construcción.</div></div><div class="card-b"><div class="hint">Aquí irá el informe.</div></div></section>
       <section class="card" data-phase-block="CAPACITACION"><div class="card-h"><h2>Informe necesidades de capacitacion</h2><div class="sub">Vista en construcción.</div></div><div class="card-b"><div class="hint">Aquí irá el informe.</div></div></section>
       <section class="card" data-phase-block="DESARROLLO"><div class="card-h"><h2>Informe plan de desarrollo</h2><div class="sub">Vista en construcción.</div></div><div class="card-b"><div class="hint">Aquí irá el plan.</div></div></section>
@@ -616,7 +682,7 @@ const DEFAULT_COMENTARIOS_CLIENTES =
 `Empezar a hacer:
 Continuar haciendo:
 Dejar de hacer:`;    
-    const DEFAULT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzcFgDadUuhvnEbCyP79hkC2cEfLyw4GOuPSrCdSmTlK8zpkxzg_3NjnpTQCQKFdY5I/exec";
+    const DEFAULT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwJr8_vfPyM9h7q89rA9Tpfsv405pHSRKHk8W4ywRr6yWbTUu02UfRwphVqjMGQ_e1N/exec";
     const $ = id => document.getElementById(id);
 
     function normalizeWebAppUrl(raw){
@@ -791,11 +857,12 @@ Dejar de hacer:`;
 
     /* ================= PHASE HELPERS ================= */
     function isEvalPhase(){ return state.fase === "AUTO" || state.fase === "DESEMPENO"; }
-    function isClientesPhase(){ return state.fase === "CLIENTES"; }
-    function isDesempenoPhase(){ return state.fase === "DESEMPENO"; }
-    function isAutoPhase(){ return state.fase === "AUTO"; }
-    function isFormulariosPhase(){ return state.fase === "FORMULARIOS"; }
-    function isPesosPhase(){ return state.fase === "PESOS"; }
+function isClientesPhase(){ return state.fase === "CLIENTES"; }
+function isDesempenoPhase(){ return state.fase === "DESEMPENO"; }
+function isAutoPhase(){ return state.fase === "AUTO"; }
+function isFormulariosPhase(){ return state.fase === "FORMULARIOS"; }
+function isPesosPhase(){ return state.fase === "PESOS"; }
+function isResultadoPhase(){ return state.fase === "RESULTADO"; }
 
     /* ================= VALIDATION ================= */
    function getClientesRequiredFields(){
@@ -859,33 +926,17 @@ Dejar de hacer:`;
       const btnL = $("btnLimpiarEval");
       const btnR = $("btnRecuperar");
 
-      const showLimpiar = isEvalPhase() || isClientesPhase();
-      btnL.style.display = showLimpiar ? "inline-block" : "none";
+      const showLimpiar = isEvalPhase() || isClientesPhase() || isResultadoPhase();
+btnL.style.display = showLimpiar ? "inline-block" : "none";
 
-      // ✅ Recuperar solo en desempeño
-      btnR.style.display = isDesempenoPhase() ? "inline-block" : "none";
+// ✅ Recuperar: desempeño y resultado
+btnR.style.display = (isDesempenoPhase() || isResultadoPhase()) ? "inline-block" : "none";
 
-      btnG.classList.remove("btn-pulse");
-
-      if(isClientesPhase()){
-        btnG.disabled = !isClientesComplete();
-        if(!btnG.disabled) btnG.classList.add("btn-pulse");
-        return;
-      }
-      if(isEvalPhase()){
-        const total = state.itemKeys.length;
-        let done = 0;
-        for(const k of state.itemKeys){
-          const obj = state.answers.get(k);
-          if(obj && obj.value) done++;
-        }
-        $("completeHint").textContent = `Completado: ${done}/${total}`;
-        btnG.disabled = !isEvalComplete();
-        if(!btnG.disabled) btnG.classList.add("btn-pulse");
-        return;
-      }
-
-      btnG.disabled = true;
+// ✅ Guardar: solo CLIENTES o EVAL
+if(isResultadoPhase()){
+  btnG.disabled = true;
+  return;
+}
     }
 
     /* ================= PHASE UI ================= */
@@ -902,28 +953,29 @@ Dejar de hacer:`;
       });
 
       const nivelWrap = $("nivelWrap");
-      nivelWrap.classList.toggle("hide", isClientesPhase());
+nivelWrap.classList.toggle("hide", isClientesPhase() || isResultadoPhase());
 
-      const enableNivel = (isEvalPhase() || state.fase === "FORMULARIOS" || state.fase === "PESOS");
-      $("nivelSelect").disabled = !enableNivel;
+const enableNivel = (isEvalPhase() || state.fase === "FORMULARIOS" || state.fase === "PESOS");
+$("nivelSelect").disabled = !enableNivel;
 
-      const labelByPhase = {
-        "FORMULARIOS": "Formularios: Selecciona nivel (Todos / 1..10) y presiona Cargar para ver la tabla.",
-        "PESOS": "Pesos: Selecciona nivel (Todos / 1..10), edita ponderaciones y presiona Guardar.",
-        "AUTO": "Autoevaluación activa. Selecciona nivel para cargar ítems.",
-        "DESEMPENO": "Evaluación del desempeño: usa Recuperar para traer Nivel, formulario y respuestas desde Autoevaluación.",
-        "CLIENTES": "Evaluación de clientes: completa los campos y guarda en la hoja Clientes (sin nivel).",
-        "RESULTADO": "Resultados del desempeño.",
-        "CONSOLIDADO": "Informe consolidado.",
-        "CAPACITACION": "Necesidades de capacitación.",
-        "DESARROLLO": "Plan de desarrollo."
-      };
-      $("faseHelp").textContent = labelByPhase[state.fase] || "Selecciona una fase para desplegar el formulario.";
+// ✅ alterna bloque datos (EVAL vs RESULTADO)
+const evalWrap = $("datosEvalWrap");
+const resWrap  = $("datosResultadoWrap");
+if(evalWrap) evalWrap.style.display = isEvalPhase() ? "grid" : "none";
+if(resWrap)  resWrap.style.display  = isResultadoPhase() ? "grid" : "none";
 
-      const hideOpcionales = isEvalPhase() || isClientesPhase();
-      $("btnNuevo").style.display = hideOpcionales ? "none" : "inline-block";
-      $("btnPrint").style.display = hideOpcionales ? "none" : "inline-block";
+const datosHelp = $("datosHelp");
+if(datosHelp){
+  datosHelp.textContent = isResultadoPhase()
+    ? "Para Recuperar el resultado, llena: No personal + Periodo + Versión."
+    : "Completa la información y selecciona una opción (1–5) para cada ítem.";
+}
 
+const hideOpcionales = isEvalPhase() || isClientesPhase() || isResultadoPhase();
+$("btnNuevo").style.display = hideOpcionales ? "none" : "inline-block";
+
+// ✅ btnPrint solo en RESULTADO (menú PDF / Texto)
+$("btnPrint").style.display = isResultadoPhase() ? "inline-block" : "none";
       updateGuardarUIState();
       updatePesosSaveState();
     }
@@ -1515,11 +1567,11 @@ const respuestasOrdenadas = Array.from({length: RESP_MAX}, (_, i) => String(resp
       if(isEvalPhase()) return saveEval();
       alert("No hay nada que guardar en esta fase (usa el Guardar interno en Pesos).");
     }
-    function doLimpiar(){
-      if(isClientesPhase()) return clearClientes();
-      if(isEvalPhase()) return clearEval();
-    }
-
+   function doLimpiar(){
+  if(isClientesPhase()) return clearClientes();
+  if(isEvalPhase()) return clearEval();
+  if(isResultadoPhase()) return clearResultado();
+}
     /* ================= EVENTS ================= */
     $("webappUrl").addEventListener("change", ()=>{
       const v = normalizeWebAppUrl($("webappUrl").value);
@@ -1542,7 +1594,10 @@ const respuestasOrdenadas = Array.from({length: RESP_MAX}, (_, i) => String(resp
       }
     });
 
-    $("btnRecuperar").addEventListener("click", ()=>recoverSearch().catch(err=>setApiStatus("err","API: " + err.message)));
+    $("btnRecuperar").addEventListener("click", ()=>{
+  const fn = isResultadoPhase() ? recoverResultado : recoverSearch;
+  fn().catch(err=>setApiStatus("err","API: " + err.message));
+});
     $("btnRecoverClose").addEventListener("click", closeRecoverModal);
     $("recoverModalBack").addEventListener("click", (e)=>{
       if(e.target === $("recoverModalBack")) closeRecoverModal();
@@ -1605,8 +1660,72 @@ const respuestasOrdenadas = Array.from({length: RESP_MAX}, (_, i) => String(resp
       clearFormTable();
       clearPesosTable();
     });
+function openPrintModal(){
+  $("printModalBack").classList.add("show");
+  // precarga texto (si existe)
+  if(String($("printTextArea").value||"").trim() === ""){
+    $("printTextArea").value = buildResultadoTexto_();
+  }
+}
+function closePrintModal(){
+  $("printModalBack").classList.remove("show");
+}
 
-    $("btnPrint").addEventListener("click", ()=>window.print());
+function buildResultadoTexto_(){
+  // arma un texto simple desde la tabla actual
+  const no  = $("noPersonalRes")?.value?.trim() || "—";
+  const per = $("periodoRes")?.value?.trim() || "—";
+  const ver = $("versionRes")?.value?.trim() || "—";
+  const pf  = $("puntajeFinal")?.value || "—";
+
+  let out = `REPORTE DE EVALUACIÓN DEL DESEMPEÑO\n`;
+  out += `No. personal: ${no} | Periodo: ${per} | Versión: ${ver}\n`;
+  out += `Puntaje Final: ${pf}\n\n`;
+  out += `Detalle:\n`;
+
+  const trs = Array.from($("resultadoTbody")?.querySelectorAll("tr") || []);
+  trs.forEach(tr=>{
+    const tds = tr.querySelectorAll("td");
+    if(tds.length === 5){
+      const factor = tds[0].innerText.trim();
+      const item   = tds[1].innerText.trim();
+      const resp   = tds[2].innerText.trim();
+      const peso   = tds[3].innerText.trim();
+      const pItem  = tds[4].innerText.trim();
+      out += `- ${factor} | ${item} | Resp: ${resp} | Peso: ${peso} | Puntaje ítem: ${pItem}\n`;
+    }
+  });
+
+  return out.trim();
+}
+
+$("btnPrint").addEventListener("click", openPrintModal);
+$("btnPrintClose").addEventListener("click", closePrintModal);
+$("printModalBack").addEventListener("click", (e)=>{
+  if(e.target === $("printModalBack")) closePrintModal();
+});
+
+$("btnPrintPDF").addEventListener("click", ()=>{
+  // PDF = diálogo del navegador
+  closePrintModal();
+  window.print();
+});
+
+$("btnPrintTXT").addEventListener("click", ()=>{
+  $("printTextArea").value = buildResultadoTexto_();
+});
+
+$("btnCopyText").addEventListener("click", async ()=>{
+  const txt = $("printTextArea").value || "";
+  try{
+    await navigator.clipboard.writeText(txt);
+    alert("Copiado ✅");
+  }catch(_){
+    $("printTextArea").select();
+    document.execCommand("copy");
+    alert("Copiado ✅");
+  }
+});
 
     // FORMULARIOS
     $("btnCargarForm").addEventListener("click", ()=>loadFormulariosItems().catch(err=>setApiStatus("err","API: " + err.message)));
