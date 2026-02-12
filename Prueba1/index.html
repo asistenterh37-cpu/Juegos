@@ -653,18 +653,107 @@ Dejar de hacer:"></textarea>
 
     <!-- RESULTADO -->
     <!-- RESULTADO -->
-   function clearResultado(){
-  if($("noPersonalRes")) $("noPersonalRes").value = "";
-  if($("periodoRes")) $("periodoRes").value = "";
-  if($("versionRes")) $("versionRes").value = "";
-  $("resultadoMeta").textContent = "—";
-  $("resultadoTbody").innerHTML = `<tr><td colspan="3" class="sub">Usa <b>Recuperar</b> para cargar el reporte.</td></tr>`;
-  $("puntajeFinal").value = "—";
-  $("printTextArea").value = "";
-  state.resultadoCache = null;
-  updateGuardarUIState();
-}
+      <!-- ✅ RESULTADO -->
+    <section class="card" data-phase-block="RESULTADO" id="blockResultado">
+      <div class="card-h">
+        <div>
+          <h2>Resultado evaluación del desempeño</h2>
+          <div class="sub">Usa <b>Recuperar</b> para cargar el reporte desde <b>EvaluacionFinal</b>.</div>
+        </div>
+        <div class="chips">
+          <span class="chip mono">Hoja origen: <b>EvaluacionFinal</b></span>
+        </div>
+      </div>
 
+      <div class="card-b">
+        <!-- Meta del reporte -->
+        <div class="hint" style="margin-bottom:12px">
+          <div class="sub" style="margin-bottom:6px">Detalle del reporte:</div>
+          <div class="mono" id="resultadoMeta">—</div>
+        </div>
+
+        <!-- Tabla: Factor / Ítem / Respuesta -->
+        <div class="tableWrap" style="margin-bottom:14px">
+          <table id="resultadoTable">
+            <thead>
+              <tr>
+                <th>Factor</th>
+                <th>Ítem</th>
+                <th>Respuesta</th>
+              </tr>
+            </thead>
+            <tbody id="resultadoTbody">
+              <tr>
+                <td colspan="3" class="sub">Usa <b>Recuperar</b> para cargar el reporte.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Puntaje final -->
+        <div class="form-grid" style="margin-bottom:14px">
+          <div class="field col-4 boxed">
+            <div class="lbl">Puntaje final</div>
+            <input id="puntajeFinal" value="—" readonly />
+            <div class="sub" style="margin-top:6px;color:rgba(169,183,217,.9)">
+              Calculado por Apps Script (action=<code>result</code>).
+            </div>
+          </div>
+        </div>
+
+        <!-- Cualitativos -->
+        <div class="hint" style="margin-bottom:12px">
+          Cualitativos traídos desde <b>EvaluacionFinal</b> (si están vacíos, es que el humano no escribió… y la IA no inventa chismes 😄)
+        </div>
+
+        <div class="form-grid">
+          <div class="field col-12 boxed">
+            <div class="lbl">Justificación y comentarios</div>
+            <textarea id="resJustificacion" placeholder="Se llena al recuperar..." readonly></textarea>
+          </div>
+
+          <div class="field col-12 boxed">
+            <div class="lbl">Evaluación de clientes (SSC)</div>
+            <textarea id="resEvalClientes" placeholder="Se llena al recuperar..." readonly></textarea>
+          </div>
+
+          <div class="field col-12 boxed">
+            <div class="lbl">Comentarios del colaborador</div>
+            <textarea id="resComColab" placeholder="Se llena al recuperar..." readonly></textarea>
+          </div>
+
+          <div class="field col-12 boxed">
+            <div class="lbl">Fortalezas</div>
+            <textarea id="resFortalezas" placeholder="Se llena al recuperar..." readonly></textarea>
+          </div>
+
+          <div class="field col-12 boxed">
+            <div class="lbl">Oportunidades de mejora</div>
+            <textarea id="resOportunidades" placeholder="Se llena al recuperar..." readonly></textarea>
+          </div>
+
+          <div class="field col-12 boxed">
+            <div class="lbl">Proyección y potencial de desarrollo</div>
+            <textarea id="resProyeccion" placeholder="Se llena al recuperar..." readonly></textarea>
+          </div>
+
+          <div class="field col-12 boxed">
+            <div class="lbl">Necesidades de capacitación</div>
+            <textarea id="resCapacitacion" placeholder="Se llena al recuperar..." readonly></textarea>
+          </div>
+
+          <div class="field col-12 boxed">
+            <div class="lbl">Comentarios del evaluador</div>
+            <textarea id="resComEval" placeholder="Se llena al recuperar..." readonly></textarea>
+          </div>
+
+          <div class="field col-6 boxed">
+            <div class="lbl">Nombre del evaluador</div>
+            <input id="resNomEval" placeholder="Se llena al recuperar..." readonly />
+          </div>
+        </div>
+      </div>
+    </section>
     <!-- OTRAS VISTAS -->
     <section class="card" data-phase-block="CONSOLIDADO"><div class="card-h"><h2>Informe consolidado</h2><div class="sub">Vista en construcción.</div></div><div class="card-b"><div class="hint">Aquí irá el informe.</div></div></section>
     <section class="card" data-phase-block="CAPACITACION"><div class="card-h"><h2>Informe necesidades de capacitacion</h2><div class="sub">Vista en construcción.</div></div><div class="card-b"><div class="hint">Aquí irá el informe.</div></div></section>
@@ -1457,10 +1546,11 @@ Dejar de hacer:`;
     if($("noPersonalRes")) $("noPersonalRes").value = "";
     if($("periodoRes")) $("periodoRes").value = "";
     if($("versionRes")) $("versionRes").value = "";
-    $("resultadoMeta").textContent = "—";
-    $("resultadoTbody").innerHTML = `<tr><td colspan="5" class="sub">Usa <b>Recuperar</b> para cargar el reporte.</td></tr>`;
-    $("puntajeFinal").value = "—";
-    $("printTextArea").value = "";
+    if ($("resultadoMeta")) $("resultadoMeta").textContent = "—";
+if ($("resultadoTbody")) $("resultadoTbody").innerHTML = `<tr><td colspan="3" class="sub">Usa <b>Recuperar</b> para cargar el reporte.</td></tr>`;
+if ($("puntajeFinal")) $("puntajeFinal").value = "—";
+if ($("printTextArea")) $("printTextArea").value = "";
+
     state.resultadoCache = null;
     updateGuardarUIState();
   }
