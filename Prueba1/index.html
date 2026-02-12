@@ -263,7 +263,7 @@
 </head>
 
 <body>
-  <input id="webappUrl" class="sr-hidden" aria-hidden="true" tabindex="-1" />
+  <input id="webapp" class="sr-hidden" aria-hidden="true" tabindex="-1" />
 
   <!-- ✅ MODAL RECUPERAR -->
 <div id="recoverModalBack" class="modalBack" role="dialog" aria-modal="true" aria-labelledby="recoverTitle">
@@ -717,17 +717,17 @@ Dejar de hacer:"></textarea>
 
 <script>
   /* ================= CONFIG ================= */
-  const LS_KEY_URL = "ED_WEBAPP_URL";
+  const LS_KEY_ = "ED_WEBAPP_";
   const DEFAULT_COMENTARIOS_CLIENTES =
 `Empezar a hacer:
 Continuar haciendo:
 Dejar de hacer:`;
-  const DEFAULT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwJr8_vfPyM9h7q89rA9Tpfsv405pHSRKHk8W4ywRr6yWbTUu02UfRwphVqjMGQ_e1N/exec";
+  const DEFAULT_WEBAPP_ = "https://script.google.com/macros/s/AKfycbwJr8_vfPyM9h7q89rA9Tpfsv405pHSRKHk8W4ywRr6yWbTUu02UfRwphVqjMGQ_e1N/exec";
   const $ = id => document.getElementById(id);
 
-  function normalizeWebAppUrl(raw){
+  function normalizeWebApp(raw){
     let v = String(raw || "").trim();
-    if(!v) return DEFAULT_WEBAPP_URL;
+    if(!v) return DEFAULT_WEBAPP_;
     v = v.replace(/#.*$/, "");
     v = v.replace(/\s+/g, "");
     v = v.replace(/\/+$/, "");
@@ -743,12 +743,12 @@ Dejar de hacer:`;
     }
     return v;
   }
-  function getWebAppUrl(){
-    const v = normalizeWebAppUrl($("webappUrl").value);
-    return v || DEFAULT_WEBAPP_URL;
+  function getWebApp(){
+    const v = normalizeWebApp($("webapp").value);
+    return v || DEFAULT_WEBAPP_;
   }
-  function setWebAppUrl(v){
-    $("webappUrl").value = normalizeWebAppUrl(v || "");
+  function setWebApp(v){
+    $("webapp").value = normalizeWebApp(v || "");
   }
 
   /* ================= STATE ================= */
@@ -789,18 +789,18 @@ Dejar de hacer:`;
   }
 
   /* ================= JSONP API ================= */
-  function buildUrl(params, cbName){
-    const base = getWebAppUrl();
-    const url = new URL(base);
-    Object.entries(params).forEach(([k,v]) => url.searchParams.set(k, v));
-    url.searchParams.set("callback", cbName);
-    url.searchParams.set("_", String(Date.now()));
-    return url.toString();
+  function build(params, cbName){
+    const base = getWebApp();
+    const  = new (base);
+    Object.entries(params).forEach(([k,v]) => .searchParams.set(k, v));
+    .searchParams.set("callback", cbName);
+    .searchParams.set("_", String(Date.now()));
+    return .toString();
   }
   function apiGet(params, timeoutMs=15000){
     return new Promise((resolve,reject)=>{
       const cb="cb_"+Math.random().toString(36).slice(2);
-      const src = buildUrl(params, cb);
+      const src = build(params, cb);
       setApiStatus("", "API: consultando…");
 
       const s=document.createElement("script");
@@ -841,7 +841,7 @@ Dejar de hacer:`;
         if(done) return;
         done=true;
         cleanup();
-        reject(new Error("No se pudo cargar el script. Revisa: URL correcta (/exec), Deploy público (Anyone), y desactiva bloqueadores para script.google.com."));
+        reject(new Error("No se pudo cargar el script. Revisa:  correcta (/exec), Deploy público (Anyone), y desactiva bloqueadores para script.google.com."));
       };
       s.src = src;
       document.body.appendChild(s);
@@ -1806,14 +1806,14 @@ Dejar de hacer:`;
   }
 
   /* ================= EVENTS ================= */
-  $("webappUrl").addEventListener("change", ()=>{
-    const v = normalizeWebAppUrl($("webappUrl").value);
-    $("webappUrl").value = v;
-    localStorage.setItem(LS_KEY_URL, v);
+  $("webapp").addEventListener("change", ()=>{
+    const v = normalizeWebApp($("webapp").value);
+    $("webapp").value = v;
+    localStorage.setItem(LS_KEY_, v);
   });
 
   $("btnAbrirPing").addEventListener("click", ()=>{
-    const base = getWebAppUrl();
+    const base = getWebApp();
     const raw = base + (base.includes("?") ? "&" : "?") + "action=ping&_=" + Date.now();
     window.open(raw, "_blank", "noopener,noreferrer");
   });
@@ -1997,8 +1997,8 @@ Dejar de hacer:`;
     clearPesosTable();
     clearResultado();
 
-    const saved = localStorage.getItem(LS_KEY_URL);
-    setWebAppUrl(saved || DEFAULT_WEBAPP_URL);
+    const saved = localStorage.getItem(LS_KEY_);
+    setWebApp(saved || DEFAULT_WEBAPP_);
 
     apiGet({action:"ping"})
       .then(()=>{
@@ -2006,10 +2006,10 @@ Dejar de hacer:`;
         $("cuestionario").innerHTML = `<div class="hint">Selecciona una fase para iniciar.</div>`;
       })
       .catch(async (e1)=>{
-        setApiStatus("err","API: "+e1.message + " (reintentando con URL por defecto)");
+        setApiStatus("err","API: "+e1.message + " (reintentando con  por defecto)");
 
-        setWebAppUrl(DEFAULT_WEBAPP_URL);
-        localStorage.setItem(LS_KEY_URL, DEFAULT_WEBAPP_URL);
+        setWebApp(DEFAULT_WEBAPP_);
+        localStorage.setItem(LS_KEY_, DEFAULT_WEBAPP_);
 
         try{
           await apiGet({action:"ping"});
