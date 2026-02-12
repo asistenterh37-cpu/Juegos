@@ -652,61 +652,95 @@ Dejar de hacer:"></textarea>
     </section>
 
     <!-- RESULTADO -->
-    <section class="card" data-phase-block="RESULTADO" id="blockResultado">
+    <!-- RESULTADO -->
+<section class="card" data-phase-block="RESULTADO" id="blockResultado">
+  <div class="card-h">
+    <div>
+      <h2>Resultado evaluación del desempeño</h2>
+      <div class="sub">
+        Recupera con <b>No personal + Periodo + Versión</b> y se genera el <b>Reporte</b> desde <b>EvaluacionFinal</b>.
+      </div>
+    </div>
+    <div class="chips">
+      <span class="chip mono">Origen: <b>EvaluacionFinal</b></span>
+      <span class="chip mono">Incluye: <b>Puntaje Final</b> + detalle por ítem + cualitativo</span>
+    </div>
+  </div>
+
+  <div class="card-b">
+    <div class="hint" style="margin-bottom:12px">
+      Tip: primero <b>Recuperar</b>, luego <b>Imprimir</b> (PDF o Texto). El orden importa… como en la vida 😄
+    </div>
+
+    <div id="resultadoMeta" class="sub" style="margin-bottom:10px">—</div>
+
+    <div class="tableWrap">
+      <table id="resultadoTable">
+        <thead>
+          <tr>
+            <th>Factor</th>
+            <th>Ítem</th>
+            <th>Respuesta</th>
+            <th>Peso</th>
+            <th>Puntaje ítem</th>
+          </tr>
+        </thead>
+        <tbody id="resultadoTbody">
+          <tr><td colspan="5" class="sub">Usa <b>Recuperar</b> para cargar el reporte.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card" style="margin-top:14px">
       <div class="card-h">
-        <div>
-          <h2>Resultado evaluación del desempeño</h2>
-          <div class="sub">
-            Recupera con <b>No personal + Periodo + Versión</b> y se genera el <b>Reporte</b> desde <b>EvaluacionFinal</b>.
-          </div>
-        </div>
+        <h2>Puntaje Final</h2>
         <div class="chips">
-          <span class="chip mono">Origen: <b>EvaluacionFinal</b></span>
-          <span class="chip mono">Incluye: <b>Puntaje Final</b> + detalle por ítem</span>
+          <span class="chip mono">Σ((selección/5) * peso)</span>
         </div>
       </div>
-
       <div class="card-b">
-        <div class="hint" style="margin-bottom:12px">
-          Tip: primero <b>Recuperar</b>, luego <b>Imprimir</b> (PDF o Texto). El orden importa… como en la vida 😄
-        </div>
-
-        <div id="resultadoMeta" class="sub" style="margin-bottom:10px">—</div>
-
-        <div class="tableWrap">
-          <table id="resultadoTable">
-            <thead>
-              <tr>
-                <th>Factor</th>
-                <th>Ítem</th>
-                <th>Respuesta</th>
-                <th>Peso</th>
-                <th>Puntaje ítem</th>
-              </tr>
-            </thead>
-            <tbody id="resultadoTbody">
-              <tr><td colspan="5" class="sub">Usa <b>Recuperar</b> para cargar el reporte.</td></tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div class="card" style="margin-top:14px">
-          <div class="card-h">
-            <h2>Puntaje Final</h2>
-            <div class="chips">
-              <span class="chip mono">Suma: Σ((selección/5) * peso)</span>
-            </div>
-          </div>
-          <div class="card-b">
-            <div class="field boxed">
-              <div class="lbl">Puntaje Final</div>
-              <input id="puntajeFinal" class="mono" readonly value="—" />
-            </div>
-          </div>
+        <div class="field boxed">
+          <div class="lbl">Puntaje Final</div>
+          <input id="puntajeFinal" class="mono" readonly value="—" />
         </div>
       </div>
-    </section>
+    </div>
 
+    <!-- ✅ CUALITATIVO (desde EvaluacionFinal) -->
+    <div class="card" style="margin-top:14px">
+      <div class="card-h">
+        <h2>Comentarios y desarrollo (del evaluador)</h2>
+        <div class="sub">Traído desde <b>EvaluacionFinal</b> al Recuperar.</div>
+      </div>
+      <div class="card-b">
+        <div class="form-grid">
+          <div class="field col-12 boxed">
+            <div class="lbl">Justificación y comentarios</div>
+            <textarea id="resJustificacion" placeholder="—" readonly></textarea>
+          </div>
+
+          <div class="field col-12 boxed">
+            <div class="lbl">Evaluación de clientes (SSC)</div>
+            <textarea id="resEvalClientes" placeholder="—" readonly></textarea>
+          </div>
+
+          <div class="field col-12 boxed">
+            <div class="lbl">Comentarios del colaborador</div>
+            <textarea id="resComColab" placeholder="—" readonly></textarea>
+          </div>
+
+          <div class="field col-12 boxed"><div class="lbl">Fortalezas</div><textarea id="resFortalezas" placeholder="—" readonly></textarea></div>
+          <div class="field col-12 boxed"><div class="lbl">Oportunidades de mejora</div><textarea id="resOportunidades" placeholder="—" readonly></textarea></div>
+          <div class="field col-12 boxed"><div class="lbl">Proyección y potencial de desarrollo</div><textarea id="resProyeccion" placeholder="—" readonly></textarea></div>
+          <div class="field col-12 boxed"><div class="lbl">Necesidades de capacitación</div><textarea id="resCapacitacion" placeholder="—" readonly></textarea></div>
+
+          <div class="field col-12 boxed"><div class="lbl">Comentarios del evaluador</div><textarea id="resComEval" placeholder="—" readonly></textarea></div>
+          <div class="field col-6 boxed"><div class="lbl">Nombre del evaluador</div><input id="resNomEval" placeholder="—" readonly /></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
     <!-- OTRAS VISTAS -->
     <section class="card" data-phase-block="CONSOLIDADO"><div class="card-h"><h2>Informe consolidado</h2><div class="sub">Vista en construcción.</div></div><div class="card-b"><div class="hint">Aquí irá el informe.</div></div></section>
     <section class="card" data-phase-block="CAPACITACION"><div class="card-h"><h2>Informe necesidades de capacitacion</h2><div class="sub">Vista en construcción.</div></div><div class="card-b"><div class="hint">Aquí irá el informe.</div></div></section>
@@ -722,7 +756,7 @@ Dejar de hacer:"></textarea>
 `Empezar a hacer:
 Continuar haciendo:
 Dejar de hacer:`;
-  const DEFAULT_WEBAPP_ = "https://script.google.com/macros/s/AKfycbwJr8_vfPyM9h7q89rA9Tpfsv405pHSRKHk8W4ywRr6yWbTUu02UfRwphVqjMGQ_e1N/exec";
+  const DEFAULT_WEBAPP_ = "https://script.google.com/macros/s/AKfycbxxVSj1-nrBmRLDRvqBY9pLeGQqVXOcbp9XOLXONjflMfiItic7Sniz7jUiInJso4DA/exec";
   const $ = id => document.getElementById(id);
 
   function normalizeWebApp(raw){
@@ -1513,102 +1547,45 @@ Dejar de hacer:`;
   // - Peso: de hoja Pesos (mismo nivel)
   // - Puntaje ítem: (selección/5) * peso
   // - Puntaje final: suma de puntaje ítem
+    // ✅ RESULTADO: Recupera REPORTE completo desde Apps Script (EvaluacionFinal + Pesos + Formularios)
+  // action:"result" devuelve:
+  // { ok:true, header:{...}, rows:[...], puntajeFinal:"xx.xx", cualitativo:{...} }
   async function recoverResultado(){
     if(!isResultadoPhase()){
       alert("Selecciona la fase: Resultado evaluación del desempeño.");
       return;
     }
+
     const no  = $("noPersonalRes").value.trim();
     const per = $("periodoRes").value.trim();
     const ver = $("versionRes").value.trim();
+
     if(!no || !per || !ver){
       alert("Para Recuperar el resultado, llena: No. de personal + Periodo + Versión.");
       return;
     }
 
-    // ✅ IMPORTANTE:
-    // Tu Apps Script debe devolver el registro de EvaluacionFinal con esta acción:
-    // action: "getEvaluacionFinal"
-    // response esperado:
-    // {
-    //   ok:true,
-    //   record:{
-    //     no, nombre, posicion, depto, periodo, version, fecha,
-    //     nivel,              // nivel o etiqueta del formulario usado
-    //     respuestas:[ "1 — ...", "4 — ...", ... ] // Resp1..Resp20 en orden
-    //   }
-    // }
-    const res = await apiGet({ action:"getEvaluacionFinal", no, periodo: per, version: ver });
-    const rec = res.record || null;
-    if(!rec){
-      $("resultadoMeta").textContent = "No se encontró registro en EvaluacionFinal con esos criterios.";
+    // ✅ Llama a tu endpoint REAL
+    const res = await apiGet({ action:"result", no, periodo: per, version: ver });
+
+    const header = res.header || {};
+    const rows = Array.isArray(res.rows) ? res.rows : [];
+    const pf = res.puntajeFinal ?? "—";
+    const cual = res.cualitativo || {};
+
+    if(!rows.length){
+      $("resultadoMeta").textContent = "No se pudo armar el reporte (sin filas).";
       $("resultadoTbody").innerHTML = `<tr><td colspan="5" class="sub">Sin datos.</td></tr>`;
       $("puntajeFinal").value = "—";
       return;
     }
 
-    // 1) Determina nivel usado (del registro)
-    // puede venir "1 — Operativo..." o "1"
-    const nivelLabel = String(rec.nivel || rec.Nivel || "").trim();
-    let nivelCanon = (nivelLabel.match(/(\d+)/)?.[1] || "").trim();
-    const nivelToUse = nivelCanon || nivelLabel || "";
-
-    // 2) Carga el cuestionario del nivel (Formularios → action:"form")
-    // Nota: tu action "form" debe aceptar el valor numérico/canónico del nivel.
-    const formRes = await apiGet({ action:"form", nivel: nivelToUse });
-    const form = formRes.form || null;
-    if(!form || !Array.isArray(form.factors) || !form.factors.length){
-      $("resultadoMeta").textContent = "No se pudo cargar el cuestionario del nivel para armar el reporte.";
-      $("resultadoTbody").innerHTML = `<tr><td colspan="5" class="sub">Sin datos.</td></tr>`;
-      $("puntajeFinal").value = "—";
-      return;
-    }
-
-    // 3) Carga pesos del mismo nivel
-    // action:"items", sheet:"Pesos", nivel:nivelToUse
-    const pesosRes = await apiGet({ action:"items", sheet:"Pesos", nivel: nivelToUse });
-    const pesosItems = Array.isArray(pesosRes.items) ? pesosRes.items : [];
-
-    // mapa pesos: Factor||Item -> peso
-    const pesoMap = new Map();
-    pesosItems.forEach(p=>{
-      const k = `${String(p.Factor||"").trim()}||${String(p.Item||"").trim()}`;
-      pesoMap.set(k, toNum(p.Peso, 0));
-    });
-
-    // 4) Respuestas del registro (Resp1..Resp20)
-    const respuestas = Array.isArray(rec.respuestas) ? rec.respuestas : [];
-
-    // 5) Arma filas en el mismo orden del cuestionario
-    let idx = 0;
-    let sum = 0;
-
-    const rows = [];
-    form.factors.forEach(f=>{
-      const factor = String(f.factor || "").trim();
-      (f.items || []).forEach(it=>{
-        const item = String(it.item || "").trim();
-        const respLabel = String(respuestas[idx] ?? "").trim(); // texto "3 — ..."
-        const sel = toNum(extractScore(respLabel), 0);          // 1..5
-        const peso = pesoMap.get(`${factor}||${item}`) ?? 0;
-        const puntajeItem = (sel > 0 ? (sel/5) * peso : 0);
-
-        sum += puntajeItem;
-        rows.push({
-          factor, item,
-          respuesta: respLabel || (sel ? String(sel) : "—"),
-          peso,
-          puntajeItem
-        });
-        idx++;
-      });
-    });
-
-    // 6) Render tabla + meta + puntaje final
-    const nombre = String(rec.nombre || "").trim();
-    const posicion = String(rec.posicion || "").trim();
-    const depto = String(rec.depto || "").trim();
-    const fecha = String(rec.fecha || "").trim();
+    // ✅ Meta superior
+    const nombre   = String(header.nombre || "").trim();
+    const posicion = String(header.posicion || "").trim();
+    const depto    = String(header.depto || "").trim();
+    const fecha    = String(header.fecha || "").trim();
+    const nivel    = String(header.nivel || "").trim();
 
     $("resultadoMeta").textContent =
       `No: ${no} | Periodo: ${per} | Versión: ${ver}` +
@@ -1616,24 +1593,47 @@ Dejar de hacer:`;
       (posicion ? ` | Posición: ${posicion}` : "") +
       (depto ? ` | Depto: ${depto}` : "") +
       (fecha ? ` | Fecha: ${fecha}` : "") +
-      (nivelLabel ? ` | Formulario (Nivel): ${nivelLabel}` : "");
+      (nivel ? ` | Formulario (Nivel): ${nivel}` : "");
 
+    // ✅ Tabla
     $("resultadoTbody").innerHTML = rows.map(r=>{
+      const pesoNum = toNum(r.peso, 0);
+      const pItemNum = toNum(r.puntajeItem, 0);
+
       return `
         <tr>
-          <td>${escapeHtml(r.factor)}</td>
-          <td>${escapeHtml(r.item)}</td>
-          <td>${escapeHtml(r.respuesta)}</td>
-          <td class="mono">${escapeHtml(fmt2(r.peso))}</td>
-          <td class="mono">${escapeHtml(fmt2(r.puntajeItem))}</td>
+          <td>${escapeHtml(r.factor ?? "")}</td>
+          <td>${escapeHtml(r.item ?? "")}</td>
+          <td>${escapeHtml(r.respuesta ?? "—")}</td>
+          <td class="mono">${escapeHtml(fmt2(pesoNum))}</td>
+          <td class="mono">${escapeHtml(fmt2(pItemNum))}</td>
         </tr>
       `;
-    }).join("") || `<tr><td colspan="5" class="sub">Sin datos.</td></tr>`;
+    }).join("");
 
-    $("puntajeFinal").value = fmt2(sum);
+    // ✅ Puntaje Final
+    $("puntajeFinal").value = String(pf);
 
-    // cache para imprimir
-    state.resultadoCache = { no, per, ver, meta: $("resultadoMeta").textContent, rows, puntajeFinal: sum };
+    // ✅ Cualitativos (desde EvaluacionFinal)
+    $("resJustificacion").value = String(cual.justificacion || "").trim();
+    $("resEvalClientes").value  = String(cual.evaluacionClientes || "").trim();
+    $("resComColab").value      = String(cual.comentariosColaborador || "").trim();
+    $("resFortalezas").value    = String(cual.fortalezas || "").trim();
+    $("resOportunidades").value = String(cual.oportunidadesMejora || "").trim();
+    $("resProyeccion").value    = String(cual.proyeccionPotencial || "").trim();
+    $("resCapacitacion").value  = String(cual.necesidadesCapacitacion || "").trim();
+    $("resComEval").value       = String(cual.comentariosEvaluador || "").trim();
+    $("resNomEval").value       = String(cual.nombreEvaluador || "").trim();
+
+    // ✅ Cache para imprimir (PDF/TXT)
+    state.resultadoCache = {
+      no, per, ver,
+      header,
+      rows,
+      puntajeFinal: pf,
+      cualitativo: cual
+    };
+
     $("printTextArea").value = buildResultadoTexto_();
     updateGuardarUIState();
   }
@@ -1784,7 +1784,7 @@ Dejar de hacer:`;
     $("printModalBack").classList.remove("show");
   }
 
-  function buildResultadoTexto_(){
+    function buildResultadoTexto_(){
     const no  = $("noPersonalRes")?.value?.trim() || "—";
     const per = $("periodoRes")?.value?.trim() || "—";
     const ver = $("versionRes")?.value?.trim() || "—";
@@ -1793,8 +1793,8 @@ Dejar de hacer:`;
     let out = `REPORTE DE EVALUACIÓN DEL DESEMPEÑO\n`;
     out += `No. personal: ${no} | Periodo: ${per} | Versión: ${ver}\n`;
     out += `Puntaje Final: ${pf}\n\n`;
-    out += `Detalle:\n`;
 
+    out += `DETALLE POR ÍTEM:\n`;
     const trs = Array.from($("resultadoTbody")?.querySelectorAll("tr") || []);
     trs.forEach(tr=>{
       const tds = tr.querySelectorAll("td");
@@ -1807,6 +1807,17 @@ Dejar de hacer:`;
         out += `- ${factor} | ${item} | Resp: ${resp} | Peso: ${peso} | Puntaje ítem: ${pItem}\n`;
       }
     });
+
+    out += `\nCUALITATIVO (EVALUACIONFINAL):\n`;
+    out += `Justificación y comentarios:\n${($("resJustificacion")?.value || "").trim()}\n\n`;
+    out += `Evaluación de clientes (SSC):\n${($("resEvalClientes")?.value || "").trim()}\n\n`;
+    out += `Comentarios del colaborador:\n${($("resComColab")?.value || "").trim()}\n\n`;
+    out += `Fortalezas:\n${($("resFortalezas")?.value || "").trim()}\n\n`;
+    out += `Oportunidades de mejora:\n${($("resOportunidades")?.value || "").trim()}\n\n`;
+    out += `Proyección y potencial de desarrollo:\n${($("resProyeccion")?.value || "").trim()}\n\n`;
+    out += `Necesidades de capacitación:\n${($("resCapacitacion")?.value || "").trim()}\n\n`;
+    out += `Comentarios del evaluador:\n${($("resComEval")?.value || "").trim()}\n\n`;
+    out += `Nombre del evaluador: ${($("resNomEval")?.value || "").trim()}\n`;
 
     return out.trim();
   }
