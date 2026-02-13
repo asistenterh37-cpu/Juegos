@@ -666,10 +666,43 @@ Dejar de hacer:"></textarea>
       </div>
 
       <div class="card-b">
-        <!-- Meta del reporte -->
+            <!-- ✅ Datos del colaborador (para PDF y texto) -->
         <div class="hint" style="margin-bottom:12px">
-          <div class="sub" style="margin-bottom:6px">Detalle del reporte:</div>
-          <div class="mono" id="resultadoMeta">—</div>
+          <div class="sub" style="margin-bottom:10px">Datos del colaborador:</div>
+
+          <div class="form-grid">
+            <!-- Fila 1 -->
+            <div class="field col-4 boxed">
+              <div class="lbl">No. de personal</div>
+              <input id="repNo" value="—" readonly />
+            </div>
+            <div class="field col-4 boxed">
+              <div class="lbl">Nombre</div>
+              <input id="repNombre" value="—" readonly />
+            </div>
+            <div class="field col-4 boxed">
+              <div class="lbl">Posición</div>
+              <input id="repPosicion" value="—" readonly />
+            </div>
+
+            <!-- Fila 2 -->
+            <div class="field col-3 boxed">
+              <div class="lbl">Departamento</div>
+              <input id="repDepto" value="—" readonly />
+            </div>
+            <div class="field col-3 boxed">
+              <div class="lbl">Periodo</div>
+              <input id="repPeriodo" value="—" readonly />
+            </div>
+            <div class="field col-3 boxed">
+              <div class="lbl">Versión</div>
+              <input id="repVersion" value="—" readonly />
+            </div>
+            <div class="field col-3 boxed">
+              <div class="lbl">Fecha</div>
+              <input id="repFecha" value="—" readonly />
+            </div>
+          </div>
         </div>
 
         <!-- Tabla: Factor / Ítem / Respuesta -->
@@ -1594,20 +1627,20 @@ if ($("printTextArea")) $("printTextArea").value = "";
       return;
     }
 
-    // ✅ Meta superior
+      // ✅ Datos del colaborador (para PDF y texto)
     const nombre   = String(header.nombre || "").trim();
     const posicion = String(header.posicion || "").trim();
     const depto    = String(header.depto || "").trim();
     const fecha    = String(header.fecha || "").trim();
-    const nivel    = String(header.nivel || "").trim();
 
-    $("resultadoMeta").textContent =
-      `No: ${no} | Periodo: ${per} | Versión: ${ver}` +
-      (nombre ? ` | Nombre: ${nombre}` : "") +
-      (posicion ? ` | Posición: ${posicion}` : "") +
-      (depto ? ` | Depto: ${depto}` : "") +
-      (fecha ? ` | Fecha: ${fecha}` : "") +
-      (nivel ? ` | Formulario (Nivel): ${nivel}` : "");
+    if ($("repNo"))       $("repNo").value = no || "—";
+    if ($("repNombre"))   $("repNombre").value = nombre || "—";
+    if ($("repPosicion")) $("repPosicion").value = posicion || "—";
+
+    if ($("repDepto"))    $("repDepto").value = depto || "—";
+    if ($("repPeriodo"))  $("repPeriodo").value = per || "—";
+    if ($("repVersion"))  $("repVersion").value = ver || "—";
+    if ($("repFecha"))    $("repFecha").value = fecha || "—";
 
     // ✅ Tabla
     $("resultadoTbody").innerHTML = rows.map(r=>{
@@ -1794,14 +1827,22 @@ if ($("printTextArea")) $("printTextArea").value = "";
   }
 
 function buildResultadoTexto_(){
-  const no  = $("noPersonalRes")?.value?.trim() || "—";
-  const per = $("periodoRes")?.value?.trim() || "—";
-  const ver = $("versionRes")?.value?.trim() || "—";
+  const no  = $("repNo")?.value?.trim() || $("noPersonalRes")?.value?.trim() || "—";
+  const per = $("repPeriodo")?.value?.trim() || $("periodoRes")?.value?.trim() || "—";
+  const ver = $("repVersion")?.value?.trim() || $("versionRes")?.value?.trim() || "—";
   const pf  = $("puntajeFinal")?.value || "—";
 
-  let out = `REPORTE DE EVALUACIÓN DEL DESEMPEÑO\n`;
-  out += `No. personal: ${no} | Periodo: ${per} | Versión: ${ver}\n`;
-  out += `Puntaje Final: ${pf}\n\n`;
+  const nombre   = $("repNombre")?.value?.trim() || "—";
+  const posicion = $("repPosicion")?.value?.trim() || "—";
+  const depto    = $("repDepto")?.value?.trim() || "—";
+  const fecha    = $("repFecha")?.value?.trim() || "—";
+
+  let out = `REPORTE DE EVALUACIÓN DEL DESEMPEÑO\n\n`;
+
+  // ✅ Datos del colaborador (2 filas)
+  out += `No. de personal: ${no} | Nombre: ${nombre} | Posición: ${posicion}\n`;
+  out += `Departamento: ${depto} | Periodo: ${per} | Versión: ${ver} | Fecha: ${fecha}\n`;
+  out += `Puntaje final: ${pf}\n\n`;
 
   out += `DETALLE POR ÍTEM:\n`;
   const trs = Array.from($("resultadoTbody")?.querySelectorAll("tr") || []);
