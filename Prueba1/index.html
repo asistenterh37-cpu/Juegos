@@ -904,7 +904,7 @@ Dejar de hacer:"></textarea>
 `Empezar a hacer:
 Continuar haciendo:
 Dejar de hacer:`;
-  const DEFAULT_WEBAPP_ = "https://script.google.com/macros/s/AKfycbxk4Oj2peP5zdR1EK7jvHmThwe_x6fdjLaLnn3PXD_PM-y5IHhg_3Qxxk4P4KhElcSY/exec";
+  const DEFAULT_WEBAPP_ = "https://script.google.com/macros/s/AKfycbw7yQDz0sVpFCuO2kyOgV-IOxX5KkSZ0sUDGDj3Z9SNbeEdc2L4pk0--9ifi5FAye1h/exec";
   const $ = id => document.getElementById(id);
 
   function normalizeWebApp(raw){
@@ -1835,12 +1835,44 @@ if ($("repFecha"))    $("repFecha").value = fechaDMY || "—";
     btn.disabled = !(isCapacitacionPhase() && Array.isArray(state.capRows) && state.capRows.length > 0);
   }
 
-  function renderCapacitacionTable_(rows, periodo, version){
-    const arr = Array.isArray(rows) ? rows : [];
-    state.capRows = arr;
+    // ✅ Explota cursos: "Excel, Power BI, SAP" -> ["Excel","Power BI","SAP"]
+  function splitCursos_(txt){
+    const s = String(txt ?? "").trim();
+    if(!s) return [];
+    // soporta coma, ; y saltos de línea
+    return s
+      .split(/[,;\n]+/g)
+      .map(x => String(x).trim())
+      .filter(Boolean);
+  }
 
-    const count = arr.length;
-    if($("capInfo")) $("capInfo").textContent = `Mostrando: ${count} filas | Periodo: ${periodo || "—"} | Versión: ${version || "—"}`;
+  function explodeCapRows_(rows){
+    const arr = Array.isArray(rows) ? rows : [];
+    const out = [];
+
+    arr.forEach(r=>{
+      const cursos = splitCursos_(r.curso);
+      if(!cursos.length) return; // si está vacío, no genera fila (coincide con tu tip del UI)
+      cursos.forEach(c=>{
+        out.push({
+          ...r,
+          curso: c
+        });
+      });
+    });
+
+    return out;
+  }
+
+  function renderCapacitacionTable_(rows, periodo, version){
+    // ✅ por si el backend aún no explota, lo hacemos aquí también
+    const exploded = explodeCapRows_(rows);
+
+    state.capRows = exploded;
+
+    const count = exploded.length;
+    if($("capInfo")) $("capInfo").textContent =
+      `Mostrando: ${count} filas | Periodo: ${periodo || "—"} | Versión: ${version || "—"}`;
 
     if(!count){
       $("capTbody").innerHTML = `<tr><td colspan="7" class="sub">Sin datos para ese Periodo/Versión.</td></tr>`;
@@ -1848,7 +1880,7 @@ if ($("repFecha"))    $("repFecha").value = fechaDMY || "—";
       return;
     }
 
-    $("capTbody").innerHTML = arr.map(r => `
+    $("capTbody").innerHTML = exploded.map(r => `
       <tr>
         <td class="mono">${escapeHtml(r.no ?? "")}</td>
         <td>${escapeHtml(r.nombre ?? "")}</td>
