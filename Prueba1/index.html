@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=-,initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Sistema de Evaluación del Desempeño</title>
   <link rel="icon" href="data:,">
 
@@ -1289,54 +1289,59 @@ Dejar de hacer:`;
 function setPhase(phase){
   state.fase = phase || "";
 
+  // mostrar/ocultar bloques por fase
   document.querySelectorAll("[data-phase-block]").forEach(el=>{
     const p = el.getAttribute("data-phase-block");
-    el.classList.remove("show");
-    if(p === state.fase) el.classList.add("show");
+    el.classList.toggle("show", p === state.fase);
   });
 
+  // EVAL es “virtual” (AUTO o DESEMPENO)
   document.querySelectorAll('[data-phase-block="EVAL"]').forEach(el=>{
     el.classList.toggle("show", isEvalPhase());
   });
 
+  // Nivel: oculto en CLIENTES/RESULTADO/CAPACITACION/DESARROLLO
   const nivelWrap = $("nivelWrap");
-// ✅ ocultar Nivel también en DESARROLLO
-nivelWrap.classList.toggle("hide",
-  isClientesPhase() || isResultadoPhase() || isCapacitacionPhase() || isDesarrolloPhase()
-  // ✅ DESARROLLO: limpiar y recalcular botón
+  if(nivelWrap){
+    const hideNivel = isClientesPhase() || isResultadoPhase() || isCapacitacionPhase() || isDesarrolloPhase();
+    nivelWrap.classList.toggle("hide", hideNivel);
+  }
+
+  // habilitar select nivel solo cuando toca
+  const enableNivel = (isEvalPhase() || state.fase === "FORMULARIOS" || state.fase === "PESOS");
+  if ($("nivelSelect")) $("nivelSelect").disabled = !enableNivel;
+
+  // alternar bloque datos (EVAL vs RESULTADO/DESARROLLO)
+  const evalWrap = $("datosEvalWrap");
+  const resWrap  = $("datosResultadoWrap");
+  if(evalWrap) evalWrap.style.display = isEvalPhase() ? "grid" : "none";
+  if(resWrap)  resWrap.style.display  = (isResultadoPhase() || isDesarrolloPhase()) ? "grid" : "none";
+
+  // ayuda del bloque Datos
+  const datosHelp = $("datosHelp");
+  if(datosHelp){
+    if(isResultadoPhase()){
+      datosHelp.textContent = "Para Recuperar el resultado, llena: No personal + Periodo + Versión.";
+    } else if(isDesarrolloPhase()){
+      datosHelp.textContent = "Para Generar el plan de desarrollo, llena: No personal + Periodo + Versión.";
+    } else {
+      datosHelp.textContent = "Completa la información y selecciona una opción (1–5) para cada ítem.";
+    }
+  }
+
+  // si entro a DESARROLLO, limpio y recalculo el botón
   if(isDesarrolloPhase()){
     clearDesarrollo_();
   }
-  updateDevGenerarState_();                     
-   );
+  updateDevGenerarState_();
 
-const enableNivel = (isEvalPhase() || state.fase === "FORMULARIOS" || state.fase === "PESOS");
-$("nivelSelect").disabled = !enableNivel;
-
-// ✅ alterna bloque datos (EVAL vs RESULTADO/DESARROLLO)
-const evalWrap = $("datosEvalWrap");
-const resWrap = $("datosResultadoWrap");
-if(evalWrap) evalWrap.style.display = isEvalPhase() ? "grid" : "none";
-if(resWrap) resWrap.style.display = (isResultadoPhase() || isDesarrolloPhase()) ? "grid" : "none";
-
-const datosHelp = $("datosHelp");
-if(datosHelp){
-  if(isResultadoPhase()){
-    datosHelp.textContent = "Para Recuperar el resultado, llena: No personal + Periodo + Versión.";
-  } else if(isDesarrolloPhase()){
-    datosHelp.textContent = "Para Generar el plan de desarrollo, llena: No personal + Periodo + Versión.";
-  } else {
-    datosHelp.textContent = "Completa la información y selecciona una opción (1–5) para cada ítem.";
-  }
-}
-
+  // botón “Nuevo” fuera de fases operativas
   const hideOpcionales = isEvalPhase() || isClientesPhase() || isResultadoPhase();
-  $("btnNuevo").style.display = hideOpcionales ? "none" : "inline-block";
+  if ($("btnNuevo")) $("btnNuevo").style.display = hideOpcionales ? "none" : "inline-block";
 
+  // recalcular botones
   updateGuardarUIState();
   updatePesosSaveState();
-
-  // ✅ NUEVO: al entrar/salir de CAPACITACION recalcula Guardar
   updateCapSaveState_();
   if(!isCapacitacionPhase() && $("btnCapGuardar")) $("btnCapGuardar").disabled = true;
 }
