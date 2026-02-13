@@ -1943,6 +1943,16 @@ async function generarDesarrollo_(){
     return;
   }
 
+  try{
+    const res = await apiGet({ action:"desarrolloPlan", no, periodo: per, version: ver });
+    const rows = Array.isArray(res.rows) ? res.rows : [];
+    renderDesarrolloTable_(rows, no, per, ver);
+  }catch(err){
+    setApiStatus("err","API: " + err.message);
+  }
+}
+
+
   const res = await apiGet({ action:"desarrolloPlan", no, periodo: per, version: ver });
   const rows = Array.isArray(res.rows) ? res.rows : [];
   renderDesarrolloTable_(rows, no, per, ver);
