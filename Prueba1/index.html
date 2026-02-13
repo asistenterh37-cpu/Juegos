@@ -482,10 +482,13 @@
           <h2>Formularios (rúbricas por nivel)</h2>
           <div class="sub">Usa <b>Cargar</b> para mostrar Nivel, Factor, Item y las descripciones 1–5.</div>
         </div>
-        <div class="controls">
-          <button id="btnCargarForm" class="btn-blue">Cargar</button>
-          <button id="btnLimpiarForm" class="btn-warn">Limpiar</button>
-        </div>
+       <div class="controls">
+  <button id="btnCapGenerar" class="btn-blue">Generar</button>
+  <button id="btnCapGuardar" class="btn-ok" disabled>Guardar</button>
+</div>
+<div class="chips" style="margin-top:10px">
+  <span class="chip mono">Hoja destino: <b>Plancapacitacion</b></span>
+</div>
       </div>
       <div class="card-b">
         <div class="hint" style="margin-bottom:12px">
@@ -1234,43 +1237,48 @@ Dejar de hacer:`;
   }
 
   /* ================= PHASE UI ================= */
-  function setPhase(phase){
-    state.fase = phase || "";
+function setPhase(phase){
+  state.fase = phase || "";
 
-    document.querySelectorAll("[data-phase-block]").forEach(el=>{
-      const p = el.getAttribute("data-phase-block");
-      el.classList.remove("show");
-      if(p === state.fase) el.classList.add("show");
-    });
-    document.querySelectorAll('[data-phase-block="EVAL"]').forEach(el=>{
-      el.classList.toggle("show", isEvalPhase());
-    });
+  document.querySelectorAll("[data-phase-block]").forEach(el=>{
+    const p = el.getAttribute("data-phase-block");
+    el.classList.remove("show");
+    if(p === state.fase) el.classList.add("show");
+  });
 
-    const nivelWrap = $("nivelWrap");
-    nivelWrap.classList.toggle("hide", isClientesPhase() || isResultadoPhase() || isCapacitacionPhase());
+  document.querySelectorAll('[data-phase-block="EVAL"]').forEach(el=>{
+    el.classList.toggle("show", isEvalPhase());
+  });
 
-    const enableNivel = (isEvalPhase() || state.fase === "FORMULARIOS" || state.fase === "PESOS");
-    $("nivelSelect").disabled = !enableNivel;
+  const nivelWrap = $("nivelWrap");
+  nivelWrap.classList.toggle("hide", isClientesPhase() || isResultadoPhase() || isCapacitacionPhase());
 
-    // ✅ alterna bloque datos (EVAL vs RESULTADO)
-    const evalWrap = $("datosEvalWrap");
-    const resWrap  = $("datosResultadoWrap");
-    if(evalWrap) evalWrap.style.display = isEvalPhase() ? "grid" : "none";
-    if(resWrap)  resWrap.style.display  = isResultadoPhase() ? "grid" : "none";
+  const enableNivel = (isEvalPhase() || state.fase === "FORMULARIOS" || state.fase === "PESOS");
+  $("nivelSelect").disabled = !enableNivel;
 
-    const datosHelp = $("datosHelp");
-    if(datosHelp){
-      datosHelp.textContent = isResultadoPhase()
-        ? "Para Recuperar el resultado, llena: No personal + Periodo + Versión."
-        : "Completa la información y selecciona una opción (1–5) para cada ítem.";
-    }
+  // ✅ alterna bloque datos (EVAL vs RESULTADO)
+  const evalWrap = $("datosEvalWrap");
+  const resWrap = $("datosResultadoWrap");
+  if(evalWrap) evalWrap.style.display = isEvalPhase() ? "grid" : "none";
+  if(resWrap) resWrap.style.display = isResultadoPhase() ? "grid" : "none";
 
-    const hideOpcionales = isEvalPhase() || isClientesPhase() || isResultadoPhase();
-    $("btnNuevo").style.display = hideOpcionales ? "none" : "inline-block";
-
-    updateGuardarUIState();
-    updatePesosSaveState();
+  const datosHelp = $("datosHelp");
+  if(datosHelp){
+    datosHelp.textContent = isResultadoPhase()
+      ? "Para Recuperar el resultado, llena: No personal + Periodo + Versión."
+      : "Completa la información y selecciona una opción (1–5) para cada ítem.";
   }
+
+  const hideOpcionales = isEvalPhase() || isClientesPhase() || isResultadoPhase();
+  $("btnNuevo").style.display = hideOpcionales ? "none" : "inline-block";
+
+  updateGuardarUIState();
+  updatePesosSaveState();
+
+  // ✅ NUEVO: al entrar/salir de CAPACITACION recalcula Guardar
+  updateCapSaveState_();
+  if(!isCapacitacionPhase() && $("btnCapGuardar")) $("btnCapGuardar").disabled = true;
+}
 
   /* ================= EVAL: RENDER FORM ================= */
   function renderCuestionario(form){
@@ -1937,7 +1945,7 @@ if ($("repFecha"))    $("repFecha").value = fechaDMY || "—";
     const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
     const out = await apiGet({ action:"capacitacionSave", payload:b64 });
 
-    alert(`Guardado ✅\nHoja: ${out.sheet || "InformeCapacitacion"}\nFilas: ${out.rows || 0}`);
+    alert(`Guardado ✅\nHoja: ${out.sheet || "Plancapacitacion"}\nFilas: ${out.rows || 0}`);
   }
   
   /* ================= CLEAR ================= */
