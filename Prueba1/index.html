@@ -908,9 +908,7 @@ Dejar de hacer:"></textarea>
   </div>
 
   <div class="card-b">
-    <div class="hint" style="margin-bottom:12px">
-      Tip: si el botón está bloqueado, es porque falta No. personal / Periodo / Versión 😄
-    </div>
+    <!-- ✅ (Quitado) bloque marcado “Tip: si el botón está bloqueado...” -->
 
     <div id="devInfo" class="sub" style="margin-bottom:10px">—</div>
 
@@ -941,7 +939,7 @@ Dejar de hacer:"></textarea>
 `Empezar a hacer:
 Continuar haciendo:
 Dejar de hacer:`;
-  const DEFAULT_WEBAPP_ = "https://script.google.com/macros/s/AKfycbxWIECmwDotyfwo_n-E6pkuPpRsD5F2tsb5QgjbCnLwYDhLAtAx8v3EAunHu_f8atqh/exec";
+  const DEFAULT_WEBAPP_ = "https://script.google.com/macros/s/AKfycbxv-1grrrJbexpOyDSYQGg8fmECtNoShExlwldrVNSK8QISUnPfGfQYogyoql51cVMM/exec";
   const $ = id => document.getElementById(id);
 
   function normalizeWebApp(raw){
@@ -1887,6 +1885,7 @@ if ($("repFecha"))    $("repFecha").value = fechaDMY || "—";
 
     // ✅ Explota cursos: "Excel, Power BI, SAP" -> ["Excel","Power BI","SAP"]
 /* ================= ✅ DESARROLLO (GENERAR) ================= */
+/* ================= ✅ DESARROLLO (GENERAR) ================= */
 function clearDesarrollo_(){
   if($("devInfo")) $("devInfo").textContent = "—";
   if($("devTbody")) $("devTbody").innerHTML =
@@ -1898,12 +1897,35 @@ function updateDevGenerarState_(){
   const btn = $("btnDevGenerar");
   if(!btn) return;
 
-  // ✅ usa los mismos 3 campos del bloque RESULTADO
+  // ✅ usa los mismos 3 campos del bloque RESULTADO (datosResultadoWrap)
   const no  = $("noPersonalRes")?.value?.trim() || "";
   const per = $("periodoRes")?.value?.trim() || "";
   const ver = $("versionRes")?.value?.trim() || "";
 
   btn.disabled = !(isDesarrolloPhase() && no && per && ver);
+}
+
+function renderDesarrolloTable_(rows, no, per, ver){
+  const arr = Array.isArray(rows) ? rows : [];
+
+  if($("devInfo")){
+    $("devInfo").textContent = `Mostrando: ${arr.length} filas | No: ${no || "—"} | Periodo: ${per || "—"} | Versión: ${ver || "—"}`;
+  }
+
+  if(!arr.length){
+    $("devTbody").innerHTML = `<tr><td colspan="5" class="sub">Sin datos para ese No/Periodo/Versión.</td></tr>`;
+    return;
+  }
+
+  $("devTbody").innerHTML = arr.map(r => `
+    <tr>
+      <td>${escapeHtml(r.area ?? "")}</td>
+      <td>${escapeHtml(r.necesidad ?? "")}</td>
+      <td>${escapeHtml(r.accion ?? "")}</td>
+      <td class="mono">${escapeHtml(r.fechaObjetivo ?? "")}</td>
+      <td>${escapeHtml(r.responsable ?? "")}</td>
+    </tr>
+  `).join("");
 }
 
 async function generarDesarrollo_(){
@@ -1920,6 +1942,11 @@ async function generarDesarrollo_(){
     alert("Para Generar, llena: No. de personal + Periodo + Versión.");
     return;
   }
+
+  const res = await apiGet({ action:"desarrolloPlan", no, periodo: per, version: ver });
+  const rows = Array.isArray(res.rows) ? res.rows : [];
+  renderDesarrolloTable_(rows, no, per, ver);
+}
 
   // 🔧 Aquí conectarás tu endpoint real (cuando lo tengas)
   // const res = await apiGet({ action:"desarrolloPlan", no, periodo: per, version: ver });
