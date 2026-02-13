@@ -724,34 +724,34 @@ Dejar de hacer:"></textarea>
   <div class="sub" style="margin-bottom:10px">Datos del colaborador:</div>
 
   <div class="form-grid">
-    <!-- Fila 1 -->
-    <div class="field col-4 boxed">
+    <!-- Fila 1 (No pequeño, Nombre amplio, Posición mediana) -->
+    <div class="field col-3 boxed">
       <div class="lbl">No. de personal</div>
       <input id="repNo" value="—" readonly />
     </div>
-    <div class="field col-4 boxed">
+    <div class="field col-6 boxed">
       <div class="lbl">Nombre</div>
       <input id="repNombre" value="—" readonly />
     </div>
-    <div class="field col-4 boxed">
+    <div class="field col-3 boxed">
       <div class="lbl">Posición</div>
       <input id="repPosicion" value="—" readonly />
     </div>
 
-    <!-- Fila 2 -->
-    <div class="field col-3 boxed">
+    <!-- Fila 2 (Depto y Periodo amplios, Version y Fecha compactos) -->
+    <div class="field col-4 boxed">
       <div class="lbl">Departamento</div>
       <input id="repDepto" value="—" readonly />
     </div>
-    <div class="field col-3 boxed">
+    <div class="field col-4 boxed">
       <div class="lbl">Periodo</div>
       <input id="repPeriodo" value="—" readonly />
     </div>
-    <div class="field col-3 boxed">
+    <div class="field col-2 boxed">
       <div class="lbl">Versión</div>
       <input id="repVersion" value="—" readonly />
     </div>
-    <div class="field col-3 boxed">
+    <div class="field col-2 boxed">
       <div class="lbl">Fecha</div>
       <input id="repFecha" value="—" readonly />
     </div>
@@ -995,6 +995,37 @@ Dejar de hacer:`;
     const dd = String(d.getDate()).padStart(2,"0");
     return `${dd}/${mm}/${yyyy}`;
   }
+  function formatDateDMY(raw){
+  const s = String(raw || "").trim();
+  if(!s) return "";
+
+  // ya viene dd/mm/yyyy o d/m/yyyy
+  if(/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(s)){
+    const [d,m,y] = s.split("/");
+    return `${String(d).padStart(2,"0")}/${String(m).padStart(2,"0")}/${y}`;
+  }
+
+  // viene yyyy-mm-dd o yyyy/mm/dd (típico de Sheets/inputs date)
+  const m1 = s.match(/^(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})/);
+  if(m1){
+    const yyyy = m1[1];
+    const mm = String(m1[2]).padStart(2,"0");
+    const dd = String(m1[3]).padStart(2,"0");
+    return `${dd}/${mm}/${yyyy}`;
+  }
+
+  // fallback: intenta parsear Date()
+  const dt = new Date(s);
+  if(!isNaN(dt.getTime())){
+    const yyyy = dt.getFullYear();
+    const mm = String(dt.getMonth()+1).padStart(2,"0");
+    const dd = String(dt.getDate()).padStart(2,"0");
+    return `${dd}/${mm}/${yyyy}`;
+  }
+
+  // si no se puede, devuelve tal cual
+  return s;
+}
   function escapeHtml(s){
     return String(s ?? "").replace(/[&<>"']/g, m => ({
       "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
@@ -1680,20 +1711,21 @@ if ($("printTextArea")) $("printTextArea").value = "";
       return;
     }
 
-      // ✅ datos del colaborador(para PDF y texto)
-    const nombre   = String(header.nombre || "").trim();
-    const posicion = String(header.posicion || "").trim();
-    const depto    = String(header.depto || "").trim();
-    const fecha    = String(header.fecha || "").trim();
+    // ✅ datos del colaborador (para PDF y texto)
+const nombre   = String(header.nombre || "").trim();
+const posicion = String(header.posicion || "").trim();
+const depto    = String(header.depto || "").trim();
+const fechaRaw = String(header.fecha || "").trim();
+const fechaDMY = formatDateDMY(fechaRaw) || todayLocal();
 
-    if ($("repNo"))       $("repNo").value = no || "—";
-    if ($("repNombre"))   $("repNombre").value = nombre || "—";
-    if ($("repPosicion")) $("repPosicion").value = posicion || "—";
+if ($("repNo"))       $("repNo").value = no || "—";
+if ($("repNombre"))   $("repNombre").value = nombre || "—";
+if ($("repPosicion")) $("repPosicion").value = posicion || "—";
 
-    if ($("repDepto"))    $("repDepto").value = depto || "—";
-    if ($("repPeriodo"))  $("repPeriodo").value = per || "—";
-    if ($("repVersion"))  $("repVersion").value = ver || "—";
-    if ($("repFecha"))    $("repFecha").value = fecha || "—";
+if ($("repDepto"))    $("repDepto").value = depto || "—";
+if ($("repPeriodo"))  $("repPeriodo").value = per || "—";
+if ($("repVersion"))  $("repVersion").value = ver || "—";
+if ($("repFecha"))    $("repFecha").value = fechaDMY || "—";
 
     // ✅ Tabla
     $("resultadoTbody").innerHTML = rows.map(r=>{
