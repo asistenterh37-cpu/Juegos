@@ -482,12 +482,9 @@
           <h2>Formularios (rúbricas por nivel)</h2>
           <div class="sub">Usa <b>Cargar</b> para mostrar Nivel, Factor, Item y las descripciones 1–5.</div>
         </div>
-       <div class="controls">
-  <button id="btnCapGenerar" class="btn-blue">Generar</button>
-  <button id="btnCapGuardar" class="btn-ok" disabled>Guardar</button>
-</div>
-<div class="chips" style="margin-top:10px">
-  <span class="chip mono">Hoja destino: <b>Plancapacitacion</b></span>
+    <div class="controls">
+  <button id="btnCargarForm" class="btn-blue">Cargar</button>
+  <button id="btnLimpiarForm" class="btn-warn">Limpiar</button>
 </div>
       </div>
       <div class="card-b">
@@ -855,6 +852,9 @@ Dejar de hacer:"></textarea>
       <button id="btnCapGenerar" class="btn-blue">Generar</button>
       <button id="btnCapGuardar" class="btn-ok" disabled>Guardar</button>
     </div>
+ <div class="chips" style="margin-top:10px">
+  <span class="chip mono">Hoja destino: <b>Plancapacitacion</b></span>
+</div>
   </div>
 
   <div class="card-b">
@@ -907,7 +907,7 @@ Dejar de hacer:"></textarea>
 `Empezar a hacer:
 Continuar haciendo:
 Dejar de hacer:`;
-  const DEFAULT_WEBAPP_ = "https://script.google.com/macros/s/AKfycbw7yQDz0sVpFCuO2kyOgV-IOxX5KkSZ0sUDGDj3Z9SNbeEdc2L4pk0--9ifi5FAye1h/exec";
+  const DEFAULT_WEBAPP_ = "https://script.google.com/macros/s/AKfycbxWIECmwDotyfwo_n-E6pkuPpRsD5F2tsb5QgjbCnLwYDhLAtAx8v3EAunHu_f8atqh/exec";
   const $ = id => document.getElementById(id);
 
   function normalizeWebApp(raw){
