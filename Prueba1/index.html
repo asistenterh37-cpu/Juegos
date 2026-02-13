@@ -52,6 +52,27 @@
       outline:none;
       transition:border-color .15s ease, box-shadow .15s ease, transform .05s ease, opacity .15s ease;
     }
+    /* ✅ Recuadro semigrueso SOLO para los 2 selectores principales */
+#faseSelect,
+#nivelSelect{
+  border: 3px solid rgba(147,197,253,.85); /* semigrueso */
+  box-shadow: 0 0 0 3px rgba(147,197,253,.18);
+  border-radius: 14px;
+}
+
+/* Hover más marcado */
+#faseSelect:hover,
+#nivelSelect:hover{
+  border-color: rgba(147,197,253,1);
+}
+
+/* Focus elegante */
+#faseSelect:focus,
+#nivelSelect:focus{
+  border-color: rgba(79,124,255,.95);
+  box-shadow: 0 0 0 4px rgba(79,124,255,.25);
+}
+
     select{min-width:220px}
     textarea{width:100%;min-height:92px;resize:vertical}
     input{width:100%}
