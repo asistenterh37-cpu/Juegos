@@ -1262,7 +1262,7 @@ Dejar de hacer:`;
     return !getClientesRequiredFields().some(v => !v);
   }
 
-  /* ================= UI STATE (BOTONES) ================= */
+    /* ================= UI STATE (BOTONES) ================= */
   function updateGuardarUIState(){
     const btnG = $("btnGuardar");
     const btnL = $("btnLimpiarEval");
@@ -1279,11 +1279,17 @@ Dejar de hacer:`;
     // ✅ Imprimir solo en RESULTADO
     btnP.style.display = isResultadoPhase() ? "inline-block" : "none";
 
-    // ✅ Guardar: solo CLIENTES o EVAL
-    if(isResultadoPhase()){
+    // ✅ Guardar (HEADER) solo debe verse en CLIENTES y EVAL
+    const showGuardar = isClientesPhase() || isEvalPhase();
+    btnG.style.display = showGuardar ? "inline-block" : "none";
+
+    // si está oculto, igual lo dejamos deshabilitado por seguridad
+    if(!showGuardar){
       btnG.disabled = true;
       return;
     }
+
+    // ✅ Guardar habilitado solo cuando corresponde
     if(isClientesPhase()){
       btnG.disabled = !isClientesComplete();
       return;
@@ -1292,6 +1298,7 @@ Dejar de hacer:`;
       btnG.disabled = !isEvalComplete();
       return;
     }
+
     btnG.disabled = true;
   }
 
@@ -1350,10 +1357,17 @@ function setPhase(phase){
     clearDesarrollo_();
   }
   updateDevGenerarState_();
+  // ✅ Botón “Nuevo” solo donde se permite (no en Formularios/Pesos/Capacitación/Desarrollo)
+  const hideNuevo =
+    isEvalPhase() ||
+    isClientesPhase() ||
+    isResultadoPhase() ||
+    isFormulariosPhase() ||
+    isPesosPhase() ||
+    isCapacitacionPhase() ||
+    isDesarrolloPhase();
 
-  // botón “Nuevo” fuera de fases operativas
-  const hideOpcionales = isEvalPhase() || isClientesPhase() || isResultadoPhase();
-  if ($("btnNuevo")) $("btnNuevo").style.display = hideOpcionales ? "none" : "inline-block";
+  if ($("btnNuevo")) $("btnNuevo").style.display = hideNuevo ? "none" : "inline-block";
 
   // recalcular botones
   updateGuardarUIState();
