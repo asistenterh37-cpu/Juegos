@@ -903,14 +903,15 @@ Dejar de hacer:"></textarea>
       <div class="sub">Genera el plan por <b>No. de personal</b> + <b>Periodo</b> + <b>Versión</b>.</div>
     </div>
     <div class="controls">
-      <button id="btnDevGenerar" class="btn-blue" disabled>Generar</button>
+      <!-- ✅ ya no queda “muerto”: se habilita cuando No/Periodo/Versión tienen valor -->
+      <button id="btnDevGenerar" class="btn-blue">Generar</button>
     </div>
   </div>
 
   <div class="card-b">
     <div class="hint" style="margin-bottom:12px">
       Se llena desde <b>EvaluacionFinal</b>: <b>Oportunidades de mejora</b> y <b>Proyección y potencial de desarrollo</b>.
-      (Sí, ahora el botón sí hace algo… magia legal 😄)
+      (La magia es legal… la burocracia no 😄)
     </div>
 
     <div class="form-grid" style="margin-bottom:12px">
@@ -954,7 +955,7 @@ Dejar de hacer:"></textarea>
 `Empezar a hacer:
 Continuar haciendo:
 Dejar de hacer:`;
-  const DEFAULT_WEBAPP_ = "https://script.google.com/macros/s/AKfycbxv-1grrrJbexpOyDSYQGg8fmECtNoShExlwldrVNSK8QISUnPfGfQYogyoql51cVMM/exec";
+  const DEFAULT_WEBAPP_ = "https://script.google.com/macros/s/AKfycbxxzysRmusZOqcRGZnX-3l9g9OOvBjwoOnKtuYAH7At_omyWn79e2PBVZhYU63QlmGJ/exec";
   const $ = id => document.getElementById(id);
 
   function normalizeWebApp(raw){
@@ -1302,7 +1303,12 @@ function setPhase(phase){
 // ✅ ocultar Nivel también en DESARROLLO
 nivelWrap.classList.toggle("hide",
   isClientesPhase() || isResultadoPhase() || isCapacitacionPhase() || isDesarrolloPhase()
-);
+  // ✅ DESARROLLO: limpiar y recalcular botón
+  if(isDesarrolloPhase()){
+    clearDesarrollo_();
+  }
+  updateDevGenerarState_();                     
+   );
 
 const enableNivel = (isEvalPhase() || state.fase === "FORMULARIOS" || state.fase === "PESOS");
 $("nivelSelect").disabled = !enableNivel;
@@ -1902,6 +1908,8 @@ if ($("repFecha"))    $("repFecha").value = fechaDMY || "—";
 /* ================= ✅ DESARROLLO (GENERAR) ================= */
 /* ================= ✅ DESARROLLO (GENERAR) ================= */
 function clearDesarrollo_(){
+  if($("devOportunidades")) $("devOportunidades").value = "";
+  if($("devProyeccion")) $("devProyeccion").value = "";
   if($("devInfo")) $("devInfo").textContent = "—";
   if($("devTbody")) $("devTbody").innerHTML =
     `<tr><td colspan="5" class="sub">Presiona <b>Generar</b> para cargar el informe.</td></tr>`;
@@ -1960,12 +1968,18 @@ async function generarDesarrollo_(){
 
   try{
     const res = await apiGet({ action:"desarrolloPlan", no, periodo: per, version: ver });
+
+    // ✅ llena textos tal cual vienen de EvaluacionFinal
+    if($("devOportunidades")) $("devOportunidades").value = String(res.oportunidadesMejora || "").trim();
+    if($("devProyeccion")) $("devProyeccion").value = String(res.proyeccionPotencial || "").trim();
+
     const rows = Array.isArray(res.rows) ? res.rows : [];
     renderDesarrolloTable_(rows, no, per, ver);
   }catch(err){
     setApiStatus("err","API: " + err.message);
   }
 }
+
   function splitCursos_(txt){
     const s = String(txt ?? "").trim();
     if(!s) return [];
@@ -2395,6 +2409,8 @@ function buildResultadoTexto_(){
   // ✅ CAPACITACION
   $("btnCapGenerar")?.addEventListener("click", ()=>generarCapacitacion_().catch(err=>setApiStatus("err","API: " + err.message)));
   $("btnCapGuardar")?.addEventListener("click", ()=>guardarCapacitacion_().catch(err=>setApiStatus("err","API: " + err.message)));
+  // ✅ DESARROLLO
+$("btnDevGenerar")?.addEventListener("click", ()=>generarDesarrollo_().catch(err=>setApiStatus("err","API: " + err.message)));
 
   ["capPeriodo","capVersion"].forEach(id=>{
     const el = $(id);
