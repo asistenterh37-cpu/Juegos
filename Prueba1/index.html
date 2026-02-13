@@ -259,6 +259,59 @@
       .item-right{min-width:100%; width:100%}
       table{min-width:840px}
     }
+  @media print{
+
+  /* Ocultar todo excepto RESULTADO */
+  header,
+  #blockFaseNivel,
+  #blockFormularios,
+  #blockPesos,
+  #blockClientes,
+  #blockDatos,
+  #blockEval,
+  #blockAutoComentarios,
+  #blockDesempenoExtra,
+  #recoverModalBack,
+  #printModalBack {
+    display: none !important;
+  }
+
+  body{
+    background:#fff !important;
+    color:#000 !important;
+  }
+
+  main{
+    padding:0 !important;
+  }
+
+  .card{
+    box-shadow:none !important;
+    border:1px solid #ddd !important;
+    background:#fff !important;
+  }
+
+  .hint{
+    border:1px solid #ddd !important;
+    background:#fff !important;
+  }
+
+  input, textarea{
+    color:#000 !important;
+    background:#fff !important;
+    border:1px solid #bbb !important;
+  }
+
+  .tableWrap{
+    border:1px solid #ddd !important;
+    background:#fff !important;
+  }
+
+  thead th{
+    background:#f4f4f4 !important;
+    color:#000 !important;
+  }
+}
   </style>
 </head>
 
@@ -666,44 +719,44 @@ Dejar de hacer:"></textarea>
       </div>
 
       <div class="card-b">
-            <!-- ✅ Datos del colaborador (para PDF y texto) -->
-        <div class="hint" style="margin-bottom:12px">
-          <div class="sub" style="margin-bottom:10px">Datos del colaborador:</div>
+       <!-- ✅ Datos del colaborador (para PDF y texto) -->
+<div class="hint" style="margin-bottom:12px">
+  <div class="sub" style="margin-bottom:10px">Datos del colaborador:</div>
 
-          <div class="form-grid">
-            <!-- Fila 1 -->
-            <div class="field col-4 boxed">
-              <div class="lbl">No. de personal</div>
-              <input id="repNo" value="—" readonly />
-            </div>
-            <div class="field col-4 boxed">
-              <div class="lbl">Nombre</div>
-              <input id="repNombre" value="—" readonly />
-            </div>
-            <div class="field col-4 boxed">
-              <div class="lbl">Posición</div>
-              <input id="repPosicion" value="—" readonly />
-            </div>
+  <div class="form-grid">
+    <!-- Fila 1 -->
+    <div class="field col-4 boxed">
+      <div class="lbl">No. de personal</div>
+      <input id="repNo" value="—" readonly />
+    </div>
+    <div class="field col-4 boxed">
+      <div class="lbl">Nombre</div>
+      <input id="repNombre" value="—" readonly />
+    </div>
+    <div class="field col-4 boxed">
+      <div class="lbl">Posición</div>
+      <input id="repPosicion" value="—" readonly />
+    </div>
 
-            <!-- Fila 2 -->
-            <div class="field col-3 boxed">
-              <div class="lbl">Departamento</div>
-              <input id="repDepto" value="—" readonly />
-            </div>
-            <div class="field col-3 boxed">
-              <div class="lbl">Periodo</div>
-              <input id="repPeriodo" value="—" readonly />
-            </div>
-            <div class="field col-3 boxed">
-              <div class="lbl">Versión</div>
-              <input id="repVersion" value="—" readonly />
-            </div>
-            <div class="field col-3 boxed">
-              <div class="lbl">Fecha</div>
-              <input id="repFecha" value="—" readonly />
-            </div>
-          </div>
-        </div>
+    <!-- Fila 2 -->
+    <div class="field col-3 boxed">
+      <div class="lbl">Departamento</div>
+      <input id="repDepto" value="—" readonly />
+    </div>
+    <div class="field col-3 boxed">
+      <div class="lbl">Periodo</div>
+      <input id="repPeriodo" value="—" readonly />
+    </div>
+    <div class="field col-3 boxed">
+      <div class="lbl">Versión</div>
+      <input id="repVersion" value="—" readonly />
+    </div>
+    <div class="field col-3 boxed">
+      <div class="lbl">Fecha</div>
+      <input id="repFecha" value="—" readonly />
+    </div>
+  </div>
+</div>
 
         <!-- Tabla: Factor / Ítem / Respuesta -->
         <div class="tableWrap" style="margin-bottom:14px">
