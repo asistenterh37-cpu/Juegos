@@ -1298,7 +1298,13 @@ function setPhase(phase){
   const resWrap  = $("datosResultadoWrap");
   if(evalWrap) evalWrap.style.display = isEvalPhase() ? "grid" : "none";
   if(resWrap)  resWrap.style.display  = (isResultadoPhase() || isDesarrolloPhase()) ? "grid" : "none";
-
+  // ✅ Mostrar/ocultar el bloque "Datos del colaborador" según fase
+  const blockDatos = $("blockDatos");
+  if(blockDatos){
+    const showDatos = isEvalPhase() || isResultadoPhase() || isDesarrolloPhase();
+    blockDatos.style.display = showDatos ? "block" : "none";
+  }
+  
   // ayuda del bloque Datos
   const datosHelp = $("datosHelp");
   if(datosHelp){
