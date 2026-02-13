@@ -842,9 +842,58 @@ Dejar de hacer:"></textarea>
     </section>
     <!-- OTRAS VISTAS -->
     <section class="card" data-phase-block="CONSOLIDADO"><div class="card-h"><h2>Informe consolidado</h2><div class="sub">Vista en construcción.</div></div><div class="card-b"><div class="hint">Aquí irá el informe.</div></div></section>
-    <section class="card" data-phase-block="CAPACITACION"><div class="card-h"><h2>Informe necesidades de capacitacion</h2><div class="sub">Vista en construcción.</div></div><div class="card-b"><div class="hint">Aquí irá el informe.</div></div></section>
-    <section class="card" data-phase-block="DESARROLLO"><div class="card-h"><h2>Informe plan de desarrollo</h2><div class="sub">Vista en construcción.</div></div><div class="card-b"><div class="hint">Aquí irá el plan.</div></div></section>
+    <section class="card" data-phase-block="CAPACITACION" id="blockCapacitacion">
+  <div class="card-h">
+    <div>
+      <h2>Informe necesidades de capacitación</h2>
+      <div class="sub">Genera la tabla por <b>Periodo</b> y <b>Versión</b> desde <b>EvaluacionFinal</b>.</div>
+    </div>
+    <div class="controls">
+      <button id="btnCapGenerar" class="btn-blue">Generar</button>
+      <button id="btnCapGuardar" class="btn-ok" disabled>Guardar</button>
+    </div>
+  </div>
 
+  <div class="card-b">
+    <div class="hint" style="margin-bottom:12px">
+      Tip: si no aparece nada, puede ser que en EvaluacionFinal el campo venga vacío… o que la gente no quiera capacitarse 😄
+    </div>
+
+    <div class="form-grid" style="margin-bottom:12px">
+      <div class="field col-6 boxed">
+        <div class="lbl">Periodo</div>
+        <input id="capPeriodo" placeholder="Ej: 2025" />
+      </div>
+      <div class="field col-6 boxed">
+        <div class="lbl">Versión</div>
+        <input id="capVersion" placeholder="Ej: 1" />
+      </div>
+      <div class="sub col-12">Estado API: <b id="apiMiniCap">—</b></div>
+    </div>
+
+    <div id="capInfo" class="sub" style="margin-bottom:10px">—</div>
+
+    <div class="tableWrap">
+      <table id="capTable">
+        <thead>
+          <tr>
+            <th>No de personal</th>
+            <th>Nombre</th>
+            <th>Posición</th>
+            <th>Departamento</th>
+            <th>Periodo</th>
+            <th>Versión</th>
+            <th>Curso</th>
+          </tr>
+        </thead>
+        <tbody id="capTbody">
+          <tr><td colspan="7" class="sub">Presiona <b>Generar</b> para cargar el informe.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+    <section class="card" data-phase-block="DESARROLLO"><div class="card-h"><h2>Informe plan de desarrollo</h2><div class="sub">Vista en construcción.</div></div><div class="card-b"><div class="hint">Aquí irá el plan.</div></div></section>
   </div>
 </main>
 
@@ -855,7 +904,7 @@ Dejar de hacer:"></textarea>
 `Empezar a hacer:
 Continuar haciendo:
 Dejar de hacer:`;
-  const DEFAULT_WEBAPP_ = "https://script.google.com/macros/s/AKfycbxAFVopIQ-zexdggx--jH8ha5sqtZPlXJKpnUGwxPOWI7HXbZiHKakL6eQrPw7eyjm1/exec";
+  const DEFAULT_WEBAPP_ = "https://script.google.com/macros/s/AKfycbxk4Oj2peP5zdR1EK7jvHmThwe_x6fdjLaLnn3PXD_PM-y5IHhg_3Qxxk4P4KhElcSY/exec";
   const $ = id => document.getElementById(id);
 
   function normalizeWebApp(raw){
@@ -904,6 +953,7 @@ Dejar de hacer:`;
 
     // ✅ RESULTADO
     resultadoCache: null
+    capRows: []
   };
 
   /* ================= STATUS ================= */
@@ -919,6 +969,8 @@ Dejar de hacer:`;
     if (miniEval) miniEval.textContent = text.replace("API: ","");
     const miniRes = $("apiMiniRes");
     if (miniRes) miniRes.textContent = text.replace("API: ","");
+        const miniCap = $("apiMiniCap");
+    if (miniCap) miniCap.textContent = text.replace("API: ","");
   }
 
   /* ================= JSONP API ================= */
@@ -1087,7 +1139,8 @@ Dejar de hacer:`;
   function isFormulariosPhase(){ return state.fase === "FORMULARIOS"; }
   function isPesosPhase(){ return state.fase === "PESOS"; }
   function isResultadoPhase(){ return state.fase === "RESULTADO"; }
-
+  function isCapacitacionPhase(){ return state.fase === "CAPACITACION"; }
+  
   /* ================= VALIDATION ================= */
   function getClientesRequiredFields(){
     return [
@@ -1192,7 +1245,7 @@ Dejar de hacer:`;
     });
 
     const nivelWrap = $("nivelWrap");
-    nivelWrap.classList.toggle("hide", isClientesPhase() || isResultadoPhase());
+    nivelWrap.classList.toggle("hide", isClientesPhase() || isResultadoPhase() || isCapacitacionPhase());
 
     const enableNivel = (isEvalPhase() || state.fase === "FORMULARIOS" || state.fase === "PESOS");
     $("nivelSelect").disabled = !enableNivel;
@@ -1764,7 +1817,95 @@ if ($("repFecha"))    $("repFecha").value = fechaDMY || "—";
     $("printTextArea").value = buildResultadoTexto_();
     updateGuardarUIState();
   }
+  /* ================= ✅ CAPACITACION (GENERAR + GUARDAR) ================= */
+  function clearCapacitacion(){
+    if($("capPeriodo")) $("capPeriodo").value = "";
+    if($("capVersion")) $("capVersion").value = "";
+    if($("capInfo")) $("capInfo").textContent = "—";
+    if($("capTbody")) $("capTbody").innerHTML = `<tr><td colspan="7" class="sub">Presiona <b>Generar</b> para cargar el informe.</td></tr>`;
+    state.capRows = [];
+    updateCapSaveState_();
+  }
 
+  function updateCapSaveState_(){
+    const btn = $("btnCapGuardar");
+    if(!btn) return;
+    btn.disabled = !(isCapacitacionPhase() && Array.isArray(state.capRows) && state.capRows.length > 0);
+  }
+
+  function renderCapacitacionTable_(rows, periodo, version){
+    const arr = Array.isArray(rows) ? rows : [];
+    state.capRows = arr;
+
+    const count = arr.length;
+    if($("capInfo")) $("capInfo").textContent = `Mostrando: ${count} filas | Periodo: ${periodo || "—"} | Versión: ${version || "—"}`;
+
+    if(!count){
+      $("capTbody").innerHTML = `<tr><td colspan="7" class="sub">Sin datos para ese Periodo/Versión.</td></tr>`;
+      updateCapSaveState_();
+      return;
+    }
+
+    $("capTbody").innerHTML = arr.map(r => `
+      <tr>
+        <td class="mono">${escapeHtml(r.no ?? "")}</td>
+        <td>${escapeHtml(r.nombre ?? "")}</td>
+        <td>${escapeHtml(r.posicion ?? "")}</td>
+        <td>${escapeHtml(r.depto ?? "")}</td>
+        <td class="mono">${escapeHtml(r.periodo ?? "")}</td>
+        <td class="mono">${escapeHtml(r.version ?? "")}</td>
+        <td>${escapeHtml(r.curso ?? "")}</td>
+      </tr>
+    `).join("");
+
+    updateCapSaveState_();
+  }
+
+  async function generarCapacitacion_(){
+    if(!isCapacitacionPhase()){
+      alert("Selecciona la fase: Informe necesidades de capacitación.");
+      return;
+    }
+    const periodo = $("capPeriodo").value.trim();
+    const version = $("capVersion").value.trim();
+    if(!periodo || !version){
+      alert("Para Generar, llena: Periodo + Versión.");
+      return;
+    }
+
+    const res = await apiGet({ action:"capacitacionList", periodo, version });
+    const rows = Array.isArray(res.rows) ? res.rows : [];
+    renderCapacitacionTable_(rows, periodo, version);
+  }
+
+  async function guardarCapacitacion_(){
+    if(!isCapacitacionPhase()){
+      alert("Selecciona la fase: Informe necesidades de capacitación.");
+      return;
+    }
+    const periodo = $("capPeriodo").value.trim();
+    const version = $("capVersion").value.trim();
+    if(!periodo || !version){
+      alert("Para Guardar, llena: Periodo + Versión.");
+      return;
+    }
+    if(!state.capRows || !state.capRows.length){
+      alert("No hay filas para guardar. Primero presiona Generar.");
+      return;
+    }
+
+    const payload = {
+      periodo,
+      version,
+      rows: state.capRows
+    };
+
+    const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+    const out = await apiGet({ action:"capacitacionSave", payload:b64 });
+
+    alert(`Guardado ✅\nHoja: ${out.sheet || "InformeCapacitacion"}\nFilas: ${out.rows || 0}`);
+  }
+  
   /* ================= CLEAR ================= */
   function clearClientes(){
     ["noPersonal","nombre","posicion","depto","periodo","version"].forEach(id=>$(id).value="");
@@ -2087,6 +2228,18 @@ function buildResultadoTexto_(){
   $("btnLimpiarPesos").addEventListener("click", clearPesosTable);
   $("btnGuardarPesos").addEventListener("click", ()=>savePesosItems().catch(err=>setApiStatus("err","API: " + err.message)));
 
+  // ✅ CAPACITACION
+  $("btnCapGenerar")?.addEventListener("click", ()=>generarCapacitacion_().catch(err=>setApiStatus("err","API: " + err.message)));
+  $("btnCapGuardar")?.addEventListener("click", ()=>guardarCapacitacion_().catch(err=>setApiStatus("err","API: " + err.message)));
+
+  ["capPeriodo","capVersion"].forEach(id=>{
+    const el = $(id);
+    if(el){
+      el.addEventListener("input", updateCapSaveState_);
+      el.addEventListener("change", updateCapSaveState_);
+    }
+  });
+  
   // watchers CLIENTES
   [
     "noPersonal","nombre","posicion","depto","periodo","version","fecha",
@@ -2124,7 +2277,11 @@ function buildResultadoTexto_(){
       el.addEventListener("change", updateGuardarUIState);
     }
   });
-
+      if(isCapacitacionPhase()){
+        clearCapacitacion();
+        updateCapSaveState_();
+      }
+  
   // watchers RESULTADO
   ["noPersonalRes","periodoRes","versionRes"].forEach(id=>{
     const el = $(id);
@@ -2146,6 +2303,7 @@ function buildResultadoTexto_(){
     clearFormTable();
     clearPesosTable();
     clearResultado();
+    clearCapacitacion();
 
     const saved = localStorage.getItem(LS_KEY_);
     setWebApp(saved || DEFAULT_WEBAPP_);
