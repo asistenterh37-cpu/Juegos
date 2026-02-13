@@ -60,25 +60,53 @@
       box-shadow: 0 0 0 3px rgba(79,124,255,.18);
     }
     button{cursor:pointer}
-    .btn-ok{
-      background:linear-gradient(180deg, rgba(34,197,94,.25), rgba(34,197,94,.10));
-      border-color:rgba(34,197,94,.35)
-    }
-    .btn-blue{
-      background:linear-gradient(180deg, rgba(79,124,255,.25), rgba(79,124,255,.10));
-      border-color:rgba(79,124,255,.35)
-    }
-    .btn-ghost{background:transparent}
-    .btn-warn{
-      background:linear-gradient(180deg, rgba(245,158,11,.20), rgba(245,158,11,.08));
-      border-color:rgba(245,158,11,.35)
-    }
-    button[disabled]{opacity:.45; filter:saturate(.6); cursor:not-allowed;}
-    .btn-pulse{
-      box-shadow: 0 0 0 0 rgba(34,197,94,.35);
-      animation: pulse 1.2s infinite;
-    }
-    @keyframes pulse{
+
+/* ✅ BOTONES UNIFICADOS (azul claro + letra negra) */
+button,
+.btn-ok,
+.btn-blue,
+.btn-warn,
+.btn-ghost{
+  background: #93c5fd;            /* azul claro */
+  color: #000 !important;         /* letras negras */
+  border-color: #60a5fa;          /* borde azul */
+  font-weight: 800;
+}
+
+/* hover/active sin cambiar el look */
+button:hover:not([disabled]),
+.btn-ok:hover:not([disabled]),
+.btn-blue:hover:not([disabled]),
+.btn-warn:hover:not([disabled]),
+.btn-ghost:hover:not([disabled]){
+  filter: brightness(1.04);
+}
+
+button:active:not([disabled]),
+.btn-ok:active:not([disabled]),
+.btn-blue:active:not([disabled]),
+.btn-warn:active:not([disabled]),
+.btn-ghost:active:not([disabled]){
+  transform: translateY(1px);
+}
+
+/* disabled igual que antes */
+button[disabled]{
+  opacity:.45;
+  filter:saturate(.6);
+  cursor:not-allowed;
+}
+
+/* (Opcional) si quieres mantener “pulse”, que pulse pero con azul */
+.btn-pulse{
+  box-shadow: 0 0 0 0 rgba(96,165,250,.45);
+  animation: pulse 1.2s infinite;
+}
+@keyframes pulse{
+  0%{ box-shadow:0 0 0 0 rgba(96,165,250,.35); }
+  70%{ box-shadow:0 0 0 10px rgba(96,165,250,0); }
+  100%{ box-shadow:0 0 0 0 rgba(96,165,250,0); }
+}
       0%{ box-shadow:0 0 0 0 rgba(34,197,94,.25); }
       70%{ box-shadow:0 0 0 10px rgba(34,197,94,0); }
       100%{ box-shadow:0 0 0 0 rgba(34,197,94,0); }
