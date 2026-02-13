@@ -719,7 +719,7 @@ Dejar de hacer:"></textarea>
       </div>
 
       <div class="card-b">
-      <!-- ✅ Datos del colaborador (para PDF y texto) -->
+      <!-- ✅ function todayLocal(){(para PDF y texto) -->
 <div class="hint" style="margin-bottom:12px">
   <div class="sub" style="margin-bottom:10px">Datos del colaborador:</div>
 
@@ -1680,7 +1680,7 @@ if ($("printTextArea")) $("printTextArea").value = "";
       return;
     }
 
-      // ✅ Datos del colaborador (para PDF y texto)
+      // ✅ datos del colaborador(para PDF y texto)
     const nombre   = String(header.nombre || "").trim();
     const posicion = String(header.posicion || "").trim();
     const depto    = String(header.depto || "").trim();
@@ -1892,7 +1892,7 @@ function buildResultadoTexto_(){
 
   let out = `REPORTE DE EVALUACIÓN DEL DESEMPEÑO\n\n`;
 
-  // ✅ Datos del colaborador (2 filas)
+  // ✅ datos del colaborador(2 filas)
   out += `No. de personal: ${no} | Nombre: ${nombre} | Posición: ${posicion}\n`;
   out += `Departamento: ${depto} | Periodo: ${per} | Versión: ${ver} | Fecha: ${fecha}\n`;
   out += `Puntaje final: ${pf}\n\n`;
