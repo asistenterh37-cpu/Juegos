@@ -1897,7 +1897,6 @@ function updateDevGenerarState_(){
   const btn = $("btnDevGenerar");
   if(!btn) return;
 
-  // ✅ usa los mismos 3 campos del bloque RESULTADO (datosResultadoWrap)
   const no  = $("noPersonalRes")?.value?.trim() || "";
   const per = $("periodoRes")?.value?.trim() || "";
   const ver = $("versionRes")?.value?.trim() || "";
@@ -1909,7 +1908,8 @@ function renderDesarrolloTable_(rows, no, per, ver){
   const arr = Array.isArray(rows) ? rows : [];
 
   if($("devInfo")){
-    $("devInfo").textContent = `Mostrando: ${arr.length} filas | No: ${no || "—"} | Periodo: ${per || "—"} | Versión: ${ver || "—"}`;
+    $("devInfo").textContent =
+      `Mostrando: ${arr.length} filas | No: ${no || "—"} | Periodo: ${per || "—"} | Versión: ${ver || "—"}`;
   }
 
   if(!arr.length){
@@ -1951,20 +1951,6 @@ async function generarDesarrollo_(){
     setApiStatus("err","API: " + err.message);
   }
 }
-
-
-  const res = await apiGet({ action:"desarrolloPlan", no, periodo: per, version: ver });
-  const rows = Array.isArray(res.rows) ? res.rows : [];
-  renderDesarrolloTable_(rows, no, per, ver);
-}
-
-  // 🔧 Aquí conectarás tu endpoint real (cuando lo tengas)
-  // const res = await apiGet({ action:"desarrolloPlan", no, periodo: per, version: ver });
-
-  $("devInfo").textContent = `Listo para generar | No: ${no} | Periodo: ${per} | Versión: ${ver}`;
-  $("devTbody").innerHTML = `<tr><td colspan="5" class="sub">✅ (Placeholder) Conecta el action del backend para llenar esta tabla.</td></tr>`;
-}
-
   function splitCursos_(txt){
     const s = String(txt ?? "").trim();
     if(!s) return [];
