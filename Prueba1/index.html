@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="viewport" content="width=-,initial-scale=1" />
   <title>Sistema de Evaluación del Desempeño</title>
   <link rel="icon" href="data:,">
 
@@ -896,10 +896,44 @@ Dejar de hacer:"></textarea>
     </div>
   </div>
 </section>
-    <section class="card" data-phase-block="DESARROLLO"><div class="card-h"><h2>Informe plan de desarrollo</h2><div class="sub">Vista en construcción.</div></div><div class="card-b"><div class="hint">Aquí irá el plan.</div></div></section>
+    <section class="card" data-phase-block="DESARROLLO" id="blockDesarrollo">
+  <div class="card-h">
+    <div>
+      <h2>Informe plan de desarrollo</h2>
+      <div class="sub">Genera el plan por <b>No. de personal</b> + <b>Periodo</b> + <b>Versión</b>.</div>
+    </div>
+    <div class="controls">
+      <button id="btnDevGenerar" class="btn-blue" disabled>Generar</button>
+    </div>
+  </div>
+
+  <div class="card-b">
+    <div class="hint" style="margin-bottom:12px">
+      Tip: si el botón está bloqueado, es porque falta No. personal / Periodo / Versión 😄
+    </div>
+
+    <div id="devInfo" class="sub" style="margin-bottom:10px">—</div>
+
+    <div class="tableWrap">
+      <table id="devTable">
+        <thead>
+          <tr>
+            <th>Área</th>
+            <th>Necesidad</th>
+            <th>Acción</th>
+            <th>Fecha objetivo</th>
+            <th>Responsable</th>
+          </tr>
+        </thead>
+        <tbody id="devTbody">
+          <tr><td colspan="5" class="sub">Presiona <b>Generar</b> para cargar el informe.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
   </div>
 </main>
-
 <script>
   /* ================= CONFIG ================= */
   const LS_KEY_ = "ED_WEBAPP_";
@@ -1145,7 +1179,8 @@ Dejar de hacer:`;
   function isPesosPhase(){ return state.fase === "PESOS"; }
   function isResultadoPhase(){ return state.fase === "RESULTADO"; }
   function isCapacitacionPhase(){ return state.fase === "CAPACITACION"; }
-  
+  function isDesarrolloPhase(){ return state.fase === "DESARROLLO"; } // ✅ NUEVO
+
   /* ================= VALIDATION ================= */
   function getClientesRequiredFields(){
     return [
@@ -1251,23 +1286,30 @@ function setPhase(phase){
   });
 
   const nivelWrap = $("nivelWrap");
-  nivelWrap.classList.toggle("hide", isClientesPhase() || isResultadoPhase() || isCapacitacionPhase());
+// ✅ ocultar Nivel también en DESARROLLO
+nivelWrap.classList.toggle("hide",
+  isClientesPhase() || isResultadoPhase() || isCapacitacionPhase() || isDesarrolloPhase()
+);
 
-  const enableNivel = (isEvalPhase() || state.fase === "FORMULARIOS" || state.fase === "PESOS");
-  $("nivelSelect").disabled = !enableNivel;
+const enableNivel = (isEvalPhase() || state.fase === "FORMULARIOS" || state.fase === "PESOS");
+$("nivelSelect").disabled = !enableNivel;
 
-  // ✅ alterna bloque datos (EVAL vs RESULTADO)
-  const evalWrap = $("datosEvalWrap");
-  const resWrap = $("datosResultadoWrap");
-  if(evalWrap) evalWrap.style.display = isEvalPhase() ? "grid" : "none";
-  if(resWrap) resWrap.style.display = isResultadoPhase() ? "grid" : "none";
+// ✅ alterna bloque datos (EVAL vs RESULTADO/DESARROLLO)
+const evalWrap = $("datosEvalWrap");
+const resWrap = $("datosResultadoWrap");
+if(evalWrap) evalWrap.style.display = isEvalPhase() ? "grid" : "none";
+if(resWrap) resWrap.style.display = (isResultadoPhase() || isDesarrolloPhase()) ? "grid" : "none";
 
-  const datosHelp = $("datosHelp");
-  if(datosHelp){
-    datosHelp.textContent = isResultadoPhase()
-      ? "Para Recuperar el resultado, llena: No personal + Periodo + Versión."
-      : "Completa la información y selecciona una opción (1–5) para cada ítem.";
+const datosHelp = $("datosHelp");
+if(datosHelp){
+  if(isResultadoPhase()){
+    datosHelp.textContent = "Para Recuperar el resultado, llena: No personal + Periodo + Versión.";
+  } else if(isDesarrolloPhase()){
+    datosHelp.textContent = "Para Generar el plan de desarrollo, llena: No personal + Periodo + Versión.";
+  } else {
+    datosHelp.textContent = "Completa la información y selecciona una opción (1–5) para cada ítem.";
   }
+}
 
   const hideOpcionales = isEvalPhase() || isClientesPhase() || isResultadoPhase();
   $("btnNuevo").style.display = hideOpcionales ? "none" : "inline-block";
@@ -1844,6 +1886,48 @@ if ($("repFecha"))    $("repFecha").value = fechaDMY || "—";
   }
 
     // ✅ Explota cursos: "Excel, Power BI, SAP" -> ["Excel","Power BI","SAP"]
+/* ================= ✅ DESARROLLO (GENERAR) ================= */
+function clearDesarrollo_(){
+  if($("devInfo")) $("devInfo").textContent = "—";
+  if($("devTbody")) $("devTbody").innerHTML =
+    `<tr><td colspan="5" class="sub">Presiona <b>Generar</b> para cargar el informe.</td></tr>`;
+  updateDevGenerarState_();
+}
+
+function updateDevGenerarState_(){
+  const btn = $("btnDevGenerar");
+  if(!btn) return;
+
+  // ✅ usa los mismos 3 campos del bloque RESULTADO
+  const no  = $("noPersonalRes")?.value?.trim() || "";
+  const per = $("periodoRes")?.value?.trim() || "";
+  const ver = $("versionRes")?.value?.trim() || "";
+
+  btn.disabled = !(isDesarrolloPhase() && no && per && ver);
+}
+
+async function generarDesarrollo_(){
+  if(!isDesarrolloPhase()){
+    alert("Selecciona la fase: Informe plan de desarrollo.");
+    return;
+  }
+
+  const no  = $("noPersonalRes").value.trim();
+  const per = $("periodoRes").value.trim();
+  const ver = $("versionRes").value.trim();
+
+  if(!no || !per || !ver){
+    alert("Para Generar, llena: No. de personal + Periodo + Versión.");
+    return;
+  }
+
+  // 🔧 Aquí conectarás tu endpoint real (cuando lo tengas)
+  // const res = await apiGet({ action:"desarrolloPlan", no, periodo: per, version: ver });
+
+  $("devInfo").textContent = `Listo para generar | No: ${no} | Periodo: ${per} | Versión: ${ver}`;
+  $("devTbody").innerHTML = `<tr><td colspan="5" class="sub">✅ (Placeholder) Conecta el action del backend para llenar esta tabla.</td></tr>`;
+}
+
   function splitCursos_(txt){
     const s = String(txt ?? "").trim();
     if(!s) return [];
@@ -2326,12 +2410,18 @@ function buildResultadoTexto_(){
   
   // watchers RESULTADO
   ["noPersonalRes","periodoRes","versionRes"].forEach(id=>{
-    const el = $(id);
-    if(el){
-      el.addEventListener("input", updateGuardarUIState);
-      el.addEventListener("change", updateGuardarUIState);
-    }
-  });
+  const el = $(id);
+  if(el){
+    el.addEventListener("input", ()=>{
+      updateGuardarUIState();
+      updateDevGenerarState_(); // ✅ NUEVO
+    });
+    el.addEventListener("change", ()=>{
+      updateGuardarUIState();
+      updateDevGenerarState_(); // ✅ NUEVO
+    });
+  }
+});
 
   /* ================= BOOT ================= */
   (function boot(){
@@ -2370,8 +2460,11 @@ function buildResultadoTexto_(){
         }
       });
 
-    updateGuardarUIState();
-    updatePesosSaveState();
+   updateGuardarUIState();
+updatePesosSaveState();
+
+updateCapSaveState_();
+updateDevGenerarState_(); // ✅ NUEVO
   })();
 </script>
 </body>
