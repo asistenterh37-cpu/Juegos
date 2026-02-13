@@ -903,7 +903,6 @@ Dejar de hacer:"></textarea>
       <div class="sub">Genera el plan por <b>No. de personal</b> + <b>Periodo</b> + <b>Versión</b>.</div>
     </div>
     <div class="controls">
-      <!-- ✅ ya no queda “muerto”: se habilita cuando No/Periodo/Versión tienen valor -->
       <button id="btnDevGenerar" class="btn-blue">Generar</button>
     </div>
   </div>
@@ -926,20 +925,19 @@ Dejar de hacer:"></textarea>
       </div>
     </div>
 
-    <div id="devInfo" class="sub" style="margin-bottom:10px">—</div>
+    <!-- ✅ ELIMINADO: devInfo (Mostrando: X filas | No | Periodo | Versión) -->
 
     <div class="tableWrap">
       <table id="devTable">
         <thead>
           <tr>
-            <thead>
-  <tr>
-    <th>Área</th>
-    <th>Necesidad</th>
-    <th>Acción</th>
-    <th>Fecha objetivo</th>
-  </tr>
-</thead>
+            <th>Área</th>
+            <th>Necesidad</th>
+            <th>Acción</th>
+            <th>Fecha objetivo</th>
+            <th>Responsable</th>
+          </tr>
+        </thead>
         <tbody id="devTbody">
           <tr><td colspan="5" class="sub">Presiona <b>Generar</b> para cargar el informe.</td></tr>
         </tbody>
