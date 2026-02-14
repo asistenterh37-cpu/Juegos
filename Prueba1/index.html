@@ -950,7 +950,24 @@ Dejar de hacer:"></textarea>
       </div>
     </section>
     <!-- OTRAS VISTAS -->
-    <section class="card" data-phase-block="CONSOLIDADO"><div class="card-h"><h2>Informe consolidado</h2><div class="sub">Vista en construcción.</div></div><div class="card-b"><div class="hint">Aquí irá el informe.</div></div></section>
+        <!-- CONSOLIDADO (INFORME EJECUTIVO) -->
+    <section class="card" data-phase-block="CONSOLIDADO" id="blockConsolidado">
+      <div class="card-h">
+        <div>
+          <h2>Informe ejecutivo</h2>
+          <div class="sub">Usa <b>Recuperar</b> para cargar el informe por <b>No. de personal</b> + <b>Periodo</b> + <b>Versión</b>.</div>
+        </div>
+        <div class="chips">
+          <span class="chip mono">Origen: <b>EvaluacionFinal</b></span>
+        </div>
+      </div>
+      <div class="card-b">
+        <div class="hint">
+          Aquí va el contenido del informe ejecutivo (resumen, hallazgos, KPIs, recomendaciones, etc.).<br/>
+          Por ahora ya se muestran los campos y botones del header como pediste 😄
+        </div>
+      </div>
+    </section>
     <section class="card" data-phase-block="CAPACITACION" id="blockCapacitacion">
   <div class="card-h">
     <div>
@@ -1276,13 +1293,14 @@ Dejar de hacer:`;
   }
 
   /* ================= PHASE HELPERS ================= */
-  function isEvalPhase(){ return state.fase === "AUTO" || state.fase === "DESEMPENO"; }
+   function isEvalPhase(){ return state.fase === "AUTO" || state.fase === "DESEMPENO"; }
   function isClientesPhase(){ return state.fase === "CLIENTES"; }
   function isDesempenoPhase(){ return state.fase === "DESEMPENO"; }
   function isAutoPhase(){ return state.fase === "AUTO"; }
   function isFormulariosPhase(){ return state.fase === "FORMULARIOS"; }
   function isPesosPhase(){ return state.fase === "PESOS"; }
   function isResultadoPhase(){ return state.fase === "RESULTADO"; }
+  function isConsolidadoPhase(){ return state.fase === "CONSOLIDADO"; } // ✅ NUEVO
   function isCapacitacionPhase(){ return state.fase === "CAPACITACION"; }
   function isDesarrolloPhase(){ return state.fase === "DESARROLLO"; } // ✅ NUEVO
   function isTiposPhase(){ return state.fase === "TIPOS"; }
@@ -1345,21 +1363,21 @@ Dejar de hacer:`;
   }
 
     /* ================= UI STATE (BOTONES) ================= */
-  function updateGuardarUIState(){
+    function updateGuardarUIState(){
     const btnG = $("btnGuardar");
     const btnL = $("btnLimpiarEval");
     const btnR = $("btnRecuperar");
     const btnP = $("btnPrint");
 
-    // ✅ Limpiar se muestra en: EVAL / CLIENTES / RESULTADO
-    const showLimpiar = isEvalPhase() || isClientesPhase() || isResultadoPhase();
+    // ✅ Limpiar se muestra en: EVAL / CLIENTES / RESULTADO / CONSOLIDADO
+    const showLimpiar = isEvalPhase() || isClientesPhase() || isResultadoPhase() || isConsolidadoPhase();
     btnL.style.display = showLimpiar ? "inline-block" : "none";
 
-    // ✅ Recuperar se muestra en: DESEMPENO / RESULTADO
-    btnR.style.display = (isDesempenoPhase() || isResultadoPhase()) ? "inline-block" : "none";
+    // ✅ Recuperar se muestra en: DESEMPENO / RESULTADO / CONSOLIDADO
+    btnR.style.display = (isDesempenoPhase() || isResultadoPhase() || isConsolidadoPhase()) ? "inline-block" : "none";
 
-    // ✅ Imprimir solo en RESULTADO
-    btnP.style.display = isResultadoPhase() ? "inline-block" : "none";
+    // ✅ Imprimir en: RESULTADO / CONSOLIDADO
+    btnP.style.display = (isResultadoPhase() || isConsolidadoPhase()) ? "inline-block" : "none";
 
     // ✅ Guardar (HEADER) solo debe verse en CLIENTES y EVAL
     const showGuardar = isClientesPhase() || isEvalPhase();
@@ -1383,7 +1401,6 @@ Dejar de hacer:`;
 
     btnG.disabled = true;
   }
-
   /* ================= PHASE UI ================= */
 function setPhase(phase){
   state.fase = phase || "";
@@ -1399,10 +1416,12 @@ function setPhase(phase){
     el.classList.toggle("show", isEvalPhase());
   });
 
-  // Nivel: oculto en CLIENTES/RESULTADO/CAPACITACION/DESARROLLO
+  // Nivel: oculto en CLIENTES/RESULTADO/CONSOLIDADO/CAPACITACION/DESARROLLO/TIPOS
   const nivelWrap = $("nivelWrap");
   if(nivelWrap){
-    const hideNivel = isClientesPhase() || isResultadoPhase() || isCapacitacionPhase() || isDesarrolloPhase() || isTiposPhase();
+    const hideNivel =
+      isClientesPhase() || isResultadoPhase() || isConsolidadoPhase() ||
+      isCapacitacionPhase() || isDesarrolloPhase() || isTiposPhase();
     nivelWrap.classList.toggle("hide", hideNivel);
   }
 
@@ -1410,15 +1429,16 @@ function setPhase(phase){
   const enableNivel = (isEvalPhase() || state.fase === "FORMULARIOS" || state.fase === "PESOS");
   if ($("nivelSelect")) $("nivelSelect").disabled = !enableNivel;
 
-  // alternar bloque datos (EVAL vs RESULTADO/DESARROLLO)
+  // alternar bloque datos (EVAL vs RESULTADO/DESARROLLO/CONSOLIDADO)
   const evalWrap = $("datosEvalWrap");
   const resWrap  = $("datosResultadoWrap");
   if(evalWrap) evalWrap.style.display = isEvalPhase() ? "grid" : "none";
-  if(resWrap)  resWrap.style.display  = (isResultadoPhase() || isDesarrolloPhase()) ? "grid" : "none";
+  if(resWrap)  resWrap.style.display  = (isResultadoPhase() || isDesarrolloPhase() || isConsolidadoPhase()) ? "grid" : "none";
+
   // ✅ Mostrar/ocultar el bloque "Datos del colaborador" según fase
   const blockDatos = $("blockDatos");
   if(blockDatos){
-    const showDatos = isEvalPhase() || isResultadoPhase() || isDesarrolloPhase();
+    const showDatos = isEvalPhase() || isResultadoPhase() || isDesarrolloPhase() || isConsolidadoPhase();
     blockDatos.style.display = showDatos ? "block" : "none";
   }
   
@@ -1429,6 +1449,8 @@ function setPhase(phase){
       datosHelp.textContent = "Para Recuperar el resultado, llena: No personal + Periodo + Versión.";
     } else if(isDesarrolloPhase()){
       datosHelp.textContent = "Para Generar el plan de desarrollo, llena: No personal + Periodo + Versión.";
+    } else if(isConsolidadoPhase()){
+      datosHelp.textContent = "Para el Informe ejecutivo, llena: No personal + Periodo + Versión.";
     } else {
       datosHelp.textContent = "Completa la información y selecciona una opción (1–5) para cada ítem.";
     }
@@ -1439,11 +1461,13 @@ function setPhase(phase){
     clearDesarrollo_();
   }
   updateDevGenerarState_();
-  // ✅ Botón “Nuevo” solo donde se permite (no en Formularios/Pesos/Capacitación/Desarrollo)
+
+  // ✅ Botón “Nuevo” solo donde se permite (no en Formularios/Pesos/Capacitación/Desarrollo/Resultado/Consolidado)
   const hideNuevo =
     isEvalPhase() ||
     isClientesPhase() ||
     isResultadoPhase() ||
+    isConsolidadoPhase() ||
     isFormulariosPhase() ||
     isPesosPhase() ||
     isCapacitacionPhase() ||
@@ -1457,7 +1481,6 @@ function setPhase(phase){
   updateCapSaveState_();
   if(!isCapacitacionPhase() && $("btnCapGuardar")) $("btnCapGuardar").disabled = true;
 }
-
   /* ================= EVAL: RENDER FORM ================= */
   function renderCuestionario(form){
     const root = $("cuestionario");
@@ -2500,8 +2523,17 @@ function closeTiposModal_(){
     }
   });
 
+   // ✅ CONSOLIDADO (Informe ejecutivo): de momento solo UI.
+  // Si ya tienes tu endpoint, aquí conectas el action correspondiente.
+  async function recoverConsolidado_(){
+    alert("Informe ejecutivo: UI lista ✅\nFalta conectar el action del backend (ej: action='consolidado').");
+  }
+
   $("btnRecuperar").addEventListener("click", ()=>{
-    const fn = isResultadoPhase() ? recoverResultado : recoverSearch;
+    const fn =
+      isResultadoPhase() ? recoverResultado :
+      (isConsolidadoPhase() ? recoverConsolidado_ : recoverSearch);
+
     fn().catch(err=>setApiStatus("err","API: " + err.message));
   });
 
