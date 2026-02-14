@@ -517,6 +517,10 @@ button[disabled]{
     <span id="apiStatusText">API: sin probar</span>
   </span>
 
+  <!-- ✅ Diagnóstico -->
+  <button id="btnProbarApi" class="btn-ghost">Probar API</button>
+  <button id="btnAbrirPing" class="btn-ghost">Ping</button>
+
   <!-- ✅ Para RESULTADO: Recuperar + Limpiar + Imprimir -->
   <button id="btnRecuperar" class="btn-blue" style="display:none">Recuperar</button>
   <button id="btnLimpiarEval" class="btn-warn" style="display:none">Limpiar</button>
@@ -529,7 +533,7 @@ button[disabled]{
   <!-- ✅ Imprimir (para RESULTADO): abre menú PDF / Texto -->
   <button id="btnPrint" class="btn-ghost" style="display:none">Imprimir</button>
 </div>
-    </div>
+   </div>
   </div>
 </header>
 
@@ -2509,13 +2513,13 @@ function closeTiposModal_(){
     localStorage.setItem(LS_KEY_, v);
   });
 
-  $("btnAbrirPing").addEventListener("click", ()=>{
+  $("btnAbrirPing")?.addEventListener("click", ()=>{
     const base = getWebApp();
     const raw = base + (base.includes("?") ? "&" : "?") + "action=ping&_=" + Date.now();
     window.open(raw, "_blank", "noopener,noreferrer");
   });
 
-  $("btnProbarApi").addEventListener("click", async ()=>{
+  $("btnProbarApi")?.addEventListener("click", async ()=>{
     try{
       await apiGet({action:"ping"});
       setApiStatus("ok","API: conectada");
