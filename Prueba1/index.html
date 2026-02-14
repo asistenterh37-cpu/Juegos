@@ -2301,10 +2301,17 @@ async function generarDesarrollo_(){
       return;
     }
 
-    const nivelRef = getNivelRef();
+        const nivelRef = getNivelRef();
     const RESP_MAX = 20;
+
+    // ✅ Enviamos DOS versiones:
+    // - respuestas (texto "3 — ...") para compatibilidad
+    // - respuestasNum (solo 1-5) para calcular puntaje final sin “adivinar”
     const respuestasOrdenadasRaw = state.itemKeys.map(k => (state.answers.get(k)?.label || ""));
+    const respuestasNumRaw       = state.itemKeys.map(k => (state.answers.get(k)?.value || ""));
+
     const respuestasOrdenadas = Array.from({length: RESP_MAX}, (_, i) => String(respuestasOrdenadasRaw[i] ?? "").trim());
+    const respuestasNum       = Array.from({length: RESP_MAX}, (_, i) => String(respuestasNumRaw[i] ?? "").trim());
 
     const comentariosAuto = isAutoPhase() ? ($("comentariosColaboradorAuto")?.value || "").trim() : "";
     const extrasDesempeno = isDesempenoPhase() ? {
@@ -2321,7 +2328,7 @@ async function generarDesarrollo_(){
 
     const extrasAuto = isAutoPhase() ? { comentariosColaborador: comentariosAuto } : null;
 
-    const payload = {
+        const payload = {
       fase: state.fase,
       nivel: nivelRef,
       no: $("noPersonalEval").value.trim(),
@@ -2331,7 +2338,11 @@ async function generarDesarrollo_(){
       periodo: $("periodoEval").value.trim(),
       version: $("versionEval").value.trim(),
       fecha: $("fechaEval").value.trim(),
+
+      // ✅ Se guardan ambas:
       respuestas: respuestasOrdenadas,
+      respuestasNum: respuestasNum,
+
       comentarios: isAutoPhase() ? comentariosAuto : buildCompatComentarios(),
       extras: isDesempenoPhase() ? extrasDesempeno : (isAutoPhase() ? extrasAuto : null)
     };
