@@ -128,10 +128,6 @@ button[disabled]{
   70%{ box-shadow:0 0 0 10px rgba(96,165,250,0); }
   100%{ box-shadow:0 0 0 0 rgba(96,165,250,0); }
 }
-      0%{ box-shadow:0 0 0 0 rgba(34,197,94,.25); }
-      70%{ box-shadow:0 0 0 10px rgba(34,197,94,0); }
-      100%{ box-shadow:0 0 0 0 rgba(34,197,94,0); }
-    }
 
     main{padding:18px}
     .grid{max-width:1180px;margin:0 auto;display:grid;gap:14px}
@@ -252,7 +248,6 @@ button[disabled]{
   font-size:14px; /* 👈 aumentado 1 punto */
   color:rgba(232,238,252,.92);
 }
-    }
     tbody tr:hover td{ background:rgba(79,124,255,.06); }
     .tdMuted{color:var(--muted); font-size:12px; margin-top:4px}
     .mono{font-family:var(--mono)}
@@ -922,17 +917,14 @@ Dejar de hacer:"></textarea>
             <textarea id="resProyeccion" placeholder="Se llena al recuperar..." readonly></textarea>
           </div>
 
-        <div class="field col-12 boxed">
+      <div class="field col-12 boxed">
   <div class="lbl">
-    Necesidades de capacitación 
+    Necesidades de capacitación
     <span style="font-weight:600; text-transform:none; letter-spacing:normal;">
       (enliste los cursos separados por comas (,))
     </span>
   </div>
-  <textarea 
-    id="necesidadesCapacitacion" 
-    placeholder="Ej: Excel avanzado, Power BI, Gestión de proyectos..."
-  ></textarea>
+  <textarea id="resCapacitacion" placeholder="Se llena al recuperar..." readonly></textarea>
 </div>
 
           <div class="field col-12 boxed">
