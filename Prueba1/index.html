@@ -451,6 +451,43 @@ button[disabled]{
   </div>
 </div>
 
+  <!-- ✅ MODAL TIPOS -->
+<div id="tiposModalBack" class="modalBack" role="dialog" aria-modal="true" aria-labelledby="tiposTitle">
+  <div class="modal">
+    <div class="modal-h">
+      <div>
+        <h3 id="tiposTitle">Tipos de puesto</h3>
+        <div class="modalNote">Guía rápida de clasificación (1–10)</div>
+      </div>
+      <div class="modalActions">
+        <button id="btnTiposClose" class="btn-ghost">Cerrar</button>
+      </div>
+    </div>
+
+    <div class="modal-b">
+      <div class="hint" style="margin-bottom:12px">
+        Tip: esto evita discusiones eternas de “¿pero este puesto es junior o calificado?” 😄
+      </div>
+
+      <div class="tableWrap">
+        <table id="tiposTable">
+          <thead>
+            <tr>
+              <th style="width:90px">Tipo</th>
+              <th style="width:260px">Nombre</th>
+              <th>Descripción</th>
+              <th style="width:360px">Ejemplos</th>
+            </tr>
+          </thead>
+          <tbody id="tiposTbody">
+            <tr><td colspan="4" class="sub">—</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+  
 <header>
   <div class="wrap">
     <div class="topbar">
@@ -498,8 +535,9 @@ button[disabled]{
         <div class="controls" style="width:100%; justify-content:space-between">
           <div class="controls" style="gap:10px">
             <select id="faseSelect">
-  <option value="">Seleccione fase</option>
-  <option value="FORMULARIOS">Formularios</option>
+      <option value="">Seleccione fase</option>
+     <option value="TIPOS">Tipos</option>
+    <option value="FORMULARIOS">Formularios</option>
   <option value="PESOS">Pesos</option>
   <option value="AUTO">Formulario de autoevaluación</option>
   <option value="CLIENTES">Formulario de evaluación de clientes</option>
@@ -1225,7 +1263,8 @@ Dejar de hacer:`;
   function isResultadoPhase(){ return state.fase === "RESULTADO"; }
   function isCapacitacionPhase(){ return state.fase === "CAPACITACION"; }
   function isDesarrolloPhase(){ return state.fase === "DESARROLLO"; } // ✅ NUEVO
-
+  function isTiposPhase(){ return state.fase === "TIPOS"; }
+  
   /* ================= VALIDATION ================= */
   function getClientesRequiredFields(){
     return [
@@ -1341,7 +1380,7 @@ function setPhase(phase){
   // Nivel: oculto en CLIENTES/RESULTADO/CAPACITACION/DESARROLLO
   const nivelWrap = $("nivelWrap");
   if(nivelWrap){
-    const hideNivel = isClientesPhase() || isResultadoPhase() || isCapacitacionPhase() || isDesarrolloPhase();
+    const hideNivel = isClientesPhase() || isResultadoPhase() || isCapacitacionPhase() || isDesarrolloPhase() || isTiposPhase();
     nivelWrap.classList.toggle("hide", hideNivel);
   }
 
@@ -2330,6 +2369,93 @@ function buildResultadoTexto_(){
   return out.trim();
 }
 
+/* ================= ✅ TIPOS (MODAL) ================= */
+const TIPOS_DATA = [
+  {
+    n: 1,
+    nombre: "Operativo Básico",
+    desc: "Puestos de ejecución directa con tareas estandarizadas y baja complejidad técnica. Requieren supervisión constante y siguen instrucciones definidas. Tienen escasa autonomía y bajo impacto estratégico.",
+    ej: "Auxiliar de limpieza, operario de producción, mensajero, auxiliar de bodega."
+  },
+  {
+    n: 2,
+    nombre: "Operativo de Apoyo",
+    desc: "Puestos que brindan soporte a procesos operativos o administrativos. Ejecutan tareas bajo lineamientos definidos con autonomía limitada. Su impacto es indirecto pero necesario para el funcionamiento del área.",
+    ej: "Auxiliar administrativo, asistente de compras, auxiliar contable, soporte básico."
+  },
+  {
+    n: 3,
+    nombre: "Operativo Calificado",
+    desc: "Puestos operativos con conocimientos técnicos específicos y tareas especializadas. Resuelven problemas dentro de su ámbito técnico con menor supervisión. Tienen mayor responsabilidad técnica y capacidad de decisión operativa.",
+    ej: "Técnico en mantenimiento, operador especializado, técnico de redes, analista junior de laboratorio."
+  },
+  {
+    n: 4,
+    nombre: "Técnico / Administrativo Junior",
+    desc: "Puestos con formación técnica o profesional inicial que gestionan procesos específicos. Realizan análisis básicos y aplican herramientas técnicas bajo lineamientos definidos. Poseen autonomía moderada y participan en mejoras operativas.",
+    ej: "Analista administrativo junior, contador junior, técnico en RRHH, analista de datos junior."
+  },
+  {
+    n: 5,
+    nombre: "Técnico / Administrativo Senior",
+    desc: "Puestos con dominio técnico avanzado y gestión integral de procesos. Toman decisiones operativas con alto nivel de autonomía. Pueden supervisar personal y asesorar técnicamente a otros.",
+    ej: "Analista senior financiero, coordinador técnico, especialista en nómina, supervisor de laboratorio."
+  },
+  {
+    n: 6,
+    nombre: "Profesional Junior",
+    desc: "Puestos profesionales con formación universitaria y responsabilidad sobre proyectos definidos. Realizan análisis estructurado y proponen mejoras en su área. Tienen autonomía técnica progresiva e impacto relevante en resultados.",
+    ej: "Ingeniero junior, psicólogo organizacional junior, microbiólogo junior, analista de planificación."
+  },
+  {
+    n: 7,
+    nombre: "Profesional Senior / Especialista",
+    desc: "Puestos de alta especialización técnica o funcional. Actúan como referentes expertos e influyen en decisiones estratégicas. Poseen elevada autonomía y responsabilidad por estándares técnicos.",
+    ej: "Especialista en DO, ingeniero senior, especialista en calidad, especialista en IA aplicada."
+  },
+  {
+    n: 8,
+    nombre: "Jefatura / Coordinación",
+    desc: "Puestos con responsabilidad directa sobre equipos y metas operativas. Asignan tareas, supervisan desempeño y gestionan indicadores. Impactan en resultados del área y clima laboral.",
+    ej: "Jefe de RRHH, coordinador de producción, jefe de laboratorio, coordinador administrativo."
+  },
+  {
+    n: 9,
+    nombre: "Subgerencia / Gerencia de Área",
+    desc: "Puestos de liderazgo táctico-estratégico responsables de resultados integrales del área. Gestionan presupuesto, planificación y cumplimiento de metas. Toman decisiones de impacto medio-alto y reportan a alta dirección.",
+    ej: "Gerente de RRHH, gerente de operaciones, subgerente comercial, gerente de calidad."
+  },
+  {
+    n: 10,
+    nombre: "Gerencia Funcional",
+    desc: "Puestos estratégicos que definen políticas y lineamientos organizacionales. Impactan directamente en la sostenibilidad y resultados globales del negocio. Ejercen liderazgo transversal y alta toma de decisiones.",
+    ej: "Director de RRHH, CFO, COO, director técnico."
+  }
+];
+
+function renderTiposTable_(){
+  const tb = $("tiposTbody");
+  if(!tb) return;
+
+  tb.innerHTML = TIPOS_DATA.map(t => `
+    <tr>
+      <td class="mono">${escapeHtml(t.n)}</td>
+      <td><b>${escapeHtml(t.nombre)}</b></td>
+      <td>${escapeHtml(t.desc)}</td>
+      <td>${escapeHtml(t.ej)}</td>
+    </tr>
+  `).join("");
+}
+
+function openTiposModal_(){
+  renderTiposTable_();
+  $("tiposModalBack")?.classList.add("show");
+}
+
+function closeTiposModal_(){
+  $("tiposModalBack")?.classList.remove("show");
+}
+  
   /* ================= EVENTS ================= */
   $("webapp").addEventListener("change", ()=>{
     const v = normalizeWebApp($("webapp").value);
@@ -2365,6 +2491,12 @@ function buildResultadoTexto_(){
     if(e.target === $("printModalBack")) closePrintModal();
   });
 
+  /* ✅ TIPOS MODAL EVENTS */
+$("btnTiposClose")?.addEventListener("click", closeTiposModal_);
+$("tiposModalBack")?.addEventListener("click", (e)=>{
+  if(e.target === $("tiposModalBack")) closeTiposModal_();
+});
+
   $("btnPrintPDF").addEventListener("click", ()=>{
     closePrintModal();
     window.print();
@@ -2392,7 +2524,11 @@ function buildResultadoTexto_(){
   $("faseSelect").addEventListener("change", async (e)=>{
     const fase = e.target.value;
     setPhase(fase);
-
+if(fase === "TIPOS"){
+      openTiposModal_();
+      return; // no carga niveles ni nada más
+    }
+  
     try{
       if(isEvalPhase() || fase === "FORMULARIOS" || fase === "PESOS"){
         await loadLevelsForPhase();
