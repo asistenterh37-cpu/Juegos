@@ -268,39 +268,52 @@ button[disabled]{
       font-family:var(--mono);
     }
 
-    /* ✅ MODAL RECUPERAR */
-    .modalBack{
-      position:fixed; inset:0;
-      background:rgba(0,0,0,.55);
-      display:none;
-      align-items:flex-start;
-      justify-content:center;
-      padding:26px 14px;
-      z-index:9999;
-      backdrop-filter: blur(6px);
-    }
-    .modalBack.show{display:flex}
-    .modal{
-      width:min(1100px, 100%);
-      border:1px solid rgba(255,255,255,.12);
-      border-radius:22px;
-      overflow:hidden;
-      box-shadow: 0 20px 60px rgba(0,0,0,.55);
-      background:linear-gradient(180deg, rgba(18,31,61,.98), rgba(15,27,51,.98));
-    }
-    .modal-h{
-      padding:14px 16px;
-      border-bottom:1px solid rgba(255,255,255,.10);
-      display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
-    }
-    .modal-h h3{margin:0;font-size:15px}
-    .modal-b{padding:14px 16px}
-    .modalNote{color:var(--muted);font-size:13px}
-    .modalActions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-    .pickBtn{white-space:nowrap}
-    .kpi{display:flex;gap:8px;flex-wrap:wrap}
-    .kpi .chip{opacity:.95}
+    /* ✅ MODALES (RECUPERAR / IMPRIMIR / TIPOS) — con scroll interno */
+.modalBack{
+  position:fixed; inset:0;
+  background:rgba(0,0,0,.55);
+  display:none;
+  align-items:center;              /* ✅ centra vertical */
+  justify-content:center;
+  padding:26px 14px;
+  z-index:9999;
+  backdrop-filter: blur(6px);
+  overflow:auto;                   /* ✅ si la pantalla es pequeña, permite scroll del contenedor */
+}
+.modalBack.show{display:flex}
 
+.modal{
+  width:min(1100px, 100%);
+  max-height: calc(100vh - 52px);  /* ✅ nunca se sale de la pantalla */
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:22px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.55);
+  background:linear-gradient(180deg, rgba(18,31,61,.98), rgba(15,27,51,.98));
+  display:flex;                    /* ✅ permite header fijo + body con scroll */
+  flex-direction:column;
+  overflow:hidden;                 /* ✅ recorta bordes redondos, el scroll va adentro */
+}
+
+.modal-h{
+  padding:14px 16px;
+  border-bottom:1px solid rgba(255,255,255,.10);
+  display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
+  flex: 0 0 auto;                  /* ✅ no se encoge */
+}
+.modal-h h3{margin:0;font-size:15px}
+
+.modal-b{
+  padding:14px 16px;
+  overflow:auto;                   /* ✅ scroll aquí */
+  flex: 1 1 auto;                  /* ✅ ocupa el espacio disponible */
+  min-height: 0;                   /* ✅ clave para que el overflow funcione en flex */
+}
+
+/* ✅ En tablas grandes dentro del modal (como TIPOS), fuerza scroll cómodo */
+.modal .tableWrap{
+  max-height: calc(100vh - 220px); /* ajusta si quieres más/menos */
+  overflow:auto;
+}
     @media (max-width:860px){
       .col-3,.col-4,.col-6{grid-column:span 12}
       select{min-width:180px}
