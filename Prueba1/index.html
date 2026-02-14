@@ -771,10 +771,186 @@ Dejar de hacer:"></textarea>
         </div>
         <div class="chips"><span class="chip mono">Destino Guardar: <b>EvaluacionFinal</b></span></div>
       </div>
-      <div class="card-b">
-        <div class="hint" style="margin-bottom:12px">
-          Aquí va lo que normalmente RRHH usa para “entender el cuento” (sin inventar capítulos 😄)
+     <div class="card-b">
+  <!-- ✅ INFORME EJECUTIVO: Se arma con EvaluacionFinal + OpenAI (desde Apps Script) -->
+  <div class="hint" style="margin-bottom:12px">
+    <div class="sub" style="margin-bottom:10px">Encabezado del informe:</div>
+
+    <div class="form-grid">
+      <!-- Fila 1 -->
+      <div class="field col-3 boxed">
+        <div class="lbl">No. de personal</div>
+        <input id="conNo" value="—" readonly />
+      </div>
+      <div class="field col-6 boxed">
+        <div class="lbl">Nombre</div>
+        <input id="conNombre" value="—" readonly />
+      </div>
+      <div class="field col-3 boxed">
+        <div class="lbl">Posición</div>
+        <input id="conPosicion" value="—" readonly />
+      </div>
+
+      <!-- Fila 2 -->
+      <div class="field col-4 boxed">
+        <div class="lbl">Departamento</div>
+        <input id="conDepto" value="—" readonly />
+      </div>
+      <div class="field col-4 boxed">
+        <div class="lbl">Periodo</div>
+        <input id="conPeriodo" value="—" readonly />
+      </div>
+      <div class="field col-2 boxed">
+        <div class="lbl">Versión</div>
+        <input id="conVersion" value="—" readonly />
+      </div>
+      <div class="field col-2 boxed">
+        <div class="lbl">Fecha</div>
+        <input id="conFecha" value="—" readonly />
+      </div>
+    </div>
+  </div>
+
+  <!-- Puntaje final -->
+  <div class="form-grid" style="margin-bottom:14px">
+    <div class="field col-4 boxed">
+      <div class="lbl">Puntaje final</div>
+      <input id="conPuntajeFinal" value="—" readonly />
+      <div class="sub" style="margin-top:6px;color:rgba(169,183,217,.9)">
+        Traído desde <b>EvaluacionFinal</b>.
+      </div>
+    </div>
+  </div>
+
+  <!-- Detalle por ítem (opcional, pero útil para respaldo) -->
+  <div class="tableWrap" style="margin-bottom:14px">
+    <table id="conDetalleTable">
+      <thead>
+        <tr>
+          <th>Factor</th>
+          <th>Ítem</th>
+          <th>Respuesta</th>
+        </tr>
+      </thead>
+      <tbody id="conDetalleTbody">
+        <tr><td colspan="3" class="sub">Usa <b>Recuperar</b> para cargar la información.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Campos cualitativos (EvaluacionFinal) -->
+  <div class="hint" style="margin-bottom:12px">
+    Campos recuperados desde <b>EvaluacionFinal</b> (base humana). La IA solo interpreta y estructura, no “inventa la novela” 😄
+  </div>
+
+  <div class="form-grid" style="margin-bottom:14px">
+    <div class="field col-12 boxed">
+      <div class="lbl">Justificación y comentarios</div>
+      <textarea id="conJustificacion" placeholder="Se llena al recuperar..." readonly></textarea>
+    </div>
+
+    <div class="field col-12 boxed">
+      <div class="lbl">Evaluación de clientes (SSC)</div>
+      <textarea id="conEvalClientes" placeholder="Se llena al recuperar..." readonly></textarea>
+    </div>
+
+    <div class="field col-12 boxed">
+      <div class="lbl">Comentarios del colaborador</div>
+      <textarea id="conComColab" placeholder="Se llena al recuperar..." readonly></textarea>
+    </div>
+
+    <div class="field col-12 boxed">
+      <div class="lbl">Fortalezas</div>
+      <textarea id="conFortalezas" placeholder="Se llena al recuperar..." readonly></textarea>
+    </div>
+
+    <div class="field col-12 boxed">
+      <div class="lbl">Oportunidades de mejora</div>
+      <textarea id="conOportunidades" placeholder="Se llena al recuperar..." readonly></textarea>
+    </div>
+
+    <div class="field col-12 boxed">
+      <div class="lbl">Proyección y potencial de desarrollo</div>
+      <textarea id="conProyeccion" placeholder="Se llena al recuperar..." readonly></textarea>
+    </div>
+
+    <div class="field col-12 boxed">
+      <div class="lbl">Necesidades de capacitación (separadas por comas)</div>
+      <textarea id="conCapacitacion" placeholder="Se llena al recuperar..." readonly></textarea>
+    </div>
+
+    <div class="field col-12 boxed">
+      <div class="lbl">Comentarios del evaluador</div>
+      <textarea id="conComEval" placeholder="Se llena al recuperar..." readonly></textarea>
+    </div>
+
+    <div class="field col-6 boxed">
+      <div class="lbl">Nombre del evaluador</div>
+      <input id="conNomEval" placeholder="Se llena al recuperar..." readonly />
+    </div>
+  </div>
+
+  <!-- ✅ SALIDA IA (Informe Ejecutivo) -->
+  <div class="card" style="margin-top:12px">
+    <div class="card-h">
+      <div>
+        <h2>Informe ejecutivo de evaluación del desempeño (IA)</h2>
+        <div class="sub">Generado por OpenAI usando los campos de EvaluacionFinal.</div>
+      </div>
+      <div class="controls">
+        <button id="btnConGenerarIA" class="btn-blue">Generar con IA</button>
+        <button id="btnConCopiarIA" class="btn-ok">Copiar</button>
+      </div>
+    </div>
+
+    <div class="card-b">
+      <!-- Prompt de referencia (para que lo uses en Apps Script; no se ejecuta aquí) -->
+      <textarea id="conPromptIA" class="sr-hidden" aria-hidden="true">
+Actua como un experto en diseño y elbaoracion de informes tecnicos de evaluacion del desempeño, mediante la informacion adjunta, prepara un Reporte asi: en el orden y la estructura siguiente
+Informe ejecutivo de evaluacion del desempeño,
+No de personal,
+Nombre,
+Posicion
+Departamento
+Periodo
+Version
+Fecha
+Puntaje final
+Analisis e interpretacion
+Conclusiones
+Recomendaciones
+Nombre evaluador
+      </textarea>
+
+      <!-- Output principal -->
+      <div class="field col-12 boxed">
+        <div class="lbl">Informe ejecutivo (texto)</div>
+        <textarea id="conInformeIA" placeholder="Aquí se pegará/mostrará el informe generado..." readonly></textarea>
+        <div class="sub" style="margin-top:6px;color:rgba(169,183,217,.9)">
+          Sugerencia: guarda este texto como “CONSOLIDADO” en una hoja (si quieres historial por versión).
         </div>
+      </div>
+
+      <!-- Por si quieres separar partes (opcional) -->
+      <div class="form-grid" style="margin-top:10px">
+        <div class="field col-12 boxed">
+          <div class="lbl">Análisis e interpretación (IA)</div>
+          <textarea id="conAnalisisIA" placeholder="Se llena al generar..." readonly></textarea>
+        </div>
+
+        <div class="field col-12 boxed">
+          <div class="lbl">Conclusiones (IA)</div>
+          <textarea id="conConclusionesIA" placeholder="Se llena al generar..." readonly></textarea>
+        </div>
+
+        <div class="field col-12 boxed">
+          <div class="lbl">Recomendaciones (IA)</div>
+          <textarea id="conRecomendacionesIA" placeholder="Se llena al generar..." readonly></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
         <div class="form-grid">
           <div class="field col-12 boxed"><div class="lbl">Justificación y comentarios</div><textarea id="justificacion" placeholder="Describe evidencias / ejemplos / contexto..."></textarea></div>
