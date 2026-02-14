@@ -1118,23 +1118,180 @@ Nombre evaluador
     </section>
     <!-- OTRAS VISTAS -->
         <!-- CONSOLIDADO (INFORME EJECUTIVO) -->
-    <section class="card" data-phase-block="CONSOLIDADO" id="blockConsolidado">
-      <div class="card-h">
-        <div>
-          <h2>Informe ejecutivo</h2>
-          <div class="sub">Usa <b>Recuperar</b> para cargar el informe por <b>No. de personal</b> + <b>Periodo</b> + <b>Versión</b>.</div>
+    <div class="card-b">
+
+  <!-- ✅ INFORME EJECUTIVO (CONSOLIDADO): viene de EvaluacionFinal + (opcional) OpenAI en Apps Script -->
+  <div class="hint" style="margin-bottom:12px">
+    <div class="sub" style="margin-bottom:10px">Encabezado del informe:</div>
+
+    <div class="form-grid">
+      <!-- Fila 1 -->
+      <div class="field col-3 boxed">
+        <div class="lbl">No. de personal</div>
+        <input id="conNo" value="—" readonly />
+      </div>
+      <div class="field col-6 boxed">
+        <div class="lbl">Nombre</div>
+        <input id="conNombre" value="—" readonly />
+      </div>
+      <div class="field col-3 boxed">
+        <div class="lbl">Posición</div>
+        <input id="conPosicion" value="—" readonly />
+      </div>
+
+      <!-- Fila 2 -->
+      <div class="field col-4 boxed">
+        <div class="lbl">Departamento</div>
+        <input id="conDepto" value="—" readonly />
+      </div>
+      <div class="field col-4 boxed">
+        <div class="lbl">Periodo</div>
+        <input id="conPeriodo" value="—" readonly />
+      </div>
+      <div class="field col-2 boxed">
+        <div class="lbl">Versión</div>
+        <input id="conVersion" value="—" readonly />
+      </div>
+      <div class="field col-2 boxed">
+        <div class="lbl">Fecha</div>
+        <input id="conFecha" value="—" readonly />
+      </div>
+    </div>
+  </div>
+
+  <!-- Puntaje final -->
+  <div class="form-grid" style="margin-bottom:14px">
+    <div class="field col-4 boxed">
+      <div class="lbl">Puntaje final</div>
+      <input id="conPuntajeFinal" value="—" readonly />
+      <div class="sub" style="margin-top:6px;color:rgba(169,183,217,.9)">
+        Traído desde <b>EvaluacionFinal</b>.
+      </div>
+    </div>
+  </div>
+
+  <!-- Detalle por ítem -->
+  <div class="tableWrap" style="margin-bottom:14px">
+    <table id="conDetalleTable">
+      <thead>
+        <tr>
+          <th>Factor</th>
+          <th>Ítem</th>
+          <th>Respuesta</th>
+        </tr>
+      </thead>
+      <tbody id="conDetalleTbody">
+        <tr><td colspan="3" class="sub">Usa <b>Recuperar</b> para cargar la información.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="hint" style="margin-bottom:12px">
+    Campos recuperados desde <b>EvaluacionFinal</b> (base humana). La IA solo interpreta y estructura 😄
+  </div>
+
+  <div class="form-grid" style="margin-bottom:14px">
+    <div class="field col-12 boxed">
+      <div class="lbl">Justificación y comentarios</div>
+      <textarea id="conJustificacion" placeholder="Se llena al recuperar..." readonly></textarea>
+    </div>
+
+    <div class="field col-12 boxed">
+      <div class="lbl">Evaluación de clientes (SSC)</div>
+      <textarea id="conEvalClientes" placeholder="Se llena al recuperar..." readonly></textarea>
+    </div>
+
+    <div class="field col-12 boxed">
+      <div class="lbl">Comentarios del colaborador</div>
+      <textarea id="conComColab" placeholder="Se llena al recuperar..." readonly></textarea>
+    </div>
+
+    <div class="field col-12 boxed">
+      <div class="lbl">Fortalezas</div>
+      <textarea id="conFortalezas" placeholder="Se llena al recuperar..." readonly></textarea>
+    </div>
+
+    <div class="field col-12 boxed">
+      <div class="lbl">Oportunidades de mejora</div>
+      <textarea id="conOportunidades" placeholder="Se llena al recuperar..." readonly></textarea>
+    </div>
+
+    <div class="field col-12 boxed">
+      <div class="lbl">Proyección y potencial de desarrollo</div>
+      <textarea id="conProyeccion" placeholder="Se llena al recuperar..." readonly></textarea>
+    </div>
+
+    <div class="field col-12 boxed">
+      <div class="lbl">Necesidades de capacitación (separadas por comas)</div>
+      <textarea id="conCapacitacion" placeholder="Se llena al recuperar..." readonly></textarea>
+    </div>
+
+    <div class="field col-12 boxed">
+      <div class="lbl">Comentarios del evaluador</div>
+      <textarea id="conComEval" placeholder="Se llena al recuperar..." readonly></textarea>
+    </div>
+
+    <div class="field col-6 boxed">
+      <div class="lbl">Nombre del evaluador</div>
+      <input id="conNomEval" placeholder="Se llena al recuperar..." readonly />
+    </div>
+  </div>
+
+  <!-- ✅ SALIDA IA (si tu backend la genera) -->
+  <div class="card" style="margin-top:12px">
+    <div class="card-h">
+      <div>
+        <h2>Informe ejecutivo (IA)</h2>
+        <div class="sub">Si tu Apps Script genera IA, aquí se muestra.</div>
+      </div>
+      <div class="controls">
+        <button id="btnConGenerarIA" class="btn-blue">Generar con IA</button>
+        <button id="btnConCopiarIA" class="btn-ok">Copiar</button>
+      </div>
+    </div>
+
+    <div class="card-b">
+      <textarea id="conPromptIA" class="sr-hidden" aria-hidden="true">
+Actua como un experto en diseño y elbaoracion de informes tecnicos de evaluacion del desempeño, mediante la informacion adjunta, prepara un Reporte asi: en el orden y la estructura siguiente
+Informe ejecutivo de evaluacion del desempeño,
+No de personal,
+Nombre,
+Posicion
+Departamento
+Periodo
+Version
+Fecha
+Puntaje final
+Analisis e interpretacion
+Conclusiones
+Recomendaciones
+Nombre evaluador
+      </textarea>
+
+      <div class="field col-12 boxed">
+        <div class="lbl">Informe ejecutivo (texto)</div>
+        <textarea id="conInformeIA" placeholder="Aquí se pegará/mostrará el informe generado..." readonly></textarea>
+      </div>
+
+      <div class="form-grid" style="margin-top:10px">
+        <div class="field col-12 boxed">
+          <div class="lbl">Análisis e interpretación (IA)</div>
+          <textarea id="conAnalisisIA" placeholder="Se llena al generar..." readonly></textarea>
         </div>
-        <div class="chips">
-          <span class="chip mono">Origen: <b>EvaluacionFinal</b></span>
+
+        <div class="field col-12 boxed">
+          <div class="lbl">Conclusiones (IA)</div>
+          <textarea id="conConclusionesIA" placeholder="Se llena al generar..." readonly></textarea>
+        </div>
+
+        <div class="field col-12 boxed">
+          <div class="lbl">Recomendaciones (IA)</div>
+          <textarea id="conRecomendacionesIA" placeholder="Se llena al generar..." readonly></textarea>
         </div>
       </div>
-      <div class="card-b">
-        <div class="hint">
-          Aquí va el contenido del informe ejecutivo (resumen, hallazgos, KPIs, recomendaciones, etc.).<br/>
-          Por ahora ya se muestran los campos y botones del header como pediste 😄
-        </div>
-      </div>
-    </section>
+    </div>
+  </div>
+</div>
     <section class="card" data-phase-block="CAPACITACION" id="blockCapacitacion">
   <div class="card-h">
     <div>
@@ -2541,8 +2698,8 @@ async function generarDesarrollo_(){
   function openPrintModal(){
     $("printModalBack").classList.add("show");
     if(String($("printTextArea").value||"").trim() === ""){
-      $("printTextArea").value = buildResultadoTexto_();
-    }
+  $("printTextArea").value = isConsolidadoPhase() ? buildConsolidadoTexto_() : buildResultadoTexto_();
+}
   }
   function closePrintModal(){
     $("printModalBack").classList.remove("show");
@@ -2704,8 +2861,71 @@ function closeTiposModal_(){
    // ✅ CONSOLIDADO (Informe ejecutivo): de momento solo UI.
   // Si ya tienes tu endpoint, aquí conectas el action correspondiente.
   async function recoverConsolidado_(){
-    alert("Informe ejecutivo: UI lista ✅\nFalta conectar el action del backend (ej: action='consolidado').");
+  if(!isConsolidadoPhase()){
+    alert("Selecciona la fase: Informe ejecutivo.");
+    return;
   }
+
+  // CONSOLIDADO usa los mismos 3 campos del wrap de resultado
+  const no  = $("noPersonalRes").value.trim();
+  const per = $("periodoRes").value.trim();
+  const ver = $("versionRes").value.trim();
+
+  if(!no || !per || !ver){
+    alert("Para Recuperar el informe, llena: No. de personal + Periodo + Versión.");
+    return;
+  }
+
+  // ✅ Backend: action=consolidado (ajusta si tu Apps Script usa otro nombre)
+  const res = await apiGet({ action:"consolidado", no, periodo: per, version: ver });
+
+  const header = res.header || {};
+  const rows   = Array.isArray(res.rows) ? res.rows : [];
+  const pf     = res.puntajeFinal ?? "—";
+  const cual   = res.cualitativo || {};
+  const ia     = res.ia || {}; // opcional: si tu backend devuelve IA separada
+
+  // Encabezado
+  const fechaDMY = formatDateDMY(header.fecha) || todayLocal();
+  $("conNo").value       = no || "—";
+  $("conNombre").value   = String(header.nombre || "—");
+  $("conPosicion").value = String(header.posicion || "—");
+  $("conDepto").value    = String(header.depto || "—");
+  $("conPeriodo").value  = per || "—";
+  $("conVersion").value  = ver || "—";
+  $("conFecha").value    = fechaDMY || "—";
+
+  // Puntaje
+  $("conPuntajeFinal").value = String(pf);
+
+  // Tabla detalle
+  $("conDetalleTbody").innerHTML = rows.length
+    ? rows.map(r => `
+      <tr>
+        <td>${escapeHtml(r.factor ?? "")}</td>
+        <td>${escapeHtml(r.item ?? "")}</td>
+        <td>${escapeHtml(r.respuesta ?? "—")}</td>
+      </tr>
+    `).join("")
+    : `<tr><td colspan="3" class="sub">Sin filas para mostrar.</td></tr>`;
+
+  // Cualitativos
+  $("conJustificacion").value  = String(cual.justificacion || "").trim();
+  $("conEvalClientes").value   = String(cual.evaluacionClientes || "").trim();
+  $("conComColab").value       = String(cual.comentariosColaborador || "").trim();
+  $("conFortalezas").value     = String(cual.fortalezas || "").trim();
+  $("conOportunidades").value  = String(cual.oportunidadesMejora || "").trim();
+  $("conProyeccion").value     = String(cual.proyeccionPotencial || "").trim();
+  $("conCapacitacion").value   = String(cual.necesidadesCapacitacion || "").trim();
+  $("conComEval").value        = String(cual.comentariosEvaluador || "").trim();
+  $("conNomEval").value        = String(cual.nombreEvaluador || "").trim();
+
+  // Si tu backend ya devuelve el informe IA (opcional)
+  if($("conInformeIA"))        $("conInformeIA").value        = String(ia.informe || res.informeIA || "").trim();
+  if($("conAnalisisIA"))       $("conAnalisisIA").value       = String(ia.analisis || "").trim();
+  if($("conConclusionesIA"))   $("conConclusionesIA").value   = String(ia.conclusiones || "").trim();
+  if($("conRecomendacionesIA"))$("conRecomendacionesIA").value= String(ia.recomendaciones || "").trim();
+}
 
   $("btnRecuperar").addEventListener("click", ()=>{
     const fn =
@@ -2734,8 +2954,8 @@ $("tiposModalBack")?.addEventListener("click", (e)=>{
     window.print();
   });
   $("btnPrintTXT").addEventListener("click", ()=>{
-    $("printTextArea").value = buildResultadoTexto_();
-  });
+  $("printTextArea").value = isConsolidadoPhase() ? buildConsolidadoTexto_() : buildResultadoTexto_();
+});
   $("btnCopyText").addEventListener("click", async ()=>{
     const txt = $("printTextArea").value || "";
     try{
